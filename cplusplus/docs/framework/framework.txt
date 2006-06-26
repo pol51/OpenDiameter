@@ -1,0 +1,263 @@
+/*!
+
+\mainpage Framework API for Multithreading Task and Protocol State Machine
+\author Yoshihiro Ohba
+\date Created: December 1, 2003
+\date Updated: January 10, 2004
+
+\section Introduction
+
+This framework API provides a general way to implement communication
+protocols in multithreading environments.  The API contains three
+sub-APIs, i.e., job sub-API, task sub API and state machine sub-API.
+
+The job sub-API defines a generic processing element that can be used
+for any purpose.
+
+The task sub-API provides the functionality to execute jobs in a
+multithreading environment.
+
+The state machine sub-API provides the functionality to define and
+execute state machines of any types.
+
+Any protocol implementation in Open Diameter should be written by
+using this framework API in order to reduce development time and
+improve manageability of the entire source tree.
+
+\section tagJob Job Sub-API
+
+A job is an object that has an operation to execute.  The operation
+can be executed by any entity including a task (\ref tagTask) or some
+other job).  AAA_Job is the base class for any job and provides the
+following basic methods:
+
+- <b>Serve</b> method.  The operation that is executed by an 
+executing entity.
+
+- <b>Schedule</b> method.  This method is used for requesting a job
+executing entity to schedule the job so that the Serve() method will
+be called by the entity.
+
+- <b>ExistBacklog</b> method.  This method indicates whether there
+is any outstanding operation for this job.
+
+- <b>BacklogSize</b> method.  This method indicates the current number
+of outstanding operations for this job.
+
+- <b>Name</b> method.  This method is used for setting or getting the
+name of the job.
+
+- <b>Data</b> method.  This method is used for setting or getting the
+data of the job.
+
+- <b>Priority</b> method.  This method is used for setting or getting
+the priority of the job.  The priority is used for scheduling the job.
+
+- <b>Weight</b> method.  This method is used for setting or getting
+the weight of the job.  The weight is used for scheduling the job.
+
+\subsection tagQueueJob Queue Job
+
+A queue job is a job that has a queue to store entries of any type.
+The type of entries stored in the queue is specified as template
+parameter.  The framework API defines two queue entry types as
+built-in types, job and event, that are used by AAA_GroupedJob and
+AAA_StateMachineWithTask classes.  The queue job class supports FIFO,
+WFQ (Weighted Fair Queueing) and priority queueing disciplines by
+using the two parameters "priority" and "weight".  An entry with
+higher priority is always dequeued earlier than an entry with lower
+priority.  Among the entries with the same priority, an entry with
+higher weight has a greater chance to be dequeued thatn an entry with
+lower weight.  The AAA_QueueJob class has the following methods in
+addition to the methods derived from AAA_Job:
+
+- <b>Enqueue</b> method.  This method is used for storing an event to
+the event queue.  Both blocking and non-blocking enqueue operations
+are supported.
+
+- <b>Dequeue</b> method.  This method is used for obtaining an event
+from the event queue.  Both blocking and non-blocking dequeue
+operations are supported.
+
+- <b>Flush</b> method.  This method is used for flushing the event
+queue.
+
+- <b>Remove</b> method.  This method is used for removing a specified
+entry from the event queue.  In the case where multiple copies of the
+same entry is enqueued, the all copies are removed.
+
+- <b>MaxSize</b> method.  This method is used for obtaining the maximum
+queue size in the number of entries.
+
+\subsection tagGroupedJob Grouped Job
+
+A grouped job is a queue job that has a queue to store other jobs and
+has a parent job for which it requests scheduling on behalf of other
+jobs.  The grouped job is used for constucting a job hierarchy.
+AAA_SchedulingPolicy parameter is used for specifying the job
+scheduling discipline.  The grouped job is used for job serialization
+and job scheduling.
+
+\subsection tagJobHandle Job Handle
+
+A job handle provides a safe way to deallocate memory for job objects,
+where memory deallocation can occur even in the constuctor of an
+object of a class that creats a job.  When the handle is deleted, the
+handle calls AAA_JobDeleter() function which performs a delete
+operation with treating the job as a shared object (i.e., if the job
+is not deleted until the job is not owned by any objects.).
+
+\subsection tagQueueJob Queue Job
+
+\section tagTask Task Sub-API
+
+A task is an active object that generates threads for executing job
+operations.  It consists of one thread (referred to as the timer
+thread) that handles timer events and one or more thread (each
+referred to as a job serving thread) that execute job operations.  A
+task has a root job for which Serve() method is called by the job
+serving threads.  AAA_Task provides the following basic methods:
+
+- <b>Start</b> method.  This method is used for starting the task.
+
+- <b>Stop</b> method.  This method is used for stopping the task.
+Jobs are not allowed to enter the task storage. Jobs that have been
+already entered in the task storage will be served.
+
+- <b>ScheduleTimer</b> method.  This method is used for scheduling a
+timer event.  The timer event will be served by the timer thread.
+
+- <b>CancelTimer</b> method.  This method is used for canceling a
+timer event that has been scheduled by ScheduleTimer method.
+
+\image html task-1.gif "Figure 1: AAA_Task"
+
+\section tagStateMachine State Machine Sub-API
+
+A state machine is a general component to implement arbitrary
+communication protocols.  A state machine consists of a state
+transition table and a set of state variables.
+
+\subsection tagStateTable State Table
+
+A state transition table (or simply a state table in this document)
+defines the behavior of the target protocol.  Each entry of a state
+table is defined as AAA_StateTableEntry and has the following
+attributes:
+
+- <b>Current State</b> A 32-bit unsigned integer that represents the
+state where the state machine stayed immediately before receiving the event.
+
+- <b>Event</b> A 32-bit unsigned integer that represents an 
+event the state machine is allowed to receive in the current state.
+
+- <b>Next State</b>  A 32-bit unsigned integer that represents the
+next state to which the state machine moves after receiving the event.
+
+- <b>Action</b> A functor that contains the operation performed when
+the state machine accepts the event.  An action can take a single
+argument of arbitrary type.  Action is defined as a template class
+AAA_Action.  An example action class definition is shown below.
+
+\code
+/// Action class for EAP. 
+class EapAction : public AAA_Action<EapSession>
+{
+ public:
+  virtual void operator()(EapSession&) {}
+ protected:
+  EapAction() {}
+  virtual ~EapAction() {}
+};
+\endcode
+
+- <b>isWildcardEvent</b> A boolean variable that indicates whether the
+entry accepts any event.
+
+In addition, one of the Current State values in the state table is
+chosen as the <b>Initial State</b> where the state machine starts its
+operation.
+
+The base class for state table is AAA_StateTable.
+
+State machines objects of the same class should share the same state
+table objects to save the memory resources.  For this purpose, it is
+better to define state table classes as singletons.
+
+Figure 2 shows an example state table.  An event "*" indicates an
+wildcard event which matches any event.  An action "null action"
+indicates an action that performs no operation.
+
+\image html statemachine-1.gif "Figure 2: State Table"
+
+AAA_StateTable class provides the following methods for table
+manipuration:
+
+- <b>AddStateTableEntry</b> method.  This method is used for adding a
+state table entry with a specific event.
+
+- <b>AddWildcardStateTableEntry</b> method.  This method is used for
+adding a state table entry with a wildcard event.
+
+- <b>InitialState</b> method.  This method is used for setting and
+getting the initial state.
+
+- <b>FindStateTableEntry</b> method.  This method is used for finding
+a state table entry that matches a particular current state and an
+event.
+
+\subsection tagStateMachine State Machine
+
+A state machine has the following basic methods:
+
+- <b>Start</b> method.  This method is used for starting the state machine.
+
+- <b>Stop</b> method.  This method is used for stopping the state machine.
+
+- <b>Restart</b> method.  This method is used for restarting the state machine.
+
+- <b>Running</b> method.  This method indicates whether the state machine has been 
+started and not been stopped.
+
+- <b>Event</b> method.  This method is used for passing event to the
+state machine.  Within this method, the state table is looked up and
+the action corresponding to the current state and the received event
+will be executed.
+
+The base state machine class is defined as AAA_StateMachineBase.
+
+Other state machine classes are derived from the base class and
+defined as template class in which the action argument type is used as
+the template parameter.  The base class of templated state machine is
+AAA_StateMachine<ARG>.
+
+\subsection tagStateMachineWithTimer State Machine With Timer Handling
+
+A state machine with timer is a state machine that is capable of
+generating and deleting timer events.  Timer events generated by the a
+state machine with timer will be bound to an ACE_Reactor, which is
+typically a reactor created by the timer thread in a task (\ref
+tagTask).
+
+Timer events are categorized into timer types (the default timer type
+is zero(0)).  The state machine stores at most one timer event for
+each timer type.  A unique timer type is allocated by using timer type
+allocator (defined in AAA_TimerTypeAllocator_S and
+AAA_TimerTypeAllocator classes).
+
+The AAA_StateMachineWithTimer<ARG> is the base class for state machine
+with timer and provides the following methods:
+
+- <b>ScheduleTimer</b> method.  This method is used for scheduling a
+timer event.
+
+- <b>CancelTimer</b> method.  This method is used for scheduling a
+timer event.
+
+A sample program that uses the framework API is shown below.
+
+\include diameter_eap_server_fsm.hxx
+\include diameter_eap_server_fsm.cxx
+\include server_test.cxx
+
+*/

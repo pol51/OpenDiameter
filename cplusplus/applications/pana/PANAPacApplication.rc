@@ -1,0 +1,297 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\PANAPacApplication.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON2               ICON                    "res\\icon2.ico"
+IDI_ICON1               ICON                    "res\\icon1.ico"
+IDI_ICON3               ICON                    "res\\icon3.ico"
+IDI_ICON4               ICON                    "res\\icon4.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "About PANAPacApplication"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDI_ICON2,IDC_STATIC,11,17,20,20,SS_CENTERIMAGE,
+                    WS_EX_TRANSPARENT
+    LTEXT           "PANAPacApplication Version 1.1",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2004",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,16,WS_GROUP
+END
+
+IDD_PANAPACAPPLICATION_DIALOG DIALOGEX 0, 0, 335, 142
+STYLE DS_SETFONT | DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "PANA Client Tester"
+FONT 8, "Microsoft Sans Serif", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "&Next >",IDC_NEXT,174,121,51,14
+    PUSHBUTTON      "&Finish",IDC_FINISH,279,121,49,14
+    PUSHBUTTON      "&Disconnect",IDC_CANCEL,228,121,49,14
+    CONTROL         151,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE,7,7,
+                    128,128,WS_EX_CLIENTEDGE
+    LTEXT           "Connection Status:",IDC_STATUS,147,18,139,8
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,147,31,173,
+                    14
+    PUSHBUTTON      "&Setup ...",IDC_SETUP,269,50,50,14
+    GROUPBOX        "",IDC_STATIC,141,7,187,64
+END
+
+IDD_DIALOG_ISPSELECT DIALOGEX 0, 0, 251, 234
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "ISP Selector"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_ISP,"SysListView32",LVS_SINGLESEL | 
+                    LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_ALIGNLEFT | 
+                    WS_BORDER | WS_TABSTOP,7,7,237,131
+    EDITTEXT        IDC_USERNAME,59,152,175,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PASSWORD,59,170,176,14,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_VLAN,59,189,176,14,ES_AUTOHSCROLL | ES_READONLY
+    DEFPUSHBUTTON   "&Done",IDOK,197,213,47,14
+    GROUPBOX        "",IDC_STATIC,7,142,237,67
+    LTEXT           "Username:",IDC_USERNAME2,15,155,40,8,0,WS_EX_RIGHT
+    LTEXT           "Password:",IDC_PASSWORD2,21,173,33,8,0,WS_EX_RIGHT
+    LTEXT           "Provider:",IDC_PASSWORD3,21,192,33,8,0,WS_EX_RIGHT
+END
+
+IDD_SETUP DIALOGEX 0, 0, 281, 198
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "PANA Client Configuration"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,168,177,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,224,177,50,14
+    RTEXT           "Configuration File:",IDC_STATUS2,7,17,73,8
+    EDITTEXT        IDC_CFGFILE,85,14,162,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_CFG_BROWSE,251,14,21,14
+    RTEXT           "Authentication Script:",IDC_STATUS3,7,34,73,8
+    EDITTEXT        IDC_SCRIPTFILE,85,31,162,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_SCRIPT_BROWSE,251,31,21,14
+    COMBOBOX        IDC_COMBO_AUTHTYPE,85,64,164,15,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "EAP Method:",IDC_STATUS4,14,68,66,8
+    CONTROL         "Renew IP Address",IDC_RENEW_IP,"Button",BS_AUTOCHECKBOX | 
+                    BS_TOP | BS_MULTILINE | WS_TABSTOP,36,125,82,11
+    RTEXT           "Shared Secret:",IDC_STATUS5,7,51,73,8
+    EDITTEXT        IDC_SHAREDSECRET,85,48,162,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BROWSE_SHAREDSECRET,251,48,21,14
+    RTEXT           "Attempt Timeout:",IDC_STATUS6,7,84,73,8
+    EDITTEXT        IDC_ATTEMPTTIMEOUT,85,81,34,14,ES_AUTOHSCROLL
+    RTEXT           "Liveness Interval:",IDC_STATUS7,7,103,73,8
+    EDITTEXT        IDC_PINGINTERVAL,85,100,34,14,ES_AUTOHSCROLL
+    RTEXT           "EAP Auth Period:",IDC_STATUS8,137,84,73,8
+    EDITTEXT        IDC_EAPAUTHPERIOD,215,81,34,14,ES_AUTOHSCROLL
+    CONTROL         "Enable Liveness Test",IDC_PING,"Button",BS_AUTOCHECKBOX | 
+                    BS_TOP | BS_MULTILINE | WS_TABSTOP,125,125,82,11
+    COMBOBOX        IDC_ADAPTER_LIST,47,158,212,13,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Enable AP Monitoring",IDC_AP_MONITOR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,35,142,83,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "Toshiba America Research Inc."
+            VALUE "FileDescription", "PANA Client Tester for Windows"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "PANAPacApplication.exe"
+            VALUE "LegalCopyright", "Toshiba America Research Inc. GNU Public License"
+            VALUE "OriginalFilename", "PANAPacApplication.exe"
+            VALUE "ProductName", "PANA Client Tester for Windows"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_PANAPACAPPLICATION_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 328
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 135
+    END
+
+    IDD_DIALOG_ISPSELECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 244
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 227
+    END
+
+    IDD_SETUP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 274
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP                  "res/globle.bmp"
+IDB_BITMAP2             BITMAP                  "res/network.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// HTML
+//
+
+IDR_HTML_PANASETUPDLG   HTML                    "res\\PANASetupDlg.htm"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About PANAPacApplication..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\PANAPacApplication.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

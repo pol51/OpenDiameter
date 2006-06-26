@@ -1,0 +1,85 @@
+#!/usr/bin/wish
+
+wm title . "Open Diameter PANA"
+
+set name "user2"
+set secret "config/shared_secret.bin"
+set auth "config/pana_auth_script"
+set dhcp "1"
+set archie "1"
+set period "360"
+set threadcount "5"
+
+label .pacname -text "PANA Client Dialer"
+
+frame .f1
+label .f1.name -text "Username:" -width 15
+entry .f1.namevalue -textvariable name
+pack .f1.name .f1.namevalue -side left
+
+frame .f2
+label .f2.password -text "Password:" -width 15
+entry .f2.passwordvalue -textvariable password
+pack .f2.password .f2.passwordvalue -side left
+
+frame .f3
+label .f3.secretfile -text "Shared Secret:" -width 15
+entry .f3.secretfilevalue -textvariable secret
+pack .f3.secretfile .f3.secretfilevalue -side left
+
+frame .f4
+label .f4.authfile -text "Auth Script:" -width 15
+entry .f4.authfilevalue -textvariable auth
+pack .f4.authfile .f4.authfilevalue -side left
+
+frame .f5
+radiobutton .f5.dhcpboot -text "DHCPv6 Bootstrap" -variable dhcp -value "1"
+pack .f5.dhcpboot -side left
+
+frame .f6
+radiobutton .f6.usearchie -text "Use EAP Archie" -variable archie -value "1"
+pack .f6.usearchie -side left
+
+frame .f7
+label .f7.authperiod -text "EAP Auth Period:" -width 15
+entry .f7.authperiodvalue -textvariable period
+pack .f7.authperiod .f7.authperiodvalue -side left
+
+frame .f8
+label .f8.thread -text "Thread Count:" -width 15
+entry .f8.threadvalue -textvariable threadcount
+pack .f8.thread .f8.threadvalue -side left
+
+button .b -text "Send" \
+          -command SendInfo
+
+proc SendInfo {} {
+  global name password secret auth dhcp archie period threadcount
+  set cfgFile [open "config/setup.xml" "w"]
+  puts $cfgFile "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+  puts $cfgFile "<configuration xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+  puts $cfgFile "                    xsi:noNamespaceSchemaLocation=\'pana_setup.xsd\'>\n"
+  puts $cfgFile "   <pana_cfg_file>config/pana_pac_unix.xml</pana_cfg_file>\n"
+  puts $cfgFile "   <username>$name</username>\n"
+  puts $cfgFile "   <password>$password</password>\n"
+  puts $cfgFile "   <secret>$secret</secret>\n"
+  puts $cfgFile "   <auth_script>$auth</auth_script>\n"
+  puts $cfgFile "   <dhcp_bootstrap>$dhcp</dhcp_bootstrap>\n"
+  puts $cfgFile "   <use_archie>$archie</use_archie>\n"
+  puts $cfgFile "   <auth_period>$period</auth_period>\n"
+  puts $cfgFile "   <thread_count>$threadcount</thread_count>\n"
+  puts $cfgFile "</configuration>\n"
+  close $cfgFile
+  exec pacd -f config/setup.xml
+}
+
+pack .pacname
+pack .f1 -fill x
+pack .f2 -fill x
+pack .f3 -fill x
+pack .f4 -fill x
+pack .f5 -fill x
+pack .f6 -fill x
+pack .f7 -fill x
+pack .f8 -fill x
+pack .b -fill both

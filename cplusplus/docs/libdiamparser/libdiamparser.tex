@@ -1,0 +1,783 @@
+% $Id: libdiamparser.tex,v 1.1 2004/06/24 15:57:44 vfajardo Exp $
+
+\section{Diameter Command Parser (C++ Version)}
+
+\subsection{Overview}
+
+The library {\bf libdiamparser2} provides a means to 
+assemble anddisassemble Diameter message header and payload.  This library 
+is composed of the following functional components.
+
+\begin{itemize}
+ \item A set of dictionary parsers by which, at a system initialization
+ time, a set of internal parsing structures is constructed from
+ dictionary files which contain formats of Diameter commands and AVPs in
+ ascii text form.
+
+ \item Header and payload parsers by which the contents of message
+ headers and payloads are constructed from a set of values specified by
+ application programs, and a set of values to be used by the application
+ programs is obtained from the contents of message headers and payloads.
+\end{itemize}
+
+\subsection{Dictionary Files}
+
+Two kinds of dictionary file formats are provided, which are XML and
+ABNF.  For XML dictionary files, the base dictionary file name is {\bf
+dictionary.xml}.  Application-specific dictionary files are included
+from the base dictionary file.  The XML dictionary file format is
+specified in \cite{diameter-xml}.  There are three ABNF dictionary files
+which are assumed to be on the current directory\footnote{To be revised
+so that the directory path and names of the format files can be
+specified in a configuration file}.  File format selection can be made
+at compilation time by using {\bf USEXML} variable in {\bf Makefile}.
+
+
+\begin{itemize}
+ \item {\bf avp.def}: AVP definition file which contains name,
+ code, type and flags and encryption possibility for each AVP.  
+ \item {\bf command.def}: Command definition file which contains the
+ format of each command.  First two command definitions are special ones
+ which is used for when a Diameter answer command is received or to be
+ sent with E-flag (a flag to indicate an error) set.  The first one is
+ used for proxyable errornous answers.  The second one is used for
+ non-proxyable errornous answers.  
+ \item {\bf grouped-avp.def}: Grouped AVP definition file 
+ file which contains the format of each Grouped AVP.  
+\end{itemize}
+Examples for these files are shown below.
+\clearpage
+
+\begin{verbatim}
+# $Id: libdiamparser.tex,v 1.1 2004/06/24 15:57:44 vfajardo Exp $
+# AVP definitioon file
+# Each line has the following format:  
+#        AVP-Name AVP-Code AVP-Type Flags Enc
+# 
+# Flags: There are four flags of MUST, MAY, SHOULD NOT, MUST NOT, each 
+#        contains either a list of 'M','P','V' separated by comma (','), 
+#        or '-'.
+# Enc: Indicates whether the AVP can be encrypted ('Y') or not ('N')
+
+# Base Protocol AVPs
+
+   Accounting-Interim-Interval  482   Unsigned32  (M P - V) Y
+   Accounting-Multi-Session-Id   50   UTF8String  (M P - V) Y
+   Accounting-Record-Number     485   Unsigned32  (M P - V) Y
+   Accounting-Record-Type       480   Enumerated  (M P - V) Y
+   ...
+\end{verbatim}
+\clearpage
+
+\begin{verbatim}
+#  Do not edit the following two entries.
+#  These rules are special for handling answer messages with error flag set
+#
+#  DON'T EDIT FROM THE NEXT LINE
+      PROXYABLE-ERROR ::= < Diameter-Header: 0, PXY, ERR >
+                        0*1< Session-Id >
+                           { Origin-Host }
+                           { Origin-Realm }
+                           { Result-Code }
+                           [ Origin-State-Id ]
+                           [ Error-Reporting-Host ]
+                           [ Proxy-Info ]
+                         * [ AVP ]
+
+      NON-PROXYABLE-ERROR ::= < Diameter-Header: 0, ERR >
+                        0*1< Session-Id >
+                           { Origin-Host }
+                           { Origin-Realm }
+                           { Result-Code }
+                           [ Origin-State-Id ]
+                           [ Error-Reporting-Host ]
+                           [ Proxy-Info ]
+                         * [ AVP ]
+#  
+#  EDIT FROM THE NEXT LINE
+
+      Capabilities-Exchange-Req ::= < Diameter-Header: 257, REQ >
+                                      { Origin-Host }
+                                      { Origin-Realm }
+                                  1*  { Host-IP-Address }
+                                      { Vendor-Id }
+                                      { Product-Name }
+                                      [ Origin-State-Id ]
+                                   *  [ Supported-Vendor-Id ]
+                                   *  [ Auth-Application-Id ]
+                                   *  [ Acct-Application-Id ]
+                                   *  [ Vendor-Specific-Application-Id ]
+                                      [ Firmware-Revision ]
+                                   *  [ AVP ]
+   ...
+\end{verbatim}
+\clearpage
+
+\begin{verbatim}
+      Proxy-Info ::= < AVP-Header: 284 >
+                     { Proxy-Host }
+                     { Proxy-State }
+                   * [ AVP ]
+
+      Vendor-Specific-Application-Id ::= < AVP-Header: 260 >
+                                       1* < Vendor-Id >
+                                       0*1 { Auth-Application-Id }
+                                       0*1 { Acct-Application-Id }
+
+      Failed-AVP ::= < AVP-Header: 279 >
+                     1* { AVP }
+
+   ...
+\end{verbatim}
+\clearpage
+
+\subsection{Data Structures for APIs}
+
+\subsubsection{AAADiameterHeader}
+
+\begin{verbatim}
+struct hdr_flag {
+  u_int8_t r:1;
+  u_int8_t p:1;
+  u_int8_t e:1;
+  u_int8_t rsvd:5;
+};
+
+typedef struct diameter_header
+{
+  u_int8_t ver;
+  u_int32_t length:24;
+  struct hdr_flag flags;
+  u_int32_t code:24;
+  u_int32_t vendor;
+  u_int32_t hh;
+  u_int32_t ee;
+} AAADiameterHeader;
+\end{verbatim}
+
+\subsubsection{AAAAVPContainerList}
+
+{\bf AAAAVPContainerList} contains a list of {\bf AAAAvpContainer}
+instances which is used as a placeholder to passing AVP values between
+application programs and the API service.  This is defined in file
+'avp\_container.h'.
+
+Fig.~\ref{fig:avp-container} shows an example of how
+{\bf AAAAvpContainer} instances are contained in a {AAAAVPContainerList}
+instance.
+
+\begin{verbatim}
+typedef struct
+{
+  char* avp_name;
+  bool g_flag;     // set to 1 when grouped_val is allocated
+  union {
+    avp_t                  avp_val;        // used for containers w/type="AVP" 
+    diameter_integer32_t   integer32_val;
+    diameter_integer64_t   integer64_val;
+    diameter_unsigned32_t  unsigned32_val;
+    diameter_unsigned64_t  unsigned64_val;
+    diameter_utf8string_t  utf8string_val;
+    diameter_unsigned32_t  enumerated_val;
+    diameter_octetstring_t octetstring_val;
+    diameter_diamident_t   diamident_val;
+    diameter_diamuri_t     diamuri_val;
+    diameter_octetstring_t ipaddress_val;
+    diameter_grouped_t     grouped_val;
+  } avp_value;
+} AVPContainerEntry;
+
+class AAAAvpContainer
+{
+ private:
+  u_int32_t avpOffset;// Relative location of AVP(s) from the buffer head 
+  u_int32_t avpLength;// Length of headers + payloads of AVP(s)
+ public:
+  AVPContainerEntry entry[MAX_AVP_CONTAINER_ENTRY];
+  int num;
+  int cur;
+  AAAAvpContainer(char*, int);
+  ~AAAAvpContainer();
+  void add(AAAAvpContainer*);
+  bool checkQuantity(void) 
+    {
+      return (cur > num || cur > MAX_AVP_CONTAINER_ENTRY) ? 0 : 1;
+    };
+  void setAvpOffset(const u_int32_t offset) { avpOffset = offset; };
+  void setAvpLength(const u_int32_t length) { avpLength = length; };
+  void getAvpOffset(u_int32_t& offset) { offset = avpOffset; };
+  void getAvpLength(u_int32_t& length) { length = avpLength; };
+};
+
+class AAAAvpContainerList
+{
+  list<AAAAvpContainer*> avpc_l;
+ public:
+  AAAAvpContainerList() {};
+  void add(AAAAvpContainer*);
+  AAAAvpContainer* search(char*);
+  bool empty(void);
+  AAAAvpContainer* get_front(void);
+};
+\end{verbatim}
+\clearpage
+
+\begin{figure}[htbp]
+\begin{center}
+\mbox{\epsfxsize=7in\epsfbox{figs/parser_structure.eps}}
+\caption{AVP Container Structures\label{fig:avp-container-struct}}
+\end{center} 
+\end{figure}
+\clearpage
+
+\subsubsection{AAACommandList}
+
+{\bf AAACommandList} contains a list of {\bf AAACommand}
+instances which contains a runtime dictionary structure for a 
+specific command.  This is defined in file 'comlist.h'.
+
+\begin{verbatim}
+struct comflags
+{
+  u_int8_t r:1;
+  u_int8_t p:1;
+  u_int8_t e:1;
+};
+
+typedef struct
+{
+  char *name;
+  AAACommandCode code;
+  AAAVendorId vendor;
+  struct comflags flags;
+  AAAQualifiedAvpList* avp_f;  /* fixed */
+  AAAQualifiedAvpList* avp_r;  /* required */
+  AAAQualifiedAvpList* avp_o;  /* optional */
+  AAAQualifiedAvpList* avp_f2; /* fixed */
+} AAACommand;
+
+class AAACommandList
+{
+  list<AAACommand*> com_l;
+ public:
+  ~AAACommandList();
+  void add(AAACommand*);
+  AAACommand* search(char*);
+  AAACommand* search(u_int32_t, int);
+};
+\end{verbatim}
+
+\subsubsection{AAAGroupedAvpList}
+
+{\bf AAAGroupedAvpList} contains a list of {\bf AAAGroupedAvp}
+instances which contains a runtime dictionary structure for a 
+specific grouped AVP.  This is defined in file 'g\_avplist.h'.
+
+\begin{verbatim}
+typedef struct
+{
+  u_int32_t code;
+  u_int32_t vendor;
+  AAAQualifiedAvpList *avp_f;  /* fixed */
+  AAAQualifiedAvpList *avp_r;  /* required */
+  AAAQualifiedAvpList *avp_o;  /* optional */
+} AAAGroupedAVP;
+
+class AAAGroupedAvpList
+{
+  list<AAAGroupedAVP*> gavp_l;
+ public:
+  ~AAAGroupedAvpList();
+  void add(AAAGroupedAVP*);
+  AAAGroupedAVP* search(u_int32_t, u_int32_t);
+};
+\end{verbatim}
+
+\subsubsection{AAAAvpList}
+
+{\bf AAAAvpList} contains a list of {\bf AAADictionaryEntity} which 
+is defined in \cite{api-draft}.  This is defined in file 'avplist.h'.
+
+\begin{verbatim}
+class AAAAvpList {
+  list<AAADictionaryEntry*> avp_l;
+ public:
+  AAAAvpList();
+  ~AAAAvpList();
+  void add(AAADictionaryEntry*);
+  AAADictionaryEntry* search(char*);
+  AAADictionaryEntry* search(AAA_AVPCode, AAAVendorId);
+};
+\end{verbatim}
+
+\subsubsection{AAAQualifiedAvpList}
+
+This class contains a list of {\bf AAAQualifiedAvp} which contains a
+qualifier to specify how many AVPs can be specified when it appears.
+This is defined in file 'q\_avplist.h'.
+
+\begin{verbatim}
+struct qual
+{
+  u_int16_t min;
+  u_int16_t max;
+};
+
+#define QUAL_INFINITY 65535 /* 2^16 -1 */
+
+typedef struct /* AVP with qualifier (min,max) */
+{
+  AAADictionaryEntry *avp;
+  struct qual qual;
+} AAAQualifiedAVP;
+
+class AAAQualifiedAvpList
+{
+  list<AAAQualifiedAVP*> qavp_l;
+  int parseType;
+ public:
+  AAAQualifiedAvpList(int pt) { parseType = pt; };
+  ~AAAQualifiedAvpList();
+  void add(AAAQualifiedAVP*);
+  unsigned getMinSize(void);
+  int getParseType(void) { return parseType; };
+  list<AAAQualifiedAVP*>::iterator begin();
+  list<AAAQualifiedAVP*>::iterator end();
+};
+\end{verbatim}
+
+
+\subsubsection{Illustration of Runtime Dictionary Database}
+
+Fig.~\ref{fig:runtime-dictdb} illustrates 
+an example of the entire runtime dictionary database.
+
+\begin{figure}[htbp]
+\begin{center}
+\mbox{\epsfxsize=6in\epsfbox{figs/parser_structure.eps}}
+\caption{Runtime Dictionary Database\label{fig:runtime-dictdb}}
+\end{center} 
+\end{figure}
+\clearpage
+
+\subsubsection{AAAErrorStatus}
+
+\begin{verbatim}
+class AAAErrorStatus
+{
+ private:
+  int type;    // error type (NORMAL or BUG)
+  int code;    // either a diameter result code or a bug_code above
+  string avp;  // errornous AVP
+ public:
+  AAAErrorStatus(void)
+    {
+      type = NORMAL;
+      code = DIAMETER_SUCCESS;
+    };
+  void get(int&, int&, string&);
+  void set(int, int);
+  void set(int, int, AAADictionaryEntry*);
+};
+\end{verbatim}
+
+\subsubsection{Parsers}
+
+The {\bf Parser} class is the base class for parsing commands and AVPs.
+There are two child classes visible to the API, {\bf HeaderParser} and
+{\bf PayloadParser}.  The {\bf AAAMessage2} type contains a set
+of information equivalent to that is contained in the {\bf AAAMessage}
+type specified in \cite{api-draft}.
+
+\begin{verbatim}
+typedef struct 
+{
+  AAADiameterHeader hdr;
+  AAAAvpContainerList acl;
+  AAAErrorStatus status;
+  IP_ADDR             originator;
+  IP_ADDR             sender;
+  time_t              secondsTillExpire;
+  time_t              startTime;
+  void              *appHandle;
+} AAAMessage2;
+
+class Parser
+{
+ protected:
+  char *buffer;
+  u_int32_t size;
+  u_int32_t offset;      // current position from the buffer head
+  AAAErrorStatus status;   // error status 
+ public:
+  Parser(char* buf, u_int32_t s) {
+    buffer = buf; size = s; offset = 0;
+  };
+  virtual ~Parser() {};
+  virtual int get() { return 0; };
+  virtual int set() { return 0; };
+  u_int32_t getOffset(void) { return this->offset; };
+  void getErrorStatus(AAAErrorStatus& status) { status = this->status; };
+};
+
+enum ComlistSpecifier {
+  NO_NEED_COMLIST = 0,
+  NEED_COMLIST = 1,
+};
+
+class HeaderParser : public Parser
+{
+ protected:
+  AAACommand *com;
+ public:
+  HeaderParser(char* buf, u_int32_t s) : Parser(buf, s) {};
+  int get(AAADiameterHeader&, ComlistSpecifier);
+  int set(AAADiameterHeader&, ComlistSpecifier);
+  AAACommand* getCommand() { return com; };
+};
+
+class PayloadParser : public Parser
+{
+ public:
+  PayloadParser(char* buf, u_int32_t s) : Parser(buf, s) {};
+  int get(AAACommand*, AAAAvpContainerList&);
+  int get(AAAAvpContainer&);
+  int set(AAACommand*, AAAAvpContainerList&);
+  int set(u_int32_t, AAAAvpContainer&);
+};
+\end{verbatim}
+
+\subsection{API Functions}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf parserInit}
+\\\hline
+ Arguments & {\bf void}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description & 
+ This function reads the format files and construct the internal parsing
+ strucure.  It must be called at initialization time.  
+ \\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf AAAAvpContainer::AAAAvpContainer}
+\\\hline
+ Arguments & {\bf char*} \\\cline{2-2}
+           & {\bf int} \\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description & 
+
+ A {\bf AAAAvpContainer} structure is created and intialized so that
+ each {\bf AVPContainerEntry} array element contains the same string in
+ {\bf avp\_name} member as specified in the 1st argument.  The 2nd
+ argument represents the number of {\bf AVPContainerEntry} array
+ elements  to be initialized.  \\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf AAAAvpContainerList::add}
+\\\hline
+ Arguments & {\bf AAAAvpContainer*}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description &  
+ The {\bf AAAAvpContainer} structure specified in the 1st argument is
+ is added to the {\bf AAAAvpContainerList}.
+ \\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf AAAAvpContainer::add}
+\\\hline
+ Arguments & {\bf AAAAvpContainer*}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description &  
+ The {\bf AAAAvpContainer*} specified in the 1st argument is 
+ added to the {\bf AAAAvpContainer} that calls this function.
+ \\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf AAAAvpContainer:getAvpOffset}
+\\\hline
+ Arguments & {\bf u\_int32\_t\&}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description &  
+ When this function is called after calling {\bf
+ PayloadParser::get(AAAAvpContainer\&)}, 
+ the relative location of the AVPs from the buffer header 
+ is set to the 1st argument.
+ \\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf AAAAvpContainer:getAvpLength}
+\\\hline
+ Arguments & {\bf u\_int32\_t\&}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description &  
+ When this function is called after calling {\bf
+ PayloadParser::get(AAAAvpContainer\&)}, 
+ the length the AVPs including headers and values is set to the 1st argument.
+ \\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf AAAAvpContainer:setAvpOffset}
+\\\hline
+ Arguments & {\bf const u\_int32\_t}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description &  
+ This function sets the relative location of the AVPs from the
+ buffer header.  When {\bf PayloadParser::set(AAAAvpContainer\&)} 
+ is called after this function, the AVPs are put at the location 
+ specified by this funtion.
+ \\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf Parser::getErrorStatus()}
+\\\hline
+ Arguments & {\bf AAAErrorStatus\&}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description &  
+
+ This function obtains an instance which contains detailed information
+ on the error status after {\bf get()} or {\bf set()} function call 
+ of {\bf Parser} class entities.
+ The information is used by application programs to construct 
+ a Result\_Code AVP and a Faild\_AVP AVP.  \\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf Parser::getOffset()}
+\\\hline
+ Arguments & {\bf void}
+\\\hline
+ Return Value & {\bf u\_int32\_t}
+\\\hline
+ Description &  
+
+ This function returns the current read/write position in the buffer 
+ relative to the head of the buffer of a {\bf Parser} entity.  
+ \\\hline
+\end{tabular}
+\end{flushleft}
+
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf HeaderParser::HeaderParser}
+\\\hline
+ Arguments & {\bf char*}
+\\\cline{2-2}
+           & {\bf u\_int32\_t}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description &  
+ This function creates a new parser to be used for parsing command
+ header.  The 1st argument is the buffer to read or write command
+ header.  The 2nd argument is the size of the buffer.
+\\\hline
+\end{tabular}
+\end{flushleft}
+\clearpage
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf HeaderParser::get} \\\hline 
+
+ Arguments & {\bf AAADiameterHeader\&} \\\cline{2-2} 
+           & {\bf ComlistSpecifier} \\\hline
+ Return Value & {\bf int} \\\hline 
+ Description & This function reads a
+ command header and stores the contents to the 1st structure.  The 2nd
+ argument specifies whether a {\bf AAACommand} instance that corresponds
+ to the command code needs to be obtained when parsing the header.  {\bf
+ ComlistSpecifier} takes either {\bf NEED\_COMLIST} or {\bf
+ NO\_NEED\_COMLIST}.  A {\bf AAACommand} is obtained when {\bf
+ ComlistSpecifier} is {\bf NEED\_COMLIST}.  When parsing is successful
+ (and a {\bf AAACommand} is obtained when {\bf ComlistSpecifier} ==
+ {\bf NEED\_COMLIST}), 0 is returned.  Otherwise, -1 is returned.
+ When -1 is returned, more specific error status can be obtained by 
+ {\bf HeaderParser::getErrorStatus()}.
+\\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf HeaderParser::set} \\\hline 
+Arguments & {\bf AAADiameterHeader\&} \\\cline{2-2} 
+          & {\bf ComlistSpecifier} \\\hline
+Return Value & {\bf int} \\\hline 
+Description & This function writes a
+ command header by using the information stored in the 1st structure.  The 2nd
+ argument specifies whether a {\bf AAACommand} instance that corresponds
+ to the command code needs to be obtained when parsing the header.  {\bf
+ ComlistSpecifier} takes either {\bf NEED\_COMLIST} or {\bf
+ NO\_NEED\_COMLIST}.  A {\bf AAACommand} is obtained when {\bf
+ comlist\_specifier} is {\bf NEED\_COMLIST}.  When parsing is successful
+ (and a {\bf AAACommand} is obtained when {\bf ComlistSpecifier} ==
+ {\bf NEED\_COMLIST}), 0 is returned.  Otherwise, -1 is returned.
+ When -1 is returned, more specific error status can be obtained by 
+ {\bf HeaderParser::getErrorStatus()}.
+\\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf HeaderParser::getCommand} \\\hline 
+Arguments & {\bf void} \\\hline
+Return Value & {\bf AAACommand*} \\\hline 
+Description & This function returns a pointer to a 
+dictionary structure for parsing the command.  A non-null pointer 
+is returned when this function is called after successful execution 
+of {\bf HeaderParser::get()} or {\bf HeaderParser::set()} 
+with {\bf ComlistSpecifier} set to {\bf NEED\_COMLIST}.
+Otherwise, null is returned.
+\\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf PayloadParser::PayloadParser}
+\\\hline
+ Arguments & {\bf char*}
+\\\cline{2-2}
+           & {\bf u\_int32\_t}
+\\\hline
+ Return Value & {\bf void}
+\\\hline
+ Description &  
+ This function creates a new parser to be used for parsing command
+ payload.  The 1st argument is the buffer to read or write command
+ payload.  The 2nd argument is the size of the buffer.
+\\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf PayloadParser::get} \\\hline 
+
+ Arguments & {\bf AAACommand*} \\\cline{2-2} 
+           & {\bf AAAAvpContainerList\&} \\\hline
+ Return Value & {\bf int} \\\hline 
+ Description & This function reads a
+ command payload and stores the contents to the 2nd structure by using 
+ the 1st argument as a command dictionary.  
+ When parsing is successful 0 is returned.  Otherwise, -1 is returned.
+ When -1 is returned, more specific error status can be obtained by 
+ {\bf PayloadParser::getErrorStatus()}.
+\\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf PayloadParser::set} \\\hline 
+
+ Arguments & {\bf AAACommand*} \\\cline{2-2} 
+           & {\bf AAAAvpContainerList\&} \\\hline
+ Return Value & {\bf int} \\\hline 
+ Description & This function consturcts a
+ command payload and based on the information specified 
+ in the 2nd argument by using the 1st argument as a command dictionary.  
+ When parsing is successful 0 is returned.  Otherwise, -1 is returned.
+ When -1 is returned, more specific error status can be obtained by 
+ {\bf PayloadParser::getErrorStatus()}.
+\\\hline
+\end{tabular}
+\end{flushleft}
+\clearpage
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf PayloadParser::get}
+\\\hline
+ Arguments & {\bf AAAAvpContainer\&}
+\\\hline
+ Return Value & {\bf int}
+\\\hline
+ Description &  
+ This function reads AVP(s) of a spefic type that is specified 
+ in the 1st argument from the command payload.
+ The AVP(s) is read from the offset bytes from the head of the buffer, 
+ where the offset bytes is specified in {\bf AAAAvpContainer}
+ via {\bf AAAAvpContainer::setAvpOffset()}.
+ The contents of the AVPs are stored in {\bf AAAAvpContainer}.
+ This function returns 0 if 
+ the operation is successful.  Otherwise it returns -1.  
+ When -1 is returned, more specific
+ error status can be obtained by {\bf PayloadParser::getErrorStatus()}.
+\\\hline
+\end{tabular}
+\end{flushleft}
+
+\begin{flushleft}
+\begin{tabular}[t]{|l|p{3in}|}\hline
+ Function Name & {\bf PayloadParser::set}
+\\\hline
+ Arguments & {\bf AAAAvpContainer\&}\\\hline
+ Return Value & {\bf int}
+\\\hline
+ Description &  
+ This function appends AVP(s) of a spefic type that is specified 
+ in {\bf AAAAvpContainer} to the command payload.  The AVP(s) is appended 
+ at the offset bytes from the head of the buffer, where the offset bytes
+ is specified in the {\bf AAAAvpContainer} via {\bf
+ AAAAvpContainer::setAvpOffset()}.
+ This function returns 0 if 
+ the operation is successful.  Otherwise it returns -1.  
+ When -1 is returned, more specific
+ error status can be obtained by {\bf PayloadParser::getErrorStatus()}.
+\\\hline
+\end{tabular}
+\end{flushleft}
+
+
+\section{References}
+
+\begin{thebibliography}{99}
+\bibitem{api-draft} J. Kempf et. al, ``The DIAMETER API'', 
+draft-ietf-aaa-diameter-api-02.txt, March 2002.
+\bibitem{diameter-xml} D. Frascone et. al, ``Diameter XML Dictionary
+The DIAMETER API'', draft-frascone-aaa-xml-dictionary-00.txt, February 2002.
+\end{thebibliography}
+

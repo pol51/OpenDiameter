@@ -1,0 +1,55 @@
+/*!
+
+\mainpage Diameter NASREQ Application API
+\author Yoshihiro Ohba
+\date Created: June 18, 2004
+\date Updated: June 23, 2004
+
+\section Introduction
+
+The libdiameternasreq library provides a C++ API to Diameter NASREQ
+Application.  The library implements the specification defined in
+draft-ietf-aaa-diameter-nasreq-16.txt.  This document describes the
+API.
+
+\section tagBasicFeatures Basic Features
+
+The API has the following features.
+
+- <b>Client (NAS) and Server implementation</b> The libdiameternasreq
+library provides both Diameter NASREQ client and server
+implementations.
+
+- <b>Thread safety and load balancing</b>.  The libdiametereap library
+is written based on the Open Diameter Framework API, which makes the
+library thread-safe and it is also possible to do load balancing among
+multiple threads to achieve a maximal performance.
+
+- <b>Open-ended API</b>.  The Diameter NASREQ API is extensible in a
+way that server applications can define its own authorization
+decisions for each authorization attribute carried in Diameter NASREQ
+AA-Answer messages and that client applications can define its own
+enforcement functions for each authorization attribute carried in
+AA-Answer.  Client applications can also define "Set" functions for
+each authorization attribute carried in an AA-Request to request the
+server for authorization for particular attributes and "Enforce"
+functions for each authorization attribute carried in an AA-Answer to
+install attributes that have been authorized by the server.
+
+- <b>OS independence</b>.  The library is developed by fully utilizing
+the <A HREF="http://www.cs.wustl.edu/%7Eschmidt/ACE.html"> ACE
+(Adaptive Communication Environment) API </A> so that it can work
+major operating systems including Linux, UNIX and Windows for which
+ACE is supported.
+
+\section tagSample Sample Program
+
+\subsection tagServer Server Sample Program
+
+\include server_test.cxx
+
+\subsection tagClient Client Sample Program
+
+\include client_test.cxx
+
+*/

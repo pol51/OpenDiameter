@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE aaad SYSTEM "aaad.dtd">
+<aaad>
+
+    <!-- Thread count that should be started for
+         the open diameter framework -->
+    <thread_count>5</thread_count>
+
+
+    <!-- Diameter configuration file -->
+    <diameter_cfg_file>/etc/opendiameter/aaa/config/aaad_diameter_server.xml</diameter_cfg_file>
+
+    <!-- The following is a list of 
+         applications supported by this
+         diameter peer -->
+
+    <applications>
+
+        <application_entry>
+            <name>diameter_eap</name>
+            <enabled>true</enabled>
+
+            <diameter_eap>
+
+                <!-- diameter eap specific.
+                     This section is application
+                     specific. For diameter eap
+                     we only have the user database
+                     and local identity information.
+                     See aaad_user_db.xml for details.-->
+                
+                <!-- Local identity -->
+                <local_identity>aaad@opendiameter.org</local_identity>
+
+                <!-- User Db -->
+                <user_db>/etc/opendiameter/aaa/config/aaad_user_db.xml</user_db>
+
+            </diameter_eap>
+        </application_entry>
+
+    </applications>
+
+</aaad>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <xs:complexType name="deviceIdType">
+       <xs:sequence>
+           <xs:element name="type" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
+           <xs:element name="id" type="xs:string" minOccurs="1" maxOccurs="1" />
+       </xs:sequence>       
+   </xs:complexType>
+
+   <xs:complexType name="providerInfoType">
+       <xs:sequence>
+           <xs:element name="id" type="xs:string" minOccurs="0" maxOccurs="1" />
+           <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1" />
+       </xs:sequence>       
+   </xs:complexType>
+
+   <xs:complexType name="reTransmissionParamType">
+        <xs:all>
+           <xs:element name="initial_rt_timeout" type="xs:unsignedInt" />
+           <xs:element name="max_rt_count" type="xs:unsignedInt" />
+           <xs:element name="max_rt_timeout" type="xs:unsignedInt" />
+           <xs:element name="max_rt_duration" type="xs:unsignedInt" />
+        </xs:all>
+   </xs:complexType>
+
+   <xs:complexType name="ppacType">
+        <xs:all>
+           <xs:element name="dhcpv4" type="xs:unsignedInt" />
+           <xs:element name="dhcpv6" type="xs:unsignedInt" />
+           <xs:element name="autoconfv6" type="xs:unsignedInt" />
+           <xs:element name="dhcpv4_ipsec" type="xs:unsignedInt" />
+           <xs:element name="ikev2" type="xs:unsignedInt" />
+        </xs:all>
+   </xs:complexType>
+
+   <xs:complexType name="clientType">
+       <xs:all>
+           <xs:element name="paa_ip_address" type="xs:string" minOccurs="0" />
+           <xs:element name="paa_port_number" type="xs:unsignedInt" minOccurs="0" default="0" />
+           <xs:element name="paa_mcast_address" type="xs:string" />
+           <xs:element name="isp_info" type="providerInfoType" minOccurs="0" maxOccurs="1" />
+       </xs:all>
+   </xs:complexType>
+
+   <xs:complexType name="authAgentType">
+       <xs:sequence>
+           <xs:element name="mcast_address" type="xs:string" default="224.0.0.100" />
+           <xs:element name="session_lifetime" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
+           <xs:element name="grace_period" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
+           <xs:element name="use_cookie" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
+           <xs:element name="nap_info" type="providerInfoType" minOccurs="0" maxOccurs="1" />
+           <xs:element name="isp_info" type="providerInfoType" minOccurs="0" maxOccurs="10" />
+           <xs:element name="ep_id" type="deviceIdType" minOccurs="0" maxOccurs="100" />
+           <xs:element name="carry_device_id" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
+       </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="generalType">
+       <xs:all>
+           <xs:element name="thread_count" type="xs:unsignedInt" />
+           <xs:element name="listen_port" type="xs:unsignedInt" />
+           <xs:element name="interface_name" type="xs:string" />
+           <xs:element name="ipv6" type="xs:unsignedInt" />
+           <xs:element name="protection_capability" type="xs:unsignedInt" />
+           <xs:element name="dictionary_filename" type="xs:string" />
+           <xs:element name="mobility" type="xs:unsignedInt" />
+           <xs:element name="separate" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
+           <xs:element name="abort_on_first_eap_failure" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
+           <xs:element name="eap_piggyback" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
+           <xs:element name="retransmission_param" type="reTransmissionParamType" />
+           <xs:element name="ppac_config" type="ppacType" />
+           <xs:element name="keep_alive_interval" type="xs:unsignedInt" />
+           <xs:element name="wpa_bootstrap" type="xs:unsignedInt" />
+       </xs:all>
+   </xs:complexType>
+
+   <xs:element name="pana_configuration">
+       <xs:complexType>
+           <xs:sequence>
+               <xs:element name="general" type="generalType" />
+               <xs:element name="client" type="clientType" minOccurs="0" maxOccurs="1" />
+               <xs:element name="auth_agent" type="authAgentType" minOccurs="0" maxOccurs="1" />
+           </xs:sequence>
+       </xs:complexType>
+   </xs:element>
+
+</xs:schema>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+     <!ELEMENT aaad (thread_count, diameter_cfg_file, applications)>
+
+     <!ELEMENT thread_count (#PCDATA)>
+     <!ELEMENT diameter_cfg_file (#PCDATA)>
+
+     <!ELEMENT applications (application_entry+)>
+
+     <!ELEMENT application_entry (name, enabled, diameter_eap?)>
+
+     <!ELEMENT name (#PCDATA)>
+     <!ELEMENT enabled (#PCDATA)>
+
+     <!ELEMENT diameter_eap (local_identity, user_db)>

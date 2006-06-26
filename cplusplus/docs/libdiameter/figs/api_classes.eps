@@ -1,0 +1,950 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 3 509 566 787
+%%Title: api_classes
+%%CreationDate: Mon Jan 10 20:13:15 2005
+%%Creator: Tgif-4.1.43-QPL written by William Chia-Wei Cheng (bill.cheng@acm.org)
+%%ProducedBy: (unknown)
+%%Pages: 1
+%%DocumentFonts: (atend)
+%%EndComments
+%%BeginProlog
+
+/tgifdict 53 dict def
+tgifdict begin
+
+/tgifarrowtipdict 8 dict def
+tgifarrowtipdict /mtrx matrix put
+
+/TGAT % tgifarrowtip
+ { tgifarrowtipdict begin
+      /dy exch def
+      /dx exch def
+      /h exch def
+      /w exch def
+      /y exch def
+      /x exch def
+      /savematrix mtrx currentmatrix def
+      x y translate
+      dy dx atan rotate
+      0 0 moveto
+      w neg h lineto
+      w neg h neg lineto
+      savematrix setmatrix
+   end
+ } def
+
+/TGMAX
+ { exch dup 3 1 roll exch dup 3 1 roll gt { pop } { exch pop } ifelse
+ } def
+/TGMIN
+ { exch dup 3 1 roll exch dup 3 1 roll lt { pop } { exch pop } ifelse
+ } def
+/TGSW { stringwidth pop } def
+
+/bd { bind def } bind def
+
+/GS { gsave } bd
+/GR { grestore } bd
+/NP { newpath } bd
+/CP { closepath } bd
+/CHP { charpath } bd
+/CT { curveto } bd
+/L { lineto } bd
+/RL { rlineto } bd
+/M { moveto } bd
+/RM { rmoveto } bd
+/S { stroke } bd
+/F { fill } bd
+/TR { translate } bd
+/RO { rotate } bd
+/SC { scale } bd
+/MU { mul } bd
+/DI { div } bd
+/DU { dup } bd
+/NE { neg } bd
+/AD { add } bd
+/SU { sub } bd
+/PO { pop } bd
+/EX { exch } bd
+/CO { concat } bd
+/CL { clip } bd
+/EC { eoclip } bd
+/EF { eofill } bd
+/IM { image } bd
+/IMM { imagemask } bd
+/ARY { array } bd
+/SG { setgray } bd
+/RG { setrgbcolor } bd
+/SD { setdash } bd
+/W { setlinewidth } bd
+/SM { setmiterlimit } bd
+/SLC { setlinecap } bd
+/SLJ { setlinejoin } bd
+/SH { show } bd
+/FF { findfont } bd
+/MS { makefont setfont } bd
+/AR { arcto 4 {pop} repeat } bd
+/CURP { currentpoint } bd
+/FLAT { flattenpath strokepath clip newpath } bd
+/TGSM { tgiforigctm setmatrix } def
+/TGRM { savematrix setmatrix } def
+
+end
+
+%%EndProlog
+%%Page: 1 1
+
+%%PageBoundingBox: 3 509 566 787
+tgifdict begin
+/tgifsavedpage save def
+
+1 SM
+1 W
+
+0 SG
+
+72 0 MU 72 11 MU TR
+72 128 DI 100.000 MU 100 DI DU NE SC
+
+GS
+
+/tgiforigctm matrix currentmatrix def
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 30 260 M 90 260 L 90 320 L 30 320 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 40 270 M 100 270 L 100 330 L 40 330 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 40 270 M 100 270 L 100 330 L 40 330 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 50 280 M 110 280 L 110 340 L 50 340 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 50 280 M 110 280 L 110 340 L 50 340 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+NP 119 277 M 345 277 L 345 338 L 119 338 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      120 290 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Client Sessions) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (\(AAA_ClientAuthSession or) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            ( AAA_ClientAcctSession) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            ( derived classes\)) SH
+      GR
+   GR
+
+% BOX
+0 SG
+NP 30 370 M 120 370 L 120 430 L 30 430 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 30 370 M 120 370 L 120 430 L 30 430 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+NP 8 447 M 163 447 L 163 478 L 8 478 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      10 460 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Application class) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (\(AAA_Application\)) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      70 340 M
+      30 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      30 0 atan DU cos 8.000 MU 70 exch SU
+      exch sin 8.000 MU 370 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      70 340 8.000 3.000 0 -30 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      70 340 8.000 3.000 0 -30 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      70 370 8.000 3.000 0 30 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      70 370 8.000 3.000 0 30 TGAT
+   CP F
+GR
+
+% BOX
+0 SG
+NP 560 370 M 650 370 L 650 430 L 560 430 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 560 370 M 650 370 L 650 430 L 560 430 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+NP 528 457 M 683 457 L 683 488 L 528 488 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      530 470 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Application class) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (\(AAA_Application\)) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   [4 12] 0 SD
+   NP
+      480 10 M
+      480 500 L
+   TGSM
+   1 W
+   S
+   [] 0 SD
+GR
+
+% TEXT
+NP
+0 SG
+NP 118 27 M 210 27 L 210 43 L 118 43 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      120 40 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (AAA Client) SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+NP 648 27 M 740 27 L 740 43 L 648 43 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      650 40 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (AAA Server) SH
+      GR
+   GR
+
+% BOX
+0 SG
+NP 560 260 M 620 260 L 620 320 L 560 320 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 560 260 M 620 260 L 620 320 L 560 320 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 570 270 M 630 270 L 630 330 L 570 330 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 570 270 M 630 270 L 630 330 L 570 330 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 580 280 M 640 280 L 640 340 L 580 340 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 580 280 M 640 280 L 640 340 L 580 340 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+NP 669 287 M 922 287 L 922 318 L 669 318 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      670 300 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Server Session Factories) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (\(AAA_ServerSessionAllocator\)) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      600 340 M
+      30 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      30 0 atan DU cos 8.000 MU 600 exch SU
+      exch sin 8.000 MU 370 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      600 340 8.000 3.000 0 -30 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      600 340 8.000 3.000 0 -30 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      600 370 8.000 3.000 0 30 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      600 370 8.000 3.000 0 30 TGAT
+   CP F
+GR
+
+% BOX
+0 SG
+NP 560 160 M 620 160 L 620 220 L 560 220 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 560 160 M 620 160 L 620 220 L 560 220 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 570 170 M 630 170 L 630 230 L 570 230 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 570 170 M 630 170 L 630 230 L 570 230 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 580 180 M 640 180 L 640 240 L 580 240 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 580 180 M 640 180 L 640 240 L 580 240 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 680 160 M 740 160 L 740 220 L 680 220 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 680 160 M 740 160 L 740 220 L 680 220 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 690 170 M 750 170 L 750 230 L 690 230 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 690 170 M 750 170 L 750 230 L 690 230 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 700 180 M 760 180 L 760 240 L 700 240 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 700 180 M 760 180 L 760 240 L 700 240 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+NP 779 157 M 1005 157 L 1005 218 L 779 218 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      780 170 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Server Sessions) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (\(AAA_ServerAuthSession or) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            ( AAA_ServerAcctSession) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (derived classes\)) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      590 260 M
+      -20 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      -20 0 atan DU cos 8.000 MU 590 exch SU
+      exch sin 8.000 MU 240 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      590 260 8.000 3.000 0 20 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      590 260 8.000 3.000 0 20 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      590 240 8.000 3.000 0 -20 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      590 240 8.000 3.000 0 -20 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      630 270 M
+      -40 60 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      -40 60 atan DU cos 8.000 MU 690 exch SU
+      exch sin 8.000 MU 230 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      630 270 8.000 3.000 -60 40 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      630 270 8.000 3.000 -60 40 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      690 230 8.000 3.000 60 -40 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      690 230 8.000 3.000 60 -40 TGAT
+   CP F
+GR
+
+% BOX
+0 SG
+NP 30 150 M 90 150 L 90 210 L 30 210 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 30 150 M 90 150 L 90 210 L 30 210 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+NP 218 67 M 436 67 L 436 113 L 218 113 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      220 80 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Record Collector classes) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (associated for each) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (AAA_ClientAcctSession) SH
+      GR
+   GR
+
+% BOX
+0 SG
+NP 560 60 M 620 60 L 620 120 L 560 120 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 560 60 M 620 60 L 620 120 L 560 120 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 570 70 M 630 70 L 630 130 L 570 130 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 570 70 M 630 70 L 630 130 L 570 130 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 580 80 M 640 80 L 640 140 L 580 140 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 580 80 M 640 80 L 640 140 L 580 140 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+NP 668 77 M 868 77 L 868 123 L 668 123 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      670 90 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Record Storage classes) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (associated for each) SH
+      GR
+      0 15 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (AAA_ServerAcctSession) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      590 160 M
+      -20 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      -20 0 atan DU cos 8.000 MU 590 exch SU
+      exch sin 8.000 MU 140 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      590 160 8.000 3.000 0 20 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      590 160 8.000 3.000 0 20 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      590 140 8.000 3.000 0 -20 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      590 140 8.000 3.000 0 -20 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      690 160 M
+      -20 -50 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      -20 -50 atan DU cos 8.000 MU 640 exch SU
+      exch sin 8.000 MU 140 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      690 160 8.000 3.000 50 20 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      690 160 8.000 3.000 50 20 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      640 140 8.000 3.000 -50 -20 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      640 140 8.000 3.000 -50 -20 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   [12 4] 0 SD
+   NP
+      120 420 M
+      0 440 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      0 440 atan DU cos 8.000 MU 560 exch SU
+      exch sin 8.000 MU 420 exch SU L
+   TGSM
+   1 W
+   S
+   [] 0 SD
+GR
+GS
+   TGSM
+   NP
+      120 420 8.000 3.000 -440 0 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      120 420 8.000 3.000 -440 0 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      560 420 8.000 3.000 440 0 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      560 420 8.000 3.000 440 0 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+NP 279 407 M 424 407 L 424 423 L 279 423 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      280 420 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Diameter Routing) SH
+      GR
+   GR
+
+% BOX
+0 SG
+NP 40 160 M 100 160 L 100 220 L 40 220 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 40 160 M 100 160 L 100 220 L 40 220 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 50 170 M 110 170 L 110 230 L 50 230 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 50 170 M 110 170 L 110 230 L 50 230 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 120 50 M 180 50 L 180 110 L 120 110 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 120 50 M 180 50 L 180 110 L 120 110 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 130 60 M 190 60 L 190 120 L 130 120 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 130 60 M 190 60 L 190 120 L 130 120 L CP
+      S
+   GR
+GR
+
+% BOX
+0 SG
+NP 140 70 M 200 70 L 200 130 L 140 130 L CP 1 SG F
+   0 SG
+GS
+   10 SM
+   GS
+      NP 140 70 M 200 70 L 200 130 L 140 130 L CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      70 260 M
+      -30 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      -30 0 atan DU cos 8.000 MU 70 exch SU
+      exch sin 8.000 MU 230 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      70 260 8.000 3.000 0 30 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      70 260 8.000 3.000 0 30 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      70 230 8.000 3.000 0 -30 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      70 230 8.000 3.000 0 -30 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+NP 129 187 M 391 187 L 391 203 L 129 203 L CP 1 SG F
+0 SG
+   GS
+      1 W
+      130 200 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (Client Accounting Sub-Session) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      100 160 M
+      -30 40 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      -30 40 atan DU cos 8.000 MU 140 exch SU
+      exch sin 8.000 MU 130 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      100 160 8.000 3.000 -40 30 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      100 160 8.000 3.000 -40 30 TGAT
+   CP F
+GR
+GS
+   TGSM
+   NP
+      140 130 8.000 3.000 40 -30 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      140 130 8.000 3.000 40 -30 TGAT
+   CP F
+GR
+
+GR
+tgifsavedpage restore
+end
+showpage
+
+%%Trailer
+%MatchingCreationDate: Mon Jan 10 20:13:15 2005
+%%DocumentFonts: Courier
+%%EOF

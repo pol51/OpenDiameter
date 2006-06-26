@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "nasd_pana_dictionary.dtd">
+
+<dictionary protocol="1">
+
+  <!-- ***************** PANA Base Protocol Definition ******************* -->
+  <base uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-pana-pana-01.txt">
+
+    <!-- *********************** Message types *************************** -->
+    <command name="PANA-PAA-Discover" code="1">
+      <answerrules>
+        <optional>
+           <avprule name="Notification" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Start" code="2">
+      <requestrules>
+        <optional>
+           <avprule name="Nonce" maximum="1" minimum="0" />
+           <avprule name="Cookie" maximum="1" minimum="0" />
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
+           <avprule name="NAP-Information" maximum="1" minimum="0" />
+           <avprule name="ISP-Information" maximum="100" minimum="0" />
+           <avprule name="Protection-Capability" maximum="1" minimum="0" />
+           <avprule name="Algorithm" maximum="1" minimum="0" />
+           <avprule name="PPAC" maximum="1" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <optional>
+           <avprule name="Nonce" maximum="1" minimum="0" />
+           <avprule name="Cookie" maximum="1" minimum="0" />
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
+           <avprule name="ISP-Information" maximum="1" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Auth" code="3">
+      <requestrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+           <avprule name="EAP-Payload" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Nonce" maximum="1" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+	    </fixed>
+        <optional>
+           <avprule name="Nonce" maximum="1" minimum="0" />
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Reauth" code="4">
+      <requestrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Bind" code="5">
+      <requestrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+           <avprule name="Result-Code" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="PPAC" maximum="1" minimum="0" />
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
+           <avprule name="Session-Lifetime" maximum="1" minimum="0" />
+           <avprule name="Protection-Capability" maximum="1" minimum="0" />
+           <avprule name="Key-Id" maximum="1" minimum="0" />
+           <avprule name="Algorithm" maximum="1" minimum="0" />
+           <avprule name="Device-Id" maximum="100" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="Dhcp-Avp" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+           <avprule name="PAC-Ip-Address" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="PPAC" maximum="1" minimum="0" />
+           <avprule name="Device-Id" maximum="1" minimum="0" />
+           <avprule name="Key-Id" maximum="1" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="Dhcp-Avp" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Ping" code="6">
+      <requestrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Termination" code="7">
+      <requestrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+           <avprule name="Termination-Cause" maximum="1" minimum="1" />
+	    </fixed>
+        <optional>
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+	    </fixed>
+        <optional>
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Error" code="8">
+      <requestrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+           <avprule name="Result-Code" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Failed-AVP" maximum="1" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-FirstAuth-End" code="9">
+      <requestrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+           <avprule name="Result-Code" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
+           <avprule name="Key-Id" maximum="1" minimum="0" />
+           <avprule name="Algorithm" maximum="1" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Key-Id" maximum="1" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Update" code="10">
+      <requestrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Device-Id" maximum="100" minimum="0" />
+           <avprule name="Notification" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <fixed>
+           <avprule name="Session-Id" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Notification" maximum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <!-- ********************** End Message types ************************ -->
+    
+    <!-- ************************ typedefn's ************************ -->
+    <typedefn type-name="Any"/> <!-- Added by Ohba-->
+    <typedefn type-name="OctetString"/>
+    <typedefn type-name="UTF8String" type-parent="OctetString"/>
+    <typedefn type-name="Address" type-parent="OctetString"/>
+    <typedefn type-name="DiameterIdentity" type-parent="OctetString"/>
+    <typedefn type-name="DiameterURI" type-parent="UTF8String"/>
+    <typedefn type-name="IPFilterRule" type-parent="OctetString"/>
+    <typedefn type-name="QOSFilterRule" type-parent="OctetString"/>
+    <typedefn type-name="Integer32"/>
+    <typedefn type-name="Integer64"/>
+    <typedefn type-name="Unsigned32"/>
+    <typedefn type-name="Time" type-parent="Unsigned32"/>
+    <typedefn type-name="Unsigned64"/>
+    <typedefn type-name="Dhcp"/>
+    <!-- *********************** End Typedefns ********************** -->
+    
+    <!-- ***************** PANA PROTOCOL AVPS ************** -->
+    <avp name="AVP" code="0"> <!-- Added by Ohba -->
+      <type type-name="Any"/>
+    </avp>
+    <avp name="Algorithm" code="1" mandatory="must"
+	 protected="mustnot">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="AUTH" code="2" mandatory="must"
+	 protected="mustnot">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Cookie" code="3" mandatory="must"
+	 protected="mustnot">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Device-Id" code="4" mandatory="must"
+	 may-encrypt="no" protected="mustnot">
+      <type type-name="Address"/>
+    </avp>
+    <avp name="EAP-Payload" code="5" mandatory="must"
+	 protected="mustnot">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Failed-AVP" code="6" mandatory="must"
+         may-encrypt="no" protected="mustnot">
+      <grouped>
+         <optional>
+            <avprule name="AVP"/>
+         </optional>
+      </grouped>
+    </avp>
+    <avp name="Provider-Identifier" code="14" mandatory="must"
+         may-encrypt="no" protected="mustnot">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Provider-Name" code="15" mandatory="must"
+         may-encrypt="no" protected="mustnot">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="ISP-Information" code="7" mandatory="must"
+         may-encrypt="no" protected="mustnot">
+      <grouped>
+         <required>
+            <avprule name="Provider-Identifier" maximum="1" minimum="0" />
+            <avprule name="Provider-Name" />
+         </required>
+      </grouped>
+    </avp>
+    <avp name="Key-Id" code="8" mandatory="must"
+	 protected="mustnot">
+      <type type-name="Integer32"/>
+    </avp>
+    <avp name="NAP-Information" code="9" mandatory="must"
+         may-encrypt="no" protected="mustnot">
+      <grouped>
+         <required>
+            <avprule name="Provider-Identifier" maximum="1" minimum="0" />
+            <avprule name="Provider-Name" />
+         </required>
+      </grouped>
+    </avp>
+    <avp name="Nonce" code="10" mandatory="must"
+	 protected="mustnot">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Notification" code="11" mandatory="must"
+	 may-encrypt="no" protected="mustnot">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="PPAC" code="12" mandatory="must"
+         may-encrypt="no" protected="mustnot">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Protection-Capability" code="13" mandatory="must"
+	 protected="mustnot">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Result-Code" code="16" mandatory="must"
+	 protected="mustnot">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Session-Id" code="17" mandatory="must"
+	 protected="mustnot">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Session-Lifetime" code="18" mandatory="must"
+	 protected="mustnot">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Termination-Cause" code="19" mandatory="must"
+	 may-encrypt="no" protected="mustnot">
+      <type type-name="Unsigned32"/>
+      <enum name="Logout" code="1"/>
+      <enum name="Administrative" code="4"/>
+      <enum name="Session Timeout" code="8"/>
+    </avp>
+    <avp name="Dhcp-Avp" code="100" mandatory="must"
+	 may-encrypt="no" protected="mustnot">
+      <type type-name="Dhcp"/>
+    </avp>
+    <avp name="PAC-Ip-Address" code="101" mandatory="must"
+	 may-encrypt="no" protected="mustnot">
+      <type type-name="Address"/>
+    </avp>
+
+    <!-- ************** PANA PROTOCOL AVPS ************* -->
+
+  </base>
+        
+</dictionary>

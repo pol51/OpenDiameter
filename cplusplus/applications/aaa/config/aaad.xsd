@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <xs:complexType name="diameter_eap_type">
+       <xs:sequence>
+          <xs:element name="local_identity" type="xs:string" />
+          <xs:element name="user_db" type="xs:string" />
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="application_entry_type">
+       <xs:sequence>
+          <xs:element name="name" type="xs:string" />
+          <xs:element name="enabled">
+              <xs:simpleType>
+                 <xs:restriction base="xs:string">
+                     <xs:enumeration value="true"/>
+                     <xs:enumeration value="false"/>
+                 </xs:restriction>
+              </xs:simpleType>
+          </xs:element>          
+          <xs:element name="diameter_eap" 
+                      type="diameter_eap_type" 
+                      minOccurs="0" maxOccurs="1"/>
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="applications_type">
+       <xs:sequence>
+          <xs:element name="application_entry" 
+                      type="application_entry_type" 
+                      minOccurs="0" maxOccurs="unbounded"/>
+       </xs:sequence>       
+   </xs:complexType>
+
+   <xs:element name="aaad">
+       <xs:complexType>
+           <xs:sequence>
+               <xs:element name="thread_count" 
+                           type="xs:unsignedInt"/>
+               <xs:element name="diameter_cfg_file" 
+                           type="xs:string"/>
+               <xs:element name="applications" 
+                           type="applications_type" 
+                           minOccurs="1" maxOccurs="1"/>
+           </xs:sequence>
+       </xs:complexType>
+   </xs:element>
+
+</xs:schema>

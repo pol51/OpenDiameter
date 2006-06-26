@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "configuration.dtd">
+
+<!-- Sample configuration file, version 1.0.3 and above. -->
+<!-- Configuration table starts always starts with "configuration"
+     element as root -->
+
+<configuration>
+
+   <!-- General configuration has a fixed list of elements. Note
+        that information in the general section includes to info 
+        announced by this nodes to it's peers during capabilities
+        exchange. -->
+   <general>
+
+      <!-- Product, version and vendor ID information specified
+           here will be embedded in the CER message -->
+      <product>Open Diameter</product>
+
+      <!-- Software revision number. For Open Diameter
+           this is equivalent to the Firmware-Revision AVP
+           in the CER -->
+      <version>1</version>
+
+      <!-- Vendor id of diameter entity broadcast to 
+           peers in the CER -->
+      <vendor_id>0</vendor_id>
+
+      <!-- List of locally supported vendor id's. Note
+           that advertisement of supported vendor id's
+           is needed when routing messages with vendor
+           specific application id's -->
+      <supported_vendor_id>0</supported_vendor_id>
+      <supported_vendor_id>1</supported_vendor_id>
+
+      <!-- List of locally supported auth application 
+           id's. This contains one or more auth application
+           id's that will be broadcasted to peers. -->
+      <auth_application_id>1</auth_application_id>
+      <auth_application_id>2</auth_application_id>
+
+      <!-- List of locally supported acct application
+           id's. This contains one or more auth application
+           id's that will be broadcasted to peers. -->
+      <acct_application_id>3</acct_application_id>
+      <acct_application_id>4</acct_application_id>
+
+      <!-- List of locally supported vendor specific application
+           id's. This contains one or more vendor specific application
+           id's that will be broadcasted to peers.  Each vendor
+           specifc application id will contain one or more vendor
+           id's (RFC 3588) and exactly one auth or acct application
+           id -->
+      <vendor_specific_application_id>
+
+          <!-- List of vendor id's advertized by this diameter
+               entity -->
+          <vendor_id>31</vendor_id>
+          <vendor_id>32</vendor_id>
+          <vendor_id>33</vendor_id>
+
+          <!-- Exactly one instance of the
+               vendor's auth application id -->  
+          <auth_application_id>1</auth_application_id>
+
+          <!-- Or Exactly one instance of the
+               vendor's acct application id -->  
+          <acct_application_id>4</acct_application_id>
+      </vendor_specific_application_id>
+      <vendor_specific_application_id>
+          <vendor_id>41</vendor_id>
+          <vendor_id>42</vendor_id>
+          <vendor_id>43</vendor_id>
+          <auth_application_id>5</auth_application_id>
+          <acct_application_id>6</acct_application_id>
+      </vendor_specific_application_id>
+   </general>
+
+   <parser> 
+      <!-- Path and filename of dictionary file. The path MUST be
+           a full path or relative to the location of this configuration
+           file -->
+      <dictionary>..\..\..\configfiles\dictionary.xml</dictionary>
+   </parser>
+
+   <!-- Transport management section. This section contains 
+        to local diameter transport information, peer table
+        and route table -->
+   <transport_mngt>
+
+      <!-- Diameter entity identity. Note that a running open
+           diameter application will use the identity string 
+           instead of calling OS dependent gethostname functions
+           to determine it's identity. Hence, users MUST enter
+           a valid resovable entry for this string -->
+      <identity>nas_server</identity>
+
+      <!-- Diameter realm. As with identity, a running open
+           diameter application uses the realm string to
+           identify its domain of reponsibility. This allows
+           virtual domains to exists within a single host
+           where multiple open diameter entities are running
+           with different realm configuration --> 
+      <realm>research.org</realm>
+
+      <!-- Diameter TCP listening port. Port number to listen
+           to for peer connection request. When using virtual
+           domains, make sure each entity listens to different
+           port numbers -->
+      <tcp_port>1812</tcp_port>
+
+      <!-- Diameter TLS listening port. Port number to listen
+           to for peer connection request. When using virtual
+           domains, make sure each entity listens to different
+           port numbers -->
+      <tls_port>1912</tls_port>
+
+      <!-- Peer table lists peers that this open diameter 
+           application will attempt to connect to on startup.
+           Each peer entry contains host, port and tls
+           enabled information.  Internally, the peer table 
+           are currently configure statically using this section. 
+           No dynamic learning is currently available -->
+      <peer_table>
+          <! -- This defines the expiration time for dynamically
+                learned peers -->
+          <expiration_time>1</expiration_time>
+          <peer>
+              <hostname>tari-dhcp163.research.telcordia.com</hostname>
+              <port>1812</port>
+              <tls_enabled>0</tls_enabled>
+          </peer>
+      </peer_table>
+
+      <!-- Route table list the realm entries that this peer
+           will use to resolve message paths. Each entry
+           contains the realm name, the peer to send the
+           messaage to, the application id of the peer and
+           it role (whether a proxy, local .. etc). Note that
+           peer_reference element MUST point to an existing
+           peer in the peer_table else this route will be
+           in-active. Also, a default_route flag can be added
+           to a route entry to set the default route. If more
+           than one route has a default_route flag set then
+           the last entry with this flag set becomes the
+           default route -->
+      <route_table>
+          <!-- Defines the expiration time for dynamically
+               learned routes. A value of 0 means no expiration -->
+          <expire_time>0</expire_time>
+
+          <!-- A route entry defines a lookup information
+               for a diameter message containing destination
+               realm AVP's. For more information on diameter
+               routing, pls see "Open Diameter Routing Architecture" -->
+          <route>
+             <! -- Realm that this route serves. MUST be unique to
+                   this table --> 
+             <realm>other.research.org</realm>
+
+             <!-- The role that this diameter entity will play in
+                  resolving messages matching this realm. Valid 
+                  values for this elements are:
+                   0 (local)    - application acting as local servers
+                   1 (relay)    - application acting as relay agent                  
+                   2 (proxy)    - application acting as proxy server
+                   3 (redirect) - application acting as redirect agent -->
+             <role>0</role> 
+
+             <!-- For each route, there is a set of applications
+                  that are supported. This is used by the base
+                  protocol library as the second index to resolving
+                  a route for a message --> 
+             <application>
+
+                  <!-- Application Id is used as a second key for 
+                       routing queries. See details above -->
+                  <application_id>1</application_id>
+
+                  <!-- For vendor specific application id's. As
+                       per RFC this should be 0 for standard
+                       track applications. Otherwise, this
+                       value is used in conjunction with
+                       application_id as a second search key -->
+                  <vendor_id>0</vendor_id>
+
+                  <!-- For each application, there can be a set
+                       of servers support it. Each server has
+                       a metric associated with it and the 
+                       routing engine chooses the server in
+                       metric order (0 being highest) -->
+                  <peer_entry>
+
+                      <!-- Diameter peer serving this realm and
+                           application id. This server name
+                           MUST exits in the peer table for
+                           this route to be active.
+                      <server>server1.research.org</server>
+ 
+                      <!-- Metric value for this server entry.
+                           The higher the value, the lower the
+                           preference. 0 is the highest value
+                           and entries with equal value will 
+                           be resolve in the order they are
+                           defined in this configuration file -->
+                      <metric>1</metric>  
+                  </peer_entry>
+                  <peer_entry>
+                      <server>server2.research.org</server>
+                      <metric>5</metric>  
+                  </peer_entry>
+             </application>
+             <application>
+                  <application_id>
+                       <id>1</id>
+                       <type>1</type>
+                  </application_id> 
+                  <peer_entry>
+                      <server>server1.research.org</server>
+                      <metric>1</metric>  
+                  </peer_entry>
+                  <peer_entry>
+                      <server>server6.research.org</server>
+                      <metric>5</metric>  
+                  </peer_entry>
+             </application>
+          </route>
+
+          <! -- The definition of a default route is the same
+                as for any other route. The existance of a
+                default route means that all no-match queries
+                will result in a default route return -->
+          <default_route>
+             <realm>research.telcordia.com</realm>
+             <role>full</role> 
+             <application>
+                  <application_id>
+                       <id>1</id>
+                       <type>1</type>
+                  </application_id> 
+                  <peer_entry>
+                      <server>server1.research.org</server>
+                      <metric>1</metric>  
+                  </peer_entry>
+                  <peer_entry>
+                      <server>server2.research.org</server>
+                      <metric>5</metric>  
+                  </peer_entry>
+             </application>
+             <application>
+                  <application_id>
+                       <id>5</id>
+                       <type>1</type>
+                  </application_id> 
+                  <peer_entry>
+                      <server>server1.research.org</server>
+                      <metric>1</metric>  
+                  </peer_entry>
+                  <peer_entry>
+                      <server>server6.research.org</server>
+                      <metric>5</metric>  
+                  </peer_entry>
+             </application>
+          </route>
+      </route_table>
+   </transport_mngt>
+
+   <!-- Session manager configuration table. This section
+        consist of fixed elements that MUST exists -->
+   <session_mngt>
+
+      <!-- Dictates the maximum number of concurrent
+           sessions that will be maintained by open
+           diameter. -->
+      <max_sessions>10000</max_sessions>
+
+      <!-- Stateful session flag. If set to 1, then
+           server will enforce stateful sessions and
+           clients will hint for stateful sessions. If
+           set to 0 or if missing then stateless sessions -->
+      <stateful>1</stateful>
+
+      <!-- The following are default timers that are
+           maintained for each active session. -->
+      <timers>
+
+         <!-- Timeout in seconds before a session requires 
+              re-authentication -->
+         <session>30</session>
+
+         <!-- Timeout in seconds before a session is 
+              terminated regardless of wether it has
+              been re-authenticated -->
+         <lifetime>360</lifetime>
+
+         <!-- Grace period after lifetime timeout before
+              full termination -->
+         <grace>30</grace>
+
+         <!-- Timeout before subsequent ASR messages
+              are sent if the inital attempt fails -->
+         <abort_retry>20</abort_retry>
+      </timers>
+   </session_mngt>
+
+   <!-- Log section dictates the verbose levels that
+        the library generates as well as target outputs -->
+   <log>
+
+      <!-- The following are the available log levels
+           that can be "enabled" or "disabled" -->
+      <flags>
+         <debug>disabled</debug>
+         <trace>disabled</trace>
+         <info>disabled</info>
+      </flags>
+
+      <!-- The following are the target outputs of
+           the logs. It can be a combination of
+           each entry -->
+      <target>
+         <!-- enables or disables terminal output -->
+         <console>enabled</console>
+         <!-- enables or disables syslog output -->
+         <syslog>disabled</syslog>
+      </target>
+   </log>
+</configuration>

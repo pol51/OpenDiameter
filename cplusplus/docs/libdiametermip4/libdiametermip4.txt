@@ -1,0 +1,95 @@
+/*!
+
+\mainpage Diameter MIP v4 Application API
+\author Miriam Tauil
+\date Created: February 10, 2005
+
+\section Introduction
+
+The libdiametermip4 library provides a C++ API to Diameter MIP v4
+(Mobile IP v4 Protocol) Application.  The library
+implements the specification defined in draft-ietf-aaa-diameter-mobileip-20.txt.
+This document describes the API.
+
+\section tagBasicFeatures Basic Features
+
+- <b>Client and Server sessions implementation</b> The libdiametermip4
+library provides both Diameter MIP client and server sessions implementations 
+and the related AAA Server sessions.
+
+- <b>Thread safety and load balancing</b>.  The libdiametermip4 library
+is written based on the Open Diameter Framework API, which makes the
+library thread-safe and it is also possible to do load balancing among
+multiple threads to achieve a maximal performance.
+
+- <b>Open-ended API</b>.  The Diameter MIP API is an interface that allows
+to provide different MIP implementation as well as the differnt implementaions
+for the AAA Server functionality.
+
+
+\subsection tagSubsection Client and server sessions applicable for the Diameter MIP application:
+
+- <b>Home Agent(HA) Client Session implementation - Sends AMR</b> 
+
+- <b>Home Agent(HA) Server Session implementation - Accepts HAR</b> 
+
+- <b>Foreign Agent(FA) Client Session implementation - Sends AMR</b> 
+
+- <b>AAA Server(AAAS) Server Session implementation - Accepts AMR</b> 
+
+- <b>AAA Server(AAAS) Client Session implementation - Sends HAR</b> 
+
+
+The above session classes are implemented as templates, which accepts 
+as a parameter a "User Defined Class" providing the relevant MIP implementation
+ or AAA Server functionality implementation.
+
+The MIP implementation should be defined by derriving the user defined class
+from the interfaces defined in the following files:
+
+- diameter_mip4_ha_client_interface.hxx
+- diameter_mip4_ha_server_interface.hxx
+- diameter_mip4_fa_client_interface.hxx
+
+The AAA Server functionality implementation should be defined by derriving 
+the user defined class from the interface defined in the following file:
+
+- diameter_mip4_aaas_server_interface.hxx
+
+Also the FA and HA client sessions should interface with relevant Diameter-MIP 
+sessions using the relevant interface in the following files (notification of 
+MIP registration request arrival):
+
+- mip4_diameter_ha_client_interface.hxx
+- mip4_diameter_fa_client_interface.hxx
+
+\section tagSample Sample Programs
+Four sample programs are provided to demostrate the use of the four main 
+Diameter-MIP sessions in two typical scenarions:
+
+<b>1. Mobile Node in Co-Located Mode</b>
+
+<b>2. Mobile Node sending AMR through a Foreign Agent</b> 
+
+
+\subsection tagScenario1 Scenario 1: Mobile Node in Co-Located Mode
+
+ This scenario includes running the HA client program and the AAA server program.
+
+<b>Home Agent Client Session Sample Program:</b>
+\include hac_test.cxx
+
+<b>AAA Server Sample Program:</b>
+\include aaas_server_test.cxx
+
+\subsection tagScenario2 Scenario 2: Mobile Node sending AMR through a Foreign Agent
+This scenario includes running the FA client program, HA server program 
+and the same AAA Server program run for the first scenario.
+
+<b>Foreign Agent Client Session Sample Program:</b>
+\include fac_test.cxx
+
+<b>Home Agent Server Session Sample Program:</b>
+\include has_test.cxx
+
+*/

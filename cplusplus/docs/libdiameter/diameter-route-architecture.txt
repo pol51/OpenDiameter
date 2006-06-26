@@ -1,0 +1,65 @@
+/*!
+
+\mainpage Open Diameter Routing Architecture
+\author Victor I. Fajardo
+\date June 25, 2004
+
+This document describes the architectural design of the diameter routing/transport module. Note that the efforts of the design is to provide a scalable, extendible and accurate implementation of the transport feature of the Diameter Base protocol as discussed in Sec. 6 of [DIAMETER]. 
+
+\section peer Diameter Peers
+
+In Open Diameter, the transport module consists of a peer table which manages one or more peer entry objects. An instance of peer entry manages the stateful relationship with other diameter entities that Open Diameter is connected to. A peer entry instance has the following structure as described in AAA_PeerData:
+
+\subsection fsm Peer FSM
+
+FSM. It contains an FSM implementation of Sec 5.6 of [DIAMETER] based on AAA_StateMachine classes of [FRAMEWORK]. The architecture of the peer entry is based solely on this state machine representation and is beyond the scope of this document. 
+
+\subsection peerTransport Peer Transport Interface
+
+Peer Transport Interface. This a generic interface is a series of classes that abstracts lower layer connection based transport  provide an execution context for receiving and sending diameter messages. The following is a enumeration of these classes:
+
+\subsubsection peerTransportA AAA_Transport
+
+The root abstraction class AAA_Transport. This is a simple abstraction or wrapper class to required transport such as TCP, TLS and other transport that maybe required in the future. It is a requirement to provide a generic interface so that the subsequent classes will be oblivious to the details of the specifics of the underlying transport.
+
+The based classes enumerated below are all template classes and the true instances will be based on the underlying transport. In the Open Diameter implementation, the underlying transport uses ACE. Currently, the ACE TCP and TLS objects are used. These are defined in AAA_ACE_Transport objects. Finally, helper objects such as AAA_PeerConnector and AAA_PeerAcceptor are present that abstracts access to these methods in the peer table. An aspect of the AAA_PeerAcceptor that is worth noting is that it contains a pending list of AAA_IO accepted connection. The pending list is where active responder connections are keep while the CER/CEA negotiation are being done. This is part of the peer FSM as well as the election process.
+
+\subsubsection peerTransportB AAA_IO job model
+
+The AAA_IO job model. This class provides a hook to job based schedule framework as described in [FRAMEWORK]. By integrating with job based scheduling, an instance of this object is automatically provided with an execution context for calling received methods that may or may not block. As a consequence of scheduling receive calls, a generic callback handler method for successfully received messages can be provided to subsequent users of this class. In addition, a class factory for this object (AAA_IO_Factory) has also been introduced to facilitate automated creation of AAA_IO based objects.
+
+\subsubsection peerTransportC Acceptor and Connector model
+
+Acceptor and Connector model. To facilitate initiation or acceptance of connection request, an acceptor (AAA_IO_Acceptor) and connector (AAA_IO_Connector) objects has been introduced. These models are directly synonymous to initiator and responder models of [DIAMETER]. These objects inherit from the factory and uses it to create AAA_IO instances on successful connection to a peer or acceptance of a connection from a peer.
+
+\subsection support Support Data
+
+These includes required diameter peer data such as physical machine interface list, port, peer identity etc. that is used in establishing or accepting connections to or from a peer.
+
+
+\section route Route Framework & Message Routing
+
+The Open Diameter routing framework is as follows:
+
+\image html route_framework.jpeg
+\image latex route_framework.eps
+<B>Figure 1. Routing framework </B>
+
+The figure above represents a generic stateful request/answer message router. It consist of two (2) chains. A request chain and a delivery chain. Both chains consist of a list of routing nodes (AAA_RoutingNode). The routing nodes in the request chains (AAA_RequestRoutingNode) as well as the nodes in the delivery chain (AAA_DeliveryRoutingNode) are specializations of AAA_RoutingNode. A request chain functions as a route table for incoming request messages either generated locally or coming from other peers. Each request routing node has an associated delivery routing node. When an incoming request traverses the request chain. A route lookup is done by each node it passes. If a node decides that the message passing through it is a message it needs to delivery then it passes that message along with the source and destination peer information to the corresponding delivery node it associated itself with. The delivery node can then deliver the request message to the peer that the routing node has selected or to the local diameter entity if that is the result of the lookup. In addition to delivering the message, the routing node stores the message into it’s request queue and indexes it using the message’s hop-to-hop identifier. When an answer message is received, it traverses the delivery chain. Each delivery node that the answer message passes through inspects the message’s hop-to-hop identifier to see if it has a matching request. If a matching request message is found, the delivery node will then forward the answer message to source peer information associated with the request. The delivery node can then release ownership of the request message that was previously queued to it. 
+
+For Open Diameter, an instance of this routing framework is present in AAA_MsgRouter. The routing nodes are Local, Forwarded, Routed and Rejected nodes. Matching criteria for each routing node are as defined in 6.1.4, 6.1.5 and 6.1.6 of [DIAMETER] respectively. When a properly parsed request message is received by the peer transport, it is passed on to the request routing AAA_MsgRouter and based on the content AVP’s, it is examined in order by each of these node until a match is found or it is rejected. Local route nodes pass thier message to Local delivery nodes, Forwarded node to Forwarded delivery and Routed to Routed delivery node. The delivery node then checks for specific action based on Sec 2.7 of [DIAMETER] to see if they are RELAY, PROXY or REDIRECTED messages. RELAY and PROXY messages are passed on to upper layer handlers while REDIRECTED messages are processed by an internal class of AAA_MsgRouter, RedirectAgent. Note that specifications for all these methods are specified in [DIAMETER] and are beyond the scope of this document. The Open Diameter routing chain is shown below:
+
+\image html route_msg.jpeg
+\image latex route_msg.eps
+<B>Figure 2. Open Diameter Message Router</B>
+
+\section peerFsm Diameter Peer FSM
+
+The diameter transport peer state machine is an FSM that implements Sec. 5.6 of [DIAMETER]. It uses the AAA_StateMachine framework defined in [FRAMEWORK] to carry out a straight forward implementation. An instance of the peer FSM is bounded to each diameter peer that the local entity is connected to. The transport services provided transport interfaces noted above delivers a pre-parsed AAAMessage to the FSM. In addition, it provides asynchronous indication of incoming connection request as well as connection attempt success or failure. This are required notifications as per Sec. 5.6 of [DIAMETER]. For incoming connection request, the asynchronous event is invoked only after reception of a complete CER message. A pending queue is maintained for each accepted transport connection that has not yet advertised a CER message. The rest of the implementation is in conformace to the specification.
+
+\section biblio Bibliography
+
+[DIAMETER] RFC 3588
+[FRAMEWORK] Framework documentation
+
+*/

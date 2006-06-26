@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+
+<xs:simpleType name="roleType">
+   <xs:restriction base="xs:integer">
+      <xs:enumeration value="0"/>
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+   </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="redirectUsageType">
+   <xs:restriction base="xs:integer">
+      <xs:enumeration value="0"/>
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="4"/>
+      <xs:enumeration value="5"/>
+      <xs:enumeration value="6"/>
+   </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="enableType">
+   <xs:restriction base="xs:string">
+      <xs:pattern value="enabled|disabled"/>
+   </xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="vendorApplicationIdType">
+   <xs:sequence>
+      <xs:element name="vendor_id" type="xs:integer" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="auth_application_id" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="acct_application_id" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+   </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="generalType">
+   <xs:sequence>
+      <xs:element name="product" type="xs:string" minOccurs="1" maxOccurs="1"/>  
+      <xs:element name="version" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="vendor_id" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="supported_vendor_id" type="xs:integer" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="auth_application_id" type="xs:integer" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="acct_application_id" type="xs:integer" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="vendor_specific_application_id" type="vendorApplicationIdType" minOccurs="1" maxOccurs="unbounded"/>
+   </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="parserType">
+   <xs:all>
+      <xs:element name="dictionary" type="xs:string"/>
+   </xs:all>
+</xs:complexType>
+
+<xs:complexType name="peerType">
+   <xs:all>
+      <xs:element name="hostname" type="xs:string" maxOccurs="1" minOccurs="1"/>
+      <xs:element name="port" type="xs:integer" default="1812" maxOccurs="1" minOccurs="1"/>
+      <xs:element name="tls_enabled" type="xs:integer" default="0" maxOccurs="1" minOccurs="1"/>
+   </xs:all>
+</xs:complexType>
+
+<xs:complexType name="peerTableType">
+   <xs:sequence>
+      <xs:element name="expiration_time" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="peer" type="peerType" maxOccurs="unbounded" minOccurs="0"/>
+   </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="routeApplicationPeerEntryType">
+   <xs:all>
+      <xs:element name="server" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="metric" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+   </xs:all>
+</xs:complexType>
+
+<xs:complexType name="routeApplicationType">
+   <xs:sequence>
+      <xs:element name="application_id" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="vendor_id" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="peer_entry" type="routeApplicationPeerEntryType" minOccurs="1" maxOccurs="unbounded"/>
+   </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="routeType">
+   <xs:sequence>
+      <xs:element name="realm" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="role" type="roleType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="redirect_usage" type="redirectUsageType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="application" type="routeApplicationType" minOccurs="1" maxOccurs="unbounded"/>
+   </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="routeTableType">
+   <xs:sequence>
+      <xs:element name="expire_time" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="route" type="routeType" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element name="default_route" type="routeType" maxOccurs="1" minOccurs="0"/>
+   </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="transportType">
+   <xs:sequence>
+      <xs:element name="identity" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="realm" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="tcp_port" type="xs:integer" default="1812" maxOccurs="1" minOccurs="1"/>
+      <xs:element name="tls_port" type="xs:integer" default="1812" maxOccurs="1" minOccurs="1"/>
+      <xs:element name="watchdog_timeout" type="xs:integer" default="5" maxOccurs="1" minOccurs="1"/>
+      <xs:element name="retry_interval" type="xs:integer" default="0" maxOccurs="1" minOccurs="1"/>
+      <xs:element name="request_retransmission_interval" type="xs:integer" default="0" maxOccurs="1" minOccurs="1"/>
+      <xs:element name="max_request_retransmission_count" type="xs:integer" default="0" maxOccurs="1"/>
+      <xs:element name="advertised_host_ip" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="peer_table" type="peerTableType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="route_table" type="routeTableType" minOccurs="1" maxOccurs="1"/>
+   </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="authSessionType">
+   <xs:all>
+      <xs:element name="stateful" type="xs:integer" default="1" maxOccurs="1" minOccurs="0"/>
+      <xs:element name="session_timeout" type="xs:integer" default="360"/>
+      <xs:element name="lifetime_timeout" type="xs:integer" default="480"/>
+      <xs:element name="grace_period_timeout" type="xs:integer" default="30"/>
+      <xs:element name="abort_retry_timeout" type="xs:integer" default="30"/>
+   </xs:all>
+</xs:complexType>
+
+<xs:complexType name="acctSessionType">
+   <xs:all>
+      <xs:element name="session_timeout" type="xs:integer" default="360"/>
+      <xs:element name="interim_interval" type="xs:integer" default="5"/>
+      <xs:element name="realtime" type="xs:integer" default="1"/>
+   </xs:all>
+</xs:complexType>
+
+<xs:complexType name="sessionType">
+   <xs:sequence>
+      <xs:element name="max_sessions" type="xs:integer" default="65000"/>
+      <xs:element name="auth_sessions" type="authSessionType"/>
+      <xs:element name="acct_sessions" type="acctSessionType"/>
+   </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="logFlagsType">
+   <xs:all>
+      <xs:element name="debug" type="enableType" default="disabled"/>
+      <xs:element name="trace" type="enableType" default="disabled"/>
+      <xs:element name="info" type="enableType" default="disabled"/>
+   </xs:all>
+</xs:complexType>
+
+<xs:complexType name="logTargetType">
+   <xs:all>
+      <xs:element name="console" type="enableType" default="enabled"/>
+      <xs:element name="syslog" type="enableType" default="disabled"/>
+   </xs:all>
+</xs:complexType>
+
+<xs:complexType name="logType">
+   <xs:all>
+      <xs:element name="flags" type="logFlagsType"/>
+      <xs:element name="target" type="logTargetType"/>
+   </xs:all>
+</xs:complexType>
+
+<xs:element name="configuration">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="general" type="generalType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="parser" type="parserType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="transport_mngt" type="transportType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="session_mngt" type="sessionType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="log" type="logType" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>

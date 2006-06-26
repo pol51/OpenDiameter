@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:complexType name="valueType">
+     <xs:all>
+        <xs:element name="name" type="xs:string" />
+        <xs:element name="attribute" type="xs:string" />
+        <xs:element name="value" type="xs:string" />
+     </xs:all>       
+  </xs:complexType>
+
+  <xs:simpleType name="encryptType">
+     <xs:restriction base="xs:string">
+        <xs:enumeration value="true" />
+        <xs:enumeration value="false" />
+     </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="attrType">
+     <xs:all>
+        <xs:element name="name" type="xs:string" />
+        <xs:element name="attr_type" type="xs:unsignedInt" />
+        <xs:element name="data_type" type="xs:string" />
+        <xs:element name="encrypt" type="encryptType" minOccurs="0" />
+     </xs:all>       
+  </xs:complexType>
+
+  <xs:complexType name="attrListType">
+     <xs:sequence>
+        <xs:element name="attribute" type="attrType" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="value" type="valueType" minOccurs="0" maxOccurs="unbounded"/>
+     </xs:sequence>
+     <xs:attribute name="name" type="xs:string" use="optional" />	
+     <xs:attribute name="id" type="xs:unsignedInt" use="optional" />	
+  </xs:complexType>
+
+  <xs:element name="radius_dictionary">
+     <xs:complexType>
+        <xs:sequence>
+           <xs:element name="typename" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+           <xs:element name="base" type="attrListType" minOccurs="1" maxOccurs="1"/>
+           <xs:element name="vendor" type="attrListType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+     </xs:complexType>
+  </xs:element>
+
+</xs:schema>

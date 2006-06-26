@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "pana_setup.dtd">
+<configuration>
+
+   <!-- File and pathname to the PANA configuration file -->
+   <pana_cfg_file>config/pana_pac_unix6.xml</pana_cfg_file>
+    
+   <!-- Username used for EAP auth -->
+   <username>user1@isp.net</username>
+    
+   <!-- Assocaited password, used
+        during EAP-MD5 -->
+   <password>12345</password>
+    
+   <!-- File and path to shared secret file.
+        Contents of this binary file is
+        used during EAP-Archie -->
+   <secret>config/shared_secret.bin</secret>
+
+   <!-- Authorization script that is executed
+        when successful authentication occurs -->
+   <auth_script>config/pana_test_auth_script</auth_script>
+
+   <!-- DHCP bootstrap support, enables
+        generation of DHCP key -->
+   <dhcp_bootstrap>1</dhcp_bootstrap>
+    
+   <!-- Use archie in EAP auth, if this
+        flag is set, EAP-Archie is used and
+        username/shared_secret is relevant.
+        If this is un-set, EAP-MD5 is used
+        and username/password is relevant -->
+   <use_archie>0</use_archie>
+    
+   <!-- EAP authentication period. This
+        timeout value is started once
+        successful authentication occurs.
+        An STR will be sent once this
+        expires -->
+   <auth_period>45</auth_period>
+    
+   <!-- Thread count that should be started -->
+   <thread_count>5</thread_count>
+    
+</configuration>

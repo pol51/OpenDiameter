@@ -1,0 +1,140 @@
+Open Diameter: Binary Applications
+
+Copyright (C) 2002-2005 Open Diameter Project
+
+INSTALLATION
+------------
+
+NASD and AAAD can be built and installed using the exsting
+root configure script. Building and installing can be done
+using the steps:
+
+$ configure --prefix=[prefered directory]
+$ make
+$ make install
+
+Note that the default prefix directory is /usr/local. The
+configuration files for NASD and AAAD will then be installed
+in $(prefix)/opendiameter/aaa and $(prefix)/opendiameter/nas.
+
+
+USING
+-----
+
+At the moment there is not init.d/rc.d scripts that comes
+with the deamon applications. So executing the binaries
+are done manually. Note that both binaries required the
+master configuration files be passed in as a parameter. If
+the configuration files is not passed in, it will assume
+that the files are located in /etc/opendiameter/[nas|aaa]/config.
+
+So, as an example, NASD can be executed:
+
+./nasd -f $(prefix)/opendiameter/nas/config/nasd.xml
+
+NASD Overview
+-------------
+
+The NASD (Network access server deamon) application is designed
+to be installed at the edge of the network to provide access
+protocol functionality on the user edge and AAA protocol on the
+inner edge. The anchor protocol for both access and AAA is EAP.
+So in general, NASD acts as an EAP passthrough for authenticating
+users. In addition, for each user or group of users that attempts 
+to auth, NASD is capable of performing "policy" enforcement. At 
+the moment it is also capable of local authentication. Further
+details can be found in http://www.opendiameter.org. As of 1.0.7-f, 
+the application is an ALPHA version and futher mutations of this 
+application is very likely. The currently supported protocols are 
+as follows:
+
+Access protocols:
+
+  a. PANA
+
+AAA protocols
+
+  a. Diameter EAP
+  b. Local EAP auth (not really an AAA but NASD 
+     treats it that way)
+     
+
+Since NASD uses many different protocols, each protocl can have
+it's own specific configuration file. A master configuration file
+is used to consolidate them (config/nasd.xml). The master config
+file maintains four(4) lists:
+
+a. <access_protocols> This list the available access protocols
+   that is supported by NASD. Each protocol is defined in an
+   <access_entry> where protocol specific configuration is 
+   defined. One can also enable or disable support for a specific
+   protocol within this configuration entry. See config/nasd.xml.
+
+b. <aaa_protocols> Same as above. This list all the supported AAA
+   protocols by NASD. Each protocol is defined in an <aaa_entry>
+   where protocol specific configuration is defined. This may 
+   include entries for configuration files etc. See config/nasd.xml.
+
+c. <access_policy> Access polices are enforcement policies that
+   that the NASD executes for each user or group of users that
+   attempts authentication/authorization. a <policy_entry> defines
+   a type of policy that can be done. This is dependent on the EP
+   (enforcement point) capabilities and features. See config/nasd.xml.
+
+d. <call_routing> Defines how a incomming user auth is handled.
+   Each call (user auth attempt) that arrives and the NASD is 
+   identified by it's NAI. NASD has a call router that attempts 
+   to do best match on the users NAI with the <route_entry>'s 
+   defined in this list. The matching algorithim is defined in 
+   config/nasd.xml. A <route_entry> defines the access policy 
+   that is to be applied to this call and which AAA protocol to
+   use to route the call to the proper authenticator. A <route_entry>
+   can have multiple policies that is executed for each call. If 
+   no match is found, a <default_route_entry> is used to handle
+   the call. See http://www.opendiameter.org for details of the
+   call architecture.
+   
+Root directory for NASD is $(OPENDIAMETER)/applications/nas
+
+AAAD Overview
+-------------
+
+The AAAD (AAA deamon) is designed to provide a framework for
+implementing different diameter applications within a single
+deamon. It is based solely on the use of libdiameter and simply
+provides a shell for additional diameter application implementation.
+As of 1.0.7-f, only diameter EAP is available. This supplements
+the testing of NASD.
+
+As with NASD, the master configuration file is located in 
+config/aaad.xml. This file has <diameter_cfg_file> that points
+to the location of the libdiameter configuration file. It also
+defines a list of supported diameter application (<applications>).
+Each entry in the list <application_entry>, defines specific
+configuration requirements for the supported application.
+
+Root directory for NASD is $(OPENDIAMETER)/applications/aaa
+
+AAAD - Diameter EAP application
+-------------------------------
+
+For Diameter EAP application, the <application_entry> in
+config/aaad.xml has <user_db> which refers to the user database 
+which is used to determine how a user or group of users is 
+to be authenticated. The user database provides a list of 
+<user_entry> that is matched with a users NAI. Matching 
+algorithim is defined in config/aaad_user_db.xml. If a match
+is found, <user_entry> defines the EAP method to be used in
+authentication the user. As of 1.0.7-f, only MD5 and archie EAP 
+methods are supported. Each method has it's specific configuration
+for each <user_entry>. For MD5, the user database may also contain
+the shared secret string to be used for generating the challenge.
+This is NOT RECOMMENDED since this configuration maybe insecure.
+For archie, a <user_entry> may point to different shared secret
+file. If no <user_entry> match is found for a user's NAI, a 
+<default_entry> is used for the user. Further details can be
+found in http://www.opendiameter.org.
+
+
+
+

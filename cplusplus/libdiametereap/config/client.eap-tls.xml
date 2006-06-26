@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configuration file for client always starts with "configuration_client" element as root -->
+<configuration_client xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation='eap-tls.configuration.xsd'>
+	<!-- Encryption section. This section has a fixed list of elements.
+		This information is needed for OpenSSL to work -->
+	<encryption>
+		<!-- Pass phrase for client cryptographic files -->
+		<pass_phrase>cliente</pass_phrase>
+		<!-- Key file -->
+		<key_file>./tests/tls_config/peer/clt-key.pem</key_file>
+		<!-- Certificate file -->
+		<cert_file>./tests/tls_config/peer/clt-cert.pem</cert_file>
+		<!-- File used to build ramdom numbers -->
+		<random>./tests/tls_config/auth/random</random>
+		<!-- Path for Certification Authorities -->
+		<ca_path>./tests/tls_config/peer</ca_path>
+		<!-- Certification Authority's certificate for Certification Authority that signs client certificate -->
+		<ca_cert>./tests/tls_config/peer/ca-cert.pem</ca_cert>
+		<!-- File implementation for Diffie-Hellman algorithm -->
+		<dh>./tests/tls_config/auth/dh</dh>
+		<!-- RSA Key -->
+		<rsa_key>0</rsa_key>
+		<!-- Diffie-Hellman Key -->
+		<dh_key>1</dh_key>
+		<!-- RSA key length -->
+		<rsa_key_length>512</rsa_key_length>
+		<!-- Diffie-Hellman key lenght -->
+		<dh_key_length>512</dh_key_length>
+		<!-- Maximum depth for the certificate chain verification that shall be allowed -->
+		<verify_depth>1</verify_depth>
+		<!-- Type of certificates:
+			0: ASN1
+			1: PEM
+		-->
+		<file_type>1</file_type>
+	</encryption>
+	<!-- Fragmentation section. This section has a fixed list of elements.
+		This information is needed in packet fragmentation -->
+	<fragmentation>
+		<!-- Initial value for lenght flag in fragmentation -->
+		<include_length>false</include_length>
+		<!-- Fragment size -->
+		<fragment_size>600</fragment_size>
+	</fragmentation>
+</configuration_client>

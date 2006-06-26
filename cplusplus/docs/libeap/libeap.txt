@@ -1,0 +1,45 @@
+/*!
+
+\mainpage EAP Software Architecture and API
+\author Yoshihiro Ohba
+\date Created: August 11, 2003
+\date Updated: January 10, 2004
+
+\section Introduction
+
+The libeap library provides a C++ API to EAP (Extensible
+Authentication Protocol).  The library implements a set of state
+machines of EAP (ExtensibleAuthentication Protocol), which is
+specified in draft-ietf-eap-statemachine-01.{txt,ps}.  This document
+describes the software architecture of the EAP API implementation.
+
+\section tagBasicFeatures Basic Features
+
+The API has the following features.
+
+- <b>Peer and Authenticator implementation</b> The libeap library
+provides both EAP peer and authenticator state machines
+implementation.  Authenticator implementation includes standalone
+authenticator, backend authenticator and pass-through authenticator
+state machines.
+
+- <b>Thread safety and load balancing</b>.  The libeap library is
+written based on the Open Diameter Framework API, which makes the
+library thread-safe and it is also possible to do load balancing among
+multiple threads to achieve a maximal performance.
+
+- <b>Open-ended API</b>.  The EAP API is extensible in a way that
+applications can define new authentication methods including method
+state machines and message parsing.
+
+- <b>OS independence</b>.  The library is developed by fully utilizing
+the <A HREF="http://www.cs.wustl.edu/%7Eschmidt/ACE.html"> ACE
+(Adaptive Communication Environment) API </A> so that it can work
+major operating systems including Linux, UNIX and Windows for which
+ACE is supported.
+
+\section tagSample Sample Program
+
+\include md5_test.cxx
+
+*/

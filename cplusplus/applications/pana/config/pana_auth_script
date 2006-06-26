@@ -1,0 +1,114 @@
+#!/usr/bin/perl --
+
+use MIME::Base64;
+use strict;
+
+use constant DHCP6C_CONF_PATH => '/usr/local/v6/etc/dhcp6c.conf';
+use constant TEMPLATE_PATH => 'dhcp6c.conf.template';
+use constant DHCP6C_PID_PATH => '/var/run/dhcp6c.pid';
+use constant DHCP6C_CMD => (qw(dhcp6c -p), DHCP6C_PID_PATH, 'em0');
+
+my $args = {};
+$args->{action} = shift;	# 'add' or 'del'
+$args->{pac_devid} = shift;	# PaC device Id
+$args->{paa_devid} = shift;	# PAA device Id
+$args->{aaa_key} = shift;	# AAA-Key
+$args->{aaa_keyid} = shift;	# AAA Key-Id
+$args->{lifetime} = shift;	# Lifetime
+$args->{protection} = shift;	# Protection
+$args->{dhcp_key} = shift;	# DHCP-Key
+$args->{ep_devid} = [@ARGV];	# EP Device Id
+
+if ($args->{action} eq 'add') {
+    &add_key($args);
+} elsif ($args->{action} eq 'del') {
+    &del_key($args);
+} else {
+    die "$0: unknown action: \"$args->{action}\"\n";
+}
+
+exit 0;
+
+sub mktemp {
+    my $dir = shift;
+    my $count = 'a';
+    my $path;
+    for (;;) {
+	$path = sprintf('%s/tmp.%u%s', $dir, $$, $count++);
+	return $path unless (-e $path);
+    }
+}
+
+sub add_key {
+    my $args = shift;
+
+    # Create DHCP client configuration file
+
+    my $dir = DHCP6C_CONF_PATH;
+    $dir =~ s/[^\/]+$//;
+    my $path = &mktemp($dir);
+
+    my %vars;
+
+    $vars{dhcp_key} = encode_base64(pack("H*", $args->{dhcp_key}));
+    $vars{dhcp_key} =~ s/\s+//g;
+    my @exp = localtime(time + $args->{lifetime});
+    $vars{expire} = sprintf('%04u-%02u-%02u %02u:%02u',
+			    1900 + $exp[5], $exp[4] + 1, $exp[3],
+			    $exp[2], $exp[1]);
+
+    open(CONF, ">$path") or die "$path: $!";
+    open(TMPL, TEMPLATE_PATH) or die TEMPLATE_PATH . ": $!";
+
+    while (<TMPL>) {
+	s(\<(\w+)\>)(defined($vars{$1})
+		     ? $vars{$1}
+		     : die TEMPLATE_PATH . ": $.: unknown variable \"$1\"")ge;
+	print CONF or die "$path: $!";
+    }
+
+    close(TMPL);
+    close(CONF) or die "$path: $!";
+    rename $path, DHCP6C_CONF_PATH or die "$path: $!";
+
+    # Start DHCP client
+
+    print STDERR "Starting dhcp6c\n";
+    system DHCP6C_CMD;
+}
+
+sub del_key {
+    my $args = shift;
+
+    # Kill DHCP client
+
+    if (open(PID, DHCP6C_PID_PATH)) {
+	my $pid = <PID>;
+	chomp $pid;
+	close(PID);
+	print STDERR "Signaling SIGTERM to $pid\n";
+	kill TERM => $pid or warn "kill TERM $pid: $!";
+    } else {
+	warn DHCP6C_PID_PATH . ": $!";
+    }
+
+    sleep 1;
+
+    # Remove v6 global addresses
+
+    my $ifname;
+    open(IFC, 'ifconfig -a |') or die "forking ifconfig: $!";
+    while (<IFC>) {
+	if (s/^(\w+)\://) {
+	    $ifname = $1;
+	}
+	if ($ifname ne '' && /^\s*inet6\s+([23]\S+)/) {
+	    my $v6addr = $1;
+	    if ((hex((split(/\:/, $v6addr))[0]) & 0xe000) == 0x2000) {
+		print STDERR "Deleting $v6addr\n";
+		system 'ifconfig', $ifname, 'inet6', $v6addr, 'delete';
+	    }
+	}
+    }
+    close(IFC);
+}

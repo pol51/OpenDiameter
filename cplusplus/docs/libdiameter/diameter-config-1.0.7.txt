@@ -1,0 +1,14 @@
+/*! 
+
+\mainpage Open Diameter Sample Configuration
+\author Victor I. Fajardo
+\date June 25, 2004
+
+This document provides example configuration for the diameter
+base protocol. Additional documentation is also given for 
+each configuration entry. This sample currently applies only
+to release 1.0.7.
+
+\include configuration.xml
+
+*/

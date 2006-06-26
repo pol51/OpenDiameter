@@ -1,0 +1,115 @@
+#!/usr/bin/perl
+# copyright_manager: 
+#   A tool for adding/deleting a copyright statement block 
+#   to/from the source code files in the specified directory.
+#   For adding,
+#     1st argument: add
+#     2nd argument: filename of the copyright file
+#     3rd argument: target directory
+#   For deleting,
+#     1st argument: del
+#     2rd argument: target directory
+# A copyright block starts with "BEGIN_COPYRIGHT" and ends with 
+# "END_COPYRIGHT".
+# When adding, if a copyright block already exists, 
+# the block is replaced with the new one.
+# The command is recursively performed to sub-directories of 
+# the target directory.
+# 
+# Written by Yoshihiro Ohba
+#
+# Copyright (C) 2002, Toshiba America Research, Inc.
+
+
+use File::Find;
+use File::Basename;
+
+if ($#ARGV == -1)
+{
+    usage();
+}
+
+$command = shift;
+
+if (($command ne "add") && ($command ne "del"))
+  {
+    usage();
+  }
+print "command = $command\n";
+if ($command eq "add")
+  {
+    usage() if ($#ARGV != 1);
+    $copyright = shift;
+    $dir = shift;
+    $pwd = `pwd`; chop($pwd);
+    $copyright = ($pwd . "/" . $copyright);
+    print "copyright_file = $copyright\n";
+    if (system("grep -q BEGIN_COPYRIGHT $copyright") != 0 ||
+	system("grep -q END_COPYRIGHT $copyright") != 0)
+      {
+	die "But copyright file\n";
+      }
+
+    print "target_directory = $dir\n";
+    find(\&copyright_add, $dir);
+  }
+else
+  {
+    usage() if ($#ARGV != 0);
+    $dir = shift;
+    print "target_directory = $dir\n";
+    find(\&copyright_del, $dir);
+  }
+
+sub copyright_add
+  {
+    copyright_command("add");
+  }
+
+sub copyright_del
+  {
+    copyright_command("del");
+  }
+
+sub copyright_command
+  {
+    local($com) = @_;
+    $tmpfile = "/tmp/__tmpfile__";
+    if ($File::Find::name =~ /.*\.(h|hxx|c|cc|cxx|cpp|y|l|txt)$/)
+      {
+	$name = basename($File::Find::name);
+	open(F, "$name") || die "cannot open $File::Find::name";
+
+# try to remove old copyright block (if any)	
+	open(T, ">$tmpfile") || die "cannot open temp file";
+	while (<F>)
+	  {
+	    if (! (/BEGIN_COPYRIGHT/ ... /END_COPYRIGHT/))
+	      {
+		print T $_;
+	      }
+	    else
+	      {
+	      }
+	  }
+	close(F);
+	close(T);
+	rename($name, "$name.backup");
+	if ($com eq "add")
+	  {
+	    system ("cat $copyright $tmpfile > $name");
+	  }
+	else # "del"
+	  {
+	    print "del\n";
+	    system ("cat $tmpfile > $name");
+	  }
+      }
+  }
+
+sub usage
+  {
+    print "Usage: $0 copywrite-manager add copyright_file target_directory\n";
+    print "Usage: $0 copywrite-manager del target_directory\n";
+    die;
+  }

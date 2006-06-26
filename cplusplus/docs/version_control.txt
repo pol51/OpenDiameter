@@ -1,0 +1,93 @@
+Title         : Notes on version control and release management
+Date          : Sept 20, 2002
+Synopsys      : This document outlines the procedures in maintainig
+	        internal version control and release management
+                for the TARI open source diameter code.
+Last Modified : Victor I. Fajardo, Jan 2004 
+Reviewed by   : 
+
+Contents
+
+1. Overview
+2. CVS Tag name and version conventions
+3. Setting up a build environment
+
+1. Overview
+
+The TARI diameter development environment uses CVS 
+(under sourceforge.net) for source control. The CVS 
+source tree is linear (no branches) so all checkins 
+are made into main source tree. The software development 
+cycle is as follows:
+
+source code changes/bug fixes --> on incremental release --> source distribution
+ - checkin into CVS                 - CVS tag is applied      - source archive
+        /\                                                      w/ incremented
+         |                                                      version number
+         |                                                    - bugzilla (fixes) summary
+         |                                                      appended to archive
+         |                                                            |
+         --------------------------------------------------------------
+
+As shown above, developers would checkin to the main 
+source tree for features, changes and bug fixes. At a 
+designated time, code freeze MUST be imposed for a 
+short period of time so as to be able to tag the source
+tree as an incremental with a specifc version and perform
+a release. 
+
+2. CVS Tag name and version conventions
+
+The following convention applies to environment variables associated 
+with the Makefiles during builds and to the CVS tag that is applied
+during releases.
+
+Version conventions applied to variable DIST_VERSION are as follows:
+
+[Major Num].[Minor Num].[Minor Increments]
+
+Example: 0.0.1
+
+CVS tag names are based on version numbers as well.
+CVS tag names applied during releases are as follows:
+
+rel-[Major Num]-[Minor Num]-[Minor Increments]
+
+Example: rel-1-0-1
+
+To tag a source tree:
+
+cvs tag rel-1-0-1
+
+Note that applying a tag to the source tree is a administrative
+task and NOT an automated part of the build process. 
+
+3. Setting up a build environment
+
+The root Makefile of the diameter source tree uses a set 
+of variables. The variables with example values are as follows:
+
+DIST_VERSION  = 1.0.0
+DIST_DIRS     = Makefile include libutl libdiamparser
+XERCES_DIR    = /usr/include/xercesc
+
+DIST_VERSION defines the base version that will be included in
+a source distribution. This variable is required only when
+doing "make dist". The user can set this as an environment
+variable or modify its value in the root Makefile.
+
+DIST_DIRS defines the files and sub-directories that will be
+included in a source distribution. This variable is required only 
+when doing "make dist". The user can set this as an environment
+variable or modify its value in the root Makefile. Only authors
+of the implementation MUST modify this variable as it decides
+which modules can be distributed under license.
+
+XML_DIR defines the base directory of the 3rd party XML library
+used by diameter. This variable defaults to /usr/include/xercesc.
+
+When building, all binaries are placed in (diameter-root or pwd)/build-(os)
+directory. This includes libraries and executable for OS specific
+builds. The source distribution archives are placed in this directory 
+as well.
+

@@ -1,0 +1,118 @@
+IPsec for Windows functional specification 9/2/2004
+
+--Overview
+IPsec for Windows(IPsec)is a framework to operate IPsec 
+in the environment of Windows OS. IPsec supports IPv4 and IPv6.
+
+--Development Environment
+IPsec is developed with Windows XP + Open Diameter Framework.
+
+--System Requirement
+Windows XP
+ It is assumed that IPsec works as a Responder mainly.
+ IPsec processing module is in user space (not in kernel space).
+ Network driver is written by C language (not C++).
+
+ Linux(in future)
+ It is assumed that IPsec works as an Initiator/Responder. 
+ IPsec processing module is in user space (not in kernel space),
+ but probably it will be moved to kernel space in future.
+
+--Configuration files
+ Configuration information is not in registry but in files.
+
+ -Policy configuration file
+ Policy configuration file is written with XML format. 
+
+--IPsec architecture
+ IPsec is composed of following 2 modules.
+
+ -MUX type NDIS Intermediate driver
+  The driver provides virtual network interface and rend/receive
+  the packets. The driver has interfaces for user mode process.
+
+ -User mode process 
+  The user mode process provides IPsec processing such as 
+  SPD management, SAD management, encryption, and encapsulation.
+
+--Function
+
+ -Policy management(Interface for SPD)
+  Following MIBs are implemented and configured via SNMP
+  or command line.
+  SPD Configuration MIB(draft-ietf-ipsp-spd-mib-**.txt)
+  IPsec Action MIB(draft-ietf-ipsp-ipsecaction-mib-**.txt)
+  IKE Action MIB(draft-ietf-ipsp-ikeaciton-mib-**.txt)
+  The function has to be implemented assuming porting to 
+  kernel space in future.
+
+  Deletion of record is supported, changing a value of RowStatus 
+  to notInService.
+  A table entry may not have locking function.
+  How to care for several node's SNMP request should be
+  managed in the system side.) 
+
+ -SAD management(Interface for SAD)
+  PF_KEY[RFC2367] interface is implemented.
+  The function has to be implemented assuming porting to
+  kernel space in future.
+
+ -IPsec packet processing(Encryption, Encapsulation)
+ 
+
+--Structure of SPD
+  Realized by implementation of MIB
+  The MIB can take care of SPD-S, SPD-I, SPD-O.
+
+  *Selector
+  -Local Address
+  -Remote Address
+  -Next Layer Protocol
+  -Local Port, ICMP message type/code 
+     or Mobility Header type
+  -Remote Port, ICMP message type/code 
+     or Mobility Header type
+
+  *Process info
+  -PROTECT (Do IPsec processing)
+  -BYPASS  (Don't do anything)
+  -DISCARD (Discard the packet)
+
+  *Processing in case of PROTECT
+  -IPsec mode (tunnel or transport)
+  -algorithms
+ 
+--Structure of SAD
+  Mandatory is below.
+
+  -SPI
+  -Sequence Number Counter
+  -Sequence Number Overflow
+  -Anti-Replay Window
+  -AH Authentication algorithm
+  -ESP Encryption algorithm
+  -ESP integrity algorithm
+  -ESP combined mode algorithms
+  -Lifetime (Soft,Hard)
+  -IPsec protocol mode (tunnel or transport)
+  -Stateful fragment checking flag
+  -Path MTU
+  -Tunnel header IP source and destination address
+  -Pointer for SPD
+
+  -Start of IKE
+   When a kernel send a packet, IPsec evaluates selector of SPD and
+   process info. In case of PROTECT, IPsec checks the SA.
+   If there is not any SA for the process, IKE is started.
+  
+  -Expiration of SA lifetime
+   Rekey is started for IKE-SA, ESP SA. IF IKE-SA is expired
+   before ESP SA. IKE-SA is rekeyed and original ESP SA is
+   took over to new IKE-SA.
+
+   A jitter is provided for avoid simultaneous rekeying of
+   Initiator and Responder.
+
+--Etc.
+  -SA Bundle is not supported.
+  -AH is not implemented.

@@ -1,0 +1,1 @@
+ ./hac_test aaaserver homedomain.com 1 config/hac.local.xml

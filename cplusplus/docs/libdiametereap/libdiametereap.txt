@@ -1,0 +1,58 @@
+/*!
+
+\mainpage Diameter EAP Application API
+\author Yoshihiro Ohba
+\date Created: January 12, 2004
+\date Updated: June 23, 2004
+
+\section Introduction
+
+The libdiametereap library provides a C++ API to Diameter EAP
+(Extensible Authentication Protocol) Application.  The library
+implements the specification defined in draft-ietf-aaa-eap-07.txt.
+This document describes the API.
+
+\section tagBasicFeatures Basic Features
+
+The API has the following features.
+
+- <b>Client (NAS) and Server implementation</b> The libdiametereap
+library provides both Diameter EAP client and server implementations.
+
+- <b>Thread safety and load balancing</b>.  The libdiametereap library
+is written based on the Open Diameter Framework API, which makes the
+library thread-safe and it is also possible to do load balancing among
+multiple threads to achieve a maximal performance.
+
+- <b>Open-ended API</b>.  The Diameter EAP API is extensible in a way
+that server applications can define its own authorization decisions
+for each authorization attribute carried in Diameter EAP Answer (DEA)
+messages and that client applications can define its own enforcement
+functions for each authorization attribute carried in DEA.  Client
+applications can also define "Set" functions for each authorization
+attribute carried in DER to request the server for authorization for
+particular attributes and "Enforce" functions for each authorization
+attribute carried in DEA to install attributes that have been
+authorized by the server.
+
+- <b>Support for authorization from EAP methods</b> The Diameter EAP
+implementation supports the case in which either the Diameter server
+or the EAP server can perform authorization procedure.
+
+- <b>OS independence</b>.  The library is developed by fully utilizing
+the <A HREF="http://www.cs.wustl.edu/%7Eschmidt/ACE.html"> ACE
+(Adaptive Communication Environment) API </A> so that it can work
+major operating systems including Linux, UNIX and Windows for which
+ACE is supported.
+
+\section tagSample Sample Program
+
+\subsection tagServer Server Sample Program
+
+\include server_test.cxx
+
+\subsection tagClient Client Sample Program
+
+\include client_test.cxx
+
+*/

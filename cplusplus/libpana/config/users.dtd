@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+     <!ELEMENT user_dbase (user+)>
+     <!ELEMENT user (name, pass, auth)>
+     
+     <!ELEMENT name (#PCDATA)>
+     <!ELEMENT pass (#PCDATA)>
+     <!ELEMENT auth (#PCDATA)>

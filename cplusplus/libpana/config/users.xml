@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE user_dbase SYSTEM "users.dtd">
+<user_dbase>
+   <user>
+      <name>user1</name>
+      <pass>12345</pass>
+      <auth>md5</auth>
+   </user>
+   <user>
+      <name>user1@isp.net</name>
+      <pass>12345</pass>
+      <auth>archie</auth>
+   </user>
+   <user>
+      <name>local_nas@opendiameter.org</name>
+      <pass>12345</pass>
+      <auth>archie</auth>
+   </user>
+   <user>
+      <name>user3</name>
+      <pass>12345</pass>
+      <auth>md5</auth>
+   </user>
+   <user>
+      <name>user4</name>
+      <pass>12345</pass>
+      <auth>archie</auth>
+   </user>
+   <user>
+      <name>user5</name>
+      <pass>12345</pass>
+      <auth>md5</auth>
+   </user>
+</user_dbase>

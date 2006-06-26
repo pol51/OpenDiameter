@@ -1,0 +1,86 @@
+Open Diameter Development Policy
+
+     By Yoshihiro Ohba and Victor 
+     Created: January 13, 2004
+     Updated: September 22, 2004
+
+# $Id: development_policy.txt,v 1.2 2004/09/22 15:10:47 yohba Exp $
+
+o Copyright
+
+The copyright should attribute to "Open Diameter Project" for all
+source codes to simplify copyright owner management.
+
+o Use of Doxygen for documentation
+
+Any Open Diameter API MUST be provided with API manual that is written
+by using Doxygen.  Each API manual MUST contain class definitions used
+in the API and sample code.
+
+Any Open Diameter source code should be written with plenty of
+embedded comments by using Doxygen.
+
+o Use of ACE, Boost and Framework API
+
+Any Open Diameter implementation should use the ACE, Boost and
+Framework APIs as much as possible, in order to reduce the development
+time by reusing common design patterns and to improve manageability of
+the source code.  The Framework API is defined in the Open Diameter
+(c_server/include/framework.h) and consists of Job API, Task API and
+State Machine API.
+
+o Use of Common Design for Diameter Applications
+
+Any Diameter application protocol implementation should be written in
+the same way as Diameter EAP application, in order to reduce the
+development time by reusing common design patterns and to improve
+manageability of the source code.
+
+o Use of Common Design for EAP Method Implementations
+
+Any EAP Method Implementations in Open Diameter should be written in
+the same way as EAP MD5-Challenge method and EAP Archie method
+implementations, in order to reduce the development time by reusing
+common design patterns and to improve manageability of the source
+code.
+
+o Thread Safety
+
+Any Open Diameter source code must be thread safe.  With the use of
+Framework API which is written by using many thread safety mechanisms
+such as shared object, recursive and non-recursive mutex locks, it is
+possible for implementations to be automatically thread safe without
+defining their own thread safe mechanisms.
+
+o Testing
+
+Any Open Diameter API implementation MUST be provided with test
+programs that cover the typical usage of the API.  The test programs
+MUST accompany with documents that explain the test case in detail
+Such documents should be written as embeded comments in the source
+code.
+
+Any Open Diameter implementation MUST be well tested before it is
+included in a release.  In other words, an implementation will not be
+included in a release without passing a satisfactory testing
+procedure.
+
+o Throwing Exception vs Returing a Value
+
+Any C++ function defined in Open Diameter implementations should
+carefully be designed as to whether throwing an exception or returning
+a value from a function when handling situations which is not normal.
+
+The design choice would depend on how the situation happens.  If the
+situation can happen due to mis-implementation of protocol or
+mis-usage of API, throwing an exception might be better, since the
+situation would never occur if implementation were correct.  For other
+cases, returning a value might be better, since throwing an exception
+is more costly than returning a value and the implementation must deal
+with the situation anyway.
+
+o Maximum Line Legnth
+
+Any Open Diameter source code should be written so that each line of
+code has maximum eighty (80), single-octet charactors.  This makes the
+source code easy to read on both graphic and charactor terminals.

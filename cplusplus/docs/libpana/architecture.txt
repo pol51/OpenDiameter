@@ -1,0 +1,660 @@
+/* BEGIN_COPYRIGHT                                                        */
+/*                                                                        */
+/* Open Diameter: Open-source software for the Diameter and               */
+/*                Diameter related protocols                              */
+/*                                                                        */
+/* Copyright (C) 2002-2004 Open Diameter Project                          */
+/*                                                                        */
+/* This library is free software; you can redistribute it and/or modify   */
+/* it under the terms of the GNU Lesser General Public License as         */
+/* published by the Free Software Foundation; either version 2.1 of the   */
+/* License, or (at your option) any later version.                        */
+/*                                                                        */
+/* This library is distributed in the hope that it will be useful,        */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of         */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU      */
+/* Lesser General Public License for more details.                        */
+/*                                                                        */
+/* You should have received a copy of the GNU Lesser General Public       */
+/* License along with this library; if not, write to the Free Software    */
+/* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307    */
+/* USA.                                                                   */
+/*                                                                        */
+/* In addition, when you copy and redistribute some or the entire part of */
+/* the source code of this software with or without modification, you     */
+/* MUST include this copyright notice in each copy.                       */
+/*                                                                        */
+/* If you make any changes that are appeared to be useful, please send    */
+/* sources that include the changed part to                               */
+/* diameter-developers@lists.sourceforge.net so that we can reflect your  */
+/* changes to one unified version of this software.                       */
+/*                                                                        */
+/* END_COPYRIGHT                                                          */
+/*! 
+
+\mainpage PANA Functional Architecture 
+\author Victor I. Fajardo
+\date July 21, 2004
+
+The document is a architectural overview of the TARI 
+implementation of PANA. This implementation currently 
+adheres to existing PANA related drafts and will 
+continue it's evolution as dictated by the drafts.
+
+\section contents Overview Contents
+
+-  Language
+-  Tools
+-  Platform Support
+-  PANA API
+-  Server Architecture
+-  Client Architecture
+-  Building, Installing and Running
+-  Configuration Files
+-  Source Distribution
+
+\section language Language 
+
+C++ is used to allow an object oriented design approach.
+This also accomodates the preferred toolset used.
+
+\section tools Tools
+
+The following are tools used in the implementation:
+
+- ACE Frameworks ver 5.3 April 2003
+  (http://www.cs.wustl.edu/~schmidt/ACE.html)
+- Xerces C++ XML lib, ver 2.2.0 April 2003
+  (http://xml.apache.org/xerces-c/index.html)
+
+ACE allows implementation of complex communications
+and general software patterns. This package allows 
+abstractions to threading, synchronization, queueing,
+logging and other generalized implementation needs that
+would otherwise have to be re-invented. Although, the PANA 
+does not require complex communications architecture, the 
+overall coverage of ACE beyond communication needs 
+significantly eases the implementation efforts. This holds 
+true especially when supporting multiple platforms (windows, 
+unix, etc.) since cross platform compatability has already
+been addressed by this toolset. Therefore, this allows 
+developers to concentrate on the init PANA functionality. 
+
+Currently, the chosen method for static configuration
+storage is an XML file. This may change in the future. The design
+allows for this flexibility since the configuration formats
+is dictated by the internal data structures. Hence, the 
+only required change would be the internal population of these
+structures which can easily be segragated via a single
+object interface. As of this writing, the backend implementation
+for this interface is based on Xerces C++. It is used for parsing 
+and loading the XML configuration file. This package has both
+SAX and DOM based API's. The PANA implementation uses DOM.
+
+\section platform Platform Support 
+
+PANA protocol entities will be required to exists in different
+platforms. The most likely of which are UNIX and Windows.
+
+The Pac PANA entity has a high probability of residing under
+a windows environment since the predominant client devices are
+running unders a windows platform (Windows CE for PDA's, XP/NT/Win9X
+flavors for tablets or desktops). In the PANA draft 3 specification,
+it is assumed that PANA will operate with a valid IP address. Hence,
+the unspecified IP support in previous implementation has now been
+deprecated. There is no longer a need for NDIS based drivers for
+windows or raw socket support in UNIX systems. There are still
+system calls to query configuration of network interfaces but
+they will require only user level system calls.
+
+For the PAA, a server environment with the proper scalable capabilities
+are required. The PANA server entity are also required to execute in 
+privileged mode specifically because of it's interaction with
+the EP as well as backend AAA entities. The most probable approach is to 
+implement PAA as a "server/backend" processes specific to each platform.
+
+
+\section api PANA API
+
+The PANA API model is geared towards interacting with EAP modules.
+The current PANA implementation does not have dependencies to
+any single EAP implementation but rather defines an API that
+will interface to any EAP implementation.
+
+The PANA API is a simple session based API model. It comprises 
+generally of two (2) C++ class definitions that users can instantiate.
+These are PANA_Node, PANA_PacSession. Also, required are two (2) C++ 
+classes that users must derived from. These are PANA_ClientEventInterface
+and PANA_PaaEventInerface. These event interfaces follow a bridge or
+abstract pattern implemenation. The PANA_PaaSession can also be inherited
+by users depending on what is being accomplised. The PANA_Node instance
+is required for all applications. For sessions, depending on whether 
+an entity will behave as a Pac or a PAA, instantiaton follows 
+different patters. These are as follows:
+
+- Pac Session Pattern
+
+A Pac session pattern is straight forward. A PANA_Node and PANA_PacSession
+instance is required. An instance of the derived class is required for
+each PANA Pac session. Each instance is required to register a user class
+derived from PANA_ClientEventInterface. This class overrides event
+handlers invoked by the PANA library. The following is an excerpt of the sample code which better describes the Pac API:
+
+\verbatim
+
+class PeerApplication : public PANA_ClientEventInterface
+{
+ public:
+  PeerApplication(PANA_Node &n) : pacSession(n, *this),
+    handle(EapJobHandle(AAA_GroupedJob::Create(n.Task().Job(), this, "peer"))),
+    eap(boost::shared_ptr<MyPeerSwitchStateMachine>
+	(new MyPeerSwitchStateMachine(*n.Task().reactor(), handle))),
+    md5Method(EapContinuedPolicyElement(EapType(4)))
+  {
+    eap->Policy().CurrentPolicyElement(&md5Method);
+  }
+  virtual ~PeerApplication()  {
+    pacSession.Stop();
+  }
+  void Start()
+  { 
+    pacSession.Start();
+    eap->Start(); 
+  }
+
+  MyPeerSwitchStateMachine& Eap() { return *eap; }
+
+  // called by PANA on incomming EAP request
+  void EapRequest(AAAMessageBlock *request,
+                  PANA_PINFO provider,
+                  const PANA_CfgProviderInfo *pInfo) {     
+     eap->Receive(request);
+  }
+  // called by PANA on incomming BIND request
+  void EapRequest(AAAMessageBlock *request,
+                  ACE_UINT32 resultCode,
+                  ACE_UINT32 pcap) {
+     eap->Receive(request);
+  }
+  // called by PANA on authorization of a peer 
+  void Authorize(PANA_AuthorizationArgs &args) { 
+      // contents of args is as follows:
+      // typedef struct {
+      //   AAA_ScholarAttribute<PANA_DeviceId> m_Paa;
+      //   AAA_ScholarAttribute<PANA_DeviceId> m_Pac;
+      //   AAA_ScholarAttribute<diameter_octetstring_t> m_Key;
+      //   AAA_ScholarAttribute<ACE_UINT32> m_KeyId;
+      //   AAA_ScholarAttribute<ACE_UINT32> m_Lifetime;
+      //   AAA_ScholarAttribute<ACE_UINT32> m_ProtectionCapability;
+      //   AAA_ScholarAttribute<PANA_DeviceId> m_Ep;
+      //   AAA_ScholarAttribute<diameter_octetstring_t> m_DhcpKey;
+      // } PANA_AuthorizationArgs;
+  }
+  // called by PANA on re-authentication request
+  void ReAuthentication() { }
+  // called by PANA on termination sequence
+  void Disconnect(ACE_UINT32 cause) { }
+  // called by PANA on session timeout
+  void Timeout() { }
+  // called by PANA on internal error or error message
+  void Error(ACE_UINT32 resultCode) { }
+
+ private:
+  PANA_PacSession pacSession; // insance of PANA Pac
+  EapJobHandle handle;
+  boost::shared_ptr<MyPeerSwitchStateMachine> eap;
+  EapContinuedPolicyElement md5Method;
+};
+
+\endverbatim
+
+<B> Listing 1. PANA Pac API sample </B>
+
+- PAA Session Pattern
+
+The PAA session pattern is similar to the Pac except that the
+derived auth agent objects are generated by a factory. As with the 
+Pac, applications MUST derive from PANA_PaaEventInterface class and
+provide application specific handlers for each session event.
+The difference is in instantiation of PANA_PaaSession or classes
+derived from it. PANA_PaaSession or classes derived from it MUST 
+not be instantiated manually by the application but rather passed 
+on as a template parameter to PANA_PacSessionFactoryAdapter<> class
+or other forms of it. This class is responsible for creating instance 
+of the PANA_PaaSession based object based on demand.
+
+The following is an excerpt of the sample code which better describes
+the Pac API:
+
+\verbatim
+
+class StandAloneAuthApplication : public PANA_PaaEventInterface
+{
+
+ public:
+  StandAloneAuthApplication(PANA_Node &n) 
+    : paaSession(n),
+      handle(EapJobHandle(AAA_GroupedJob::Create(n.Task().Job(), this, "standalone"))),
+      eap(boost::shared_ptr<MyStandAloneAuthSwitchStateMachine>
+	  (new MyStandAloneAuthSwitchStateMachine(*n.Task().reactor(), handle))),
+      identityMethod(EapContinuedPolicyElement(EapType(1))),
+      md5Method(EapContinuedPolicyElement(EapType(4))),
+      notificationMethod(EapContinuedPolicyElement(EapType(2)))
+  {
+    // start paa session
+    paaSession.Start();
+    // Policy settings for the authenticator
+    identityMethod.AddContinuedPolicyElement
+      (&md5Method, EapContinuedPolicyElement::PolicyOnSuccess);
+    identityMethod.AddContinuedPolicyElement
+      (&notificationMethod, EapContinuedPolicyElement::PolicyOnFailure);
+    eap->Policy().CurrentPolicyElement(&identityMethod);
+  }
+  virtual ~StandAloneAuthApplication() {
+    paaSession.Stop();
+  }
+
+  // called by PANA on accepting initial PANA start answer from peer
+  void EapStart() {
+     eap->Start();
+  }
+  // called by PANA on incomming EAP response
+  void EapResponse(AAAMessageBlock *response, bool separate) { 
+     eap->Receive(response);
+  }
+  // called by PANA on authorization of a peer 
+  void Authorize(PANA_AuthorizationArgs &args) { 
+      // contents of args is as follows:
+      // typedef struct {
+      //   AAA_ScholarAttribute<PANA_DeviceId> m_Paa;
+      //   AAA_ScholarAttribute<PANA_DeviceId> m_Pac;
+      //   AAA_ScholarAttribute<diameter_octetstring_t> m_Key;
+      //   AAA_ScholarAttribute<ACE_UINT32> m_KeyId;
+      //   AAA_ScholarAttribute<ACE_UINT32> m_Lifetime;
+      //   AAA_ScholarAttribute<ACE_UINT32> m_ProtectionCapability;
+      //   AAA_ScholarAttribute<PANA_DeviceId> m_Ep;
+      //   AAA_ScholarAttribute<diameter_octetstring_t> m_DhcpKey;
+      // } PANA_AuthorizationArgs;
+  }
+  // called by PANA on re-authentication request
+  void ReAuthentication() { }
+  // called by PANA on termination sequence
+  void Disconnect(ACE_UINT32 cause) { }
+  // called by PANA on session timeout
+  void Timeout() { }
+  // called by PANA on internal error or error message
+  void Error(ACE_UINT32 resultCode) { }
+
+  //  MyEapStandAloneAuthSession& Eap() { return eap; }
+  MyStandAloneAuthSwitchStateMachine& Eap() { return *eap; }
+
+  PANA_PaaSession &paa() { return paaSession; }
+
+ private:
+  PANA_PaaSession paaSession; // PAA session
+  EapJobHandle handle;
+  boost::shared_ptr<MyStandAloneAuthSwitchStateMachine> eap;
+  EapContinuedPolicyElement identityMethod;
+  EapContinuedPolicyElement md5Method;
+  EapContinuedPolicyElement notificationMethod;
+};
+
+class StandAloneSessionFactoryAdapter : public PANA_PaaSessionFactory
+{
+   public:
+      StandAloneSessionFactoryAdapter(PANA_Node &n) :
+	PANA_PaaSessionFactory(n), node(n) { }
+      // virtual abstract method that needs to be implemented by the user
+      PANA_PaaSession *Create() {
+         StandAloneAuthApplication *app = new StandAloneAuthApplication(node, sem);
+         if (app) {
+	    return &(app->paa());
+	 }
+         return (0);
+      }
+   protected:
+      PANA_Node &node;
+};
+
+\endverbatim
+
+<B> Listing 2. PANA PAA API sample </B>
+
+\section server Server Architecture
+
+The server architecture as shown in Fig. 1 is subdivided into the 
+following functional modules. Note that this current descriptions
+are depiction of the initial design elements and are subject to
+change.
+
+- Core Module
+This contains general process specific objects not necessarily
+related to protocol features. It is responsible for loading
+and maintaining configuration data extracted from an XML 
+configuration file. It also contains general system facilities required
+by the implementation such as logging and timer services. There
+are two (2) key facilities provided by the init module that pertains
+directly to a scalable and optimized performace of PANA entity. The 
+first is a task object. The server design relies heavily
+on parallelized execution of all internal functions. This means
+that all logical functionality within the server is granulated
+into jobs and distributed among threads in the pool for execution. 
+Note also that the task object's job queue is a priority queue
+and job entries can contain weights. This introduces a primitive
+scheduler to the task objects job queue. Care MUST be taken in 
+ensuring that no low priority jobs are starved (left in the queue) 
+because of to many high priority jobs being enqueued. The number of threads 
+within the task object can be controlled via configuration files. 
+The second facility is the use of a memory pool. This has the 
+effect of minimizing context switching due to system call when 
+the PAA request for memory from the system. In addition, it 
+provides a more optimal use of memory since it is a re-use algorithm. 
+
+In addition to these generalized services, the init module
+also manages interfaces (API's) to entities outside of the PAA. These 
+interfaces are required by PANA to operate properly. The 
+first of which is the EP interface. Based on the PANA draft,
+communication with the PAA and the EP may be based on a
+separate protocol (if EP is remote) or an API call (if EP
+is co-located). In either case, a generic EP interface MUST
+be implemented to shield the init PANA modules from this
+diverse linkage. The next interface is the AAA interface which would
+allow the PAA to pass EAP traffic to any type of backend
+AAA entity. As with the EP interface, a generic AAA interface
+MUST be implemented to shield the init PANA modules. In addition,
+this interface must allow for the flexibility of one or more
+backend AAA entities to exists. Both these interfaces must be
+configurable via the configuration file.
+
+A timer queue is also present in the init module. It has it's
+own thread that efficiently triggers on the next calculated
+timing request for the PANA entity. An independent timer thread
+was chosen so as not to produce latency in any timing request.
+The handler for an expired timer, however, is still executed 
+within the task object thread context.
+
+- Transport Module
+
+The transport module consist of an egress scheduler
+(message transmission), and ingress scheduler. The functions 
+of each can be described using ingress and egress traffic. 
+
+There exists a listener job to service incomming PANA traffic.
+This job performs a blocking read on the libraries UDP socket.
+PANA traffic can come either in UDP or multicast forms. In both
+cases, once a complete message is received by packet filter, the
+message is immediately queued for ingress scheduling. Queueing
+is done by passing raw buffered data into the task's job
+queue to be picked up by the next available thread. Once it's
+processed, the message is parsed into an internal message data
+structure. A partial check for validity (See 4.1.6 of the PANA
+draft) is made before being queued for processing by the ingress
+scheduler. The logical boundary of the transport module is the
+ingress scheduler. 
+
+For the egress traffic, all entities within the PAA queues thier
+outgoing pre-composed message into the egress scheduler. As with any
+other jobs in the software, queueing is done by passing the message
+along with the job to the thread pool. The first available thread
+would then provide an execution context for the transmission of the
+message.
+
+- Session Module
+
+The session module consist of the session resolution, message validation
+and state machine hanlders (discovery, authorization and termination handler).
+As with the other modules, execution context is provided by the thread pool. 
+
+The session resolution is the boundary of the session module
+as seen from the transport module. All PANA traffic is received by 
+the session resolution. Messages are parsed messages (from raw buffers) 
+passed in by the transport module. The session resolutin makes queries 
+to the session database to determine the session object the message 
+belongs to. If found, full validation of the message is then made 
+(See 4.1.6 of PANA draft). If it passes validation, the messages 
+will then be queued to the proper state machine handlers (discover, 
+authoriation and termination).
+
+A special case is made for PANA start answer message since a new session 
+has to be created for this newly verified client. PANA discover 
+messages are passed on to the discovery handler in a stateless manner.
+The server does not store state information but merely generates a
+cookie based on the Pac device id. On a successful discovery phase,
+an attempt is made to add a new session to the session databas 
+upon receipt of a valid start answer message.
+(See Fig 2. and Fig 3. of Sec. 4.2 of the PANA Draft).
+
+The state machine handlers, implements Sec. 4.2, 4.3, 4.4 and 4.5 
+of the PANA Draft.  Details of it's functioning is best describe 
+in the draft itself. Note that internal auxiallry functions exists 
+in composing egress messages generated by these handlers.  
+
+\image html server_architecture.jpeg
+\image latex server_architecture.eps
+<B> Figure 1. PANA Server Functional Architecture </B>
+
+Note that the session database is necessary to manage simultaneous 
+ongoing peer sessions. It is recommended that a fast access database
+structure be used in implementing the session database. Current
+implementation uses an Red-Black tree for storing session entries.
+The current state plus all other functional data required to maintain
+a PANA session will be stored in these session entries. In addtion,
+SA (security association) data will also be stored in these entries.
+
+\section client Client Architecture
+
+The client architecture as shown in Fig. 2 is subdivided into the 
+following functional modules. Note that this current descriptions
+are depiction of the initial design elements and maybe subject to
+change in future revisions.
+
+- Core Module
+
+The init module for the Pac is exactly the same as for the PAA. 
+All auxillary features such as thread and memory pooling present.
+As describe in the server architecture, the excution context for
+all logical functions of the Pac will also be provided by the
+thread pool. The major differences in the Pac init module is 
+that the management of EP and AAA interface is not present. What is
+present is an API that exposes the PANA client entity to the system.
+(which is also present in the PAA). 
+
+- Transport Module
+
+The transport module of Pac is similar to that of the PAA. The only 
+difference is the validation of PANA messages which may have Pac
+specific checks. The egress scheduler as well as the ingress scheduler
+remains the same. The egress scheduler still functions as a broker for 
+transmitting composed PANA messages. It also uses the low level packet 
+filters exclusively for sending and receiving PANA traffic. For the 
+incomming message processing, the functions are similar to the PAA
+except that the received message is passed on immediately to the 
+state machine handlers instead of having an additional session resolution
+entity. 
+
+- Session Module
+
+The session module is composed simply of the state machine handlers. 
+As with the PAA, the state machine handlers is responsible for implementing 
+the init PANA functionality as it relates to a Pac. Sec. 4 or the PANA draft 
+describes this in detail. However, unlike the PAA session module which has 
+a session resolution entity  responsible for matching ingress messages to existing 
+sessions, a PANA client entity has at most one active session at any given 
+moment (this may change in the future). Message validity checking is done 
+by auxillary objects within the state machine handler.  A session database 
+does not exist in the PANA client entity. It does not have significant use at 
+this time.
+
+\image html client_architecture.jpeg
+\image latex client_architecture.eps
+<B> Figure 2. PANA Client Functional Architecture </B>
+
+\section build Building, Installing and Running
+
+As noted above, PANA can be built in both windows and linux. Instructions
+for both are as follows:
+
+1. Linux/UNIX: There is an autconf script at the root the PANA library
+   directory. To build, simply run the configure script, <b>./configure</b>.
+   This will check for all necessary third-party libraries and environment
+   settings. If configuration is successful, simply run <b>make</b> to build
+   the library. Installation can be done by running <b>make install</b> although
+   this can be done manually to suit the users environment (i.e. copying
+   the source and headers to a directory appropriate for the user).
+   You can also run the sample code pana_test1 from a user command line.
+
+2. Win32: Installation under windows consist of a <b>Windows Installer</b>
+   program that is downloaded from the distribution site. The windows
+   installer currently install only source and header files for PANA 
+   plus pre-built binaries (DLL's and sample code only). The installer
+   is a standard windows installer that allows you flexibility on the
+   target directory where the PANA files will be installed. The installer
+   also registers with the <b>Add/Remove Programs</b> list in the windows
+   <b>Control Panel</b> for easy removal/re-installation. If you wish to
+   rebuild the DLL's and sample code, the use of VC++ 7.1 (.NET 2003) is 
+   required. There is a Solutions directory directly under the PANA
+   library root. Under this directory, there is a solutions file PANA.sln
+   that contains references to all the project files that PANA requires. 
+   It also includes the project file for the "Windows Installer" itself. 
+   When running VC++ 7.1, you can selectively build whichever target 
+   you wish but the base dependencies is the PANA DLL.
+
+\section config Configuration Files
+
+The configuation files for both Pac and PAA are XML based. Most entries
+in the configuration file are self explanatory and hence an excerpt of
+a sample configuration file are shown here. Note that the difference
+between the Pac and PAA configuration is that the Pac has an extra
+configuration section. Differences are noted below:
+
+\verbatim
+
+<pana_configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:noNamespaceSchemaLocation='config.xsd'>
+
+    <!-- General configuration section
+         common to both PAA and Pac -->
+    <general>
+
+        <!-- Number of threads to start in the thread pool -->
+        <thread_count>5</thread_count>
+    
+        <!-- PANA UDP listening port -->
+        <listen_port>1001</listen_port>
+    
+        <!-- Interface name to bind the driver to
+             For windows, this is the adapter name (i.e. Intel(R) PRO ...)
+             For linux, this is the interface name (i.e. eth0, eth1) -->
+        <interface_name>Intel(R) PRO/1000 MT Mobile Connection</interface_name>
+    
+        <!-- Message re-transmission interval -->
+        <retransmission_interval>3</retransmission_interval>
+    
+        <!-- Maximum message re-transmission before error notification -->
+        <max_retransmission_count>3</max_retransmission_count>
+    
+        <!-- Local session lifetime -->
+        <session_lifetime>60</session_lifetime>
+    
+        <!-- Locally configured protection capability -->
+        <protection_capability>1</protection_capability>
+    
+        <!-- Dictionary file used by message parser -->
+        <dictionary_filename>dictionary.xml</dictionary_filename>
+
+        <!-- Session resumption flags -->
+        <session_resumption>1</session_resumption>
+
+    </general>
+    
+</pana_configuration>
+
+\endverbatim
+
+<B> Listing 3. PANA PAA sample configuration </B>
+
+\verbatim
+
+<pana_configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:noNamespaceSchemaLocation='config.xsd'>
+
+    <!-- General section. Same entries and
+         definitions as PAA -->
+
+    <general>
+
+        ....
+        ....
+
+    </general>
+
+    <!-- Pac specific session, relevant only
+         to Pac entities -->
+    <client>
+
+        <!-- Pre-configured IP address of PAA if any -->
+        <paa_ip_address>192.168.1.1</paa_ip_address>
+
+        <!-- Pre-configured multicast address of PAA if any -->
+        <paa_mcast_address>244.0.0.100</paa_mcast_address>
+
+        <!-- PAA listener port number -->
+        <paa_port_number>1001</paa_port_number>
+        
+    </client>
+    
+</pana_configuration>
+
+\endverbatim
+
+\section source Source Distribution
+ 
+The current implementation of PANA entities (client and server) involves
+support for multiple platforms as stated in Sec. 3 of this document. The
+directory structure below shows the outline of the source tree.
+
+\verbatim
+
+PANA_ROOT
+    |
+   \docs                 # documentation
+      \win32             # object files and executables
+      \linux             # object files and binaries 
+       ...
+   \include              # API's for accessing PANA entity from the device 
+   \src                  # PANA init source code
+      \linux             # Linux specific transport source code
+      \win32             # Windows specific transport source code
+   \config               # Configuration files
+   \drivers              # Packet filtering drivers
+   \Solutions            # Solutions directory for VC++ .NET files
+       ...
+
+Notes: UNIX autoconf files exist in the PANA_ROOT directory.
+       All source code that implements the init PANA functionality resides
+       in PANA_ROOT\src. All header files exposed to the system (via DLL
+       in windows) are in PANA_ROOT\include. PANA_ROOT\config
+       will contain XML configuration files for linux based systems.
+       
+       For unix systems, autoconf was used to generate makefiles. Therefore,
+       you need to run the 'configure' script from builds/$OS directory to
+       allow a clean cross compile environment. You may run configure from
+       the PANA_ROOT directory but it will distribute the build the binaries
+       inside the source directories.
+
+\endverbatim
+
+Note that the include directories exposes the EP interface and the 
+AAA interface for PAA and the PANA API for the Pac. RADIUS and
+DIAMETER modules (and others) are backend hooks to for the AAA 
+interface and allows the PAA to interact with various AAA entities.
+These modules are also configurable via entries in the XML configuration
+files.
+
+\section bibliography Bibliography
+
+[PANA Draft] D. Forsber, Y. Ohba, B Pati, H. Tschofenig, A. Yegin: "Protocol
+for carrying Authentication for Network Access", PANA Working Group Draft,
+March 2003
+
+*/

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pana_configuration SYSTEM "config.dtd">
+<pana_configuration>
+
+    <general>
+
+        <!-- Controls the number of threads in the pool
+             to be spawned at startup -->
+        <thread_count>5</thread_count>
+    
+        <!-- UDP port that the PAA will listen to
+             for Pac messages -->
+        <listen_port>3003</listen_port>
+    
+        <!-- Name of interface to use for PANA
+             messages -->
+        <interface_name>eth0</interface_name>
+    
+        <!-- Flag to indicate that this library
+             will try to use IPv6 stack 
+              0 - use only IPv4
+              1 - attempt to use IPv6 --> 
+        <ipv6>1</ipv6>
+    
+        <!-- Protection capability advertised by
+             the PAA -->
+        <protection_capability>1</protection_capability>
+    
+        <!-- Filename of the parser dictionary -->
+        <dictionary_filename>config/dictionary.xml</dictionary_filename>
+
+        <!-- Session resumption flag -->
+        <mobility>0</mobility>
+
+        <!-- Controls wether S-flag will be set if the
+             start request message from the PAA supports
+             supports separate NAP/ISP authentication 
+             (i.e. s-flag on start request is set).
+             This is a required configuration entry 
+             and MUST be provide to enable/disable S-flag -->
+        <separate>0</separate>
+        
+        <!-- Abort on 1st eap failure -->
+        <abort_on_first_eap_failure>0</abort_on_first_eap_failure>
+
+        <!-- Controls wether EAP payload will be sent
+             in the PSR/PSA message during stateful
+             discovery. Note that this is only
+             valid if use_cookie is 0. Also, if this
+             is set and used, then the separate flag
+             will be ingnored -->
+        <eap_piggyback>0</eap_piggyback> 
+
+        <!-- Post pana address configuration options -->
+        <ppac_config>
+           <!-- suppots dhcpv4 -->
+	   <dhcpv4>0</dhcpv4> 
+
+           <!-- suppots dhcpv6 -->
+	   <dhcpv6>0</dhcpv6> 
+
+           <!-- supports IPv6 stateless autoconfig -->
+           <autoconfv6>0</autoconfv6>
+
+           <!-- supports DHCPv4 via IPsec tunnel -->
+           <dhcpv4_ipsec>0</dhcpv4_ipsec>
+
+           <!-- supports IKEv2 -->
+           <ikev2>0</ikev2>
+
+        </ppac_config>
+
+        <!-- Configurable retransmission parameters
+             as specified in the PANA draft. See
+             Sec 10 of the draft for rules govering
+             message retranmission -->
+        <retransmission_param>
+           <!-- Initial retransmission timeout -->
+           <initial_rt_timeout>3</initial_rt_timeout>
+
+           <!-- Maximum retransmission count -->
+           <max_rt_count>3</max_rt_count>
+
+           <!-- Maximum retransmission timeout -->
+           <max_rt_timeout>120</max_rt_timeout>
+
+           <!-- Maximum retransmission duration -->
+           <max_rt_duration>10</max_rt_duration>
+        </retransmission_param>
+
+        <!-- Re-Auth timer (interval) -->
+        <keep_alive_interval>10</keep_alive_interval>
+        
+        <!-- WPA (802.11i) bootstrap support 
+             A 256-bit PMK key will be generated during the
+             Authorize method (and passed to authorization
+             script) when this option is enabled. 
+          -->
+        <wpa_bootstrap>1</wpa_bootstrap>
+    </general>
+
+    <client>
+
+        <!-- Pre-configure IP address of the PAA. If this
+             entry is empty, discovery message will be
+             transmitted using paa_mcast_address -->
+        <!-- paa_ip_address>fe80::20c:29ff:fe8a:6133</paa_ip_address -->
+        <!-- paa_ip_address>fe80::20c:29ff:fed7:2ace</paa_ip_address -->
+        <paa_ip_address></paa_ip_address>
+
+        <!-- PAA port number used in conjuction with paa_ip_address -->
+        <paa_port_number>3001</paa_port_number>
+
+        <!-- Pre-configure mcast address if the PAA address
+             is not known before hand. This will be used
+             in discovery if paa_ip_address is empty. Note
+             that default value is set in schema if this
+             value is empty --> 
+        <paa_mcast_address>ff02::1111</paa_mcast_address>
+
+        <!-- ISP provider information to be sent with 
+             the start answer message. If name is empty,
+             no ISP-Information will be sent. If not
+             the Pac will match name with the list 
+             provided by the PAA during start request.
+             If a match is found, ISP-Information will
+             be sent else it will not -->
+        <isp_info>
+           <id>2</id>
+           <name>Provider2.com</name>
+        </isp_info>
+
+    </client>
+    
+</pana_configuration>

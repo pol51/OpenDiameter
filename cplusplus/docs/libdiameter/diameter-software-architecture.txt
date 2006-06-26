@@ -1,0 +1,278 @@
+/*!
+
+\mainpage Open Diameter Software Architecture
+\author Victor I. Fajardo
+\date June 25, 2004
+
+This document describes the software architecture used by Open
+Diameter for implementing the diameter base protocol library. 
+It is designed to be modular, thread safe and scalable.
+
+\section overView Overview
+
+The architecture of the Open Diameter implementation is based heavily
+on the design patterns discussed in [FRAMEWORK] as well as those
+defined in [ACE]. The socket acceptor and connector patterns are 
+borrowed from [ACE] and extended to employ AAAMessage collection
+techniques. In addition, the OS abstraction layer provided by ACE 
+allows for a certain degree of portability. This document will 
+concentrate on the overall architecture of the diameter library.
+Detailed implementation is not described in this document.  
+
+The programming language of choice is C++. It is our intent to take
+advantage of object methodology, widespread familiarity and abundant
+support offered by C++. In addition, a decision was made to utilize
+standard C++ libraries to allow for speed of development.  
+
+Care has been given to allow the code to be as platform independent as
+possible. All system calls are abstracted by an utilities provided by
+ACE. In addition all system calls not covered within the base ACE OS
+abstraction layer are made as POSIX compliant as possible. 
+
+\image html architecture.jpeg
+\image latex architecture.eps
+<B> Figure 1. Software Architecture </B>
+
+The figure above shows a general overview of the implementation.
+Each box below the API boundary with the exception of the routing 
+engine, is contained within it's own AAA_Job instance.
+Each box or module is thread independent and are created
+on demand. For details on AAA_Job, see [FRAMEWORK]. All databases
+are global singleton entities. All of which are thread safe/protected
+with the exception of the configuration database which is a read-only
+database.
+
+\subsection io Peer with IO Objects
+
+The peer objects are instances of diameter peer information as 
+known to the local diameter entity. These instances are generated
+based on the locally configure peer table. Currently, there is no
+support for dynamically learned peers but the model allows itself
+to accommodate such feature. In addition to peer information, the 
+IO objects are class abstractions to underlying transports. These
+transports are defined in [RFC3588] as system specific transports 
+(any of the required or optional transport) that must be used with 
+diameter. The base IO objects defines a specific asynchronous behavior 
+that each of the underlying transport must support. During 
+initialization, instances of the Peer IO objects are created 
+and asynchronous connection attempts to the known peers are
+made. The result of this connection attempt will be passed on
+the a Peer FSM object associated with this IO object. The IO
+object also exposes send and receive functions to the Peer FSM
+to provide generic IO services to a connected peer.
+
+\subsection fsm Peer FSM Objects
+
+A Peer FSM object implements the peer state machine as described
+in Sec. 5.6 of [RFC3588]. It strictly follows all state transition
+procedures including election. Since this object is also contained 
+within an AAA_Job, all state transitions are thread safe and atomic
+from an external point of view. To facilitate election, each FSM
+object has references to two (2) Peer IO objects. One for an initiator
+and one for a responder. Initiator objects are IO objects that
+has successfully completed an asynchronous connection attempt to
+a peer. Responder objects are IO objects that has been created
+by an IO acceptor factory as described below. During election,
+both of these IO objects maybe active until the result of the
+election deactivate one of them. Deactivation will result in
+deletion of the IO object.
+
+\subsection sdelivery Session Delivery Objects
+
+The session delivery objects are responsible for delivering
+all incomming AAAMessage to a specific AAA session. The messages
+that the Peer FSM Objects have deemed to be incomming session
+messages are consumed by this object. The session delivery object
+determines the AAASession object that the message belongs to by
+querying the message's session id AVP. The delivery object searches
+the local session database for a matching session. If no matching session
+is found, the delivery object will lookup a matching session
+factory object that has an application id matching the application
+id of the message. If there is a registered session factory, then
+the delivery object will ask the factory to create a new session
+and delivery the message to the newly created session. If non
+of these lookup's are successful, the session delivery object
+will silently discard the message. As with FSM objects, the 
+session delivery objects are derived from AAA_Job hence they 
+are thread independent. 
+
+\subsection sfsm Session FSM Object
+
+The session FSM objects are responsible for implementing the
+authorization and accounting state machine as described in
+Diameter User Session, Sec 8. of [RFC3588]. The user sessions
+are all based on AAASession objects defined in the Open Diameter
+API. Dervied objects specializing in client/server authorization
+sessions and client/server accounting sessions also exists in
+the API definitions. As discussed in the API, session ojbects allows
+users to registering event handlers on a per-session basis. The
+session FSM object is the holder of all registered event handers
+for a particular session. The implementation is straight forward 
+and follows Sec 8. of [RFC3588] consistenly. This object is the 
+consumer of all AAAMessage that passed through the session delivery 
+object. After some perfoming pre-processing on each message to update 
+it's internal  state, the Session FSM object will eventually pass 
+all non-base protocol session messages to registered event handlers.
+As with the Peer FSM objects, this object also derives from AAA_Job 
+and hence it is thread safe. As of this writing, the session objects 
+are still in thier original linear implementation (i.e. only switch 
+statements are used for state transition) and has not been migrated 
+to the the Open Diameter Framework FSM. 
+
+\subsection sApplication Application Session Ojbects
+
+Application session objects are authorization or accounting 
+objects instantiated by the user or by an session factory on
+behalf of the user. These objects are defined in the Open Diameter
+API and used by the user application to interact with the library.
+Details of these objects are found in the Opne Diameter API.
+
+\subsection Routing Engine
+
+The routing engine is documented in discussed in detail in
+[DIAMETER ROUTING].
+
+\subsection Run-time Persistent Tables
+
+The following are run-time persistent tables that exists within
+the diameter library:
+
+\li \c Route \c Table Constitute the realm routing table as defined in [RFC3588]. Route entries are discussed in detail in [DIAMETER CONFIG].
+
+\li \c Peer \c Table Constitues the peer table as defined in [RFC3588]. Peer table entries are discussed in detail in [DIAMETER CONFIG].
+
+\li \c Configuration \c Database Represents a run-time mirror of all configuration entries defined in [DIAMETER CONFIG] with the exception of the route and peer table.
+
+\subsection parser Message Parser
+
+The Diameter message parser (libdiamparser) is implemented 
+as a separate library from the library for the Diameter base 
+protocol (libdiameter). Both libraries are common to any client 
+or server authentication application that uses them. The message 
+parser library is a generic message parser that can be used by
+any protocol with a packet format of a message header with trailing
+AVP's. Under Open Diameter, the message parser library is used
+by other protocols for packet composition and decomposition.
+
+In the message parser library, all known AVP's and command codes are
+loaded into memory during initialization phase via the dictionary files
+to construct a runtime dictionary database.  These dictionary files,
+like configuration files, are XML based. The XML format is well known
+and hence very well supported.  Apache's Xerces C++ XML library is used
+to parse the dictionary files. Thread protection is not provided in the 
+runtime dictionary database since all access are required to be
+read-only. The diameter architecture is designed such that a message is
+always exclusively processed by a single thread. Ownership of
+an AAAMessage is passed on in source-sink model from one AAA_Job
+to the next. 
+
+The data structures used for message parsing are container list 
+AAAAvpContainerList, container AAAAvpContainer and container
+entry AAAAvpContainerEntry.  An example pointer chains of those
+data structures are shown in Figure 2.
+When assembling or disassembling a message, a container is assigned for
+each type of AVP and attached to a container list.  Also, a distinct
+container entry is assigned for each AVP that is included (when
+disassembling) or to be included (when assembling) in the message and
+attached to the container of the corresponding AVP type.  The parent
+container list needs to be provided by the application.  When
+disassembling a message, either the application or the parser module has
+the responsibility of assignment and attachment of containers, but only
+the parser module has the responsibility of assignment and attachment of
+container entries.  On the other hand, when assembling a message,
+applications have the responsibility of assignment and attachment of
+containers and container entries.  In any cases, application is the only
+entity that have the responsibility of releasing and detaching
+containers and container entries.
+
+Assignment and release of containers and container entries is done via
+container manager AAAAvpContainerManager and container entry
+manager AAAAvpContainerEntryManager, respectively.  Resource
+management for containers and container entries is based on
+pre-allocation (instead of on-demand allocation via malloc() system
+call) in order to avoid frequent memory allocation/deallocation.
+
+AVP data in a Grouped AVP is stored in a distinct container list for
+which a pointer is stored in the container entry for the Grouped AVP.
+In other words, a Diameter message payload and a Grouped AVP is treated
+in the same manner.  It is also possible to process nested Grouped AVPs
+in which a Grouped AVP contains another Grouped AVP as its element AVP.
+
+\image html parser_structure.jpeg
+\image latex parser_structure.eps
+<B> Figure 2. Diameter Message Payload Parsing Structure</B>
+
+Diameter parser defines a template parser class named AAAParser
+which provides a unified way to parse any data structure.  Any
+AAAParser class object consists of the following members.
+
+\li \c Raw \c Data Less-structured data such as string buffers.
+
+\li \c Application \c Data Structured representation of raw data, such as AVP container list.
+
+\li \c Dictionary \c Data Data that describes a rule for data conversion  between raw data and application data.  Dictionary data can be null.
+
+\li \c Data \c Set/Get \c Functions A set of functions used for setting/getting raw data, application data and dictionary data to/from  the parser.
+
+\li \c Message \c Parsing \c and \c Data \c Conversion \c Functions
+
+A pair of functions used for data parsing and conversion between 
+raw data and  application data. A number of parser classes are 
+defined for parsing different objects including Diameter header, 
+Diameter payload, AVP header and AVP payload of each data type, 
+by specializing the template AAAParser class.
+
+\subsection avp Registering New AVP Types
+
+The diameter parser library defines an API to define a new AVP type and
+a parser to parse the new type, in addition to the default supported AVP
+types such as Integer32, Unsigned32, OctetString, UTF8String, Grouped
+and IPAddress.  This feature is particularly important not only for
+developing new Diameter applications and but also for developing a new
+protocol that uses Diameter AVP formats.  PANA (Protocol for carrying
+Authentication for Network Access) is an example of the latter case.
+
+Registration of a new AVP type can be done via adding a new AVP type
+entry called AvpType, where an AVP type entry consists of the
+following members.
+
+\li \c Type \c Name The name of this AVP type.
+
+\li \c Type \c Code An integer that is used by the parser library for
+distinguishing this AVP type.  The type code must be unique among all
+the types in the system.  The type code is used only inside the library
+and never carried in Diameter messages.
+
+\li \c Type \c Size The minimum size of the data of this AVP type.  This
+information is used for creating an placeholder AVP when a certain
+class of error occurs.
+
+\li \c Dictionary \c Data Data that describes a rule for data conversion
+between raw data and application data.  Dictionary data can be null.
+
+\li \c Parser \c Creator A function object or a functor that is used for
+creating a parser class instance that parses the data of the AVP type.
+
+\li \c Container \c Entry \c Creator A function object or a functor that is
+used for creating a container entry that contains the data of the AVP
+type.
+
+The list of AVPType instances are retained in an AVP type list
+AAAAvpTypeList, which is a singleton.
+
+\subsection thebibliography Bibliography
+
+\li \c [ACE] \anchor ace Douglas C. Schmidt, ``The ADAPTIVE Communications
+Environment, An Object-Oriented Network Programming Toolkit for
+Developing Communications Software,'' June 1993.
+
+\li \c [RFC3588] \anchor rfc3588 P. Calhoun, et al., ``Diameter Base Protocol,''
+Request for Comments, Standards Track, September 2003.
+
+\li \c [FRAMEWORK] \anchor framework Y. Ohba, ``Open Diameter Framework Architecture,'', January 2004.
+
+\li \c [DIAMETER ROUTING] \anchor routing V. Fajardo, ``Open Diameter Routing Architecture,'', June 2004.
+
+\li \c [DIAMETER CONFIG] \anchor config . Fajardo, ``Open Diameter Sample Configuration,'', June 2004.
+
+*/

@@ -1,0 +1,24 @@
+# Do not remove the following line, or various programs
+# that require network functionality will fail.
+127.0.0.1	hac.homedomain.com
+127.0.0.1	aaaserver.homedomain.com
+
+127.0.0.1	fac.foreigndomain.com
+127.0.0.1	faaaserver.foreigndomain.com
+127.0.0.1	has.homedomain.com
+
+127.0.0.1	nas.research1.org
+127.0.0.1	server.research2.org
+
+127.0.0.1	server.isp.net
+127.0.0.1	nas.access1.net
+127.0.0.1	nas.access2.net
+127.0.0.1	nas.access3.net
+
+
+#192.4.12.84	nas.research1.org
+#192.4.12.84	server.research2.org
+
+
+
+127.0.0.1		localhost.localdomain localhost

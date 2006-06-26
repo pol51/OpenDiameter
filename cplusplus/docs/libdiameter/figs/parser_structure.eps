@@ -1,0 +1,2375 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 9 261 451 697
+%%Title: parser_structure
+%%CreationDate: Thu Jul  8 14:28:33 2004
+%%Creator: Tgif-4.1.43-QPL written by William Chia-Wei Cheng (bill.cheng@acm.org)
+%%ProducedBy: (unknown)
+%%Pages: 1
+%%DocumentFonts: (atend)
+%%EndComments
+%%BeginProlog
+
+/tgifdict 88 dict def
+tgifdict begin
+
+/tgifellipsedict 6 dict def
+tgifellipsedict /mtrx matrix put
+
+/TGEL % tgifellipse
+ { tgifellipsedict begin
+      /yrad exch def
+      /xrad exch def
+      /y exch def
+      /x exch def
+      /savematrix mtrx currentmatrix def
+      x y translate
+      xrad yrad scale
+      0 0 1 0 360 arc
+      savematrix setmatrix
+   end
+ } def
+
+/tgifarrowtipdict 8 dict def
+tgifarrowtipdict /mtrx matrix put
+
+/TGAT % tgifarrowtip
+ { tgifarrowtipdict begin
+      /dy exch def
+      /dx exch def
+      /h exch def
+      /w exch def
+      /y exch def
+      /x exch def
+      /savematrix mtrx currentmatrix def
+      x y translate
+      dy dx atan rotate
+      0 0 moveto
+      w neg h lineto
+      w neg h neg lineto
+      savematrix setmatrix
+   end
+ } def
+
+/tgifpatdict 10 dict def
+
+/tgifpatbyte
+ { currentdict /retstr get exch
+   pat i cellsz mod get put
+ } def
+
+/tgifpatproc
+ { 0 1 widthlim {tgifpatbyte} for retstr
+   /i i 1 add def
+ } def
+
+/TGPF % tgifpatfill
+ { tgifpatdict begin
+      /h exch def
+      /w exch def
+      /lty exch def
+      /ltx exch def
+      /cellsz exch def
+      /pat exch def
+
+      /widthlim w cellsz div cvi 1 sub def
+      /retstr widthlim 1 add string def
+      /i 0 def
+
+      tgiforigctm setmatrix
+      ltx lty translate
+      w h true [1 0 0 1 0 0] {tgifpatproc} imagemask
+      ltx neg lty neg translate
+   end
+ } def
+
+/pat3 <8000000008000000> def
+/pat4 <8800000022000000> def
+/pat5 <8800220088002200> def
+/pat6 <8822882288228822> def
+/pat7 <aa55aa55aa55aa55> def
+/pat8 <77dd77dd77dd77dd> def
+/pat9 <77ffddff77ffddff> def
+/pat10 <77ffffff77ffffff> def
+/pat11 <7fffffff7fffffff> def
+/pat12 <8040200002040800> def
+/pat13 <40a00000040a0000> def
+/pat14 <ff888888ff888888> def
+/pat15 <ff808080ff080808> def
+/pat16 <f87422478f172271> def
+/pat17 <038448300c020101> def
+/pat18 <081c22c180010204> def
+/pat19 <8080413e080814e3> def
+/pat20 <8040201008040201> def
+/pat21 <8844221188442211> def
+/pat22 <77bbddee77bbddee> def
+/pat23 <c1e070381c0e0783> def
+/pat24 <7fbfdfeff7fbfdfe> def
+/pat25 <3e1f8fc7e3f1f87c> def
+/pat26 <0102040810204080> def
+/pat27 <1122448811224488> def
+/pat28 <eeddbb77eeddbb77> def
+/pat29 <83070e1c3870e0c1> def
+/pat30 <fefdfbf7efdfbf7f> def
+/pat31 <7cf8f1e3c78f1f3e> def
+
+/TGMAX
+ { exch dup 3 1 roll exch dup 3 1 roll gt { pop } { exch pop } ifelse
+ } def
+/TGMIN
+ { exch dup 3 1 roll exch dup 3 1 roll lt { pop } { exch pop } ifelse
+ } def
+/TGSW { stringwidth pop } def
+
+/bd { bind def } bind def
+
+/GS { gsave } bd
+/GR { grestore } bd
+/NP { newpath } bd
+/CP { closepath } bd
+/CHP { charpath } bd
+/CT { curveto } bd
+/L { lineto } bd
+/RL { rlineto } bd
+/M { moveto } bd
+/RM { rmoveto } bd
+/S { stroke } bd
+/F { fill } bd
+/TR { translate } bd
+/RO { rotate } bd
+/SC { scale } bd
+/MU { mul } bd
+/DI { div } bd
+/DU { dup } bd
+/NE { neg } bd
+/AD { add } bd
+/SU { sub } bd
+/PO { pop } bd
+/EX { exch } bd
+/CO { concat } bd
+/CL { clip } bd
+/EC { eoclip } bd
+/EF { eofill } bd
+/IM { image } bd
+/IMM { imagemask } bd
+/ARY { array } bd
+/SG { setgray } bd
+/RG { setrgbcolor } bd
+/SD { setdash } bd
+/W { setlinewidth } bd
+/SM { setmiterlimit } bd
+/SLC { setlinecap } bd
+/SLJ { setlinejoin } bd
+/SH { show } bd
+/FF { findfont } bd
+/MS { makefont setfont } bd
+/AR { arcto 4 {pop} repeat } bd
+/CURP { currentpoint } bd
+/FLAT { flattenpath strokepath clip newpath } bd
+/TGSM { tgiforigctm setmatrix } def
+/TGRM { savematrix setmatrix } def
+
+end
+
+%%EndProlog
+%%Page: 1 1
+
+%%PageBoundingBox: 9 261 451 697
+tgifdict begin
+/tgifsavedpage save def
+
+1 SM
+1 W
+
+0 SG
+
+72 0 MU 72 11 MU TR
+72 128 DI 100.000 MU 100 DI DU NE SC
+
+GS
+
+/tgiforigctm matrix currentmatrix def
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 100 370 M 175 370 L 175 390 L 100 390 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      20 405 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (AAAAvpContainerList) SH
+      GR
+      0 18 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (\(for Command\)) SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      705 380 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (...) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      350 380 M
+      0 50 atan DU cos 8.000 MU 400 exch SU
+      exch sin 8.000 MU 380 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      400 380 8.000 3.000 50 0 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      400 380 8.000 3.000 50 0 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      175 380 M
+      0 75 atan DU cos 8.000 MU 250 exch SU
+      exch sin 8.000 MU 380 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      250 380 8.000 3.000 75 0 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      250 380 8.000 3.000 75 0 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      225 585 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("Origin-Host") SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      240 630 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("aaa1.domain1") SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      575 585 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("Route-Record") SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      420 585 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("Proxy-Info") SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      330 905 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("proxy.mydomain") SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      550 905 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("abcde") SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      600 625 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("aaa2.domain1") SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      600 695 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("aaa1.domain2") SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      500 380 M
+      0 50 atan DU cos 8.000 MU 550 exch SU
+      exch sin 8.000 MU 380 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      550 380 8.000 3.000 50 0 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      550 380 8.000 3.000 50 0 TGAT
+   CP F
+GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 400 370 M 500 370 L 500 410 L 400 410 L CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 370 M
+      485 370 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      415 385 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (avpName) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 390 M
+      500 390 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 410 M
+      500 410 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      450 405 M
+      GS
+        GS
+        0
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) SH
+      GR
+   GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      135 385 M
+      GS
+        GS
+        0
+            /Courier FF [17 0 0 -17 0 0] MS
+            (avpc_l) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            (avpc_l) SH
+      GR
+   GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 170 380 5 5 TGEL F
+GS
+   GS
+      NP 170 380 5 5 TGEL
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      340 380 M
+      363.33 430.00 375.00 468.33 375.00 495.00 CT
+      375.00 521.67 366.67 545.00
+      30 -25 atan DU cos 8.000 MU 350 exch SU
+      exch sin 8.000 MU 565 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      350 565 8.000 3.000 -25 30 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      350 565 8.000 3.000 -25 30 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      340 400 M
+      340.00 410.00 333.33 416.67 320.00 420.00 CT
+      306.67 423.33 300.00 431.67
+      20 0 atan DU cos 8.000 MU 300 exch SU
+      exch sin 8.000 MU 445 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      300 445 8.000 3.000 0 20 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      300 445 8.000 3.000 0 20 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      340 455 M
+      363.33 485.00 376.67 511.67 380.00 535.00 CT
+      383.33 558.33 380.00 581.67
+      35 -15 atan DU cos 8.000 MU 370 exch SU
+      exch sin 8.000 MU 605 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      370 605 8.000 3.000 -15 35 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      370 605 8.000 3.000 -15 35 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 445 M
+      500 445 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 465 M
+      500 465 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      415 460 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (entry[0]) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 400 445 M 500 445 L 500 465 L 400 465 L CP
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 490 455 5 5 TGEL F
+GS
+   GS
+      NP 490 455 5 5 TGEL
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 490 380 5 5 TGEL F
+GS
+   GS
+      NP 490 380 5 5 TGEL
+      S
+   GR
+GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         349 565 M
+         365 565 365 600 16 AR
+         365 584 L
+         365 600 215 600 16 AR
+         231 600 L
+         215 600 215 565 16 AR
+         215 581 L
+         215 565 365 565 16 AR
+      CP
+      S
+   GR
+GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         384 605 M
+         400 605 400 645 16 AR
+         400 629 L
+         400 645 230 645 16 AR
+         246 645 L
+         230 645 230 605 16 AR
+         230 621 L
+         230 605 400 605 16 AR
+      CP
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 490 400 5 5 TGEL F
+GS
+   GS
+      NP 490 400 5 5 TGEL
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      490 400 M
+      490.00 410.00 483.33 416.67 470.00 420.00 CT
+      456.67 423.33 450.00 431.67
+      20 0 atan DU cos 8.000 MU 450 exch SU
+      exch sin 8.000 MU 445 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      450 445 8.000 3.000 0 20 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      450 445 8.000 3.000 0 20 TGAT
+   CP F
+GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         534 565 M
+         550 565 550 600 16 AR
+         550 584 L
+         550 600 400 600 16 AR
+         416 600 L
+         400 600 400 565 16 AR
+         400 581 L
+         400 565 550 565 16 AR
+      CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      490 380 M
+      513.33 440.00 525.83 479.17 527.50 497.50 CT
+      529.17 515.83 520.00 538.33
+      40 -30 atan DU cos 8.000 MU 500 exch SU
+      exch sin 8.000 MU 565 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      500 565 8.000 3.000 -30 40 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      500 565 8.000 3.000 -30 40 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      395 360 M
+      GS
+            0 SG
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainer) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 550 370 M 650 370 L 650 410 L 550 410 L CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      550 370 M
+      635 370 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      565 385 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (avpName) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      550 390 M
+      650 390 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      550 410 M
+      650 410 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      600 405 M
+      GS
+        GS
+        0
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) SH
+      GR
+   GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 640 380 5 5 TGEL F
+GS
+   GS
+      NP 640 380 5 5 TGEL
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 640 400 5 5 TGEL F
+GS
+   GS
+      NP 640 400 5 5 TGEL
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      640 400 M
+      640.00 410.00 633.33 416.67 620.00 420.00 CT
+      606.67 423.33 600.00 431.67
+      20 0 atan DU cos 8.000 MU 600 exch SU
+      exch sin 8.000 MU 445 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      600 445 8.000 3.000 0 20 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      600 445 8.000 3.000 0 20 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      545 360 M
+      GS
+            0 SG
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainer) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      650 380 M
+      0 50 atan DU cos 8.000 MU 700 exch SU
+      exch sin 8.000 MU 380 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      700 380 8.000 3.000 50 0 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      700 380 8.000 3.000 50 0 TGAT
+   CP F
+GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 100 720 M 175 720 L 175 740 L 100 740 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      20 755 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (AAAAvpContainerList) SH
+      GR
+      0 18 RM
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            ( \(for Grouped AVP\)) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      175 730 M
+      0 75 atan DU cos 8.000 MU 250 exch SU
+      exch sin 8.000 MU 730 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      250 730 8.000 3.000 75 0 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      250 730 8.000 3.000 75 0 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      135 735 M
+      GS
+        GS
+        0
+            /Courier FF [17 0 0 -17 0 0] MS
+            (avpc_l) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            (avpc_l) SH
+      GR
+   GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 170 730 5 5 TGEL F
+GS
+   GS
+      NP 170 730 5 5 TGEL
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      490 455 M
+      486.67 481.67 420.83 501.67 292.50 515.00 CT
+      164.17 528.33 87.50 557.50 62.50 602.50 CT
+      37.50 647.50 30.00 680.00 40.00 700.00 CT
+      50.00 720.00 70.00 730.00
+      0 45 atan DU cos 8.000 MU 100 exch SU
+      exch sin 8.000 MU 730 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      100 730 8.000 3.000 45 0 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      100 730 8.000 3.000 45 0 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      250 360 M
+      GS
+            0 SG
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainer) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 250 370 M 350 370 L 350 410 L 250 410 L CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 370 M
+      335 370 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      265 385 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (avpName) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 390 M
+      350 390 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 410 M
+      350 410 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      300 405 M
+      GS
+        GS
+        0
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) SH
+      GR
+   GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 340 400 5 5 TGEL F
+GS
+   GS
+      NP 340 400 5 5 TGEL
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 340 380 5 5 TGEL F
+GS
+   GS
+      NP 340 380 5 5 TGEL
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      250 710 M
+      GS
+            0 SG
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainer) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 250 720 M 350 720 L 350 760 L 250 760 L CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 720 M
+      335 720 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      265 735 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (avpName) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 740 M
+      350 740 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 760 M
+      350 760 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      300 755 M
+      GS
+        GS
+        0
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) SH
+      GR
+   GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 340 750 5 5 TGEL F
+GS
+   GS
+      NP 340 750 5 5 TGEL
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 340 730 5 5 TGEL F
+GS
+   GS
+      NP 340 730 5 5 TGEL
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      400 710 M
+      GS
+            0 SG
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainer) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 400 720 M 500 720 L 500 760 L 400 760 L CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 720 M
+      485 720 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      415 735 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (avpName) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 740 M
+      500 740 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 760 M
+      500 760 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      450 755 M
+      GS
+        GS
+        0
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            (entry[]) SH
+      GR
+   GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 490 750 5 5 TGEL F
+GS
+   GS
+      NP 490 750 5 5 TGEL
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 490 730 5 5 TGEL F
+GS
+   GS
+      NP 490 730 5 5 TGEL
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      350 730 M
+      0 50 atan DU cos 8.000 MU 400 exch SU
+      exch sin 8.000 MU 730 exch SU L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      400 730 8.000 3.000 50 0 TGAT
+   1 SG CP F
+   0 SG
+   NP
+      400 730 8.000 3.000 50 0 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      235 855 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("Proxy-Host") SH
+      GR
+   GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         354 830 M
+         370 830 370 865 16 AR
+         370 849 L
+         370 865 220 865 16 AR
+         236 865 L
+         220 865 220 830 16 AR
+         220 846 L
+         220 830 370 830 16 AR
+      CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 445 M
+      350 445 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 465 M
+      350 465 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      265 460 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (entry[0]) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 250 445 M 350 445 L 350 465 L 250 465 L CP
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 340 455 5 5 TGEL F
+GS
+   GS
+      NP 340 455 5 5 TGEL
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 800 M
+      350 800 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      250 820 M
+      350 820 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      265 815 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (entry[0]) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 250 800 M 350 800 L 350 820 L 250 820 L CP
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 340 810 5 5 TGEL F
+GS
+   GS
+      NP 340 810 5 5 TGEL
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      340 755 M
+      340.00 765.00 333.33 771.67 320.00 775.00 CT
+      306.67 778.33 300.00 786.67
+      20 0 atan DU cos 8.000 MU 300 exch SU
+      exch sin 8.000 MU 800 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      300 800 8.000 3.000 0 20 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      300 800 8.000 3.000 0 20 TGAT
+   CP F
+GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         484 880 M
+         500 880 500 915 16 AR
+         500 899 L
+         500 915 320 915 16 AR
+         336 915 L
+         320 915 320 880 16 AR
+         320 896 L
+         320 880 500 880 16 AR
+      CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      340 730 M
+      360.00 753.33 370.00 770.83 370.00 782.50 CT
+      370.00 794.17 365.00 810.00
+      30 -15 atan DU cos 8.000 MU 355 exch SU
+      exch sin 8.000 MU 830 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      355 830 8.000 3.000 -15 30 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      355 830 8.000 3.000 -15 30 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      340 810 M
+      370.00 816.67 386.67 825.00 390.00 835.00 CT
+      393.33 845.00 390.00 860.00
+      30 -15 atan DU cos 8.000 MU 380 exch SU
+      exch sin 8.000 MU 880 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      380 880 8.000 3.000 -15 30 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      380 880 8.000 3.000 -15 30 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      425 855 M
+      GS
+            0 SG
+            /Courier FF [17 0 0 -17 0 0] MS
+            ("Proxy-State") SH
+      GR
+   GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         544 830 M
+         560 830 560 865 16 AR
+         560 849 L
+         560 865 410 865 16 AR
+         426 865 L
+         410 865 410 830 16 AR
+         410 846 L
+         410 830 560 830 16 AR
+      CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 800 M
+      500 800 L
+   TGSM
+   1 W
+   S
+GR
+
+% POLY/OPEN-SPLINE
+0 SG
+GS
+   NP
+      400 820 M
+      500 820 L
+   TGSM
+   1 W
+   S
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      415 815 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (entry[0]) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 400 800 M 500 800 L 500 820 L 400 820 L CP
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 490 810 5 5 TGEL F
+GS
+   GS
+      NP 490 810 5 5 TGEL
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      490 755 M
+      490.00 765.00 483.33 771.67 470.00 775.00 CT
+      456.67 778.33 450.00 786.67
+      20 0 atan DU cos 8.000 MU 450 exch SU
+      exch sin 8.000 MU 800 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      450 800 8.000 3.000 0 20 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      450 800 8.000 3.000 0 20 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      490 730 M
+      510.00 753.33 520.00 770.83 520.00 782.50 CT
+      520.00 794.17 515.00 810.00
+      30 -15 atan DU cos 8.000 MU 505 exch SU
+      exch sin 8.000 MU 830 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      505 830 8.000 3.000 -15 30 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      505 830 8.000 3.000 -15 30 TGAT
+   CP F
+GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         614 880 M
+         630 880 630 915 16 AR
+         630 899 L
+         630 915 540 915 16 AR
+         556 915 L
+         540 915 540 880 16 AR
+         540 896 L
+         540 880 630 880 16 AR
+      CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      495 810 M
+      545.00 820.00 572.50 827.50 577.50 832.50 CT
+      582.50 837.50 586.67 853.33
+      40 5 atan DU cos 8.000 MU 590 exch SU
+      exch sin 8.000 MU 880 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      590 880 8.000 3.000 5 40 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      590 880 8.000 3.000 5 40 TGAT
+   CP F
+GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         699 565 M
+         715 565 715 600 16 AR
+         715 584 L
+         715 600 565 600 16 AR
+         581 600 L
+         565 600 565 565 16 AR
+         565 581 L
+         565 565 715 565 16 AR
+      CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      640 380 M
+      670.00 416.67 681.67 451.67 675.00 485.00 CT
+      668.33 518.33 656.67 545.00
+      30 -25 atan DU cos 8.000 MU 640 exch SU
+      exch sin 8.000 MU 565 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      640 565 8.000 3.000 -25 30 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      640 565 8.000 3.000 -25 30 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      565 460 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (entry[0]) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 550 445 M 650 445 L 650 465 L 550 465 L CP
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 640 455 5 5 TGEL F
+GS
+   GS
+      NP 640 455 5 5 TGEL
+      S
+   GR
+GR
+
+% TEXT
+NP
+0 SG
+   GS
+      1 W
+      565 480 M
+      GS
+            0 SG
+            /Courier FF [14 0 0 -14 0 0] MS
+            (entry[1]) SH
+      GR
+   GR
+
+% BOX
+0 SG
+GS
+   10 SM
+   GS
+      NP 550 465 M 650 465 L 650 485 L 550 485 L CP
+      S
+   GR
+GR
+
+% OVAL
+0.184 0.310 0.310 RG
+NP 640 475 5 5 TGEL F
+GS
+   GS
+      NP 640 475 5 5 TGEL
+      S
+   GR
+GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         744 605 M
+         760 605 760 640 16 AR
+         760 624 L
+         760 640 595 640 16 AR
+         611 640 L
+         595 640 595 605 16 AR
+         595 621 L
+         595 605 760 605 16 AR
+      CP
+      S
+   GR
+GR
+
+% RCBOX
+0.184 0.310 0.310 RG
+GS
+   GS
+      NP
+         739 670 M
+         755 670 755 710 16 AR
+         755 694 L
+         755 710 595 710 16 AR
+         611 710 L
+         595 710 595 670 16 AR
+         595 686 L
+         595 670 755 670 16 AR
+      CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      645 455 M
+      698.33 495.00 727.50 521.67 732.50 535.00 CT
+      737.50 548.33 733.33 571.67
+      50 -20 atan DU cos 8.000 MU 720 exch SU
+      exch sin 8.000 MU 605 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      720 605 8.000 3.000 -20 50 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      720 605 8.000 3.000 -20 50 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      645 475 M
+      701.67 525.00 739.17 560.00 757.50 580.00 CT
+      775.83 600.00 782.50 619.17 777.50 637.50 CT
+      772.50 655.83 765.00 670.00
+      15 -15 atan DU cos 8.000 MU 755 exch SU
+      exch sin 8.000 MU 680 exch SU CT
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      755 680 8.000 3.000 -15 15 TGAT
+   1 SG CP F
+   0.184 0.310 0.310 RG
+   NP
+      755 680 8.000 3.000 -15 15 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0.184 0.310 0.310 RG
+   GS
+      1 W
+      275 480 M
+      GS
+        GS
+        0
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainerEntry) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0.184 0.310 0.310 RG
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainerEntry) SH
+      GR
+   GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   10 SM
+   GS
+      NP 200 300 M 800 300 L 800 940 L 200 940 L CP
+      [2 2] 0 SD
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 250 370 M 350 370 L 350 410 L 250 410 L CP EC NP
+   pat5 8 248 368 104 48 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 250 370 M 350 370 L 350 410 L 250 410 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 400 370 M 500 370 L 500 410 L 400 410 L CP EC NP
+   pat5 8 392 368 112 48 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 400 370 M 500 370 L 500 410 L 400 410 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 550 370 M 650 370 L 650 410 L 550 410 L CP EC NP
+   pat5 8 544 368 112 48 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 550 370 M 650 370 L 650 410 L 550 410 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 250 445 M 350 445 L 350 465 L 250 465 L CP EC NP
+   pat26 8 248 440 104 32 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 250 445 M 350 445 L 350 465 L 250 465 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 400 445 M 500 445 L 500 465 L 400 465 L CP EC NP
+   pat26 8 392 440 112 32 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 400 445 M 500 445 L 500 465 L 400 465 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 550 445 M 650 445 L 650 485 L 550 485 L CP EC NP
+   pat26 8 544 440 112 48 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 550 445 M 650 445 L 650 485 L 550 485 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 250 720 M 350 720 L 350 760 L 250 760 L CP EC NP
+   pat5 8 248 712 104 56 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 250 720 M 350 720 L 350 760 L 250 760 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 400 720 M 500 720 L 500 760 L 400 760 L CP EC NP
+   pat5 8 392 712 112 56 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 400 720 M 500 720 L 500 760 L 400 760 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 250 800 M 350 800 L 350 820 L 250 820 L CP EC NP
+   pat26 8 248 792 104 32 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 250 800 M 350 800 L 350 820 L 250 820 L CP
+      S
+   GR
+GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   NP 400 800 M 500 800 L 500 820 L 400 820 L CP EC NP
+   pat26 8 392 792 112 32 TGPF
+GR
+GS
+   10 SM
+   GS
+      NP 400 800 M 500 800 L 500 820 L 400 820 L CP
+      S
+   GR
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      560 300 M
+      -100 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      560 200 L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      560 300 8.000 3.000 0 100 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      585 200 M
+      100 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      585 300 L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      585 200 8.000 3.000 0 -100 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0.184 0.310 0.310 RG
+   GS
+      1 W
+      525 250 M
+      GS
+        GS
+        0
+            /Courier-Bold FF [12 0 0 -12 0 0] MS
+            (acquire\(\)) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0.184 0.310 0.310 RG
+            /Courier-Bold FF [12 0 0 -12 0 0] MS
+            (acquire\(\)) SH
+      GR
+   GR
+
+% TEXT
+NP
+0.184 0.310 0.310 RG
+   GS
+      1 W
+      620 250 M
+      GS
+        GS
+        0
+            /Courier-Bold FF [12 0 0 -12 0 0] MS
+            (release\(\)) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0.184 0.310 0.310 RG
+            /Courier-Bold FF [12 0 0 -12 0 0] MS
+            (release\(\)) SH
+      GR
+   GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   10 SM
+   GS
+      NP 295 170 M 455 170 L 455 200 L 295 200 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0.184 0.310 0.310 RG
+   GS
+      1 W
+      375 190 M
+      GS
+        GS
+        0
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainerManager) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0.184 0.310 0.310 RG
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainerManager) SH
+      GR
+   GR
+
+% BOX
+0.184 0.310 0.310 RG
+GS
+   10 SM
+   GS
+      NP 470 170 M 680 170 L 680 200 L 470 200 L CP
+      S
+   GR
+GR
+
+% TEXT
+NP
+0.184 0.310 0.310 RG
+   GS
+      1 W
+      575 190 M
+      GS
+        GS
+        0
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainerEntryManager) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0.184 0.310 0.310 RG
+            /Courier FF [12 0 0 -12 0 0] MS
+            (AAAAvpContainerEntryManager) SH
+      GR
+   GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      360 300 M
+      -100 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      360 200 L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      360 300 8.000 3.000 0 100 TGAT
+   CP F
+GR
+
+% POLY/OPEN-SPLINE
+0.184 0.310 0.310 RG
+GS
+   NP
+      385 200 M
+      100 0 atan DU cos 8.000 MU exch sin 8.000 MU RM
+      385 300 L
+   TGSM
+   1 W
+   S
+GR
+GS
+   TGSM
+   NP
+      385 200 8.000 3.000 0 -100 TGAT
+   CP F
+GR
+
+% TEXT
+NP
+0.184 0.310 0.310 RG
+   GS
+      1 W
+      325 250 M
+      GS
+        GS
+        0
+            /Courier-Bold FF [12 0 0 -12 0 0] MS
+            (acquire\(\)) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0.184 0.310 0.310 RG
+            /Courier-Bold FF [12 0 0 -12 0 0] MS
+            (acquire\(\)) SH
+      GR
+   GR
+
+% TEXT
+NP
+0.184 0.310 0.310 RG
+   GS
+      1 W
+      420 250 M
+      GS
+        GS
+        0
+            /Courier-Bold FF [12 0 0 -12 0 0] MS
+            (release\(\)) TGSW 
+        AD
+        GR
+      2 DI NE 0 RM
+            0.184 0.310 0.310 RG
+            /Courier-Bold FF [12 0 0 -12 0 0] MS
+            (release\(\)) SH
+      GR
+   GR
+
+GR
+tgifsavedpage restore
+end
+showpage
+
+%%Trailer
+%MatchingCreationDate: Thu Jul  8 14:28:33 2004
+%%DocumentFonts: Courier-Bold
+%%+ Courier
+%%EOF

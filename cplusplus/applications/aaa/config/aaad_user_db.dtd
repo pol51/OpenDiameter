@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+     <!ELEMENT user_db (user_entry*, default_entry)>
+
+     <!ELEMENT user_entry (name_match, eap_method, archie?, md5?)>
+     <!ELEMENT default_entry (eap_method, archie?, md5?)>
+
+     <!ELEMENT name_match (#PCDATA)>
+     <!ELEMENT eap_method (#PCDATA)>
+
+     <!ELEMENT archie (shared_secret_file)>
+
+     <!ELEMENT shared_secret_file (#PCDATA)>
+
+     <!ELEMENT md5 (password_type, secret)>
+
+     <!ELEMENT password_type (#PCDATA)>
+     <!ELEMENT secret (#PCDATA)>

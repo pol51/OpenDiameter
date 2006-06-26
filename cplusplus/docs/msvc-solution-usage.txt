@@ -1,0 +1,96 @@
+
+Microsoft Visual C++ Solution Usage for Open Diameter
+
+     by Yoshihiro Ohba (yohba@tari.toshiba.com)
+     Created September 22, 2003
+     $Id: msvc-solution-usage.txt,v 1.1 2003/09/23 01:20:57 yohba Exp $
+
+
+1. Visual C++ Solution and Project
+
+To compile and link Open Diameter source code in Windows machines, we
+use Microsoft Visual C++ (VC++) version 7.1 which supports the notion
+of "solution".  A VC++ solution consists of one or more "projects".
+The definitions of a solution and a project are stored in files with
+suffix ".sln" and ".vcproj", respectivery.
+
+
+2. Open Diameter Convention for Project Definition
+
+We define a VC++ solution named "Open Diameter" in "Solution"
+directory.  All VC++ projects that belongs to the Open Diameter
+solution MUST be defined in the "Solution" directory or a subdirectory
+of the "Solution" directory.  Project files MUST not be placed in
+source code directories in order to make source code itself
+independent of Windows-specific compile environment (i.e., Visual C++
+specifics) as much as possible.
+
+If a project is dependent on and closely related to another project,
+the former project MUST be defined in a subdirectory of the latter
+project.  (When a project depends on multiple projects, it MUST be
+defined in a subdirectory of the most closely related project.)  For
+example, the libdiamparser project, which is a project of the Open
+Diameter solution has the following dependency:
+
+Open Diameter solution
+  |
+  +-- libdiamparser project (for producing diamparser.{dll,lib})
+        |
+        +---- parser_test1 project (for producing parser_test1.exe)
+        |
+        +---- parser_test2 project (for producing parser_test2.exe)
+        |
+        +---- parser_test3 project (for producing parser_test3.exe)
+
+As a result, the actual Solution directory structure is given as:
+
+Solution (directory)
+  |
+  +-- OpenDiameter.sln (file)
+  |
+  +-- diamparser (directory)
+        |
+        +---- diamparser.vcproj (file)
+        |
+        +---- parser_test1 (directory)
+        |        |
+        |        +---- parser_test2.vcproj (file)
+        |
+        +---- parser_test2 (directory)
+        |        |
+        |        +---- parser_test2.vcproj (file)
+        |
+        +---- parser_test3 (direcotry)
+                 |
+                 +---- parser_test2.vcproj (file)
+
+
+3.  Location of Object, Library and Executable files
+
+Object files will be placed in "Debug" directory of each project
+directory.
+
+All library files (.lib and .dll files) and application executable
+files (.exe files) that are produced as a result of successful
+compilation and linking for debugging purpose MUST be placed in
+"Solution/Debug" directory.
+
+
+4.  Indepency of External Libraries
+
+In order to be independent of the location of external libraries that
+need to be linked to the Open Diameter source code but are not part of
+Open Diameter itself MUST be independent of any solution and project.
+In other words, the location of such external libraries should be
+defined outside the solution and project files.  This is similar to
+using automake and autoconf to dynamically produce Makefiles wehre
+system-dependent include and library paths can be specified as
+environment variables so that the source code can be compiled in any
+system.  The easiest way to archieve this in Visual C++ is to specify
+include and library paths in the Tools->Options->Projects-> "VC++
+Directories" menu of Visual C++.  Do not forget add dll library path
+to system PATH environment variable which can be edited in "Control
+Panel"->System->Advanced->"Environment Variables" menu that can be
+traversed from Windows Start menu.
+
+

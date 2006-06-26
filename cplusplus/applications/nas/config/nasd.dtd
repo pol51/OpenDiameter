@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+     <!ELEMENT call_management (thread_count, access_protocols,
+                                aaa_protocols, access_policies,
+                                call_routing)>
+
+     <!ELEMENT thread_count (#PCDATA)>
+
+     <!ELEMENT access_protocols (access_entry+)>
+
+     <!ELEMENT access_entry (name, enabled, (pana|eap_8021X))>
+
+     <!ELEMENT name (#PCDATA)>
+     <!ELEMENT enabled (#PCDATA)>
+
+     <!ELEMENT pana (cfg_file, ep_script, dhcp_bootstrap)>
+
+     <!ELEMENT cfg_file (#PCDATA)>
+     <!ELEMENT ep_script (#PCDATA)>
+     <!ELEMENT dhcp_bootstrap (#PCDATA)>
+
+     <!ELEMENT eap_8021X (#PCDATA)>
+
+     <!ELEMENT aaa_protocols (aaa_entry+)>
+
+     <!ELEMENT access_entry (name, enabled, (local_eap_auth|diameter_eap))>
+
+     <!ELEMENT local_eap_auth (shared_secret_file, identity)>
+
+     <!ELEMENT shared_secret_file (#PCDATA)>
+     <!ELEMENT identity (#PCDATA)>
+
+     <!ELEMENT diameter_eap (diameter_cfg_file)>
+
+     <!ELEMENT diameter_cfg_file (#PCDATA)>
+
+     <!ELEMENT access_policies (policy_entry+)>
+
+     <!ELEMENT access_entry (name, script?)>
+
+     <!ELEMENT script (file)>
+
+     <!ELEMENT file (#PCDATA)>
+
+     <!ELEMENT call_routing (call_route_entry)>
+
+     <!ELEMENT call_route_entry (nai, access_policy+, aaa_protocol?)>
+
+     <!ELEMENT nai (#PCDATA)>
+     <!ELEMENT access_policy (#PCDATA)>
+     <!ELEMENT aaa_protocol (#PCDATA)>
+
+     <!ELEMENT call_route_default (nai, access_policy+, aaa_protocol?)>

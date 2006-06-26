@@ -1,0 +1,20 @@
+62,67c62,63
+< getopt_long (argc, argv, options, long_options, opt_index)
+<      int argc;
+<      char *const *argv;
+<      const char *options;
+<      const struct option *long_options;
+<      int *opt_index;
+---
+> getopt_long (int argc, char *const *argv, const char *options, 
+>              const struct option *long_options, int *opt_index)
+78,83c74,75
+< getopt_long_only (argc, argv, options, long_options, opt_index)
+<      int argc;
+<      char *const *argv;
+<      const char *options;
+<      const struct option *long_options;
+<      int *opt_index;
+---
+> getopt_long_only (int argc, char *const *argv, const char *options, 
+>                   const struct option *long_options, int *opt_index)

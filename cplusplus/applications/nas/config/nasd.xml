@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE call_management SYSTEM "nasd.dtd">
+<call_management>
+
+    <!-- Thread count that should be started for
+         the open diameter framework -->
+    <thread_count>5</thread_count>
+
+    <!-- The nasd deamon supports the NAS model
+         described in RFC2881 -->
+
+    <!-- Call management section contains a list of
+        all the available access technology that
+        this deamon supports. Each access protocols
+        will have thier own specific configuration
+        entries. Currently supported access protocols
+        are:
+            1. PANA: call entry name is "pana"
+        Future access protocols to be supported are:
+            1. 802.1X: call entry name is "8021X"
+        -->
+    <access_protocols>
+
+        <access_entry>
+            <name>pana</name>
+            <enabled>true</enabled>
+            <pana>
+                <!-- protocol specific configuration entry -->
+                <cfg_file>/etc/opendiameter/nas/config/nasd_pana_paa.xml</cfg_file>
+                <ep_script>/etc/opendiameter/nas/scripts/script_pana_paa_ep.sh</ep_script>
+                <dhcp_bootstrap>true</dhcp_bootstrap>
+            </pana>
+        </access_entry>
+
+        <access_entry>
+            <name>eap_8021X</name>
+            <enabled>false</enabled>
+            <eap_8021X>
+            </eap_8021X>
+        </access_entry>
+
+    </access_protocols>
+
+    <!-- Call management section contains a list
+        of all available AAA technology supported
+        by this deamon. Each protocol has thier
+        own specific configuration information.
+        Currently supported access protocols 
+        are:
+            1. Standalone EAP auth: protocol name is
+                "standalone-eap". This is for localized 
+                authentication only and generally should 
+                not be used. This uses a pre-shared key 
+                for ALL eap access.
+            2. Diameter EAP: protocol name is "diameter-eap".
+                Uses diameter eap for backend authorization
+                and authentication. This is compliant with 
+                draft-ietf-aaa-eap-10.txt.
+        Future protocol support are:
+            1. RADIUS: Uses EAP radius 
+        -->
+    <aaa_protocols>
+        <aaa_entry>
+            <name>local_eap_auth</name>
+            <enabled>true</enabled>
+            <!-- protocol specific configuration entry -->             
+            <local_eap_auth>
+                <shared_secret_file>/etc/opendiameter/nas/config/nasd_eap_shared_secret.bin</shared_secret_file>
+                <identity>user1@isp.net</identity>
+            </local_eap_auth>
+        </aaa_entry>
+        <aaa_entry>
+            <name>diameter_eap</name>
+            <enabled>false</enabled>
+            <diameter_eap>
+                <!-- protocol specific configuration entry -->             
+                <diameter_cfg_file>/etc/opendiameter/nas/config/nasd_diameter_eap.xml</diameter_cfg_file>
+            </diameter_eap>
+        </aaa_entry>
+    </aaa_protocols>
+
+    <!-- Call management section contains a list
+        of policies that can be applied to a call.
+        A policy dictates whether the call should
+        continue or not. They can also be used to
+        perform specific functions. These policies 
+        are applied to each call attempt while
+        they perform very specific functions such 
+        as network filtering, auditing, qos ... etc. 
+        Currently supported policy are:
+            1. Scripts: policy name is "script".
+                This policy simply invokes a local
+                system script. This policy will
+                always allow the call to attempt
+                completion.
+        Future supported policy are:
+            1. Accounting
+            2. QoS
+            3. EP-filter
+    -->
+        
+    <access_policies>
+        <policy_entry>
+            <name>script</name>
+            <!-- policy specific configuration entry -->
+            <script>
+                <file>/etc/opendiameter/nas/scripts/script_policy</file>
+            </script>
+        </policy_entry>
+        <policy_entry>
+            <name>ep-filter</name>
+            <!-- policy specific configuration entry -->
+        </policy_entry>
+        <policy_entry>
+            <name>qos</name>
+            <!-- policy specific configuration entry -->
+        </policy_entry>
+        <policy_entry>
+            <name>accounting</name>
+            <!-- policy specific configuration entry -->
+        </policy_entry>
+        <policy_entry>
+            <name>bridging</name>
+            <!-- policy specific configuration entry -->
+        </policy_entry>
+    </access_policies>
+
+    <!-- Call management section also contains a
+        simple routing rule set. This routing rule
+        works as follows. Each call is identified an 
+        NAI (RFC2486). The route table lists a set
+        of NAI that may match the call's NAI. If a
+        match is made, the access policies is applied
+        to that call. If the access policy succeeds
+        then the call can proceed. If not the call
+        is dropped. The routing entry also specifies
+        the aaa protocol to be used if the call is
+        allowed to proceed. A default route is also 
+        used as a catch all entry. Note that NAI
+        matching is done using the following rules:
+            1. Full NAI text takes precedence. i.e.
+                if an entry has user@domain.com then
+                this is tested first. If succeeding
+                entries has domain.com then that
+                will be tested next.
+            2. Domain only test. An entry can contain
+                only the domain name of the NAI and
+                can be used to apply policy for all
+                users in that domain.
+        -->
+    <call_routing>
+        <call_route_entry>
+            <!-- route entry is specific to user1@isp.net -->
+            <nai>user1@isp.net</nai>
+            <access_policy>script</access_policy>
+            <access_policy>ep-filter</access_policy>
+            <access_policy>accouting</access_policy>
+            <aaa_protocol>local_eap_auth</aaa_protocol>
+        </call_route_entry>
+        <call_route_entry>
+            <!-- route entry is specific to local_nas@opendiameter.org -->
+            <nai>local_nas@opendiameter.org</nai>
+            <access_policy>script</access_policy>
+            <access_policy>ep-filter</access_policy>
+            <access_policy>accouting</access_policy>
+            <aaa_protocol>local_eap_auth</aaa_protocol>
+        </call_route_entry>
+        <call_route_entry>
+            <nai>isp1.net</nai>
+            <access_policy>script</access_policy>
+            <access_policy>script</access_policy>
+            <aaa_protocol>local_eap_auth</aaa_protocol>
+        </call_route_entry>
+        <call_route_entry>
+            <nai>isp.net</nai>
+            <access_policy>script</access_policy>
+            <access_policy>script</access_policy>
+            <aaa_protocol>diameter_eap</aaa_protocol>
+        </call_route_entry>
+        <call_route_default>
+            <!-- this will catch all nai not listed above -->
+            <access_policy>script</access_policy>
+            <aaa_protocol>diameter_eap</aaa_protocol>
+        </call_route_default>
+    </call_routing>
+
+</call_management>

@@ -1,0 +1,248 @@
+/*! 
+
+\mainpage Diameter NASREQ Project
+\author Rafael Marin Lopez and Victor Fajardo
+\date July 29, 2003
+
+The focus of this paper is provide a general documentation for the
+implementation of the Diameter NASREQ application. It encompasses
+the goals as well as the overall architecture of the software. The
+intended audience are developers as well as decision makers for 
+which this document provides a focal point of discussion and 
+notations of agreed upon decisions.
+
+This document contains three major (3) sections [TBD]. The first
+section describes the goals of the project. As of this writing,
+the topics in this section are generalized pending the outcome 
+of the discussion concerning implementation coverage. Note that
+details in these section will increase in granularity as further
+decisions are made. The second section details software architecture
+and components as well as development environment and tool sets.
+The third section contains miscellaneous topics concerning the
+state of the project, licensing, etc.
+
+\section tagGoals Project Goals
+
+[TBD]
+
+\subsection tagGoalsCoverage Implementation Coverage
+
+\subsection tagGoalsFutureWork Future Work
+
+\section tagArchitecture Software Architecture
+
+This section is divided into two (2) parts. The development
+environment which includes platforms, toolsets, test bed
+etc. and implementation architecture which defines the
+actual software design.
+
+\subsection tagArchitectureEnvironment Development Environment
+
+The following are initial development environment proposals:
+
+- The initial development platform will be linux. The implementation
+  MUST be portable to all distribution of linux. The next targeted
+  system would most likely be FreeBSD and windows. It is beneficial
+  to eventually deploy a heterogeneouz set of machines in the test bed 
+  to fully test the implementation. For the initial effort, however,
+  a mix set of linux distribution would suffice.
+
+- Source code control will be CVS. It has been agreed upon that
+  the implementation is under the Open Diameter umbrella which is
+  hosted by sourceforge.net. This provides the benefit of having
+  globally secured access for source code modification. 
+
+- Autoconf and Automake utilities will be used for generating Makefiles
+  and build scripts. Note that since the implementation is under
+  Open Diameter, these toolsets are necessary. 
+
+- Bug tracking software will be provided by sourceforge.net under 
+  the Open Diameter project space. The web based bug tracking
+  software is sufficient for supporting the implementation.
+
+- Programming language is C++ and Java. This is subject to further
+  discussion. The initial intent depending on the complexity of
+  the interface. Issues relevant to this discussion includes the
+  introduction of JNI interfaces to the current diameter library.
+  It is also possible to use C++ exclusively to decrease development
+  time. However, this gives up the programming extendibility provided 
+  by Java.
+
+- The defacto source code documentation tool utilized in Open Diameter
+  is Doxygen [DOXYGEN]. It is recommended that this applies also to this
+  project. 
+
+- Configuration file is recommeded to be XML based. It is also recommended
+  that the Open Diameter XML configuration file be made extendible to
+  accomodate addition of application configuration data. This would 
+  provide the benefit of having a singular configuration source and scheme
+  to both diameter and it's application. In such a case, it is recommended
+  that the Xerces C++/Java XML parser [XERCES] be used to load the configuration
+  into run-time values.
+
+- It is recommended that we use ACE (Adaptive Communication Environment) [ACE]
+  to provide basic data structures, programming frameworks and coding 
+  methology in the implementation. This saves time and effort in providing 
+  abstracted system support like logging, basic data types, threading, etc. 
+  to the programming effort.
+  
+\subsection tagArchitectureSoftwareArchitecture Software Architecture
+
+The software architecture employed by this implementation is motivated by
+the netgraph architecture in the FreeBSD networking module [NETGRAPH].
+The design is simple and works very well is dis-joined development where
+plug in modules are key to the design.
+
+The idea is derived from a graph model where the basic components are
+nodes, edges and hooks. Each node implements a specific functionality or
+encapsulates a feature. Every node exposes a set of hooks in which data
+or control message can pass through. Nodes passes packets to each other
+via these hooks. Two hooks connected to each other constitute an edge.
+The management of nodes are made by a control entity. This is similar
+to COM/DCOM objects in windows (or ORB's in Java) where a system entity
+loads and unload an object. The biggest difference is that nodes do not 
+expose a callable interface which makes the implementation much simplier.
+For this implementation, these edges are static and well defined which
+makes implementation easier. Because of this, there is no need for a
+global control entity that manages creation of nodes and edges (as well
+as thier deletion). This is the one major departure from the netgraph
+based architecture. From an programming standpoint, an abstract class
+definition can be made that describes generic features of a node. These
+features includes hook lists, instance reference counts, control and
+data message handling events, etc. Implementors of a node need only to
+derive from this class to become a node. Details of this classes are TBD.
+
+The feature coverage implemented by a single node depends on the complexity
+of the feature or judgement made by the developer. Note that nodes SHOULD not
+encapsulate a functionality so large that it becomes un-tenable. Programming
+practices of breaking down a problem set SHOULD be applied. As an example,
+a single node can be used as configuration data loader and repository. However,
+a node implementing an more than one protocol stack is not recommended since
+it increases the complexity of that node without reason.
+
+There is a well defined topology for nodes and edges. However, some nodes
+needs to be dynamically created. It becomes the responsibility of static
+nodes which are persistent through out the lifetime of the software to create
+instances of these dynamic nodes. Therefore, the node class factory is
+localized as a feature of a static node. It is of course a matter of following
+classical software pattern that this class factory feature be implemented 
+by a that node. The software architecture depicted in the succeding diagrams
+applies this functionality. This is a departure from the FreeBSD netgraph
+architecture. The benefit of which is implementation simplicity.
+ 
+Additional global base classes needs to be defined that describes or
+enacpsulates control messages or data passed between nodes. A source based
+class library defining all these classes as well as framework classes
+for control entity SHOULD be implemented. Details of these classes are TBD.
+
+The following diagrams depict the INITAL node distribution of the Diameter
+NASREQ translation agent [See Project Goals]:
+
+\image html nasreq.jpeg
+\image latex nasreq.eps
+<B> Fig. 1., Functional Architecture </B>
+
+The diagram above depicts an initial architecture of the Diameter NASREQ 
+translation agent. The translation agent is logically divided into 
+DIAMETER->RADIUS and RADIUS->DIAMETER translation. The functionality of 
+each is described in [NASREQ] Sec. 9.1 and 9.2 respectively. A brief 
+description of each node in the diagram is as follows:
+
+- Configuration Node: This node is responsible for loading configuration
+  information from non-volatile storage into run-time data. All or most 
+  nodes MAY require configuration information but the diagram will be 
+  incomprehensable if all edges are shown. Hence, the depiction above is 
+  incomplete in terms of edge association of other nodes with the configuration 
+  node. Further details of this node is [TBD].
+
+- NAS Call Manager: This node is responsible for managing incomming RADIUS
+  message as well as delivery of outgoing RADIUS messages. It MUST support 
+  appropriate transport mechanisms that the NAS server requires. In addition,
+  it needs to provide validation for incomming request message as specified
+  in [NASREQ] Sec. 9.1. This node has an edge association with the transaction
+  database node and forwards incomming message which has passed validation to
+  that node. It may also employ scalability techiniques such as prioritized 
+  queing and threshold management to protect the software from heavy traffic. 
+  Note also that multiple nodes of this type MAY exists in a distributed fashion 
+  to increase load/request capacity. This is part of the RADIUS->DIAMETER
+  translation. Further details of this node is [TBD].
+
+- Transaction Database: This node is responsible for run-time storage of
+  references to RADIUS transaction nodes. These transaction nodes contain
+  transaction state and other supporting information. This node needs to
+  query its reference tables for all incomming traffic so that messages
+  are associated with an existing transaction. If no such association is
+  found, it is the database nodes responsibility to create instances of 
+  transaction nodes for validated RADIUS request comming from the call 
+  manager node. This is part of the RADIUS->DIAMETER translation. Further 
+  details of this node is [TBD].
+
+- Transaction Nodes: These nodes are dynamically created by the transaction 
+  database nodes in response to a valid RADIUS request. They stores transaction 
+  state and other information associated with each request (See [NASREQ] Sec. 9.1).
+  In addition, diameter client session instances (authentication/authorization, 
+  accounting or proxy sessions) are created within each node. That allows each
+  nodes to have session access to the diameter network as well as associate
+  each RADIUS request to a diameter session. As of this writing, there are three 
+  (3) types of transaction nodes. Authorization/Authentication, Accounting and
+  proxy session nodes. The first two (2) are provides general AAA support. The 
+  proxy nodes provides support for RADIUS request with the state attribute 
+  present and has a pre-defined diameter session in it's data prefixed with 
+  the "\Diameter" string. Majority of the desicion making process for the
+  transaction is made within these node. It uses other auxillary nodes to
+  parse and re-format the message to an appropriate form but these node will
+  decide the outcome of the transaction. These nodes are part of the RADIUS->DIAMETER
+  translation. Note that for reply messages, these node has an edge association
+  with the call manager which has a transport connection with the RADIUS entity.
+  Further details of this node is [TBD].
+
+- RADIUS->DIAMETER Aux Node: These are axuillary node use to parse and process
+  RADIUS message and convert them into an appropriate diameter message. There
+  are two (2) instances of this node, one is for ingress request and the other
+  is for egress replys. It follows the guidelines in [NASREQ] Sec. 9.1. These
+  nodes has edge association only with transaction nodes since it assist those
+  nodes in the translation process. Internally, these node are managed by a generic 
+  parser which has convertion specific plugins implemented as objects/classes.
+  These plugins acts as converters for AVP->attribute or attribute->AVP. Others
+  act on the entire message. This is part of the RADIUS->DIAMETER translation. 
+  Further details of this node is [TBD].
+
+- Diameter Server Nodes: This is the core node for DIAMETER->RADIUS convertion.
+  This is a class factory node that generates diameter server sessions nodes
+  as specified in the Open Diameter API. The open diameter library provides
+  traffic management as well as pre-processing of incomming diameter request 
+  which allows us the luxury of simply creating a server session class factory.
+  The objects generated by the factory have diameter server sessions for
+  a base class. Hence, we can define the derived class to be a transaction
+  node which contain transaction state and other supporting information for
+  DIAMETER to RADIUS translation. Further details of this node is [TBD].
+
+- Diameter Server Transaction Node: As noted above, these nodes are dynamically
+  created by the diameter server node and are derived from open diameter server
+  session base class. These contains transaction state information as well as
+  supporting data to aid in the translation of messages from DIAMETER to RADIUS. 
+  This has the same responsibility as the Transaction nodes noted above except
+  if follows [NASREQ] Sec. 9.2. It contains the decision making capacity for 
+  such translation. It is assisted by auxillary classes DIAMETER->RADIUS Aux 
+  nodes which are symetrical opposites of RADIUS->DIAMETER Nodes. Note that for 
+  reply messages, these node has an edge association with the call manager which 
+  has a transport connection with the RADIUS entity. Further details of this 
+  node is [TBD].
+
+- DIAMETER->RADIUS Node: As with the RADIUS->DIAMETER node, these are also 
+  auxillary nodes for assisting in converting DIAMETER messages. It is comprised
+  of two (2) instances, one is for ingress request and the other is for egress 
+  replys. It follows the guidelines stated in [NASREQ] Sec. 9.2. They have 
+  edge associations only with the Diameter Server Nodes. These follows the same
+  implemenation as RADIUS->DIAMETER node in converting AVP->attribute and
+  attribute->AVP. Further details of this node is [TBD].
+
+\section tagBibliography Bibliography
+
+- [ACE] Douglas C. Schmidt, The ADAPTIVE Communications Environment, An Object-Oriented Network Programming Toolkit for Developing Communications Software, June 1993
+- [DOXYGEN] Dimitri Van Heesch, Doxygen, http://www.doxygen.org, July 2003
+- [XERCES] Apache Software, Xerces C++ Parser, http://xml.apache.org, July 2003
+- [NETGRAPH] FreeBSD Kernel Interface Manual, Netgraph(4)
+- [NASREQ] Calhoun, Zorn, etc, Diameter Network Access Server Application, June 2003
+
+*/

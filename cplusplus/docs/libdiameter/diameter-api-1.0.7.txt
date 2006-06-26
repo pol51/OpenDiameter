@@ -1,0 +1,756 @@
+/*! 
+
+\mainpage Open Diameter C++ API 
+\author Victor I. Fajardo
+\date Jan 4, 2005
+
+This document is a general descripton of the Open Diameter C++ API. 
+The C++ API in this release (1.0.7-e) 
+
+\section general Overview
+
+The Open Diameter C++ API is a simple session based API with each
+type of diameter session being represented by a C++ class. User
+applications derived from these session classes to implement thier
+own specific AAA functionality. All events, received messages
+processing and message transmissions functionality are provided
+by these classes. Generally, the session classes are categorized
+into either client or server. The client classes provided AAA client
+capabilities and server classes provide AAA server functions. These
+two types of classes are further sub-divided into either authentication/
+authorization classes and accounting classes. All of these session 
+classes derived from a specific AAA state machine framework as 
+defined in Sec 8 of RFC3588. Applications can pick and choose which 
+AAA functionality they require and derived the appropriate 
+session classes. 
+
+The main difference between client and server classes are on the 
+way they are instantiated. For application classes based on client 
+sessions, it is the responsibility of the AAA client application 
+to create and manage the instances of these sessions. For application
+classes based on server sessions, the library is responsible in creating 
+and deleting instances of these classes. Deletion of server classes are
+done by an internal garbage collector when a server session has completed
+it's execution as defined by it's state machine. To facilitate the 
+instantiation of application derived server session classes, the library
+provides a server session factory that an application may instantiate
+and register. Once properly registered, these session factories will
+create AAA session objects everytime a new auth/accouting request 
+arrives. The only criteria for this action is if the local AAA applicaiton
+supports the application id advertized in the initial request message.
+
+It is important to note that both client and server session classes 
+only provide diameter session management. Diameter peer connectivity
+management is provided (contained) within another class called the 
+application class. This class manages configuration loading, peer 
+connectivity and AAA message routing. Client session classes binds 
+to this application class via it's constructor. Server classes are
+bounded to an application class via the server session factory class
+which is registered in the application class. By binding to the 
+application class, a session classes are able to send and receive
+messages from the routing platform provided by the application class.
+The figure below shows the basic association of the different classes
+provided in the Open Diameter C++ API.
+
+\image html api_classes.jpeg
+\image latex api_classes.eps
+<B>Figure 1. Basic associations of Diameter C++ classes</B>
+
+As shown in the figure, an client accounting session is also required
+to implement a record collector object. This class is passed in as a 
+template parameter to the client accounting sub-session and must be derived
+from AAA_ClientAcctRecCollector interface. The implementation of this
+class is application specific. In the same token, the server accounting 
+session is also required to implement a record storage object to archive 
+records sent by the client (or perhaps sent to a billing system). It is
+also passed in as a template parameter to the AAA_ServerAcctSession.
+
+There are also additional utility functions provided by the API to
+facilitate a more object oriented approach to message handling (i.e.,
+AAA_SessionMsgMux<SESSION>). Further details about these classes and
+the API set is explained in the succeeding sections. For sending AAA
+messages from any session class, a built-in send function exists in
+all session classes. The format of this function is as follows:
+
+\code
+       virtual AAAReturnCode Send(std::auto_ptr<AAAMessage> msg);
+\endcode
+
+Note that any message that is composed by the application must be
+passed in as an auto_ptr<>. This means that the session class will
+take over ownership of the AAAMessage object. 
+
+Usage of the API is best described in the sample code of libdiameter.
+There are several sample code that came with the distribution and
+each describes how to use different aspects of the API. However, the 
+succeding sections show all the basic classes necessary to implement 
+a diameter AAA application.
+
+\section application Application Class
+
+The application class provides peer connectivity management, route
+tables and logic and general configuration databases. All applications
+must have an instance of the application class (AAA_Application).
+An instance of AAA_Application is synonymous to having a single AAA
+diameter entity. So, it is possible for a single program to have multiple
+instance of an AAA_Application representing different AAA diameter entities.
+The application class also provides registration function for server session 
+factories that allow all server sessions to be bounded to to the AAA_Application. 
+The following code snipet show the basic usage of AAA_Application
+
+\code   
+   // A running AAA_Task must provide execution
+   // context to the AAA_Application
+   AAA_Application appCore(task);
+   if (appCore.Open("my_configuration_file.xml") == AAA_ERR_SUCCESS) {
+
+       diameter_unsigned32_t MyApplicationId = 10000;
+       
+       /// An application instance can optionally
+       // wait for peer connectivity before proceeding
+       do {
+           ACE_OS::sleep(1);
+       } while (appCore.NumActivePeers() == 0);
+
+       // Applications can now register server session factories
+       // if this AAA will have some server functionality
+       SampleServerAllocator allocator(task, MyApplicationId);
+       appCore.RegisterServerSessionFactory(allocator);
+       
+       // do something here
+       // The AAA_Application object must be persistent       
+       // within the instances context of all session 
+       // classes since all sessions must be bounded to
+       // an AAA_Application
+
+       // remove the factory when done       
+       appCore.RemoveServerSession(MyApplicationId);
+   }
+\endcode
+
+\section auth_client Authentication/Authorization Client Session
+
+Diameter client applications should create instances of classes 
+AAA_ClientAuthSession or classes that derived from them. This class
+provides virtual functions that is called by the library when 
+configuration information is being gathered or when incomming 
+session specific answer message is recieved. The following code
+snipet shows all of the available virtual functions that can be
+implemented by the application. AAA_SampleClient is the application
+specific class that derives from AAA_ClientAuthSession. 
+
+\code
+
+class AAA_SampleClient : public AAA_ClientAuthSession {
+        // AAA client session derived from AAA_ClientAuthSession.
+        // It provides for all the functionality of a diameter 
+        // client session. Note that the application is responsible
+        // for instantiating this object. Also, the derived class
+	// has to provide an instance of an active AAA_Task object
+	// and the proper application id of the session
+    public:
+        AAA_SampleClient(AAA_Task &task,
+                         diameter_unsigned32_t id) :
+            AAA_ClientAuthSession(task, id) {
+        }
+        virtual void SetAuthSessionState
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &authState)
+        {
+            // optional override, called by the library to set 
+            // the auth state. Note that this overrides the 
+            // settings in the configuration file or applications 
+            // sending an auth session state AVP
+	    // Possible values are:
+	    //   1. AAA_SESSION_STATE_MAINTAINED
+	    //   2. AAA_SESSION_NO_STATE_MAINTAINED
+            authState = AAA_SESSION_STATE_MAINTAINED;
+        }
+        virtual void SetDestinationHost
+        (AAA_ScholarAttribute<diameter_identity_t> &dHost)
+        {
+            // optional override, called by the library to 
+            // set the destination host. Note that this 
+            // overrides applications sending a destination
+            // host AVP.  
+            dHost = "server.isp.net";
+        }
+        virtual void SetDestinationRealm
+        (AAA_ScholarAttribute<diameter_identity_t> &dRealm)
+        {
+            // optional override, called by the library 
+            // to set the destination realm. Note that 
+            // this overrides applications sending a 
+            // destination realm AVP
+            dRealm = "isp.net";
+        }
+        virtual void SetSessionTimeout
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        {
+            // optional override, called by the library so 
+            // this client can send a hint to the server 
+            // about the session timeout it prefers. If not
+            // overridden, the value in the config file
+            // is used
+            timeout = 30;
+        }
+        virtual void SetAuthLifetimeTimeout
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        {
+            // optional override, called by the library so 
+            // this client can send a hint to the server 
+            // about the auth lifetime it prefers. If not
+            // overridden, the value in the config file
+            // is used
+            timeout = 29;
+        }
+        virtual AAAReturnCode ReAuthenticate(diameter_unsigned32_t type) {
+            // optional override, called by the library so 
+            // this client is informed about a re-auth request
+            // initiated by the server. Note that the client
+            // must return a valid result-code when exiting
+            // this function
+            return (AAAReturnCode)(AAA_SUCCESS);
+        }
+        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+            // all request messages are handled by this function.
+            // AAA clients normally should not receive
+            // request messags. 
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+
+            // all answer messages are handled by this function. 
+            // This function can retrun the following values:
+            // a. AAA_ERR_SUCCESS - client is successfully authenticated
+            // b. AAA_ERR_INCOMPLETE - auth not yet completed, muti-round 
+            //                         message trip exchange
+            // c. AAA_ERR_FAILURE - client authentication failed
+
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+            // all error messages are handled by this function.
+            return (AAA_ERR_SUCCESS);
+	}
+        virtual AAAReturnCode Success() {
+            // notification of successful auth
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode Disconnect() {
+            // notification of completed STR/STA exchange
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode SessionTimeout() {
+            // notification of session timeout
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode AuthorizationTimeout() {
+            // notification of auth lifetime timeout
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode AbortSession() {
+            // notification of completed ASR/ASA exchange
+            return (AAA_ERR_SUCCESS);
+        }
+};
+
+\endcode
+
+\section auth_server Authentication/Authorization Server Session
+
+Diameter server applications should implement the class
+AAA_ServerAuthSession or classes that derived from them. This class
+provides virtual functions that is called by the library when 
+configuration information is being gathered or when incomming 
+session specific request message is recieved. The following code
+snipet shows all of the available virtual functions that can be
+implemented by the application. AAA_SampleServer is the application
+specific class that derives from AAA_ServerAuthSession. 
+
+\code
+
+class AAA_SampleServer : public AAA_ServerAuthSession {
+        // AAA serve session derived from AAA_ServerAuthSession.
+        // It provides for all the functionality of a diameter 
+        // server session. Note that the server session factory
+        // is responsible for instantiating this object. Also,
+	// any derived class must accept AAA_Task and application
+	// id type as constructor parameter and must pass this
+	// along to the AAA_ServerAuthSession base class.
+    public:
+        AAA_SampleServer(AAA_Task &task,
+                         diameter_unsigned32_t id,
+                         bool endOnSuccess = false) :
+           AAA_ServerAuthSession(task, id) {
+        }
+        virtual void SetAuthSessionState
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &authState)
+        {
+            // optional override, called by the library to set 
+            // the auth state. Note that this overrides the 
+            // settings in the configuration file or applications 
+            // sending an auth session state AVP
+	    // Possible values are:
+	    //   1. AAA_SESSION_STATE_MAINTAINED
+	    //   2. AAA_SESSION_NO_STATE_MAINTAINED
+            authState = AAA_SESSION_STATE_MAINTAINED;
+        }
+        virtual void SetSessionTimeout
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        {
+            // optional override, called by the library so 
+            // this server can dictate the session timeout 
+            // to the client. If not overridden, the value 
+            // in the config file is used
+            timeout = 30;
+        }
+        virtual void SetAuthLifetimeTimeout
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        {
+            // optional override, called by the library so 
+            // this server can dictate the session timeout 
+            // to the client. If not overridden, the value 
+            // in the config file is used
+            timeout = 2;
+        }
+        virtual void SetAuthGracePeriodTimeout
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        {
+            // optional override, called by the library so 
+            // this server can dictate the auth grace period
+            // to the client. If not overridden, the value 
+            // in the config file is used
+            timeout = 2;
+        }
+        virtual AAAReturnCode ReAuthenticate(diameter_unsigned32_t rcode) {
+            // optional override, called by the library so 
+            // this server is informed that the client has
+            // responded to the server initiated re-auth
+            // request. The result code from the client
+            // is passed as a parameter to this funciton.
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+
+            // all request messages are handled by this function. 
+            // This function can retrun the following values:
+            // a. AAA_ERR_SUCCESS - client is successfully authenticated
+            // b. AAA_ERR_INCOMPLETE - auth not yet completed, muti-round 
+            //                         message trip exchange
+            // c. AAA_ERR_FAILURE - client authentication failed
+
+	    // Generally, a server application can send an
+	    // application specific answer message from here
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+            // all answer messages are handled by this function.
+            // AAA servers normally should not receive
+            // answer messags. 
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+            // all error messages are handled by this function.
+            return (AAA_ERR_SUCCESS);
+	}
+        virtual AAAReturnCode Success() {
+            // notification of successful auth
+                // ReAuth(AAA_SESSION_AUTHORIZE_AUTHENTICATE);
+	    }
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode Disconnect() {
+            // notification of completed STR/STA exchange
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode SessionTimeout() {
+            // notification of session timeout
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode AuthorizationTimeout() {
+            // notification of auth lifetime timeout
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode AbortSession() {
+            // notification of completed ASR/ASA exchange
+            return (AAA_ERR_SUCCESS);
+        }
+};
+
+\endcode
+
+Optionally, the server session class also has a built-in function 
+to send a Re-Auth-Request message. This would be valid only if
+the server session has initiated a stateful session and currently
+in it's open state. The format of the re-auth function is as follows:
+
+\code
+        AAAReturnCode ReAuth(diameter_unsigned32_t type);
+\endcode
+
+As noted in previous sections, the application is not responsible 
+for creating instances of server sessions. This is left to a server
+session factory discussed in next sections.
+
+\section auth_server_factory Server Session Factory
+
+The server session factory is implemented using the template class
+AAA_ServerSessionAllocator<SERVER_SESSION> where SERVER_SESSION
+is an application specific class that derives from AAA_ServerAuthSession
+or AAA_ServerAcctSession. This class derives from AAA_ServerSessionFactory
+which has a pure virtual Create(...) function called by the library
+when a new auth/acct request message is received from a new diameter
+client. 
+
+An instance of the AAA_ServerSessionAllocator<SERVER_SESSION> must be 
+regsitered with an AAA_Application object. Once an AAA_Application
+object receives a new request message, it can check the list of locally
+registered factories if the application id present in the message is
+supported by the diameter application. The code snipet below shows
+the basic scenario.
+
+\code
+
+// Server session factory. Unlike AAA clients, server
+// sessions need to be created on demand. This factory
+// is responsible for creating new server sessions
+// based on incomming new request.
+typedef AAA_ServerSessionAllocator<AAA_SampleServer> 
+        SampleServerAllocator;
+
+int main(int argc, char *argv[])
+{
+   AAA_Task task;
+   task.Start(5);
+
+   diameter_unsigned32_t MyApplicationId = 10000;
+   
+   // Application core is responsible for providing
+   // peer connectivity between AAA entities
+   AAA_Application appCore(task, "my_server_configuration.xml");
+   SampleServerAllocator allocator(task, MyApplicationId);
+   appCore.RegisterServerSessionFactory(allocator);
+
+   // do something here to wait as a deamon
+
+   appCore.Close();
+   task.Stop();
+   return (0);
+}
+
+\endcode
+
+
+\section acct_client Accounting Client Session
+
+Accounting architecture on the client application is based on
+a parent accounting session (AAA_ClientAcctSession) and one or
+more sub-session (AAA_ClientAcctSubSession<REC_COLLECTOR>). As
+described in RFC3588, a parent session defines the same Session-Id 
+for all of it's sub-session. Each sub-session then defines it's own
+Accounting-Sub-Session-Id and implements a specific record collection
+method. A method maybe an event based record collection wherein record
+collection is a one-time event or a sequence based collection where 
+there is a start, interim and stop events. Each sub-session implements
+the accounting client state machine described in Sec. 8.2 of RFC 3588.
+In addition, a record collection mechanism is provided to the sub-session
+to allow it to collect data from application specific sources. The record
+collector is passed in as a template parameter to the sub-session class
+to bind a specific collection scheme to a sub-session. In the similar 
+manner, the sub-session instance requires the parent session to be passed
+into it's constructor to bind it to a specific accounting session.
+
+Applications are also required to implement thier own specific record
+collection schemes and must derived from AAA_ClientAcctRecCollector class.
+This class is an abstract class and application must implement all of the
+required interfaces. The signature of the class is as follows:
+
+\code
+///
+/// REC_COLLECTOR MUST implement this class
+/// This class provides callback functionality
+/// to applications with regards to record
+/// collection.
+///
+class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAcctRecCollector
+{
+    public:
+        /// Asks the client app to append collected record and other
+        /// vendor specific AVP's in message list. The recordType is
+	/// describes the current collection scheme (event or sequenced)
+	/// and recordNum is the current record count.
+        virtual void GenerateRecord(AAAAvpContainerList &avpList,
+                                    int recordType,
+                                    int recordNum) = 0;
+
+	/// Asks the client app if there are pending records
+	/// stored in the application
+        virtual bool IsLastRecordInStorage() = 0;
+
+	/// Asks the client app if there is buffer space available
+        virtual bool IsStorageSpaceAvailable() = 0;
+
+        /// Asks the client app to store the
+        /// record in the message list since
+	/// the library is not able to send it
+	/// at the moment
+        virtual AAAReturnCode StoreLastRecord(int recordType) = 0;
+
+        /// Asks the client app to delete the
+        /// last stored record if any
+        virtual AAAReturnCode DeleteLastRecord(int recordType) = 0;
+};
+\endcode
+ 
+Client accounting applications should create instances of classes 
+AAA_ClientAcctSubSession<REC_COLLECTOR> or classes that derived from 
+them. Where REC_COLLECTOR is a class derived from AAA_ClientAcctRecCollector.
+The sub-session class provides virtual functions that is called by the 
+library when configuration information is being gathered. The following code
+snipet shows all of the available virtual functions that can be
+implemented by the application. AAA_SampleClientSubSession is the application
+specific class that derives from AAA_ClientAcctSubSession. AAA_SampleClientAcctRecCollector
+is a sample record collection scheme implemented by the client.
+
+\code
+class AAA_SampleClientSubSession : 
+    public AAA_ClientAcctSubSession<AAA_SampleClientAcctRecCollector> {
+        // AAA client session derived from AAA_ClientAcctSession.
+        // It provides for all the functionality of a diameter 
+        // client accounting session. The ClientAcctSubSession
+        // class is a template function that requires a proper
+        // version of a record collector as a paramter. Note 
+        // that the application is responsible for instantiating 
+        // this object
+    public:
+        AAA_SampleClientSubSession(AAA_ClientAcctSession &parent) :
+            AAA_ClientAcctSubSession<AAA_SampleClientAcctRecCollector>(parent) {
+        }
+        virtual void SetDestinationHost
+        (AAA_ScholarAttribute<diameter_identity_t> &dHost)
+        {
+            // optional override, called by the library to 
+            // set the destination host. Note that this 
+            // overrides applications sending a destination
+            // host AVP
+            dHost = "server.isp.net";
+        }
+        virtual void SetDestinationRealm
+        (AAA_ScholarAttribute<diameter_identity_t> &dRealm)
+        {
+            // optional override, called by the library 
+            // to set the destination realm. Note that 
+            // this overrides applications sending a 
+            // destination realm AVP
+            dRealm = "isp.net";
+        }
+        /// This function is used for setting realtime required 
+        /// AVP as a hint to the server
+        virtual void SetRealTimeRequired
+        (AAA_ScholarAttribute<diameter_enumerated_t> &rt)
+        {
+        }
+        /// This function is used for setting acct interim 
+        /// interval AVP as a hint to the server
+        virtual void SetInterimInterval
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        {
+        }
+        /// This function is used for setting RADIUS acct 
+        /// session id for RADIUS/DIAMETER translations
+        virtual void SetRadiusAcctSessionId
+        (AAA_ScholarAttribute<diameter_octetstring_t> &sid)
+        {
+        }
+        /// This function is used for setting multi-session 
+        /// id AVP 
+        virtual void SetMultiSessionId
+        (AAA_ScholarAttribute<diameter_utf8string_t> &sid)
+        {
+        }
+        virtual AAAReturnCode Success() {
+            // notification of successful ACR exchange for all record type
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode Failed(int recNum) {
+            // notification that recNum record was not processed properly
+            return (AAA_ERR_SUCCESS);
+        }
+};
+\endcode
+
+The sub-session class also has the following built-in function to control
+the beginning and termination of record collection:
+
+\code
+        /// This function initializes an AAA recording session
+	/// The oneTime parameter determines wether this sub-session
+	/// will be a one-time record collection event or a sequenced
+	/// collection (start, interim and stop).
+        AAAReturnCode Begin(bool oneTime = false);
+
+        /// This function terminates the AAA recording session
+        AAAReturnCode End();
+\end verobse
+
+Client accounting applications should create instances of classes 
+AAA_ClientAcctSession. This provides the accounting parent session
+functionality and is passed on to a sub-sessions constructor. The basic
+usage of AAA_ClientAcctSession and how it is associated with the 
+sub-sessions are show below.
+
+\code
+       diameter_unsigned32_t MyApplicationId = 10000;
+       AAA_ClientAcctSession parent(task, MyApplicationId);
+       for (int x = 0; x < 10; x ++) {
+           // A new sub session id is created for each new sub session
+           AAA_SampleClientSubSession subSession(parent);
+
+           // shows sequenced record accouting (start/interim/stop)
+           subSession.Begin(false);
+
+           /// do something until record collection is completed
+           subSession.End();
+       }
+\endcode
+
+\section acct_server Accounting Server Session
+
+Server accounting applications are similiar to auth server sessions.
+The server session factory is responsible for it's creation. The difference
+is that the server accounting session takes a record storage class as
+a template parameter. The template format is AAA_ServerAcctSession<REC_STORAGE>
+where REC_STORAGE is an application specific implementation of AAA_ServerAcctRecStorage.
+AAA_ServerAcctRecStorage is an abstract class that is used by the library to
+tell the application to store application specific record that has been carried
+an Accounting-Request message. The signature of the class is as follows:
+
+\code
+///
+/// REC_STORAGE MUST implement this class
+/// This class provides callback functionality
+/// to applications with regards to record
+/// storage.
+///
+class AAA_ServerAcctRecStorage
+{
+    public:
+	/// Asks the server app if there is enough storage space
+        virtual bool IsSpaceAvailableOnDevice() = 0;
+
+        /// Asks the server app to store record
+	/// recordType indicates whether this is a event
+	/// based record or sequenced. recordNum is the
+	/// current record number
+        virtual void StoreRecord(AAAAvpContainerList &avpList,
+                                 int recordType,
+                                 int recordNum) = 0;
+};
+\endcode
+
+The AAA_ServerAcctSession<REC_STORAGE> class also provides virtual functions 
+that is called by the library when configuration information is being gathered. 
+The following code snipet shows all of the available virtual functions that 
+can be implemented by the application. AAA_SampleServer is the application
+specific class that derives from AAA_ServerAcctSession<REC_STORAGE>. 
+
+\code
+class AAA_SampleServer : 
+    public AAA_ServerAcctSession<AAA_SampleRecStorage>
+{
+        // AAA serve session derived from AAA_ServerAcctSession.
+        // It provides for all the functionality of a diameter 
+        // accounting server session. Note that the server 
+        // session factory is responsible for instantiating 
+        // this object. AAA_ServerAcctSession is also a template
+        // class that requires an AAA_ServerAcctRecStorage derived
+        // class as a parameter.
+    public:
+        AAA_SampleServer(AAA_Task &task,
+                         diameter_unsigned32_t id) :
+            AAA_ServerAcctSession<AAA_SampleRecStorage>
+                   (task, 
+                    id, 
+                    true) // dictates whether this session is stateful 
+        {             
+        }
+        /// This function is used for setting realtime required 
+        /// AVP as a hint to the server
+        virtual void SetRealTimeRequired
+        (AAA_ScholarAttribute<diameter_enumerated_t> &rt)
+        {
+            /// The following are possible values:
+            ///   AAA_ACCT_REALTIME_DELIVER_AND_GRANT
+            ///   ACCT_REALTIME_GRANT_AND_STORE
+            ///   ACCT_REALTIME_GRANT_AND_LOSE
+            rt = AAA_ACCT_REALTIME_DELIVER_AND_GRANT;
+        }
+        /// This function is used for setting acct interim 
+        /// interval AVP dictated by the server to client
+        virtual void SetInterimInterval
+        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        {
+            timeout = 2; // tell client to generate record every 2 sec
+        }
+        virtual AAAReturnCode Success() {
+            // notification of successful ACR exchange for all record type
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode Failed(int recNum) {
+            // notification that recNum record was not processed properly
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode SessionTimeout() {
+            // notification of session timeout if this
+            // session was stateful
+            return (AAA_ERR_SUCCESS);
+        }
+};
+
+\endcode
+
+\section msg_mux Message Multiplexer Class
+
+The message multiplexer class is an auxillary class that can be used
+with sessions that process application specific message. The main purpose
+of the message mux is to designate handling or processing of an application
+specific request or answer message to it's own class definition. It is 
+independent of any session classes and operates soley on the AAAMessage
+object passed to it. The message mux is composed of two (2) classes. An
+abstract class that applications must implement. This provides the
+functions where AAAMessage will be processed (AAA_SessionMsgMuxHandler<ARG>)
+on a per-session basis. The second is the actual multiplexer itself 
+(AAA_SessionMsgMux<ARG>). Both classes are template classes and has one 
+template argument which can be any application specific type. The multiplexer 
+allows applications to register a AAA_SessionMsgMuxHandler<ARG> for a message 
+code. When a AAAMessage is multiplexed, the AAA_SessionMsgMux<ARG> simply 
+checks a matching handler and forwards the message to that handler. The 
+multiplexer can be called in RequestMsg(..) or AnswerMsg(..) functions 
+in an appropriate session class. The signature of the handlers is as follows:
+
+\code
+template<class ARG>
+class AAA_SessionMsgMuxHandler
+{
+    public:
+        virtual ~AAA_SessionMsgMuxHandler() {
+	}
+        /// This function is called when incomming request message is received
+        virtual AAAReturnCode RequestMsg(ARG &arg, AAAMessage &msg) = 0;
+
+        /// This function is called when incomming answer message is received
+        virtual AAAReturnCode AnswerMsg(ARG &arg, AAAMessage &msg) = 0;
+
+        /// This function is called when incomming error message is received
+        virtual AAAReturnCode ErrorMsg(ARG &arg, AAAMessage &msg) = 0;
+
+    protected:
+        AAA_SessionMsgMuxHandler() {
+	}
+};
+\endcode
+
+Further details on how to use the message multiplexers can be found in
+the sample code.
+
+*/

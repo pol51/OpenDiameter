@@ -1,0 +1,55 @@
+Document: PANA Win32 Notes for IPv6
+Date    : August 12, 2004 
+Author  : Victor Fajardo
+
+Contents
+--------
+
+1. Usage Notes
+2. Implementation Notes
+
+Usage Notes
+-----------
+
+The descriptions in this document applies to Windows XP
+running SP1 and above using Advance Networking Pack. For 
+the most part, the Open Diameter PANA library uses MS IPv6 
+Protocol included in this Pack in an abstracted manner via 
+WinSock version 2. The only operational consideration is 
+that the "Internet Connection Firewall for IPv6" does not 
+automatically open any ports after installation of the Pack
+(Microsoft Knowledge Base Article 817778). This means that 
+PAA listen operations will be filtered. 
+
+To view available adapters and thier filtering states:
+
+netsh firewall show adapter
+
+To view enabled global ports
+
+netsh firewall show globalport
+
+To enable PAA listen port:
+
+netsh firewall set adapter [Adapter Firendly Name] port [PAA Listen Port]=enable protocol=udp
+
+For more information on IPv6 ICF (Internet Connection Firewall) see:
+http://www.microsoft.com/technet/itsolutions/network/security/ipv6fw/hcfgv601.mspx
+
+Implementation Notes
+--------------------
+
+There are some considerations when using Windows
+Socket Ver 2 for sending multicast traffic on a
+UDP socket. These considerations are based on
+the difference between WinSock and linux/BSD
+sockets:
+
+a. sockaddr_in6.sin6_scope_id need not be populated
+   with the proper interface index if IPV6_MULTICAST_IF
+   is used.
+b. bind() is required if IPV6_MULTICAST_JOIN is to
+   be issued.
+c. Use of GetAdapterAddresses() is prefereble in
+   retrieving the actual IPv6 based interface
+   index instead of GetAdaptersInfo().

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+
+<xs:simpleType name="booleanType">
+	<xs:restriction base="xs:string">
+		<xs:pattern value="true|false"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="encryptionType">
+	<xs:all>
+		<xs:element name="pass_phrase" type="xs:string"/>
+		<xs:element name="key_file" type="xs:string"/>
+		<xs:element name="cert_file" type="xs:string"/>
+		<xs:element name="random" type="xs:string"/>
+		<xs:element name="ca_path" type="xs:string"/>
+		<xs:element name="ca_cert" type="xs:string"/>
+		<xs:element name="dh" type="xs:string"/>
+		<xs:element name="rsa_key" type="xs:integer"/>
+		<xs:element name="dh_key" type="xs:integer"/>
+		<xs:element name="rsa_key_length" type="xs:integer"/>
+		<xs:element name="dh_key_length" type="xs:integer"/>
+		<xs:element name="verify_depth" type="xs:integer"/>
+		<xs:element name="file_type" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+	</xs:all>
+</xs:complexType>
+
+<xs:complexType name="fragmentationType">
+	<xs:all>
+		<xs:element name="include_length" type="booleanType"/>
+		<xs:element name="fragment_size" type="xs:integer"/>
+	</xs:all>
+</xs:complexType>
+
+<xs:complexType name="serverType">
+	<xs:sequence>
+		<xs:element name="id_context" type="xs:integer"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:element name="configuration_server">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="encryption" type="encryptionType"/>
+			<xs:element name="fragmentation" type="fragmentationType"/>
+			<xs:element name="server" type="serverType"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+<xs:element name="configuration_client">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="encryption" type="encryptionType"/>
+			<xs:element name="fragmentation" type="fragmentationType"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:element>
+
+</xs:schema>

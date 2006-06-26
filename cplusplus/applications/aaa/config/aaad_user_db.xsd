@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <xs:complexType name="archie_type">
+      <xs:sequence>
+         <xs:element name="shared_secret_file" type="xs:string" />
+      </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="md5_type">
+      <xs:sequence>
+         <xs:element name="password_type" type="xs:string" />
+         <xs:element name="secret" type="xs:string" />
+      </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="user_entry_type">
+      <xs:sequence>
+         <xs:element name="name_match" type="xs:string" />
+         <xs:element name="eap_method" type="xs:string" />
+         <xs:element name="archie" type="archie_type"
+                           minOccurs="0" maxOccurs="1"/>
+         <xs:element name="md5" type="md5_type"
+                           minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="default_entry_type">
+      <xs:sequence>
+         <xs:element name="eap_method" type="xs:string" />
+         <xs:element name="archie" type="archie_type"
+                           minOccurs="0" maxOccurs="1"/>
+         <xs:element name="md5" type="md5_type"
+                           minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:element name="user_db">
+       <xs:complexType>
+           <xs:sequence>
+               <xs:element name="user_entry" 
+                           type="user_entry_type"
+                           minOccurs="0" maxOccurs="unbounded"/>
+               <xs:element name="default_entry" 
+                           type="default_entry_type"
+                           minOccurs="1" maxOccurs="1"/>
+           </xs:sequence>
+       </xs:complexType>
+   </xs:element>
+
+</xs:schema>

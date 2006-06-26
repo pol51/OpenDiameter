@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <xs:complexType name="pana_type">
+       <xs:sequence>
+          <xs:element name="cfg_file" type="xs:string" />
+          <xs:element name="ep_script" type="xs:string" />
+          <xs:element name="dhcp_bootstrap" type="xs:string" />
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="eap_8021x_type">
+       <xs:sequence>
+          <xs:element name="cfg_file" type="xs:string" />
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="access_entry_type">
+       <xs:sequence>
+          <xs:element name="name" type="xs:string" />
+          <xs:element name="enabled">
+              <xs:simpleType>
+                 <xs:restriction base="xs:string">
+                     <xs:enumeration value="true"/>
+                     <xs:enumeration value="false"/>
+                 </xs:restriction>
+              </xs:simpleType>
+          </xs:element>          
+          <xs:element name="pana" type="pana_type" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="eap_8021X" type="eap_8021x_type" minOccurs="0" maxOccurs="1"/>          
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="access_protocols_type">
+       <xs:sequence>
+          <xs:element name="access_entry" type="access_entry_type"  minOccurs="0" maxOccurs="unbounded"/>
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="local_eap_auth_type">
+       <xs:sequence>
+          <xs:element name="shared_secret_file" type="xs:string" />
+          <xs:element name="identity" type="xs:string" />
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="diameter_eap_type">
+       <xs:sequence>
+          <xs:element name="diameter_cfg_file" type="xs:string" />
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="aaa_entry_type">
+       <xs:sequence>
+          <xs:element name="name" type="xs:string" />
+          <xs:element name="enabled">
+              <xs:simpleType>
+                 <xs:restriction base="xs:string">
+                     <xs:enumeration value="true"/>
+                     <xs:enumeration value="false"/>
+                 </xs:restriction>
+              </xs:simpleType>
+          </xs:element>          
+          <xs:element name="local_eap_auth" type="local_eap_auth_type" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="diameter_eap" type="diameter_eap_type" minOccurs="0" maxOccurs="1"/>          
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="aaa_protocols_type">
+       <xs:sequence>
+          <xs:element name="aaa_entry" type="aaa_entry_type"  minOccurs="0" maxOccurs="unbounded"/>
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="script_policy_type">
+       <xs:sequence>
+          <xs:element name="file" type="xs:string" />
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="policy_entry_type">
+       <xs:sequence>
+          <xs:element name="name" type="xs:string" />
+          <xs:element name="script" type="script_policy_type" minOccurs="0" maxOccurs="1"/>
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="access_policies_type">
+       <xs:sequence>
+          <xs:element name="policy_entry" type="policy_entry_type"  minOccurs="0" maxOccurs="unbounded"/>
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="call_route_entry_type">
+       <xs:sequence>
+          <xs:element name="nai" type="xs:string"  minOccurs="0" maxOccurs="1"/>
+          <xs:element name="access_policy" type="xs:string"  minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element name="aaa_protocol" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:complexType name="call_routing_type">
+       <xs:sequence>
+          <xs:element name="call_route_entry" type="call_route_entry_type"  minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="call_route_default" type="call_route_entry_type"  minOccurs="1" maxOccurs="1"/>
+       </xs:sequence>       
+   </xs:complexType>
+   
+   <xs:element name="call_management">
+       <xs:complexType>
+           <xs:sequence>
+               <xs:element name="thread_count" type="xs:unsignedInt"/>
+               <xs:element name="access_protocols" type="access_protocols_type" minOccurs="1" maxOccurs="1"/>
+               <xs:element name="aaa_protocols" type="aaa_protocols_type" minOccurs="1" maxOccurs="1"/>
+               <xs:element name="access_policies" type="access_policies_type" minOccurs="1" maxOccurs="1"/>
+               <xs:element name="call_routing" type="call_routing_type" minOccurs="1" maxOccurs="1"/>
+           </xs:sequence>
+       </xs:complexType>
+   </xs:element>
+
+</xs:schema>

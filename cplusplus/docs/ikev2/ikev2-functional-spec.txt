@@ -1,0 +1,74 @@
+IKEv2 for Windows functional specification 8/13/2004
+
+--Overview
+ IKEv2 for Windows(IKEv2) is a framework to operate IKEv2 in
+ Windows OS environment.
+ IKEv2 supports IPv4 and IPv6.
+
+--Development Environment
+ IKEv2 is developed with Windows XP + Open Diameter Framework.
+ 
+--System Requirement
+ Windows XP, Linux(in future)
+
+--Configuration files
+ Configuration information is not in registry but in files.
+ (Because of portability, and extension)
+ Data format must be XML based one.
+
+--Conformance Requirements
+
+ -NAT-T support[No]
+ -Ability to request a temporary IP address [Yes]
+ -Legacy authentication [No](but EAP will be supported in future)
+ -Window sizes greater than one [No]
+ -Establish multiple ESP SAs within a single IKE_SA [No]
+ -Rekey [Yes]
+
+--IKEv2 message
+
+ IKEv2 processes IKE_SA_INIT,IKE_AUTH exchange and
+ initiates IKE_SA and ESP_SA
+ IKEv2 returns null or valid message for an 
+ Informational message.
+
+--IKEv2 payload 
+
+ IKEv2 supports following payloads.
+
+ The IKE Header
+ Security Association Payload
+ Key Exchange Payload
+ Identification Payloads
+ Authentication Payload
+ Nonce Payload
+ Notify Payload
+ Delete Payload
+ Vendor ID Payload
+ Traffic Selector Payload
+ Encrypted Payload
+ Configuration Payload
+ EAP Payload
+
+ following payloads are not supported. 
+
+ Certificate Payload
+ Certificate Request Payload
+
+ If IKEv2 receives unsupported payloads and critical flag is
+ set, IKEv2 discards all of packets and return
+ Notify Payload which is set UNSUPPORTED_CRITICAL_PAYLOAD.
+ If critical flag is not set, IKEv2 ignores only the payload and
+ outputs the type and the presence of the critical flag to the log file.
+
+--Etc.
+
+ -Initiator or Responder is not specified when IKEv2 starts.
+
+ -IPComp is not supported.
+
+ -AH is not supported.
+
+ -Unsupported functions may be going to be supported in future,
+  that should be implementable such as function definition only.
+

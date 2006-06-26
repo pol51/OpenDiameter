@@ -1,0 +1,27 @@
+2003-01-29 Victor I. Fajardo <vfajardo@optonline.net> 
+
+        * autoconf, automake setup 
+
+2003-02-28 Victor I. Fajardo <vfajardo@optonline.net> 
+
+        * C++ API, release notes, API docs 
+
+2003-05-21 Victor I. Fajardo <vfajardo@optonline.net> 
+
+        * Memory optimization, configfiles, bug fixes few re-writes 
+
+2003-09-03 Victor I. Fajardo <vfajardo@msbx.net>
+ 
+        * Parser API changes, added accounting, windows DLL, bug fixes
+
+2004-02-06 Victor I. Fajardo <vfajardo@msbx.net>
+ 
+        * EAP, Diameter EAP, PANA ID-2 , bug fixes
+
+2004-06-24 Victor I. Fajardo <vfajardo@msbx.net>
+ 
+        * EAP-TLS, Diameter Re-architecture, PANA ID-4 , bug fixes
+
+2004-17-24 Victor I. Fajardo <vfajardo@msbx.net>
+ 
+        * EAP-TLS, PANA/IPv6, bug fixes

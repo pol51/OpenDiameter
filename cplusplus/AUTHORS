@@ -1,0 +1,22 @@
+This software is written by the following developers.
+
+Victor Fajardo (vfajardo@msbx.net),
+Consultant of Toshiba America Research, Inc., U.S.A.,
+Developed libdiameter, libpana, nasd, aaad, panad 
+
+Dilip Patel (dilris@yahoo.com),
+Consultant of Time Warner Cable,
+Developed libdiameter
+
+Yoshihiro Ohba (yohba@tari.toshiba.com), 
+Toshiba America Research, Inc., U.S.A.,
+Developed framework.h, libdiamparser, libeap, libeaparchie,
+libdiametereap and libdiameternasreq
+
+Rafael Marin Lopez (rafa@dif.um.es), 
+University of Murcia, Spain,
+Developed libNASREQ, libeaptls
+
+Santiago Zapata Hernandez (canela@dif.um.es), 
+University of Murcia, Spain,
+Developed hostapdPatch
