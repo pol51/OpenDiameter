@@ -66,7 +66,7 @@ class PANA_EXPORT PANA_EgressSender : public AAA_Job
         }
 
     protected:
-        int PANA_EgressSender::Serve();
+        int Serve();
     
     protected:
         PANA_ResilientIO &m_IO;

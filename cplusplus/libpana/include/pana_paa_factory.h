@@ -61,7 +61,7 @@ class PANA_EXPORT PANA_PaaSessionFactory : public PANA_PaaSessionChannel
              m_Flags.i.CarryPcapInPSR = false;
          }
       }
-      virtual PANA_PaaSessionFactory::~PANA_PaaSessionFactory() {
+      virtual ~PANA_PaaSessionFactory() {
          PANA_PaaSessionChannel::RemoveHandler();
       }
       virtual PANA_PaaSession *Create() = 0;
