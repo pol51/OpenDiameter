@@ -35,7 +35,9 @@
 #include "parser_avpvalue.h"
 
 // static variables
+#ifndef BOOST_SPIRIT_THREADSAFE
 ACE_Mutex AvpGrammarMutex_S;
+#endif
 
 template<> void AvpValueParser::parseRawToApp() {}// throw (AAAErrorStatus) {}
 template<> void AvpValueParser::parseAppToRaw() {}//throw (AAAErrorStatus) {}

@@ -35,6 +35,8 @@
 #ifndef __PARSER_AVPVALUE_H__
 #define __PARSER_AVPVALUE_H__
 
+#define BOOST_SPIRIT_THREADSAFE
+
 #include <ace/Synch.h>
 #include <ace/Singleton.h>
 #include <ace/CDR_Base.h>
@@ -73,7 +75,9 @@ AAAIPFilterRuleAvpContainerEntry;
 typedef AAATypeSpecificAvpContainerEntry<diameter_address_t> 
 AAAAddressAvpContainerEntry;
 
+#ifndef BOOST_SPIRIT_THREADSAFE
 extern ACE_Mutex AvpGrammarMutex_S;
+#endif
 
 class AnyParser : public AvpValueParser
 {
@@ -535,7 +539,9 @@ class DiamidentParser : public Utf8stringParser
       e->dataType() = AAA_AVP_DIAMID_TYPE;
 
       std::string& str = e->dataRef();
+#ifndef BOOST_SPIRIT_THREADSAFE
       AAA_MutexScopeLock lock(AvpGrammarMutex_S);
+#endif
       struct DiamidentGrammar grammar;
       if (!parse(str.begin(), str.end(), grammar, space_p).full)
 	{
@@ -562,7 +568,9 @@ class DiamidentParser : public Utf8stringParser
 
       std::string& str = e->dataRef();
       do {
+#ifndef BOOST_SPIRIT_THREADSAFE
          AAA_MutexScopeLock lock(AvpGrammarMutex_S);
+#endif
          struct DiamidentGrammar grammar;
          if (!parse(str.begin(), str.end(), grammar, space_p).full)
          {
@@ -715,7 +723,9 @@ class DiamuriParser : public Utf8stringParser
       std::string& str = e2->dataRef(Type2Type<diameter_utf8string_t>());
       diameter_uri_t &uri = e->dataRef();
 
+#ifndef BOOST_SPIRIT_THREADSAFE
       AAA_MutexScopeLock lock(AvpGrammarMutex_S);
+#endif
       struct DiamuriGrammar grammar(uri_);
 
       grammar.uri.protocol = TRANSPORT_PROTO_TCP;
@@ -1176,7 +1186,10 @@ class IPFilterRuleParser : public Utf8stringParser
       diameter_ipfilter_rule_t &ipfilter_rule = e->dataRef();
 
       // Set default values.
+
+#ifndef BOOST_SPIRIT_THREADSAFE
       AAA_MutexScopeLock lock(AvpGrammarMutex_S);
+#endif
       struct IPFilterRuleGrammar grammar(ipfilter_rule_);
       grammar.r.proto = 0;
       grammar.r.src.modifier = true;
@@ -1417,7 +1430,9 @@ class IPFilterRuleParser : public Utf8stringParser
       AAA_LOG(LM_DEBUG, "Set IPFilterRule = \"%s\"\n", str.c_str());
 
       do {
+#ifndef BOOST_SPIRIT_THREADSAFE
          AAA_MutexScopeLock lock(AvpGrammarMutex_S);
+#endif
          struct IPFilterRuleGrammar grammar(ipfilter_rule_);
          if (!parse(str.begin(), str.end(), grammar, space_p).full)
          {
