@@ -85,13 +85,13 @@ case $host in
   *-*-freebsd*)
      AC_SUBST(L_CPPFLAGS, ["-Wall -Wno-sign-compare -I$ACE_ROOT -I$BOOST_ROOT -pthread"])
      AC_SUBST(L_LDFLAGS, ["-L$ACE_ROOT/ace -pthread"])
-     AC_SUBST(L_LIBS, ["-lc_r -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser"])
+     AC_SUBST(L_LIBS, ["-lc_r -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser -lboost_thread"])
      AC_SUBST(HOST_OS, [OS_FREEBSD])
   ;;
   *-*-linux*)
      AC_SUBST(L_CPPFLAGS, ["-Wall -Wno-sign-compare -I$ACE_ROOT -I$BOOST_ROOT"])
      AC_SUBST(L_LDFLAGS, ["-L$ACE_ROOT/ace -L$XERCESCROOT/lib"])
-     AC_SUBST(L_LIBS, ["-lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser"])
+     AC_SUBST(L_LIBS, ["-lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser -lboost_thread"])
      AC_SUBST(HOST_OS, [OS_LINUX])
   ;;
   *)
