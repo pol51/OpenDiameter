@@ -243,7 +243,7 @@ void OD_Utl_XML_SaxParser::Load(char* xmlFile)
           parser.parse(&input ACEXML_ENV_ARG_NOT_USED);
       }
    }
-   catch (ACEXML_SAXException ex) {
+   catch (ACEXML_SAXException &ex) {
        ex.print();
        throw OD_Utl_XML_SaxException("Parsing failure");
    }
