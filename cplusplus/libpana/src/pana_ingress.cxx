@@ -69,7 +69,7 @@ int PANA_IngressMsgParser::Serve()
 
        (*m_MsgHandler)(*parsedMsg);
     }
-    catch (AAAErrorStatus st) {
+    catch (AAAErrorStatus &st) {
        ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, PARSING] parsing error\n"));
     }
     catch (PANA_Exception &e) {

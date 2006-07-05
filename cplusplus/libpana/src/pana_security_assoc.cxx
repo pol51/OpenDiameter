@@ -323,7 +323,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         }
         ACE_DEBUG((LM_ERROR, "(%P|%t) AUTH value is invalid\n"));
     }
-    catch (AAAErrorStatus st) {
+    catch (AAAErrorStatus &st) {
         ACE_DEBUG((LM_ERROR, "(%P|%t) Parsing error is session transmitter\n"));
     }  
     catch (PANA_Exception &e) {
