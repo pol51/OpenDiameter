@@ -232,7 +232,7 @@ PayloadParserWithEmptyCodec::parseRawToApp()// throw(AAAErrorStatus)
   try {
     qc.parseRawToApp();
   }
-  catch (AAAErrorStatus st) {
+  catch (AAAErrorStatus &st) {
     AAA_LOG(LM_ERROR, "Parse error");
     throw;
   }
@@ -259,7 +259,7 @@ PayloadParserWithEmptyCodec::parseAppToRaw()// throw(AAAErrorStatus)
   try {
     qc.parseAppToRaw();
   }
-  catch (AAAErrorStatus st) {
+  catch (AAAErrorStatus &st) {
     AAA_LOG(LM_ERROR, "Parse error");
     throw;
   }

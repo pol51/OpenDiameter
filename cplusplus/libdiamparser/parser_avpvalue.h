@@ -368,7 +368,7 @@ class Utf8stringParser : public OctetstringParser
       try {
 	OctetstringParser::parseRawToApp();
       }
-      catch (AAAErrorStatus st)	{
+      catch (AAAErrorStatus &st)	{
 	e->dataType() = AAA_AVP_UTF8_STRING_TYPE;
 	throw st;
       }
@@ -407,7 +407,7 @@ class Utf8stringParser : public OctetstringParser
       try {
 	OctetstringParser::parseAppToRaw();
       }
-      catch (AAAErrorStatus st)	{
+      catch (AAAErrorStatus &st)	{
 	e->dataType() = AAA_AVP_UTF8_STRING_TYPE;
 	throw st;
       }
@@ -438,7 +438,7 @@ class AddressParser : public OctetstringParser
       try {
 	OctetstringParser::parseRawToApp();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  setAppData(e); // Recover the original container entry.
 	  em.release(e2);// Release the UTF8 string container entry.
@@ -481,7 +481,7 @@ class AddressParser : public OctetstringParser
       try {
 	OctetstringParser::parseAppToRaw();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  AAA_LOG(LM_ERROR, "error\n");
 	  setAppData(e);
@@ -532,7 +532,7 @@ class DiamidentParser : public Utf8stringParser
       try {
 	Utf8stringParser::parseRawToApp();
       }
-      catch (AAAErrorStatus st)	{
+      catch (AAAErrorStatus &st)	{
 	e->dataType() = AAA_AVP_DIAMID_TYPE;
 	throw st;
       }
@@ -583,7 +583,7 @@ class DiamidentParser : public Utf8stringParser
       try {
          Utf8stringParser::parseAppToRaw();
       }
-      catch (AAAErrorStatus st)	{
+      catch (AAAErrorStatus &st)	{
          e->dataType() = AAA_AVP_DIAMID_TYPE;
          throw st;
       }
@@ -712,7 +712,7 @@ class DiamuriParser : public Utf8stringParser
       try {
 	Utf8stringParser::parseRawToApp();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  setAppData(e); // Recover the original container entry.
 	  em.release(e2);// Release the UTF8 string container entry.
@@ -785,7 +785,7 @@ class DiamuriParser : public Utf8stringParser
       try {
 	Utf8stringParser::parseAppToRaw();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  setAppData(e);  // Recover the original container entry.
 	  em.release(e2); // Release the UTF8 string container entry.
@@ -1174,7 +1174,7 @@ class IPFilterRuleParser : public Utf8stringParser
       try {
 	Utf8stringParser::parseRawToApp();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  setAppData(e); // Recover the original container entry.
 	  em.release(e2);// Release the UTF8 string container entry.
@@ -1450,7 +1450,7 @@ class IPFilterRuleParser : public Utf8stringParser
       try {
 	Utf8stringParser::parseAppToRaw();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  setAppData(e);  // Recover the original container entry.
 	  em.release(e2); // Release the UTF8 string container entry.
@@ -1507,7 +1507,7 @@ class GroupedParser : public AvpValueParser
 	try {
 	  qc.parseRawToApp();
 	}
-	catch (AAAErrorStatus st) {
+	catch (AAAErrorStatus &st) {
 	  AAA_LOG(LM_ERROR, "Grouped AVP failure");
 	  throw;
 	}
@@ -1550,7 +1550,7 @@ class GroupedParser : public AvpValueParser
 	try {
 	  qc.parseAppToRaw();
 	}
-	catch (AAAErrorStatus st) {
+	catch (AAAErrorStatus &st) {
 	  AAA_LOG(LM_ERROR, "Grouped AVP failure");
 	  throw;
 	}

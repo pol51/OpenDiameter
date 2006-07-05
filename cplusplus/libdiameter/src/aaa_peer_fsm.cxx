@@ -1277,7 +1277,7 @@ int AAA_PeerStateMachine::RawSend(std::auto_ptr<AAAMessage> &msg,
       try {
           hp.parseAppToRaw();
       }
-      catch (AAAErrorStatus st) {
+      catch (AAAErrorStatus &st) {
           aBuffer->Release();
           return (-1);
       }

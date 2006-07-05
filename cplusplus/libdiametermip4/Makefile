@@ -134,14 +134,14 @@ CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 srcdir = .
 
-ACLOCAL = ${SHELL} /home/victorf/work/sourceforge-cvs/local-03/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /home/victorf/work/sourceforge/diameter/cplusplus/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/victorf/work/sourceforge-cvs/local-03/missing --run tar
+AMTAR = ${SHELL} /home/victorf/work/sourceforge/diameter/cplusplus/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/victorf/work/sourceforge-cvs/local-03/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/victorf/work/sourceforge-cvs/local-03/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/victorf/work/sourceforge-cvs/local-03/missing --run automake-1.9
+AUTOCONF = ${SHELL} /home/victorf/work/sourceforge/diameter/cplusplus/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/victorf/work/sourceforge/diameter/cplusplus/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/victorf/work/sourceforge/diameter/cplusplus/missing --run automake-1.9
 AWK = gawk
 CC = gcc-4.0
 CCDEPMODE = depmode=gcc3
@@ -177,10 +177,10 @@ LN_S = ln -s
 LTLIBOBJS = 
 L_CPPFLAGS = -Wall -Wno-sign-compare -I/usr/include -I/usr/include
 L_LDFLAGS = -L/usr/include/ace -L/usr/include/lib
-L_LIBS = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser
+L_LIBS = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser -lboost_thread
 L_MPAFLAGS = 
 L_ODBCFLAGS = 
-MAKEINFO = ${SHELL} /home/victorf/work/sourceforge-cvs/local-03/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/victorf/work/sourceforge/diameter/cplusplus/missing --run makeinfo
 OBJEXT = o
 OPT_EAP_ARCHIE_FALSE = 
 OPT_EAP_ARCHIE_TRUE = #
@@ -228,7 +228,7 @@ host_os = linux-gnu
 host_vendor = pc
 includedir = $(prefix)/include/opendiameter/diametermip4
 infodir = ${prefix}/info
-install_sh = /home/victorf/work/sourceforge-cvs/local-03/install-sh
+install_sh = /home/victorf/work/sourceforge/diameter/cplusplus/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var
@@ -298,7 +298,7 @@ sysconf_DATA = config/aaas_s.local.xml \
                config/hosts \
                config/server.local.xml
 
-LDADD = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser \
+LDADD = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser -lboost_thread \
         libdiametermip4.la \
 	$(top_srcdir)/libdiameter/libdiameter.la \
 	$(top_srcdir)/libdiamparser/libdiamparser.la \

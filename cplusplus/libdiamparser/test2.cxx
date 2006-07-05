@@ -114,7 +114,7 @@ rtest(unsigned char *buf, int size)
   try {
     hp.parseRawToApp();
   }
-  catch (AAAErrorStatus st) 
+  catch (AAAErrorStatus &st) 
     {
       cout << "header error" << endl;
       aBuffer->Release();
@@ -132,7 +132,7 @@ rtest(unsigned char *buf, int size)
   try {
     pp.parseRawToApp();
   }
-  catch (AAAErrorStatus st) {
+  catch (AAAErrorStatus &st) {
     std::cout << "payload parser error" << endl;
       int type, code;
       std::string avp;
@@ -316,7 +316,7 @@ stest(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (AAAErrorStatus st)
+  catch (AAAErrorStatus &st)
     {
       std::cout << "header error" << std::endl;;
       aBuffer->Release();
@@ -383,7 +383,7 @@ stest(unsigned char *buf, int size)
    { 
      pp.parseAppToRaw();
    }
-  catch (AAAErrorStatus st)
+  catch (AAAErrorStatus &st)
     {
       std::cout << "assemble failed" << std::endl;
       
@@ -398,7 +398,7 @@ stest(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (AAAErrorStatus st)
+  catch (AAAErrorStatus &st)
     {
       std::cout << "header error" << std::endl;
       msg.acl.releaseContainers();
@@ -440,7 +440,7 @@ mstest(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (AAAErrorStatus st)
+  catch (AAAErrorStatus &st)
     {
       std::cout << "header error" << std::endl;;
       aBuffer->Release();
@@ -516,7 +516,7 @@ mstest(unsigned char *buf, int size)
    { 
      pp.parseAppToRaw();
    }
-  catch (AAAErrorStatus st)
+  catch (AAAErrorStatus &st)
     {
       std::cout << "assemble failed" << std::endl;
       
@@ -531,7 +531,7 @@ mstest(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (AAAErrorStatus st)
+  catch (AAAErrorStatus &st)
     {
       std::cout << "header error" << std::endl;
       msg.acl.releaseContainers();
@@ -563,7 +563,7 @@ mrtest(unsigned char *buf, int size)
   try {
     hp.parseRawToApp();
   }
-  catch (AAAErrorStatus st) 
+  catch (AAAErrorStatus &st) 
     {
       cout << "header error" << endl;
       aBuffer->Release();
@@ -581,7 +581,7 @@ mrtest(unsigned char *buf, int size)
   try {
     pp.parseRawToApp();
   }
-  catch (AAAErrorStatus st) {
+  catch (AAAErrorStatus &st) {
     std::cout << "payload parser error" << endl;
       int type, code;
       std::string avp;

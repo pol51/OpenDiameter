@@ -168,7 +168,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
                    try {
                       hp.parseRawToApp();
                    }
-                   catch (AAAErrorStatus st) {
+                   catch (AAAErrorStatus &st) {
                       throw (0); 
                    }
 
@@ -181,7 +181,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
                    try {
                       pp.parseRawToApp();
                    }
-                   catch (AAAErrorStatus st) {
+                   catch (AAAErrorStatus &st) {
                       throw (0);
                    }
 

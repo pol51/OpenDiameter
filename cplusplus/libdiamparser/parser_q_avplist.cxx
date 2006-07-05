@@ -67,7 +67,7 @@ QualifiedAvpListParser::parseRawToApp()// throw (AAAErrorStatus)
   try {
     ahl.create(getRawData());
   }
-  catch (AAAErrorStatus st)
+  catch (AAAErrorStatus &st)
     {
       throw st;
     }
@@ -137,7 +137,7 @@ parseRawToAppWithoutDict(AAAAvpHeaderList *ahl,
 	  try {
 	    ap.parseRawToApp();
 	  }
-	  catch (AAAErrorStatus st)
+	  catch (AAAErrorStatus &st)
 	    {
 	      int type, code;
 	      st.get(type, code);
@@ -202,7 +202,7 @@ parseRawToAppWithDict(AAAAvpHeaderList *ahl, AAAAvpContainerList *acl,
 	      try {
 		ap.parseRawToApp();
 	      }
-	      catch (AAAErrorStatus st)
+	      catch (AAAErrorStatus &st)
 		{
 		  int type, code;
 		  st.get(type, code);
@@ -293,7 +293,7 @@ parseAppToRawWithoutDict(AAAMessageBlock *msg, AAAAvpContainerList *acl,
       try {
 	ap.parseAppToRaw();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  AAA_LOG(LM_ERROR, "Error in AVP %s.\n", name);
 	  throw;
@@ -378,7 +378,7 @@ parseAppToRawWithDict(AAAMessageBlock *msg, AAAAvpContainerList *acl,
 	  try {
 	    ap.parseAppToRaw();
 	  }
-	  catch (AAAErrorStatus st)
+	  catch (AAAErrorStatus &st)
 	    {
 	      AAA_LOG(LM_ERROR, "Error in AVP %s.\n", name);
 	      throw;

@@ -1134,7 +1134,7 @@ parseXMLDictionary(char* xmlFile)
               parser.parse (&input ACEXML_ENV_ARG_NOT_USED);
           }
       }
-      catch (ACEXML_SAXException ex) {
+      catch (ACEXML_SAXException &ex) {
           ex.print();
           ACE_DEBUG ((LM_ERROR, ACE_TEXT ("Exception occurred. Exiting...\n")));
           throw;

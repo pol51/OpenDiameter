@@ -239,7 +239,7 @@ AvpParser::parseRawToApp()// throw(AAAErrorStatus)
       try {
 	hp.parseRawToApp();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  int type, code;
 	  st.get(type, code);
@@ -260,7 +260,7 @@ AvpParser::parseRawToApp()// throw(AAAErrorStatus)
       try {
 	vp = createAvpValueParser(avp->avpType);
       }
-      catch (AAAErrorStatus st) {
+      catch (AAAErrorStatus &st) {
 	throw st;
       }
 	
@@ -274,7 +274,7 @@ AvpParser::parseRawToApp()// throw(AAAErrorStatus)
       try {
 	vp->parseRawToApp();
       }
-      catch (AAAErrorStatus st)
+      catch (AAAErrorStatus &st)
 	{
 	  aBuffer->Release();
 	  delete vp;
@@ -311,7 +311,7 @@ AvpParser::parseAppToRaw()// throw(AAAErrorStatus)
 	  try {
 	    vp = createAvpValueParser(avp->avpType);
 	  }
-	  catch (AAAErrorStatus st) {
+	  catch (AAAErrorStatus &st) {
 	    throw st;
 	  }
 	  vp->setRawData(aBuffer);
