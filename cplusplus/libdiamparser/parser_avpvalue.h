@@ -35,7 +35,7 @@
 #ifndef __PARSER_AVPVALUE_H__
 #define __PARSER_AVPVALUE_H__
 
-#define BOOST_SPIRIT_THREADSAFE
+// #define BOOST_SPIRIT_THREADSAFE
 
 #include <ace/Synch.h>
 #include <ace/Singleton.h>
