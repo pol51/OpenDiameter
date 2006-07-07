@@ -123,13 +123,13 @@ private:
     {
       EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
 
-      EapRequest req(EapType(2));  
+      EapNotification req;
     
-      std::string &notification = ssm.NotificationString();
-      AAAMessageBlock *msg = AAAMessageBlock::Acquire(4 + notification.size());
+      req.Notification() = ssm.NotificationString();
+      AAAMessageBlock *msg = AAAMessageBlock::Acquire(5 + req.Notification().size());
 
       // Use parser to set Type field.
-      EapRequestParser parser;
+      EapRequestNotificationParser parser;
       parser.setAppData(&req);
       parser.setRawData(msg);
       try {

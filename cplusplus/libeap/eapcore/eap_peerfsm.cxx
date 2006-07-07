@@ -315,7 +315,7 @@ private:
 	}
 
       // Output notification to the application.  
-      sm.Notification(sm.NotificationString());
+      sm.Notification(sm.NotificationString()=notification.Notification());
       sm.Event(EvSgNotificationOutputFinished);
     }
   };
@@ -751,12 +751,14 @@ private:
 	    // Set the current method type
 	    sm.CurrentMethod() = type;
 
+#if 0
 	    // Extract the notification string.
 	    std::string notifStr(msg->rd_ptr(), msg->size()-
 				 (msg->rd_ptr()-msg->base()));
 
 	    // Execute the notification callback.
 	    sm.Notification(notifStr);
+#endif
 
 	    // Generate an event to send Response/Notification.
 	    sm.Event(EvRxNotification);
