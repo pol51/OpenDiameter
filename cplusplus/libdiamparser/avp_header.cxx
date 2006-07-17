@@ -49,11 +49,7 @@ void AvpHeaderCodec::parseRawToApp()
   h->flag.p = (*p.first & 0x20) ? 1 : 0;
 
   h->length = ACE_NTOHL(*((ACE_UINT32*)p.first)) & 0x00ffffff; p.first+=4;
-#ifdef WIN32
   if (h->length == 0 || h->length > (ACE_UINT32)p.second)
-#else
-  if (h->length == 0 || h->length > p.second)
-#endif
     {
       AAAErrorStatus st;
       AAA_LOG(LM_ERROR, "invalid message length\n");

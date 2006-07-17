@@ -112,7 +112,7 @@ void AAA_PeerEntry::Message(std::auto_ptr<AAAMessage> msg)
                               AAA_PEER_EV_R_RCV_DPA 
                             };
 
-   for (int i=0;
+   for (unsigned int i=0;
         i<sizeof(cmdCode)/sizeof(diameter_unsigned32_t);
         i++) {
        if (cmdCode[i] == query.Code()) {           
@@ -138,6 +138,7 @@ void AAA_PeerEntry::Message(std::auto_ptr<AAAMessage> msg)
                        Notify(query.IsRequest() ?
                               requestIEv[i] : answerIEv[i],
                        msg);
+                       
                    }
                    else {
                        Notify(query.IsRequest() ?

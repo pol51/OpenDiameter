@@ -77,6 +77,7 @@ int PACD_Config::Open(std::string &cfgfile)
     catch (...) {
         throw;
     }
+    return (0);
 }
 
 void PACD_Config::print()

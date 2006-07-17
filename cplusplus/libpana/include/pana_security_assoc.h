@@ -66,7 +66,7 @@ class PANA_EXPORT PANA_Nonce :
         }
         void Generate() {
             ACE_UINT32 v[4];
-            for (int i=0; i<sizeof(v)/sizeof(ACE_UINT32); i++) {
+            for (unsigned int i=0; i<sizeof(v)/sizeof(ACE_UINT32); i++) {
                  v[i] = ACE_OS::rand();
             }
             m_Value.assign((char*)v, sizeof(v));

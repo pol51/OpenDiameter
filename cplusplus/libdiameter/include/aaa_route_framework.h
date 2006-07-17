@@ -121,7 +121,7 @@ typedef struct {
    AAA_PeerEntry *m_Source;
    AAA_PeerEntry *m_Dest;
    ACE_Time_Value m_ReTxExpireTime;
-   int m_ReTxCount;
+   unsigned int m_ReTxCount;
    std::auto_ptr<AAAMessage> m_ReqMessage;
 } AAA_RouterPendingReq;
 

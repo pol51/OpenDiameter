@@ -584,7 +584,7 @@ void AAA_PeerStateMachine::AssembleCE(AAAMessage &msg,
        &authId,
        &acctId
    };
-   for (int i=0; i<sizeof(widgets)/sizeof(AAA_UInt32AvpWidget*); i++) {
+   for (unsigned int i=0; i<sizeof(widgets)/sizeof(AAA_UInt32AvpWidget*); i++) {
        AAA_ApplicationIdLst::iterator x = idList[i]->begin();
        for (; x != idList[i]->end(); x++) {
            widgets[i]->Get() = *x;
@@ -704,14 +704,14 @@ void AAA_PeerStateMachine::DisassembleCE(AAAMessage &msg)
        AAA_AVPNAME_AUTHAPPID,
        AAA_AVPNAME_ACCTAPPID
    };
-   for (int i=0;
+   for (unsigned int i=0;
         i<sizeof(idList)/sizeof(AAA_ApplicationIdLst*);
         i++) {
        while (! idList[i]->empty()) {
            idList[i]->pop_front();
        }
    }
-   for (int i=0;
+   for (unsigned int i=0;
         i<sizeof(widgets)/sizeof(AAA_UInt32AvpContainerWidget*);
         i++) {
        uint32 = widgets[i]->GetAvp(avpNames[i]);
@@ -1177,7 +1177,7 @@ void AAA_PeerStateMachine::Cleanup(unsigned int flags)
        &cap.m_AuthAppIdLst,
        &cap.m_AcctAppIdLst
    };
-   for (int i=0;
+   for (unsigned int i=0;
         i<sizeof(idList)/sizeof(AAA_ApplicationIdLst*);
         i++) {
        while (! idList[i]->empty()) {
@@ -1314,7 +1314,7 @@ void AAA_PeerStateMachine::DumpPeerCapabilities()
    char *label[] = { "Supported Vendor Id",
                      "Auth Application Id",
                      "Acct Application Id" };
-   for (int i=0;
+   for (unsigned int i=0;
         i < sizeof(idList)/sizeof(AAA_ApplicationIdLst*);
         i++) {
        AAA_ApplicationIdLst::iterator x = idList[i]->begin();
@@ -1384,7 +1384,7 @@ bool AAA_PeerStateMachine::ValidatePeer(diameter_unsigned32_t &rcode,
        &cap.m_AuthAppIdLst,
        &cap.m_AcctAppIdLst
    };
-   for (int i=0;
+   for (unsigned int i=0;
         i < sizeof(idList)/sizeof(AAA_ApplicationIdLst*);
         i++) {
        AAA_ApplicationIdLst::iterator x = idList[i]->begin();

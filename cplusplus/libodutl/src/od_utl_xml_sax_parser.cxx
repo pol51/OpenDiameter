@@ -239,7 +239,7 @@ void OD_Utl_XML_SaxParser::Load(char* xmlFile)
    parser.setEntityResolver(handler.get());
     
    try {
-      for (int passes = 0; passes < m_numPasses; passes ++) {
+      for (unsigned int passes = 0; passes < m_numPasses; passes ++) {
           parser.parse(&input ACEXML_ENV_ARG_NOT_USED);
       }
    }

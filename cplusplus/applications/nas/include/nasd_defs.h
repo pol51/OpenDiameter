@@ -308,18 +308,18 @@ class NASD_RouteMap :
 	     return i->second;
 	 }
 	 else {
-	     int pos = Nai.find("@");
-             if ((pos > 0) && (pos < Nai.length())) {
+	     unsigned int pos = Nai.find("@");
+         if ((pos > 0) && (pos < Nai.length())) {
 	         std::string realm(Nai, pos + 1, Nai.length());
-                 i = m_Map.find(realm);
-                 if (i != m_Map.end()) {
+             i = m_Map.find(realm);
+             if (i != m_Map.end()) {
 	             return i->second;
-	         }
              }
-             else {
-                 NASD_LOG(LM_INFO, 
-                     "(%P|%t) Cannot determine domain in [%s]\n", 
-                          Nai.data());
+         }
+         else {
+             NASD_LOG(LM_INFO, 
+                  "(%P|%t) Cannot determine domain in [%s]\n", 
+                  Nai.data());
 	     }
 	 }
          return &m_DefaultRoute;

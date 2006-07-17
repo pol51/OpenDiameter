@@ -244,7 +244,7 @@ AAAReturnCode AAA_ClientAuthSession::RxDelivery(std::auto_ptr<AAAMessage> msg)
     };
     Attributes().MsgIdRxMessage(*msg);
     AAAReturnCode rc = (msg->hdr.flags.r) ? RequestMsg(*msg) : AnswerMsg(*msg);
-    for (int i=0; i < sizeof(RxHandlerAry)/sizeof(RxHandler); i++) {
+    for (unsigned int i=0; i < sizeof(RxHandlerAry)/sizeof(RxHandler); i++) {
         if (RxHandlerAry[i].m_Rc == rc) {
             if (msg->hdr.flags.r) {
                if (! RxHandlerAry[i].m_ValidOnRequestMsg) {

@@ -46,11 +46,11 @@ class PANA_NonceGenerator
 
           ACE_System_Time::get_local_system_time(ltime);
           ACE_OS::srand(ltime + ACE_OS::rand());
-          for (int i = 0; 
+          for (unsigned int i = 0; 
                i < sizeof(buffer)/sizeof(ACE_UINT32); 
                i++) {
              buffer[i] = ACE_UINT32(ACE_OS::rand());
-	  }
+          }
           nonce.assign((char*)buffer, sizeof(buffer));
        }
 };

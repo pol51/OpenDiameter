@@ -71,7 +71,7 @@ class AAAD_UserEapMd5Method
          static char *strType[] = {
 	   "system", "flat", "none" // same order as enum
          };
-         for (int i = 0; 
+         for (unsigned int i = 0; 
               i < sizeof(strType)/sizeof(char*);
               i ++) {
 	    if (t == strType[i]) {

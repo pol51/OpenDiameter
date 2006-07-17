@@ -364,7 +364,7 @@ class AAA_MsgQuery
                AAA_MSGCODE_ACCOUNTING,
                AAA_MSGCODE_REAUTH
            };
-           for (int i=0;
+           for (unsigned int i=0;
                 i<sizeof(msgBaseProto)/sizeof(diameter_unsigned32_t);
                 i++) {
                if (msgBaseProto[i] == m_Msg.hdr.code) {

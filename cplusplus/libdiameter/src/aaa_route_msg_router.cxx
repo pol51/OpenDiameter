@@ -155,7 +155,7 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcLocal::Lookup(std::auto_ptr<AAAMessage> &msg,
                 &AAA_CFG_GENERAL()->authAppIdLst,
                 &AAA_CFG_GENERAL()->acctAppIdLst
             };
-            for (int i=0;
+            for (unsigned int i=0;
                  i<sizeof(idList)/sizeof(AAA_ApplicationIdLst*);
                  i++) {
                 AAA_ApplicationIdLst::iterator x = idList[i]->begin();
@@ -274,7 +274,7 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<AAAMessage> &msg,
             char *avpNames[] = { AAA_AVPNAME_AUTHAPPID,
                                  AAA_AVPNAME_ACCTAPPID };
             AAA_UInt32AvpContainerWidget id(msg->acl);
-            for (int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
+            for (unsigned int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
                 if ((idPtr = id.GetAvp(avpNames[i]))) {
                     break;
                 }
@@ -299,7 +299,7 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<AAAMessage> &msg,
                     char *avpNames[] = { AAA_AVPNAME_AUTHAPPID,
                                          AAA_AVPNAME_ACCTAPPID };
                     AAA_UInt32AvpContainerWidget gId(*grouped);
-                    for (int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
+                    for (unsigned int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
                         if ((value = gId.GetAvp(avpNames[i]))) {
                            break;
                         }
@@ -820,7 +820,7 @@ int AAA_MsgRouter::RedirectAgent::Request(std::auto_ptr<AAAMessage> &msg,
         char *avpNames[] = { AAA_AVPNAME_AUTHAPPID,
                              AAA_AVPNAME_ACCTAPPID };
         AAA_UInt32AvpContainerWidget id(msg->acl);
-        for (int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
+        for (unsigned int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
             if ((idPtr = id.GetAvp(avpNames[i]))) {
                 break;
             }
@@ -846,7 +846,7 @@ int AAA_MsgRouter::RedirectAgent::Request(std::auto_ptr<AAAMessage> &msg,
                 char *avpNames[] = { AAA_AVPNAME_AUTHAPPID,
                                      AAA_AVPNAME_ACCTAPPID };
                 AAA_UInt32AvpContainerWidget gId(*grouped);
-                for (int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
+                for (unsigned int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
                     if ((value = gId.GetAvp(avpNames[i]))) {
                        break;
                     }
