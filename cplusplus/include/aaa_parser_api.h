@@ -60,7 +60,9 @@
 #include "resultcodes.h"
 
 /*!
+ *==================================================
  * Windows specific export declarations
+ *==================================================
  */
 #if defined (WIN32)
 #  if defined (AAA_PARSER_EXPORTS)
@@ -82,13 +84,31 @@
 #endif     /* WIN32 */
 
 /*!
+ *==================================================
  * Basic supplimental macros for byte ordering
+ *==================================================
  */
-#define AAA_SWAP_32(b) {                                              \
-       return                                                         \
-          ((((b) & 0xff000000) >> 24) | (((b) & 0x00ff0000) >>  8) |  \
-          (((b) & 0x0000ff00) <<  8) | (((b) & 0x000000ff) << 24));   \
-    }
+
+/*!
+ * The following macros are utility functions format
+ * platform independent byte ordering
+ */
+static inline ACE_UINT32 AAA_SWAP_32(ACE_UINT32 b) {
+    return
+        ((((b) & 0xff000000) >> 24) | (((b) & 0x00ff0000) >>  8) | \
+        (((b) & 0x0000ff00) <<  8) | (((b) & 0x000000ff) << 24));
+}
+
+static inline ACE_UINT64 AAA_SWAP_64(ACE_UINT64 b) {
+    union {
+        ACE_UINT64 ll;
+        ACE_UINT32 l[2];
+    } w, r;
+    w.ll = b;
+    r.l[0] = AAA_SWAP_32( w.l[1] );
+    r.l[1] = AAA_SWAP_32( w.l[0] );
+    return r.ll;
+}
 
 #if __BYTE_ORDER == __BIG_ENDIAN
     #define AAA_NTOH_32(x) (x)
@@ -103,9 +123,11 @@
 #endif
 
 /*!
+ *==================================================
  * Basic supplimental types for multi-platform abstraction support.
  * These types are not represented well in ACE so additional 
  * defintions has been provided here
+ *==================================================
  */
 typedef     char              AAAInt8;
 typedef     unsigned char     AAAUInt8;
@@ -116,6 +138,12 @@ typedef     unsigned char     AAAUInt8;
  * the Basic Socket Interface Extensions for IPv6 RFC[10].
  */
 typedef     ACE_INET_Addr     AAAIpAddr;
+
+/*!
+ * AAACommandCode provides a way of referring to the AAA command code of
+ * a command. It is used when registering callbacks, among others.
+ */
+typedef     ACE_UINT32        AAACommandCode;
 
 /*! 
  * Empty class is a stub class used as proxy to
@@ -263,7 +291,8 @@ typedef enum {
     AAA_AVP_CUSTOM_TYPE,
 } AAAAvpDataType;
 
-/* Definitions of current IANA assigned
+/*!
+ * Definitions of current IANA assigned
  * address family
  * http://www.iana.org/assignments/address-family-numbers
  */
@@ -297,8 +326,9 @@ enum {
 
 /*!
  * Error types
- * NORMAL: Normal error defined in the Diameter specification.
- * BUG: Used when application programs misuse this API.
+ *
+ * AAA_PARSE_ERROR_TYPE_NORMAL : Normal error defined in the Diameter specification.
+ * AAA_PARSE_ERROR_TYPE_BUG    : Used when application programs misuse this API.
  */
 enum  {
     AAA_PARSE_ERROR_TYPE_NORMAL  = 0,
@@ -306,7 +336,8 @@ enum  {
 };
 
 /*!
- * The following error code is defined for error type "BUG"
+ * The following error code is defined for
+ * error type "AAA_PARSE_ERROR_TYPE_BUG"
  */
 enum {
     AAA_PARSE_ERROR_MISSING_CONTAINER = 1,
@@ -319,6 +350,15 @@ enum {
     AAA_PARSE_ERROR_INVALID_PARSER_USAGE,
     AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY,
     AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER
+};
+
+/*!
+ * values possible for Auth-Request-Type
+ */
+enum {
+    AUTH_REQUEST_TYPE_AUTHENTICATION_ONLY = 1,
+    AUTH_REQUEST_TYPE_AUTHORIZE_ONLY = 2,
+    AUTH_REQUEST_TYPE_AUTHORIZE_AUTHENTICATE = 3
 };
 
 /*!
@@ -352,6 +392,87 @@ typedef enum {
     AAA_ADDRESS_GWID,  // GWID
     AAA_ADDRESS_RESERVED2 = 65535
 } AAA_ADDRESS;
+
+/*! \brief ErrorCode Error Code
+ *
+ * parser functions throw this class instance when an error occurs.
+ */
+class AAAErrorCode
+{
+    public:
+        /*!
+        * constructor
+        */
+        AAAErrorCode(void) {
+            type = AAA_PARSE_ERROR_TYPE_NORMAL;
+            code = AAA_SUCCESS;
+        };
+
+        /*!
+        * Access function to retrieve some private data 
+        *
+        * \param type Error type
+        * \param code Result or Bug code
+        */
+        void get(int &type, int &code) {
+            type = this->type;
+            code = this->code;
+        }
+
+        /*!
+        * Access function to set some private data 
+        *
+        * \param type Error type to set
+        * \param code Result or Bug code to set
+        */
+        void set(int type, int code) {
+            this->type = type;
+            this->code = code;
+        }
+
+    private:
+        int type;  /**< error type (AAA_PARSE_ERROR_TYPE_NORMAL
+                    *   or AAA_PARSE_ERROR_TYPE_BUG)
+                    */
+        int code;  /**< either a diameter result code or a bug_code above */
+};
+
+/*!
+ *==================================================
+ * Log facility
+ *==================================================
+ */
+
+/*! \brief AAALogMsg Generic/Global log facility
+ *
+ * Diameter logging facity derived directly from ACE
+ */
+class AAALogMsg :
+    public ACE_Log_Msg
+{
+    friend class ACE_Singleton<AAALogMsg, ACE_Recursive_Thread_Mutex>;    /**< ACE logger */
+
+    private:
+        /*
+         * protected constructors/destructors to prevent derivation
+         */
+        AAALogMsg() {
+        }
+        ~AAALogMsg() {
+        }
+};
+
+typedef ACE_Singleton<AAALogMsg, ACE_Recursive_Thread_Mutex> AAALogMsg_S;
+AAA_PARSER_SINGLETON_DECLARE(ACE_Singleton, AAALogMsg, ACE_Recursive_Thread_Mutex);
+
+#define AAA_LOG AAALogMsg_S::instance()->log
+
+/*!
+ *==================================================
+ * Utility classes in support of 
+ * manipulating basic error types
+ *==================================================
+ */
 
 /*! \brief AAAUInt8Range Unsigned Int8 Range
  *
@@ -395,76 +516,78 @@ class AAAUInt16Range
         ACE_UINT16 last;
 };
 
-/*! \brief AAAIteratorLoop Generic Iterator Loop
+/*! \brief UTF8 string format check.
  *
- * Utility classes for iterated loop functionality
+ *  If the data contains a valid UTF8 string, it returns 0.
+ *  Otherwise, it returns -1.
  */
-
-template<class LIST, class FUNC>
-void AAAIteratorLoop(LIST &lst, FUNC &f) {
-    for (LIST::iterator i = lst.begin(); i != end(); i++) {
-        FUNC(i);
-    }
-}
-
-template<class LIST, class FUNC, class T>
-T* AAAIteratorSearch(LIST &lst, FUNC &f) {
-    T *elem;
-    for (LIST::iterator i = lst.begin(); i != end(); i++) {
-        if ((elem = FUNC(i)) != NULL) {
-            return elem;
-        }
-    }
-    return NULL;
-}
-
-/*! \brief ErrorCode Error Code
- *
- * parser functions throw this class instance when an error occurs.
- */
-class AAAErrorCode
+class UTF8Checker
 {
     public:
         /*!
         * constructor
         */
-        AAAErrorCode(void) {
-            type = NORMAL;
-            code = AAA_SUCCESS;
-        };
-
-        /*!
-        * Access function to retrieve some private data 
-        *
-        * \param type Error type
-        * \param code Result or Bug code
-        */
-        void get(int &type, int &code) {
-            type = this->type;
-            code = this->code;
+        UTF8Checker() {
         }
 
-        /*!
-        * Access function to set some private data 
-        *
-        * \param type Error type to set
-        * \param code Result or Bug code to set
+        /*! When nullCheck is true, the check will fail if a null octet is
+        *  found in the data.
         */
-        void set(int type, int code) {
-            this->type = type;
-            this->code = code;
-        }
+        int operator()(const char *data, unsigned length, bool nullCheck=false) {
+            unsigned i = 0;
+            while (i<length) {
+                unsigned char b = data[i++];
 
-    private:
-        int type;  /**< error type (NORMAL or BUG) */
-        int code;  /**< either a diameter result code or a bug_code above */
+                // Check the first octet of the current UTF8 character.
+                // Null check
+                if (b == 0x00) {
+                    if (nullCheck) return -1;
+                }
+
+                // The first bit check.
+                else if ((b >> 7) == 0x00) {
+                    continue;
+                }  // 7-bit ASCII character.
+
+                // If the first 7 bits are all '1's, this is not an UTF8 character.
+                if ((b >> 1) == 0x76) {
+                    return -1;
+                } // Out of UTF8 character range.
+
+                b <<= 1;
+                // Count the number of '1' of the first octet
+                int count=0;
+                for (count=0; count<5; count++) {
+                    if ((b && 0x40) == 0) break;
+                }
+
+                // The count value must be greater than 0.
+                if (count==0) {
+                    return -1;
+                } // Out of UTF8 character range.
+
+                // Check remaining octet(s)
+                for (int j=0; j<count; j++) {
+                    if (i >= length) {
+                        return -1;
+                    }
+                    if ((data[i++] >> 6) != 0x02) {
+                        return -1;
+                    }
+                }
+            }
+            return 0;
+        }
 };
 
-/* AAA Parser Memory Management Mechanisms
+/*!
+ *==================================================
+ * AAA Parser Memory Management Mechanisms
  *
  * This section pertains to memory management mechanisms utilized by
  * AAA parser. The scheme is a pool based method where there is an
  * expected accumulation of memory block for more efficient reuse.
+ *==================================================
  */
 
 #define AAA_MEMORY_MANAGER_NAME "AAAMemoryManager"
@@ -481,12 +604,12 @@ typedef ACE_Allocator_Adapter<AAAMalloc> AAAAllocator;
  * method will result in accumulations of memory 
  * chunks from the manager in to the allocator list.
  * A call to free will return the chunk into the
- * allocator free list but not the manager. 
+ * allocator free list but not the manager.
  */
-class AAAMemoryManager : 
+class AAAMemoryManager :
     public AAAAllocator
 {
-    friend class ACE_Singleton<AAAMemoryManager, 
+    friend class ACE_Singleton<AAAMemoryManager,
                                ACE_Recursive_Thread_Mutex>; /**< memory manager */
 
     private:
@@ -513,7 +636,9 @@ AAA_PARSER_SINGLETON_DECLARE(ACE_Singleton,
                              AAAMemoryManager,
                              ACE_Recursive_Thread_Mutex);
 
-/* AAA Parser AVP data structures
+/*!
+ *==================================================
+ * AAA Parser AVP data structures
  *
  * The generic AAA parser data structure is as follows:
  *
@@ -541,17 +666,8 @@ AAA_PARSER_SINGLETON_DECLARE(ACE_Singleton,
  * This section pertains to memory management mechanisms utilized by
  * AAA parser. The scheme is a pool based method where there is an
  * expected accumulation of memory block for more efficient reuse.
+ *==================================================
  */
-
-/*
- * Parser type definitions
- */
-enum AAAAvpParseType {
-    AAA_PARSE_TYPE_FIXED_HEAD = 0,
-    AAA_PARSE_TYPE_FIXED_TAIL,
-    AAA_PARSE_TYPE_REQUIRED,
-    AAA_PARSE_TYPE_OPTIONAL
-};
 
 /*! \brief ContainerEntry Container Entry
  *
@@ -559,7 +675,7 @@ enum AAAAvpParseType {
  */
 class AAAAvpContainerEntry
 {
-        friend class AAAAvpContainerEntryManager; /**< entry manager */
+        friend class AAAAvpContainerEntryMngr; /**< entry manager */
         friend class AAAAvpContainer; /**< container */
 
     public:
@@ -626,7 +742,7 @@ class AAAAvpContainerEntry
  * Use this template for defining type-specific container entries.
  */
 template <class T>
-class AAATypeSpecificAvpContainerEntry : 
+class AAATypeSpecificAvpContainerEntry :
     public AAAAvpContainerEntry
 {
     public:
@@ -643,15 +759,15 @@ class AAATypeSpecificAvpContainerEntry :
         /*!
         *  Destructor.
         */
-        virtual ~AAATypeSpecificAvpContainerEntry() { 
+        virtual ~AAATypeSpecificAvpContainerEntry() {
             ((T*)data)->T::~T();
             AAAMemoryManager_S::instance()->free(data);
         }
 
         /*!
-        * Returns a type-specific pointer to data.  
+        * Returns a type-specific pointer to data.
         */
-        inline T* dataPtr() const { 
+        inline T* dataPtr() const {
             return (T*)data; 
         }
 
@@ -659,7 +775,7 @@ class AAATypeSpecificAvpContainerEntry :
         * Returns a type-specific reference to data.  
         */
         inline T& dataRef() const { 
-            return *((T*)data); 
+            return *((T*)data);
         }
 
         /*!
@@ -667,8 +783,8 @@ class AAATypeSpecificAvpContainerEntry :
         *
         * \param s size of block to allocate
         */
-        void* operator new(size_t s) { 
-            return AAAMemoryManager_S::instance()->malloc(s); 
+        void* operator new(size_t s) {
+            return AAAMemoryManager_S::instance()->malloc(s);
         }
 
         /*!
@@ -704,6 +820,15 @@ class AAAAvpContainerEntryCreator
 typedef boost::function1<AAAAvpContainerEntry*,
                          AAAAvpDataType> AvpContainerEntryFunctor;
 
+/*!
+ * Parser type definitions
+ */
+enum AAAAvpParseType {
+    AAA_PARSE_TYPE_FIXED_HEAD = 0,
+    AAA_PARSE_TYPE_REQUIRED,
+    AAA_PARSE_TYPE_OPTIONAL
+};
+
 /*!\brief AvpContainer AVP Container Definition
  *
  * A class used for passing AVP data between applications and the API.
@@ -713,37 +838,13 @@ class AAAAvpContainer :
 {
         friend class AAAAvpContainerList; /**< container list */
 
-    private:
-        class FunctorDeleteEntry {
-            public:
-                void operator()(iterator i) {
-                    delete (*this)[i]; 
-                }
-        }
-
-        class FunctorRemoveEntry {
-            public:
-                FunctorRemoveEntry(AAAAvpContainerEntry *e) :
-                    entry(e) {
-                }
-                AAAAvpContainerEntry *operator()(iterator i) {
-                    if (*i == entry) {
-                        erase(i);
-                        return entry;
-                    }
-                    return NULL;
-                }
-            private:
-                AAAAvpContainerEntry *entry;
-        }
-
     public:
         /*!
         * constructor
         */
         AAAAvpContainer() :
             flag(false),
-            parseType(PARSE_TYPE_OPTIONAL) {
+            parseType(AAA_PARSE_TYPE_OPTIONAL) {
         }
 
         /*!
@@ -758,39 +859,42 @@ class AAAAvpContainer :
         * applications to call this function as soon as processing of the
         * containers are completed.
         */
-        inline void releaseEntries() { 
-            FunctorDeleteEntry del;
-            AAAIteratorLoop< std::vector<AAAAvpContainerEntry*>,
-                             FunctorDeleteEntry > (*this, del);
+        void releaseEntries() {
+            for (unsigned i=0; i < size(); i++) {
+                delete (*this)[i];
+            }
         }
 
         /*!
         * This function adds a AAAAvpContainerEntry pointer to the
-        * container. 
+        * container.
         *
         * \param e AVP entry to add
         */
-        inline void add(AAAAvpContainerEntry* e) { 
-            resize(size()+1, e); 
+        void add(AAAAvpContainerEntry* e) {
+            resize(size()+1, e);
         }
 
         /*!
         * This function removes a AAAAvpContainerEntry pointer from the
-        * container. 
+        * container.
         *
         * \param e AVP entry to remove
         */
         void remove(AAAAvpContainerEntry* e) {
-            FunctorRemoveEntry rm(e);
-            AAAIteratorLoop< std::list<AAAAvpContainer*>, 
-                             FunctorRemoveEntry > (*this, rm);
+            for (iterator i = begin(); i != end(); i++) {
+                if (*i == e) {
+                    erase(i);
+                    break;
+                }
+            }
         }
 
         /*!
         * Access method to retrive the AVP name.
         * Returns character string name of the AVP.
         */
-        inline const char* getAvpName() const { 
+        const char* getAvpName() const {
             return avpName.c_str();
         }
 
@@ -799,7 +903,7 @@ class AAAAvpContainer :
         *
         * \param name New AVP name
         */
-        inline void setAvpName(const char* name) {
+        void setAvpName(const char* name) {
             avpName = std::string(name);
         }
 
@@ -817,20 +921,20 @@ class AAAAvpContainer :
         *
         * \param p data block to free
         */
-        void operator delete(void *p) { 
-            AAAMemoryManager_S::instance()->free(p); 
+        void operator delete(void *p) {
+            AAAMemoryManager_S::instance()->free(p);
         }
 
         /*!
         * Returns a reference to the AVP type
         */
-        inline AAAAvpParseType& ParseType() { 
-            return parseType; 
+        AAAAvpParseType& ParseType() {
+            return parseType;
         }
 
     protected:
         bool flag;                   /**< Internal use */
-        AAAAvpParseType parseType;   /**< Parse type (strict or loose) */
+        AAAAvpParseType parseType;        /**< Parse type (strict or loose) */
         std::string avpName;         /**< AVP name */
 };
 
@@ -842,81 +946,6 @@ class AAAAvpContainer :
 class AAAAvpContainerList :
     public std::list<AAAAvpContainer*>
 {
-    private:
-        class FunctorResetEntry {
-            public:
-                void operator()(iterator i) {
-                    AAAAvpContainer *c = *i;
-                    c->flag = false;
-                    for (unsigned int j=0; j < c->size(); j++) {
-                        if (AAA_AVP_GROUPED_TYPE == (*c)[j]->dataType()) {
-                            (*c)[j]->dataRef
-                                (Type2Type<AAAAvpContainerList>()).reset();
-                        }
-                    }
-                }
-        }
-
-        class FunctorRemoveEntry {
-            public:
-                void operator()(iterator i) {
-                    AAAAvpContainer *c = *i;
-                    c->releaseEntries();
-                    delete c;
-                }
-        }
-
-        class FunctorMatchByName {
-            public:
-                FunctorMatchByName(char *n) :
-                    name(n) {
-                }
-                AAAAvpContainer *operator()(iterator i) {
-                    AAAAvpContainer *c = *i;
-                    if (ACE_OS::strcmp(c->getAvpName(), name) == 0) {
-                        return c;
-                    }
-                    return NULL;
-                }
-            private:
-                char *name;
-        }
-
-        class FunctorMatchByFlag {
-            public:
-                FunctorMatchByFlag(bool f) :
-                    flag(f) {
-                }
-                AAAAvpContainer *operator()(iterator i) {
-                    AAAAvpContainer *c = *i;
-                    if (c->flag == flag) {
-                        return c;
-                    }
-                    return NULL;
-                }
-            private:
-                bool flag;
-        }
-
-        class FunctorMatchByNameAndFlag {
-            public:
-                FunctorMatchByNameAndFlag(char *n, bool f) :
-                    name(n),
-                    flag(f) {
-                }
-                AAAAvpContainer *operator()(iterator i) {
-                    AAAAvpContainer *c = *i;
-                    if (c->flag == flag && 
-                        ACE_OS::strcmp(c->getAvpName(), name) == 0) {
-                        return c;
-                    }
-                    return NULL;
-                }
-            private:
-                char *name;
-                bool flag;
-        }
-
     public:
         /*!
         * constructor
@@ -936,8 +965,8 @@ class AAAAvpContainerList :
         *
         * \param c AVP Container to add
         */
-        inline void add(AAAAvpContainer* c) { 
-            push_back(c); 
+        inline void add(AAAAvpContainer* c) {
+            push_back(c);
         }
 
         /*!
@@ -945,8 +974,8 @@ class AAAAvpContainerList :
         *
         * \param c AVP Container to prepend
         */
-        inline void prepend(AAAAvpContainer* c) { 
-            push_front(c); 
+        inline void prepend(AAAAvpContainer* c) {
+            push_front(c);
         }
 
         /*!
@@ -955,23 +984,28 @@ class AAAAvpContainerList :
         * this function as soon as processing of the containers are completed.
         */
         void releaseContainers() {
-            FunctorRemoveEntry rm;
-            AAAIteratorLoop< std::list<AAAAvpContainer*>, 
-                             FunctorRemoveEntry > (*this, rm);
+            for (iterator i = begin(); i != end(); i++) {
+                AAAAvpContainer *c = *i;
+                c->releaseEntries();
+                delete c;
+            }
             erase(begin(), end());
         }
 
         /*!
         * This function searches the internal list for a container
-        * corresponding to the specified name.  
+        * corresponding to the specified name.
         *
         * \param name AVP name to search
         */
         AAAAvpContainer* search(const char* name) {
-            FunctorMatchByName srch(name);
-            return AAAIteratorSearch< std::list<AAAAvpContainer*>, 
-                                       FunctorMatchByName, 
-                                       AAAAvpContainer > (*this, srch);
+            for (iterator i = begin(); i != end(); i++) {
+                AAAAvpContainer *c = *i;
+                if (ACE_OS::strcmp(c->getAvpName(), name) == 0) {
+                    return c;
+                }
+            }
+            return NULL;
         }
 
         /*!
@@ -1013,44 +1047,47 @@ class AAAAvpContainerList :
         }
 
         /*!
-        * Dictionary based serarch
-        *
-        * \param e dictionary entry
-        */
-        AAAAvpContainer* search(AAADictionaryEntry* avp) {
-            FunctorMatchByName srch(avp->avpName.c_str());
-            return AAAIteratorSearch< std::list<AAAAvpContainer*>, 
-                                       FunctorMatchByName, 
-                                       AAAAvpContainer > (*this, srch);
-        }
-
-        /*!
         * Resets this container for re-parsing
         *
         */
         void reset() {
-            FunctorResetEntry r;
-            AAAIteratorLoop< std::list<AAAAvpContainer*>,
-                             FunctorResetEntry > (*this, r);
+            for (iterator i = begin(); i != end(); i++) {
+                AAAAvpContainer *c = *i;
+                c->flag = false;
+                for (unsigned int j=0; j < c->size(); j++) {
+                    if (AAA_AVP_GROUPED_TYPE == (*c)[j]->dataType()) {
+                        (*c)[j]->dataRef
+                            (Type2Type<AAAAvpContainerList>()).reset();
+                    }
+                }
+            }
         }
 
     private:
         AAAAvpContainer* search(const char* name, bool flg) {
-            FunctorMatchByNameAndFlag srch(name, flg);
-            return AAAIteratorSearch< std::list<AAAAvpContainer*>,
-                                       FunctorMatchByNameAndFlag,
-                                       AAAAvpContainer > (*this, srch);
+            for (iterator i = begin(); i != end(); i++) {
+                AAAAvpContainer *c = *i;
+                if (c->flag == flg &&
+                    ACE_OS::strcmp(c->getAvpName(), name) == 0) {
+                    return c;
+                }
+            }
+            return NULL;
         }
 
         AAAAvpContainer* search(bool flg) {
-            FunctorMatchByFlag srch(flg);
-            return AAAIteratorSearch< std::list<AAAAvpContainer*>,
-                                       FunctorMatchByFlag,
-                                       AAAAvpContainer > (*this, srch);
+            for (iterator i = begin(); i != end(); i++) {
+                AAAAvpContainer *c = *i;
+                if (c->flag == flg) {
+                    return c;
+                }
+            }
+            return NULL;
         }
 };
 
-/*
+/*!
+ *==================================================
  * AAA Parser AVP type structures
  * The generic AAA parser avp type structure is as follows:
  *
@@ -1062,6 +1099,7 @@ class AAAAvpContainerList :
  *        |
  *        +-- ...
  *
+ *==================================================
  */
 
 /*! This class defines an AVP type.  An AVP type is defined as a set
@@ -1125,38 +1163,6 @@ class AAAAvpType
 class AAAAvpTypeList :
     public std::list<AAAAvpType*>
 {
-    private:
-        class FunctorTypeMatch {
-            public:
-                FunctorTypeMatch(AAAAvpDataType t) :
-                    type(t) {
-                }
-                AAAAvpType *operator()(iterator i) {
-                    if ((ACE_UINT32)((*i)->getType()) == type) {
-                        return *i;
-                    }
-                    return NULL;
-                }
-
-            private:
-                AAAAvpDataType type;
-        }
-
-        class FunctorNameMatch {
-            public:
-                FunctorNameMatch(char *n) :
-                    name(n) {
-                }
-                AAAAvpType *operator()(iterator i) {
-                    if (ACE_OS::strcmp((*i)->getName(), name) == 0) {
-                        return *i;
-                    }
-                }
-
-            private:
-                char *name;
-        }
-
     public:
         /*!
         * Returns a pointer to the AVP type instance
@@ -1164,9 +1170,12 @@ class AAAAvpTypeList :
         * \param type AVP type
         */
         AAAAvpType* search(ACE_UINT32 type) {
-            FunctorTypeMatch srch(type);
-            return AAAIteratorSearch< std::list<AAAAvpType*>,
-                                      FunctorTypeMatch > (*this, srch);
+            for (iterator i = begin(); i != end(); i ++) {
+                if ((ACE_UINT32)((*i)->getType()) == type) {
+                    return *i;
+                }
+            }
+            return NULL;
         }
 
         /*!
@@ -1175,9 +1184,12 @@ class AAAAvpTypeList :
         * \param name AVP name
         */
         AAAAvpType* search(const char* name) {
-            FunctorNameMatch srch(name);
-            return AAAIteratorSearch< std::list<AAAAvpType*>,
-                                      FunctorNameMatch > (*this, srch);
+            for (iterator i = begin(); i != end(); i ++) {
+                if (ACE_OS::strcmp((*i)->getName(), name) == 0) {
+                    return *i;
+                }
+            }
+            return NULL;
         }
 
         /*!
@@ -1186,8 +1198,8 @@ class AAAAvpTypeList :
         * \param avpType instance of an AVP type
         */
         void add(AAAAvpType* avpType) {
-            mutex.acquire(); 
-            push_back(avpType); 
+            mutex.acquire();
+            push_back(avpType);
             mutex.release();
         }
 
@@ -1195,21 +1207,28 @@ class AAAAvpTypeList :
         ACE_Thread_Mutex mutex; /**< mutex protector */
 };
 
-/*! \brief AvpContainerEntryManager AVP Container Entry Manager
+/*!
+ *==================================================
+ * Allocations management for AAAAvpContainerEntry
+ * and AAAAvpContainer
+ *==================================================
+ */
+
+/*! \brief AAAAvpContainerEntryMngr AVP Container Entry Manager
  *
- * AAAAvpContainerEntryManager and AAAAvpContainerManager is used for
+ * AAAAvpContainerEntryMngr and AAAAvpContainerMngr is used for
  * assigning and releasing AAAAvpContainerEntry and AAAAvpContainer
  * resources.   Managing policy for assigning and releasing the
  * resources is concealed within the class definition.  In other
  * words, any kind of managing policy is applicable.
  */
-class AAAAvpContainerEntryManager
+class AAAAvpContainerEntryMngr
 {
     public:
         /*!
         * constructor
         */
-        AAAAvpContainerEntryManager(AAAAvpTypeList &lst) :
+        AAAAvpContainerEntryMngr(AAAAvpTypeList &lst) :
             typeList(lst) {
         }
 
@@ -1226,7 +1245,8 @@ class AAAAvpContainerEntryManager
             if (avpType == NULL) {
                 AAAErrorCode cd;
                 AAA_LOG(LM_ERROR, "Pre-defined type not found", type);
-                cd.set(BUG, AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM);
+                cd.set(AAA_PARSE_ERROR_TYPE_BUG,
+                       AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM);
                 throw cd;
             }
             e = avpType->createContainerEntry();
@@ -1243,11 +1263,46 @@ class AAAAvpContainerEntryManager
         }
 
     private:
-        AAAAvpTypeList typeList;
+        AAAAvpTypeList &typeList;
 };
 
-/* Raw message data structures
+/*! \brief AAAAvpContainerMngr AVP Container Manager
  *
+ * AAAAvpContainerEntryMngr and AAAAvpContainerMngr is used for
+ * assigning and releasing AAAAvpContainerEntry and AAAAvpContainer
+ * resources.   Managing policy for assigning and releasing the
+ * resources is concealed within the class definition.  In other
+ * words, any kind of managing policy is applicable.
+ */
+class AAAAvpContainerMngr
+{
+    public:
+        /*!
+        * This function assigns a AAAAvpContainer resource of a
+        * specific name.
+        *
+        * \param name AVP name
+        */
+        AAAAvpContainer *acquire(const char* name) {
+            AAAAvpContainer *c = new AAAAvpContainer;
+            c->setAvpName(name);
+            return (c);
+        }
+
+        /*!
+        * This function release a AAAAvpContainer resource.
+        *
+        * \param entry AVP entry
+        */
+        void release(AAAAvpContainer* entry) {
+            delete entry;
+        }
+};
+
+/*!
+ *==================================================
+ * Raw message data structures
+ *==================================================
  */
 
 /*! \brief MessageBuffer Message Buffer Definitions
@@ -1380,115 +1435,29 @@ class AAAMessageBlockScope
        ACE_Message_Block *&block;
 };
 
-/*! \brief UTF8 string format check.
- *
- *  If the data contains a valid UTF8 string, it returns 0.
- *  Otherwise, it returns -1.
- */
-class UTF8Checker
-{
-    public:
-        /*!
-        * constructor
-        */
-        UTF8Checker() {
-        }
-
-        /*! When nullCheck is true, the check will fail if a null octet is
-        *  found in the data.
-        */
-        int operator()(const char *data, unsigned length, bool nullCheck=false) {
-            unsigned i = 0;
-            while (i<length) {
-                unsigned char b = data[i++];
-
-                // Check the first octet of the current UTF8 character.
-                // Null check
-                if (b == 0x00) {
-                    if (nullCheck) return -1;
-                }
-
-                // The first bit check.
-                else if ((b >> 7) == 0x00) {
-                    continue;
-                }  // 7-bit ASCII character.
-
-                // If the first 7 bits are all '1's, this is not an UTF8 character.
-                if ((b >> 1) == 0x76) {
-                    return -1;
-                } // Out of UTF8 character range.
-
-                b <<= 1;
-                // Count the number of '1' of the first octet
-                int count=0;
-                for (count=0; count<5; count++) {
-                    if ((b && 0x40) == 0) break;
-                }
-
-                // The count value must be greater than 0.
-                if (count==0) {
-                    return -1;
-                } // Out of UTF8 character range.
-
-                // Check remaining octet(s)
-                for (int j=0; j<count; j++) {
-                    if (i >= length) {
-                        return -1;
-                    }
-                    if ((data[i++] >> 6) != 0x02) {
-                        return -1;
-                    }
-                }
-            }
-            return 0;
-        }
-};
-
-/*! \brief AAALogMsg Generic/Global log facility
- *
- * Diameter logging facity derived directly from ACE
- */
-class AAALogMsg : 
-    public ACE_Log_Msg
-{
-    friend class ACE_Singleton<AAALogMsg, ACE_Recursive_Thread_Mutex>;    /**< ACE logger */
-
-    private:
-        /*
-         * protected constructors/destructors to prevent derivation
-         */
-        AAALogMsg() {
-        }
-        ~AAALogMsg() {
-        }
-};
-
-typedef ACE_Singleton<AAALogMsg, ACE_Recursive_Thread_Mutex> AAALogMsg_S;
-AAA_PARSER_SINGLETON_DECLARE(ACE_Singleton, AAALogMsg, ACE_Recursive_Thread_Mutex);
-
-#define AAA_LOG AAALogMsg_S::instance()->log
-
-/*
+/*!
+ *==================================================
  * The following classes are utility classes for simplifying
  * composition and de-composition of AVP entries and list.
+ *==================================================
  */
 
 /*! AAAScholarAttribute
  *
  * Scholar and vector data manipulation class.
  */
-template <typename T>
+template <typename T, class EM>
 class AAAScholarAttribute
 {
     public:
-        AAA_ScholarAttribute() :
+        AAAScholarAttribute() :
             isSet(false) {
         }
-        AAA_ScholarAttribute(T &val) :
+        AAAScholarAttribute(T &val) :
             value(val),
             isSet(true) {
         }
-        virtual ~AAA_ScholarAttribute() {
+        virtual ~AAAScholarAttribute() {
         }
         inline void Clear() {
             isSet = false;
@@ -1501,8 +1470,9 @@ class AAAScholarAttribute
             value = c[0]->dataRef(Type2Type<T>());
             isSet = true;
         }
-        void CopyTo(AAAAvpContainer &c, AAAAvpDataType t) {
-            AAAAvpContainerEntryManager em;
+        void CopyTo(AAAAvpContainer &c,
+                    AAAAvpDataType t) {
+            EM em;
             AAAAvpContainerEntry *e = em.acquire(t);
             e->dataRef(Type2Type<T>()) = value;
             c.add(e);
@@ -1522,37 +1492,37 @@ class AAAScholarAttribute
             return isSet;
         }
 
-        protected:
-            T value;
-            bool isSet;
+    protected:
+        T value;
+        bool isSet;
 };
 
 /*! AAAGroupedScholarAttribute
  *
  * Grouped scholar and vector data manipulation class.
  */
-template <typename T>
-class AAAGroupedScholarAttribute : 
-    public AAAScholarAttribute<T>
+template <typename T, class EM>
+class AAAGroupedScholarAttribute :
+    public AAAScholarAttribute<T, EM>
 {
     public:
         void CopyFrom(AAAAvpContainer &c) {
             AAAAvpContainerList& cl =
                 c[0]->dataRef(Type2Type<AAAAvpContainerList>());
-            AAAScholarAttribute<T>::value.CopyFrom(cl);
-            AAAScholarAttribute<T>::isSet = true;
+            AAAScholarAttribute<T, EM>::value.CopyFrom(cl);
+            AAAScholarAttribute<T, EM>::isSet = true;
         }
         void CopyTo(AAAAvpContainer &c) {
-            AAAAvpContainerEntryManager em;
+            EM em;
             AAAAvpContainerEntry *e = em.acquire(AAA_AVP_GROUPED_TYPE);
-            AAAScholarAttribute<T>::value.CopyTo
+            AAAScholarAttribute<T, EM>::value.CopyTo
                 (e->dataRef(Type2Type<AAAAvpContainerList>()));
             c.add(e);
         }
         inline T& operator=(T v) {
-            AAAScholarAttribute<T>::isSet = true;
-            AAAScholarAttribute<T>::value=v;
-            return AAAScholarAttribute<T>::value;
+            AAAScholarAttribute<T, EM>::isSet = true;
+            AAAScholarAttribute<T, EM>::value=v;
+            return AAAScholarAttribute<T, EM>::value;
         }
 };
 
@@ -1560,7 +1530,7 @@ class AAAGroupedScholarAttribute :
  *
  * Grouped scholar and vector data manipulation class.
  */
-template <typename T>
+template <typename T, class EM>
 class AAAVectorAttribute :
     public std::vector<T>
 {
@@ -1589,8 +1559,9 @@ class AAAVectorAttribute :
                 (*this)[i] = c[i]->dataRef(Type2Type<T>());
             }
         }
-        void CopyTo(AAAAvpContainer &c, AAAAvpDataType t) {
-            AAAAvpContainerEntryManager em;
+        void CopyTo(AAAAvpContainer &c,
+                    AAAAvpDataType t) {
+            EM em;
             AAAAvpContainerEntry *e = em.acquire(t);
             for (unsigned i=0; i<std::vector<T>::size(); i++) {
                 e = em.acquire(t);
@@ -1610,36 +1581,36 @@ class AAAVectorAttribute :
  *
  * Grouped scholar and vector data manipulation class.
  */
-template <typename T>
+template <typename T, class EM>
 class AAAGroupedVectorAttribute :
-    public AAAVectorAttribute<T>
+    public AAAVectorAttribute<T, EM>
 {
     public:
         void CopyFrom(AAAAvpContainer &c) {
-            AAAVectorAttribute<T>::isSet = true;
-            if (AAAVectorAttribute<T>::size() < c.size()) {
+            AAAVectorAttribute<T, EM>::isSet = true;
+            if (AAAVectorAttribute<T, EM>::size() < c.size()) {
                 std::vector<T>::resize(c.size());
             }
             for (unsigned i=0; i<c.size(); i++) {
                 AAAAvpContainerList& cl =
                 c[i]->dataRef(Type2Type<AAAAvpContainerList>());
                 (*this)[i].CopyFrom(cl);
-                AAAVectorAttribute<T>::isSet = true;
+                AAAVectorAttribute<T, EM>::isSet = true;
             }
         }
         void CopyTo(AAAAvpContainer &c) {
-            AAAAvpContainerEntryManager em;
+            EM em;
             AAAAvpContainerEntry *e;
-            for (unsigned i=0; i<AAAVectorAttribute<T>::size(); i++) {
+            for (unsigned i=0; i<AAAVectorAttribute<T, EM>::size(); i++) {
                 e = em.acquire(AAA_AVP_GROUPED_TYPE);
                 (*this)[i].CopyTo(e->dataRef(Type2Type<AAAAvpContainerList>()));
                 e->dataRef(Type2Type<T>()) = (*this)[i];
                 c.add(e);
             }
         }
-        inline AAAGroupedVectorAttribute<T> &operator=
-            (AAAGroupedVectorAttribute<T>& value) {
-            AAAVectorAttribute<T>::isSet = true;
+        inline AAAGroupedVectorAttribute<T, EM> &operator=
+            (AAAGroupedVectorAttribute<T, EM>& value) {
+            AAAVectorAttribute<T, EM>::isSet = true;
             (std::vector<T>&)(*this)=value; 
             return *this;
         }
@@ -1651,15 +1622,18 @@ class AAAGroupedVectorAttribute :
  *  the most common AVP operations. Users should
  *  use this class for manipulating AVP containers.
  */
-template<class D, AAAAvpDataType t>
+template<class D,
+         AAAAvpDataType t,
+         class EntryMngr,
+         class CntrMngr = AAAAvpContainerMngr>
 class AAAAvpWidget {
     public:
         AAAAvpWidget(char *name) {
-            AAAAvpContainerManager cm;
+            CntrMngr cm;
             m_cAvp = cm.acquire(name);
         }
         AAAAvpWidget(char *name, D &value) {
-            AAAAvpContainerManager cm;
+            CntrMngr cm;
             m_cAvp = cm.acquire(name);
             Get() = value;
         }
@@ -1669,9 +1643,9 @@ class AAAAvpWidget {
         ~AAAAvpWidget() {
         }
         D &Get() {
-            AAAAvpContainerEntryManager em;
+            EntryMngr em;
             AAAAvpContainerEntry *e = em.acquire(t);
-            m_cAvp->add(e);            
+            m_cAvp->add(e);
             return e->dataRef(Type2Type<D>());
         }
         AAAAvpContainer *operator()() {
@@ -1680,40 +1654,10 @@ class AAAAvpWidget {
         bool empty() {
             return (m_cAvp->size() == 0);
         }
+
     private:
         AAAAvpContainer *m_cAvp;
 };
-
-/*! \brief Type specific AVP widget classes
- *
- *  This template class is a wrapper class format
- *  the most common AVP operations. Users should
- *  use this class for manipulating AVP containers.
- */
-typedef AAAAvpWidget<diameter_identity_t,
-                     AAA_AVP_DIAMID_TYPE> AAAIdentityAvpWidget;
-typedef AAAAvpWidget<diameter_address_t,
-                     AAA_AVP_ADDRESS_TYPE> AAAAddressAvpWidget;
-typedef AAAAvpWidget<diameter_integer32_t,
-                      AAA_AVP_INTEGER32_TYPE> AAAInt32AvpWidget;
-typedef AAAAvpWidget<diameter_unsigned32_t,
-                     AAA_AVP_UINTEGER32_TYPE> AAAUInt32AvpWidget;
-typedef AAAAvpWidget<diameter_integer64_t,
-                     AAA_AVP_INTEGER64_TYPE> AAAInt64AvpWidget;
-typedef AAAAvpWidget<diameter_unsigned64_t,
-                     AAA_AVP_UINTEGER64_TYPE> AAAUInt64AvpWidget;
-typedef AAAAvpWidget<diameter_utf8string_t,
-                    AAA_AVP_UTF8_STRING_TYPE> AAAUtf8AvpWidget;
-typedef AAAAvpWidget<diameter_grouped_t,
-                    AAA_AVP_GROUPED_TYPE> AAAGroupedAvpWidget;
-typedef AAAAvpWidget<diameter_octetstring_t,
-                    AAA_AVP_STRING_TYPE> AAAStringAvpWidget;
-typedef AAAAvpWidget<diameter_uri_t,
-                    AAA_AVP_DIAMURI_TYPE> AAADiamUriAvpWidget;
-typedef AAAAvpWidget<diameter_enumerated_t,
-                    AAA_AVP_ENUM_TYPE> AAAEnumAvpWidget;
-typedef AAAAvpWidget<diameter_time_t,
-                    AAA_AVP_TIME_TYPE> AAATimeAvpWidget;
 
 /*! \brief Generic AVP widget lookup and parser
  *
@@ -1724,7 +1668,10 @@ typedef AAAAvpWidget<diameter_time_t,
  *  the most common AVP operations. Users should
  *  use this class for manipulating AVP containers.
  */
-template<class D, AAAAvpDataType t>
+template<class D,
+         AAAAvpDataType t,
+         class EntryMngr,
+         class CntrMngr = AAAAvpContainerMngr>
 class AAAAvpContainerWidget
 {
     public:
@@ -1742,19 +1689,19 @@ class AAAAvpContainerWidget
        D &AddAvp(char *name, bool append = false) {
           AAAAvpContainer* c = list.search(name);
           if (! c) {
-              AAA_AvpWidget<D, t> avpWidget(name);
+              AAAAvpWidget<D, t, EntryMngr, CntrMngr> avpWidget(name);
               list.add(avpWidget());
               return avpWidget.Get();
           }
           else if ((c->size() == 0) || append) {
-              AAA_AvpWidget<D, t> avpWidget(c);
+              AAAAvpWidget<D, t, EntryMngr, CntrMngr> avpWidget(c);
               return avpWidget.Get();
           }
           else {
               return (*c)[0]->dataRef(Type2Type<D>());
           }
        }
-       void AddAvp(AAAAvpContainerWidget<D, t> &avp) {
+       void AddAvp(AAAAvpContainerWidget<D, t, EntryMngr, CntrMngr> &avp) {
            list.add(avp());
        }
        void DelAvp(char *name) {
@@ -1763,7 +1710,7 @@ class AAAAvpContainerWidget
               AAAAvpContainer *c = *i;
               if (ACE_OS::strcmp(c->getAvpName(), name) == 0) {
                   list.erase(i);
-                  AAAAvpContainerManager cm;
+                  CntrMngr cm;
                   cm.release(c);
                   break;
               }
@@ -1778,38 +1725,117 @@ class AAAAvpContainerWidget
        AAAAvpContainerList &list;
 };
 
-/*! \brief Type specific AVP widget lookup and parser
- *
- *  Assist in adding, deleting and modifying AVP's
- *  contained in a message list.
- *
- *  This template class is a wrapper class format
- *  the most common AVP operations. Users should
- *  use this class for manipulating AVP containers.
+/*!
+ *==================================================
+ * This section defines the generic parsing template
+ *==================================================
  */
-typedef AAAAvpContainerWidget<diameter_identity_t, AAA_AVP_DIAMID_TYPE>
-           AAAIdentityAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_address_t, AAA_AVP_ADDRESS_TYPE>
-           AAAAddressAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_integer32_t, AAA_AVP_INTEGER32_TYPE>
-           AAAInt32AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_unsigned32_t, AAA_AVP_UINTEGER32_TYPE>
-           AAAUInt32AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_integer64_t, AAA_AVP_INTEGER64_TYPE>
-           AAAInt64AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_unsigned64_t, AAA_AVP_UINTEGER64_TYPE>
-           AAAUInt64AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_utf8string_t, AAA_AVP_UTF8_STRING_TYPE>
-           AAAUtf8AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_grouped_t, AAA_AVP_GROUPED_TYPE>
-           AAAGroupedAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_octetstring_t, AAA_AVP_STRING_TYPE>
-           AAAStringAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_uri_t, AAA_AVP_DIAMURI_TYPE>
-           AAADiamUriAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_enumerated_t, AAA_AVP_ENUM_TYPE>
-           AAAEnumAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_time_t, AAA_AVP_TIME_TYPE>
-           AAATimeAvpContainerWidget;
+
+/*! \brief Parser Message Parser Definition
+ *
+ * AAAParser is a template class for generic parser.
+ */
+template <class RAWDATA,
+          class APPDATA,
+          class DICTDATA = AAAEmptyClass>
+class AAAParser
+{
+    public:
+        /*!
+        * constructor
+        */
+        AAAParser() {
+        }
+
+        /*!
+        * destructor
+        */
+        virtual ~AAAParser() {
+        }
+
+        /*!
+        * Parse raw data and translate it into application level data.
+        */
+        virtual void parseRawToApp();
+
+        /*!
+        * Parse application level data and translate it into raw data.
+        */
+        virtual void parseAppToRaw();
+
+        /*!
+        * Set raw data to the parser.
+        *
+        * \param data Parser Data
+        */
+        void setRawData(RAWDATA data) {
+            rawData = data;
+        }
+
+        /*!
+        * Set application level data to the parser.
+        *
+        * \param data Parser Data
+        */
+        void setAppData(APPDATA data) {
+            appData = data;
+        }
+
+        /*!
+        * Set dictionary data to the parser.
+        *
+        * \param data Dictionary data
+        */
+        void setDictData(DICTDATA data) {
+            dictData = data;
+        }
+
+        /*!
+        * Get raw data from the parser.
+        */
+        RAWDATA getRawData() {
+            return rawData;
+        }
+
+        /*! This template is used for obtaining raw data casted to a
+        * specific type.
+        */
+        template <class T> void getRawData(T*& data) {
+            data = (T*)rawData;
+        }
+
+        /*!
+        * Get application level data from the parser.
+        */
+        APPDATA getAppData() {
+            return appData;
+        }
+
+        /*! This template is used for obtaining application data
+        *  casted to a * specific type.
+        */
+        template <class T> void getAppData(T*& data) {
+            data = (T*)appData;
+        }
+
+        /*!
+        * Get dictionary data from the parser.
+        */
+        DICTDATA getDictData() {
+            return dictData; 
+        }
+
+        /*! This template is used for obtaining dictionary data
+        *  casted to a * specific type.
+        */
+        template <class T> void getDictData(T*& data) {
+            data = (T*)dictData;
+        }
+
+    private:
+        RAWDATA      rawData;   /**< Raw data  */
+        APPDATA      appData;   /**< Application data translated from/to raw data */
+        DICTDATA     dictData;  /**< Dictionary data */
+};
 
 #endif // __AAA_PARSER_API_H__
