@@ -34,7 +34,7 @@
 #ifndef __PANA_DEFS_H__
 #define __PANA_DEFS_H__
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 #if _MSC_VER > 1000
 #pragma once

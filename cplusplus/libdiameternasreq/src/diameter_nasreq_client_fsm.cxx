@@ -247,7 +247,7 @@ class DiameterNasreqClientStateTable_S
     {
       AA_RequestData& aaRequest = sm.AA_Request();
       AA_AnswerData& aaAnswer = sm.AA_Answer();
-      AAAResultCode resultCode = aaAnswer.ResultCode();
+      DiameterResultCode resultCode = aaAnswer.ResultCode();
 
       // Enforce Prompt AVP attribute.
       if (aaAnswer.Prompt.IsSet())
@@ -612,7 +612,7 @@ DiameterNasreqClientStateMachine::DiameterNasreqClientStateMachine
 void 
 DiameterNasreqClientStateMachine::SendAA_Request()
 {
-  AAAMessage msg;
+  DiameterMsg msg;
   AA_RequestData aaRequest = aaRequestData;
   AA_RequestParser parser;
   parser.setAppData(&aaRequest);

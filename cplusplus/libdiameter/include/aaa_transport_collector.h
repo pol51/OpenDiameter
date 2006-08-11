@@ -34,7 +34,7 @@
 #ifndef __AAA_TRANSPORT_COLLECTOR_H__
 #define __AAA_TRANSPORT_COLLECTOR_H__
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "aaa_transport_interface.h"
 
 class AAA_MsgCollectorHandler 
@@ -47,7 +47,7 @@ class AAA_MsgCollectorHandler
            INVALID_MSG     = 3003,
         } COLLECTOR_ERROR;    
     public:
-        virtual void Message(std::auto_ptr<AAAMessage> msg) = 0;
+        virtual void Message(std::auto_ptr<DiameterMsg> msg) = 0;
         virtual void Error(COLLECTOR_ERROR error, 
             std::string &io_name) = 0;
         virtual ~AAA_MsgCollectorHandler() { }

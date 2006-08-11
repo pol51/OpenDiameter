@@ -35,7 +35,7 @@
 #define __RADIUS_PARSER_H__
 
 #include "radius_packet.h"
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 template<class SRC, class DEST>
 class RADIUS_Parser

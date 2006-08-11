@@ -55,7 +55,7 @@ class AAA_ServerAcctRecStorage
 
         /// Asks the server app to update the ACA message  
         /// before it is sent to the client session
-        virtual void UpdateAcctResponse(AAAMessage &aca) = 0;
+        virtual void UpdateAcctResponse(DiameterMsg &aca) = 0;
 
     protected:
         virtual ~AAA_ServerAcctRecStorage() { }
@@ -106,7 +106,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSessionServerStateMachine :
         return m_RecStorage;
       }
 
-      void RxACR(AAAMessage &msg);
+      void RxACR(DiameterMsg &msg);
       void TxACA(diameter_unsigned32_t rcode);
 
    protected:
@@ -118,7 +118,7 @@ class AAA_SessAcctServer_RxACR_Start :
 {
    public:
       virtual void operator()(AAA_AcctSessionServerStateMachine &fsm) {
-         std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+         std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
          fsm.CancelAllTimer();
          fsm.RecStorage().StoreRecord(msg->acl, 
                                       fsm.Attributes().RecordType()(),
@@ -136,7 +136,7 @@ class AAA_SessAcctServer_RxACR_Stop :
 {
    public:
       virtual void operator()(AAA_AcctSessionServerStateMachine &fsm) {
-         std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+         std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
          fsm.CancelAllTimer();
          fsm.RecStorage().StoreRecord(msg->acl, 
                                       fsm.Attributes().RecordType()(),
@@ -152,7 +152,7 @@ class AAA_SessAcctServer_RxACR :
 {
    public:
       virtual void operator()(AAA_AcctSessionServerStateMachine &fsm) {
-         std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+         std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
          fsm.RecStorage().StoreRecord(msg->acl, 
                                       fsm.Attributes().RecordType()(),
                                       fsm.Attributes().RecordNumber()());

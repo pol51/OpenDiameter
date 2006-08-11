@@ -62,7 +62,7 @@ class DIAMETER_NASREQ_CLIENT_EXPORTS AA_AnswerHandler :
       session(s)
   {}
  private:
-  AAAReturnCode HandleMessage (AAAMessage &msg);
+  AAAReturnCode HandleMessage (DiameterMsg &msg);
   DiameterNasreqClientSession &session;
 };
 
@@ -88,7 +88,7 @@ class DIAMETER_NASREQ_CLIENT_EXPORTS DiameterNasreqClientSession :
   /// method. It is the responsibility of the derived class to
   /// override this function and capture the events if it is
   /// interested in it.
-  AAAReturnCode HandleMessage(AAAMessage &msg);
+  AAAReturnCode HandleMessage(DiameterMsg &msg);
 
   /// Reimplemented from AAAClientSession. This is invoked during
   /// session disconnect event. Disconnection occurs when a session is

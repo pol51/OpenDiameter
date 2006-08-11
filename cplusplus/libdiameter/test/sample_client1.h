@@ -92,7 +92,7 @@ class AAASampleClient : public AAAClientSession {
 	* message handler for a particular message, you may
 	* capture that message here.
 	*/
-       AAAReturnCode HandleMessage(AAAMessage &msg);
+       AAAReturnCode HandleMessage(DiameterMsg &msg);
 
        /*
 	* On creation of a server session, the HandleDisconnect,
@@ -200,7 +200,7 @@ class AAASampleAuthMessage : public AAASessionMessageHandler {
        /*
 	* Actual message handler for code
 	*/
-       AAAReturnCode HandleMessage(AAAMessage &msg);
+       AAAReturnCode HandleMessage(DiameterMsg &msg);
 
     protected:
        AAASampleClient &session; /* reference to the original authentication session */
@@ -283,7 +283,7 @@ class AAASampleAccountingRequestMsg : public AAASessionMessageHandler
 	* handler. In this example, we use the session 
 	* object itself as the registered event handler.
 	*/
-       AAAReturnCode HandleMessage(AAAMessage &msg);
+       AAAReturnCode HandleMessage(DiameterMsg &msg);
 
     protected:
        AAASampleAccountingClient &session; /* reference to the original session */

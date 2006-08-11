@@ -34,7 +34,7 @@
 #ifndef __PARSER_Q_AVPLIST_H__
 #define __PARSER_Q_AVPLIST_H__
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 typedef AAAParser<AAAMessageBlock*,
                   AAAAvpContainerList*,

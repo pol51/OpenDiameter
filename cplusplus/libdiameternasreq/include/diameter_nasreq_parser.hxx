@@ -43,7 +43,7 @@
 #define __DIAMETER_NASREQ_PARSER_H__
 
 #include <vector>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 const diameter_unsigned32_t NasreqApplicationId = 1;
 const AAACommandCode AA_CommandCode = 265;
@@ -55,7 +55,7 @@ class tunneling_t
 
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
     if (TunnelType.IsSet())
       {
@@ -154,16 +154,16 @@ class tunneling_t
       }
   }
   // Required AVPs
-  AAA_ScholarAttribute<diameter_enumerated_t> TunnelType;
-  AAA_ScholarAttribute<diameter_enumerated_t> TunnelMediumType;
-  AAA_ScholarAttribute<diameter_utf8string_t> TunnelClientEndpoint;
-  AAA_ScholarAttribute<diameter_utf8string_t> TunnelServerEndpoint;
+  DiameterScholarAttribute<diameter_enumerated_t> TunnelType;
+  DiameterScholarAttribute<diameter_enumerated_t> TunnelMediumType;
+  DiameterScholarAttribute<diameter_utf8string_t> TunnelClientEndpoint;
+  DiameterScholarAttribute<diameter_utf8string_t> TunnelServerEndpoint;
   // Optional AVPs
-  AAA_ScholarAttribute<diameter_unsigned32_t> TunnelPreference;
-  AAA_ScholarAttribute<diameter_unsigned32_t> TunnelClientAuthId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> TunnelServerAuthId;
-  AAA_ScholarAttribute<diameter_octetstring_t> TunnelPassword;
-  AAA_ScholarAttribute<diameter_utf8string_t> TunnelPrivateGroupId;
+  DiameterScholarAttribute<diameter_unsigned32_t> TunnelPreference;
+  DiameterScholarAttribute<diameter_unsigned32_t> TunnelClientAuthId;
+  DiameterScholarAttribute<diameter_unsigned32_t> TunnelServerAuthId;
+  DiameterScholarAttribute<diameter_octetstring_t> TunnelPassword;
+  DiameterScholarAttribute<diameter_utf8string_t> TunnelPrivateGroupId;
 };
 
 /// Definition for Proxy-Info AVP internal structure.
@@ -172,7 +172,7 @@ class proxyinfo_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
     if (ProxyHost.IsSet())
       {
@@ -210,10 +210,10 @@ class proxyinfo_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_identity_t> ProxyHost;
-  AAA_ScholarAttribute<diameter_octetstring_t> ProxyState;
+  DiameterScholarAttribute<diameter_identity_t> ProxyHost;
+  DiameterScholarAttribute<diameter_octetstring_t> ProxyState;
   // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 /// Definition for CHAP-Auth AVP internal structure (the ABNF is
@@ -223,7 +223,7 @@ class chap_auth_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
     if (ChapAlgorithm.IsSet())
       {
@@ -271,14 +271,14 @@ class chap_auth_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_enumerated_t> ChapAlgorithm;
+  DiameterScholarAttribute<diameter_enumerated_t> ChapAlgorithm;
 
 #define CHAP_ALGORITHM_MD5 5
 
-  AAA_ScholarAttribute<diameter_octetstring_t> ChapIdent;
+  DiameterScholarAttribute<diameter_octetstring_t> ChapIdent;
   // Optional AVPs
-  AAA_ScholarAttribute<diameter_octetstring_t> ChapResponse;
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterScholarAttribute<diameter_octetstring_t> ChapResponse;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 /// Definition for AA-Request message contents internal structure.
@@ -347,11 +347,11 @@ class AA_RequestData
   }
 
   /// AA-Request AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> SessionId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginHost;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginRealm;
-  AAA_ScholarAttribute<diameter_identity_t>  DestinationRealm;
+  DiameterScholarAttribute<diameter_utf8string_t> SessionId;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
+  DiameterScholarAttribute<diameter_identity_t>  OriginHost;
+  DiameterScholarAttribute<diameter_identity_t>  OriginRealm;
+  DiameterScholarAttribute<diameter_identity_t>  DestinationRealm;
   /* In RFC3588:
 
    "8.7.  Auth-Request-Type AVP
@@ -380,15 +380,15 @@ class AA_RequestData
       requested/offered."
 
   */
-  AAA_ScholarAttribute<diameter_enumerated_t> AuthRequestType;
-  AAA_ScholarAttribute<diameter_identity_t>  DestinationHost;
-  AAA_ScholarAttribute<diameter_utf8string_t> NasIdentifier;
-  AAA_ScholarAttribute<diameter_octetstring_t> NasIpAddress;
-  AAA_ScholarAttribute<diameter_octetstring_t> NasIpv6Address;
-  AAA_ScholarAttribute<diameter_unsigned32_t> NasPort;
-  AAA_ScholarAttribute<diameter_utf8string_t> NasPortId;
-  AAA_ScholarAttribute<diameter_enumerated_t> NasPortType;
-  AAA_ScholarAttribute<diameter_unsigned32_t> OriginStateId;
+  DiameterScholarAttribute<diameter_enumerated_t> AuthRequestType;
+  DiameterScholarAttribute<diameter_identity_t>  DestinationHost;
+  DiameterScholarAttribute<diameter_utf8string_t> NasIdentifier;
+  DiameterScholarAttribute<diameter_octetstring_t> NasIpAddress;
+  DiameterScholarAttribute<diameter_octetstring_t> NasIpv6Address;
+  DiameterScholarAttribute<diameter_unsigned32_t> NasPort;
+  DiameterScholarAttribute<diameter_utf8string_t> NasPortId;
+  DiameterScholarAttribute<diameter_enumerated_t> NasPortType;
+  DiameterScholarAttribute<diameter_unsigned32_t> OriginStateId;
   /* In draft-ietf-aaa-diameter-nasreq-14.txt:
 
    "6.5.  Port-Limit AVP
@@ -401,9 +401,9 @@ class AA_RequestData
    response."
 
   */
-  AAA_ScholarAttribute<diameter_unsigned32_t> PortLimit;
-  AAA_ScholarAttribute<diameter_utf8string_t> UserName;
-  AAA_ScholarAttribute<diameter_utf8string_t> UserPassword;
+  DiameterScholarAttribute<diameter_unsigned32_t> PortLimit;
+  DiameterScholarAttribute<diameter_utf8string_t> UserName;
+  DiameterScholarAttribute<diameter_utf8string_t> UserPassword;
   /* In RFC2865:
 
    "5.6.  Service-Type
@@ -434,7 +434,7 @@ class AA_RequestData
       11      Callback Administrative
 
   */
-  AAA_ScholarAttribute<diameter_enumerated_t> ServiceType;
+  DiameterScholarAttribute<diameter_enumerated_t> ServiceType;
   /* In Section 5.24 of RFC 2865:
 
    "5.24.  State
@@ -458,9 +458,9 @@ class AA_RequestData
       Usage of the State Attribute is implementation dependent."
 
   */
-  AAA_ScholarAttribute<diameter_octetstring_t> State;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthGracePeriod;
+  DiameterScholarAttribute<diameter_octetstring_t> State;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthGracePeriod;
   /* In Section 8 of RFC3588:
 
   "An access device that does not expect to send a re-authorization or
@@ -509,7 +509,7 @@ class AA_RequestData
       Authorization-Lifetime."
 
     */
-  AAA_ScholarAttribute<diameter_enumerated_t> AuthSessionState;
+  DiameterScholarAttribute<diameter_enumerated_t> AuthSessionState;
   /* In draft-ietf-aaa-diameter-nasreq-14.txt:
 
    "6.2.  Callback-Number AVP
@@ -524,18 +524,18 @@ class AA_RequestData
    outside the scope of this specification."
                                                                                 
   */
-  AAA_ScholarAttribute<diameter_utf8string_t> CallbackNumber;
-  AAA_ScholarAttribute<diameter_utf8string_t> CalledStationId;
-  AAA_ScholarAttribute<diameter_utf8string_t> CallingStationId;
-  AAA_ScholarAttribute<diameter_octetstring_t> OriginatingLineInfo;
-  AAA_ScholarAttribute<diameter_utf8string_t> ConnectInfo;
-  AAA_GroupedScholarAttribute<chap_auth_t> ChapAuth;
-  AAA_ScholarAttribute<diameter_octetstring_t> ChapChallenge;
-  AAA_VectorAttribute<diameter_enumerated_t> FramedCompression;
-  AAA_ScholarAttribute<diameter_unsigned64_t> FramedInterfaceId;
-  AAA_ScholarAttribute<diameter_octetstring_t> FramedIpAddress;
-  AAA_VectorAttribute<diameter_octetstring_t> FramedIpv6Prefix;
-  AAA_ScholarAttribute<diameter_octetstring_t> FramedIpNetmask;
+  DiameterScholarAttribute<diameter_utf8string_t> CallbackNumber;
+  DiameterScholarAttribute<diameter_utf8string_t> CalledStationId;
+  DiameterScholarAttribute<diameter_utf8string_t> CallingStationId;
+  DiameterScholarAttribute<diameter_octetstring_t> OriginatingLineInfo;
+  DiameterScholarAttribute<diameter_utf8string_t> ConnectInfo;
+  DiameterGroupedScholarAttribute<chap_auth_t> ChapAuth;
+  DiameterScholarAttribute<diameter_octetstring_t> ChapChallenge;
+  DiameterVectorAttribute<diameter_enumerated_t> FramedCompression;
+  DiameterScholarAttribute<diameter_unsigned64_t> FramedInterfaceId;
+  DiameterScholarAttribute<diameter_octetstring_t> FramedIpAddress;
+  DiameterVectorAttribute<diameter_octetstring_t> FramedIpv6Prefix;
+  DiameterScholarAttribute<diameter_octetstring_t> FramedIpNetmask;
   /* In draft-ietf-aaa-diameter-nasreq-14.txt:
 
    "6.9.3.  Framed-MTU AVP
@@ -547,7 +547,7 @@ class AA_RequestData
    the range of 64 and 65535."
 
   */
-  AAA_ScholarAttribute<diameter_unsigned32_t> FramedMtu;
+  DiameterScholarAttribute<diameter_unsigned32_t> FramedMtu;
   /* In draft-ietf-aaa-diameter-nasreq-14.txt:
 
    "6.9.1.  Framed-Protocol AVP
@@ -565,21 +565,21 @@ class AA_RequestData
        6  X.75 Synchronous"
 
   */
-  AAA_ScholarAttribute<diameter_enumerated_t> FramedProtocol;
-  AAA_ScholarAttribute<diameter_octetstring_t> ArapPassword;
-  AAA_ScholarAttribute<diameter_octetstring_t> ArapChallengeResponse;
-  AAA_ScholarAttribute<diameter_unsigned32_t> ArapSecurity;
-  AAA_VectorAttribute<diameter_octetstring_t> ArapSecurityData;
-  AAA_VectorAttribute<diameter_octetstring_t> LoginIpHost;
-  AAA_VectorAttribute<diameter_octetstring_t> LoginIpv6Host;
-  AAA_ScholarAttribute<diameter_octetstring_t> LoginLatGroup;
-  AAA_ScholarAttribute<diameter_octetstring_t> LoginLatNode;
-  AAA_ScholarAttribute<diameter_octetstring_t> LoginLatPort;
-  AAA_ScholarAttribute<diameter_octetstring_t> LoginLatService;
-  AAA_GroupedVectorAttribute<tunneling_t> Tunneling;
-  AAA_GroupedVectorAttribute<proxyinfo_t> ProxyInfo;
-  AAA_VectorAttribute<diameter_identity_t> RouteRecord;
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterScholarAttribute<diameter_enumerated_t> FramedProtocol;
+  DiameterScholarAttribute<diameter_octetstring_t> ArapPassword;
+  DiameterScholarAttribute<diameter_octetstring_t> ArapChallengeResponse;
+  DiameterScholarAttribute<diameter_unsigned32_t> ArapSecurity;
+  DiameterVectorAttribute<diameter_octetstring_t> ArapSecurityData;
+  DiameterVectorAttribute<diameter_octetstring_t> LoginIpHost;
+  DiameterVectorAttribute<diameter_octetstring_t> LoginIpv6Host;
+  DiameterScholarAttribute<diameter_octetstring_t> LoginLatGroup;
+  DiameterScholarAttribute<diameter_octetstring_t> LoginLatNode;
+  DiameterScholarAttribute<diameter_octetstring_t> LoginLatPort;
+  DiameterScholarAttribute<diameter_octetstring_t> LoginLatService;
+  DiameterGroupedVectorAttribute<tunneling_t> Tunneling;
+  DiameterGroupedVectorAttribute<proxyinfo_t> ProxyInfo;
+  DiameterVectorAttribute<diameter_identity_t> RouteRecord;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 /// Definition for AA-Answer message contents internal structure.
@@ -662,15 +662,15 @@ class AA_AnswerData
   }
 
   /// AA-Answer AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> SessionId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
-  AAA_ScholarAttribute<diameter_enumerated_t> AuthRequestType;
-  AAA_ScholarAttribute<diameter_unsigned32_t> ResultCode;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginHost;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginRealm;
-  AAA_ScholarAttribute<diameter_utf8string_t> UserName;
-  AAA_ScholarAttribute<diameter_enumerated_t> ServiceType;
-  AAA_VectorAttribute<diameter_octetstring_t> Class;
+  DiameterScholarAttribute<diameter_utf8string_t> SessionId;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
+  DiameterScholarAttribute<diameter_enumerated_t> AuthRequestType;
+  DiameterScholarAttribute<diameter_unsigned32_t> ResultCode;
+  DiameterScholarAttribute<diameter_identity_t>  OriginHost;
+  DiameterScholarAttribute<diameter_identity_t>  OriginRealm;
+  DiameterScholarAttribute<diameter_utf8string_t> UserName;
+  DiameterScholarAttribute<diameter_enumerated_t> ServiceType;
+  DiameterVectorAttribute<diameter_octetstring_t> Class;
   /* RFC2869
 
    5.12.  Configuration-Token
@@ -683,17 +683,17 @@ class AA_AnswerData
       user profile to be used.  It should not be sent to a NAS.
 
   */
-  AAA_VectorAttribute<diameter_octetstring_t> ConfigurationToken;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AcctInterimInterval;
-  AAA_ScholarAttribute<diameter_utf8string_t> ErrorMessage;
-  AAA_ScholarAttribute<diameter_identity_t>  ErrorReportingHost;
-  AAA_ScholarAttribute<diameter_unsigned32_t> IdleTimeout;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthGracePeriod;
-  AAA_ScholarAttribute<diameter_enumerated_t> AuthSessionState;
-  AAA_ScholarAttribute<diameter_enumerated_t> ReAuthRequestType;
-  AAA_ScholarAttribute<diameter_unsigned32_t> SessionTimeout;
-  AAA_ScholarAttribute<diameter_octetstring_t> State;
+  DiameterVectorAttribute<diameter_octetstring_t> ConfigurationToken;
+  DiameterScholarAttribute<diameter_unsigned32_t> AcctInterimInterval;
+  DiameterScholarAttribute<diameter_utf8string_t> ErrorMessage;
+  DiameterScholarAttribute<diameter_identity_t>  ErrorReportingHost;
+  DiameterScholarAttribute<diameter_unsigned32_t> IdleTimeout;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthGracePeriod;
+  DiameterScholarAttribute<diameter_enumerated_t> AuthSessionState;
+  DiameterScholarAttribute<diameter_enumerated_t> ReAuthRequestType;
+  DiameterScholarAttribute<diameter_unsigned32_t> SessionTimeout;
+  DiameterScholarAttribute<diameter_octetstring_t> State;
   /* In draft-ietf-aaa-diameter-nasreq-14.txt:
 
    "4.9.  Reply-Message AVP
@@ -714,8 +714,8 @@ class AA_AnswerData
 
   */
                                                                                 
-  AAA_VectorAttribute<diameter_utf8string_t> ReplyMessage;
-  AAA_ScholarAttribute<diameter_unsigned32_t> OriginStateId;
+  DiameterVectorAttribute<diameter_utf8string_t> ReplyMessage;
+  DiameterScholarAttribute<diameter_unsigned32_t> OriginStateId;
   /* In draft-ietf-aaa-diameter-nasreq-14.txt:
 
    "6.7.  Filter-Id AVP
@@ -734,15 +734,15 @@ class AA_AnswerData
 
   */
 
-  AAA_VectorAttribute<diameter_utf8string_t> FilterId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> PasswordRetry;
-  AAA_ScholarAttribute<diameter_unsigned32_t> PortLimit;
-  AAA_ScholarAttribute<diameter_enumerated_t> Prompt;
-  AAA_ScholarAttribute<diameter_octetstring_t> ArapChallengeResponse;
-  AAA_VectorAttribute<diameter_octetstring_t> ArapFeatures;
-  AAA_ScholarAttribute<diameter_unsigned32_t> ArapSecurity;
-  AAA_VectorAttribute<diameter_octetstring_t> ArapSecurityData;
-  AAA_ScholarAttribute<diameter_enumerated_t> ArapZoneAccess;
+  DiameterVectorAttribute<diameter_utf8string_t> FilterId;
+  DiameterScholarAttribute<diameter_unsigned32_t> PasswordRetry;
+  DiameterScholarAttribute<diameter_unsigned32_t> PortLimit;
+  DiameterScholarAttribute<diameter_enumerated_t> Prompt;
+  DiameterScholarAttribute<diameter_octetstring_t> ArapChallengeResponse;
+  DiameterVectorAttribute<diameter_octetstring_t> ArapFeatures;
+  DiameterScholarAttribute<diameter_unsigned32_t> ArapSecurity;
+  DiameterVectorAttribute<diameter_octetstring_t> ArapSecurityData;
+  DiameterScholarAttribute<diameter_enumerated_t> ArapZoneAccess;
   /* In draft-ietf-aaa-diameter-nasreq-14.txt:
 
    "6.3.  Callback-Id AVP
@@ -758,23 +758,23 @@ class AA_AnswerData
 
   */
                                                                                 
-  AAA_ScholarAttribute<diameter_utf8string_t> CallbackId;
-  AAA_ScholarAttribute<diameter_utf8string_t> CallbackNumber;
-  AAA_ScholarAttribute<diameter_unsigned32_t> FramedAppletalkLink;
-  AAA_VectorAttribute<diameter_unsigned32_t> FramedAppletalkNetwork;
-  AAA_ScholarAttribute<diameter_octetstring_t> FramedAppletalkZone;
-  AAA_VectorAttribute<diameter_enumerated_t> FramedCompression;
-  AAA_ScholarAttribute<diameter_unsigned64_t> FramedInterfaceId;
-  AAA_ScholarAttribute<diameter_octetstring_t> FramedIpAddress;
-  AAA_VectorAttribute<diameter_octetstring_t> FramedIpv6Prefix;
-  AAA_ScholarAttribute<diameter_octetstring_t> FramedIpv6Pool;
-  AAA_VectorAttribute<diameter_utf8string_t> FramedIpv6Route;
-  AAA_ScholarAttribute<diameter_octetstring_t> FramedIpNetmask;
-  AAA_VectorAttribute<diameter_utf8string_t> FramedRoute;
-  AAA_ScholarAttribute<diameter_octetstring_t> FramedPool;
-  AAA_ScholarAttribute<diameter_utf8string_t> FramedIpxNetwork;
-  AAA_ScholarAttribute<diameter_unsigned32_t> FramedMtu;
-  AAA_ScholarAttribute<diameter_enumerated_t> FramedProtocol;
+  DiameterScholarAttribute<diameter_utf8string_t> CallbackId;
+  DiameterScholarAttribute<diameter_utf8string_t> CallbackNumber;
+  DiameterScholarAttribute<diameter_unsigned32_t> FramedAppletalkLink;
+  DiameterVectorAttribute<diameter_unsigned32_t> FramedAppletalkNetwork;
+  DiameterScholarAttribute<diameter_octetstring_t> FramedAppletalkZone;
+  DiameterVectorAttribute<diameter_enumerated_t> FramedCompression;
+  DiameterScholarAttribute<diameter_unsigned64_t> FramedInterfaceId;
+  DiameterScholarAttribute<diameter_octetstring_t> FramedIpAddress;
+  DiameterVectorAttribute<diameter_octetstring_t> FramedIpv6Prefix;
+  DiameterScholarAttribute<diameter_octetstring_t> FramedIpv6Pool;
+  DiameterVectorAttribute<diameter_utf8string_t> FramedIpv6Route;
+  DiameterScholarAttribute<diameter_octetstring_t> FramedIpNetmask;
+  DiameterVectorAttribute<diameter_utf8string_t> FramedRoute;
+  DiameterScholarAttribute<diameter_octetstring_t> FramedPool;
+  DiameterScholarAttribute<diameter_utf8string_t> FramedIpxNetwork;
+  DiameterScholarAttribute<diameter_unsigned32_t> FramedMtu;
+  DiameterScholarAttribute<diameter_enumerated_t> FramedProtocol;
   /* In draft-ietf-aaa-diameter-nasreq-14.txt:
 
    "6.9.2.  Framed-Routing AVP
@@ -792,26 +792,26 @@ class AA_AnswerData
 
   */
 
-  AAA_ScholarAttribute<diameter_enumerated_t> FramedRouting;
-  AAA_VectorAttribute<diameter_ipfilter_rule_t> NasFilterRule;
-  AAA_VectorAttribute<diameter_octetstring_t> LoginIpHost;
-  AAA_VectorAttribute<diameter_octetstring_t> LoginIpv6Host;
-  AAA_ScholarAttribute<diameter_octetstring_t> LoginLatGroup;
-  AAA_ScholarAttribute<diameter_octetstring_t> LoginLatNode;
-  AAA_ScholarAttribute<diameter_octetstring_t> LoginLatPort;
-  AAA_ScholarAttribute<diameter_octetstring_t> LoginLatService;
-  AAA_ScholarAttribute<diameter_enumerated_t> LoginService;
-  AAA_ScholarAttribute<diameter_unsigned32_t> LoginTcpPort;
-  AAA_GroupedVectorAttribute<tunneling_t> Tunneling;
-  AAA_VectorAttribute<diameter_identity_t>  RedirectHost;
-  AAA_ScholarAttribute<diameter_enumerated_t>  RedirectHostUsage;
-  AAA_ScholarAttribute<diameter_unsigned32_t>  RedirectMaxCacheTime;
-  AAA_GroupedVectorAttribute<proxyinfo_t> ProxyInfo;
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterScholarAttribute<diameter_enumerated_t> FramedRouting;
+  DiameterVectorAttribute<diameter_ipfilter_rule_t> NasFilterRule;
+  DiameterVectorAttribute<diameter_octetstring_t> LoginIpHost;
+  DiameterVectorAttribute<diameter_octetstring_t> LoginIpv6Host;
+  DiameterScholarAttribute<diameter_octetstring_t> LoginLatGroup;
+  DiameterScholarAttribute<diameter_octetstring_t> LoginLatNode;
+  DiameterScholarAttribute<diameter_octetstring_t> LoginLatPort;
+  DiameterScholarAttribute<diameter_octetstring_t> LoginLatService;
+  DiameterScholarAttribute<diameter_enumerated_t> LoginService;
+  DiameterScholarAttribute<diameter_unsigned32_t> LoginTcpPort;
+  DiameterGroupedVectorAttribute<tunneling_t> Tunneling;
+  DiameterVectorAttribute<diameter_identity_t>  RedirectHost;
+  DiameterScholarAttribute<diameter_enumerated_t>  RedirectHostUsage;
+  DiameterScholarAttribute<diameter_unsigned32_t>  RedirectMaxCacheTime;
+  DiameterGroupedVectorAttribute<proxyinfo_t> ProxyInfo;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
-typedef AAAParser<AAAMessage*, AA_RequestData*> AA_RequestParser;
-typedef AAAParser<AAAMessage*, AA_AnswerData*> AA_AnswerParser;
+typedef AAAParser<DiameterMsg*, AA_RequestData*> AA_RequestParser;
+typedef AAAParser<DiameterMsg*, AA_AnswerData*> AA_AnswerParser;
 
 template<> void AA_RequestParser::parseRawToApp();
 template<> void AA_RequestParser::parseAppToRaw();

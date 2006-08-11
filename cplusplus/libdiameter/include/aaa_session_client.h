@@ -61,23 +61,23 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAuthSession :
         AAAReturnCode Begin(char *optionValue = 0);
 
         /// This fucntion sends a message to the peer session
-        virtual AAAReturnCode Send(std::auto_ptr<AAAMessage> msg);
+        virtual AAAReturnCode Send(std::auto_ptr<DiameterMsg> msg);
 
         /// This function terminates the AAA session
         AAAReturnCode End();
 
    protected:
         /// This fucntion is called by the internal message rx
-        virtual void RxRequest(std::auto_ptr<AAAMessage> msg);
+        virtual void RxRequest(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called by the internal message rx
-        virtual void RxAnswer(std::auto_ptr<AAAMessage> msg);
+        virtual void RxAnswer(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called by the internal message rx
-        virtual void RxError(std::auto_ptr<AAAMessage> msg);
+        virtual void RxError(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called internally to handle messages
-        virtual AAAReturnCode RxDelivery(std::auto_ptr<AAAMessage> msg);
+        virtual AAAReturnCode RxDelivery(std::auto_ptr<DiameterMsg> msg);
 
         /// This function resets the current session attributes to default
         virtual AAAReturnCode Reset();
@@ -122,16 +122,16 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAcctSession :
 
     private:
         /// This fucntion sends a message to the peer session
-        virtual AAAReturnCode Send(std::auto_ptr<AAAMessage> msg);
+        virtual AAAReturnCode Send(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called by the internal message rx
-        virtual void RxRequest(std::auto_ptr<AAAMessage> msg);
+        virtual void RxRequest(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called by the internal message rx
-        virtual void RxAnswer(std::auto_ptr<AAAMessage> msg);
+        virtual void RxAnswer(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called by the internal message rx
-        virtual void RxError(std::auto_ptr<AAAMessage> msg);
+        virtual void RxError(std::auto_ptr<DiameterMsg> msg);
 
     private:
         AAA_Task &m_Task;
@@ -182,16 +182,16 @@ class AAA_ClientAcctSubSession :
 
    protected:
         /// This fucntion sends a message to the peer session
-        virtual AAAReturnCode Send(std::auto_ptr<AAAMessage> msg);
+        virtual AAAReturnCode Send(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called by the internal message rx
-        virtual void RxRequest(std::auto_ptr<AAAMessage> msg);
+        virtual void RxRequest(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called by the internal message rx
-        virtual void RxAnswer(std::auto_ptr<AAAMessage> msg);
+        virtual void RxAnswer(std::auto_ptr<DiameterMsg> msg);
 
         /// This fucntion is called by the internal message rx
-        virtual void RxError(std::auto_ptr<AAAMessage> msg);
+        virtual void RxError(std::auto_ptr<DiameterMsg> msg);
 
     private:
         AAA_ClientAcctSession &m_ParentSession;

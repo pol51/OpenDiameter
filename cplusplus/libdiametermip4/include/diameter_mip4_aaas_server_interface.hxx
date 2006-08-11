@@ -38,7 +38,7 @@
 
 #ifndef __DIAMETER_MIP_AAAS_SERVER_INTERFACE_H__
 #define __DIAMETER_MIP_AAAS_SERVER_INTERFACE_H__
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "diameter_mip4_aaas_server_session.hxx"
 
 
@@ -154,7 +154,7 @@ class Mip4AaaSServer {
 
 
   virtual int SetAaaSAllocatedHomeAgentHost(
-			    AAA_ScholarAttribute<diameter_identity_t> &hostname)
+			    DiameterScholarAttribute<diameter_identity_t> &hostname)
   {
 #ifdef OPTION_1
     char _hostname[100];

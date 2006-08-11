@@ -36,7 +36,7 @@
 
 #define AAA_SESSION_DEBUG 0
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 template <typename T>
 class AAA_NegotiatedAttribute
@@ -167,8 +167,8 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionId :
         bool IsEmpty() {
             return (m_DiameterId.length() == 0) ? true : false;
         }
-        AAAReturnCode Get(AAAMessage &msg);
-        AAAReturnCode Set(AAAMessage &msg);
+        AAAReturnCode Get(DiameterMsg &msg);
+        AAAReturnCode Set(DiameterMsg &msg);
         void Dump();
         void Dump(std::string &dump);
     private:
@@ -180,13 +180,13 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionAttributes :
     public AAA_JobData 
 {
     public:
-        AAA_ScholarAttribute<std::string> &DestinationHost() {
+        DiameterScholarAttribute<std::string> &DestinationHost() {
             return m_DestinationHost;
         }
-        AAA_ScholarAttribute<std::string> &DestinationRealm() {
+        DiameterScholarAttribute<std::string> &DestinationRealm() {
             return m_DestinationRealm;
         }
-        AAA_ScholarAttribute<std::string> &Username() {
+        DiameterScholarAttribute<std::string> &Username() {
             return m_Username;
         }
         AAA_NegotiatedAttribute<diameter_unsigned32_t> &SessionTimeout() {
@@ -210,8 +210,8 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionAttributes :
         diameter_unsigned32_t &ApplicationId() {
             return m_ApplicationId;
         }
-        void MsgIdTxMessage(AAAMessage &msg);
-        bool MsgIdRxMessage(AAAMessage &msg);
+        void MsgIdTxMessage(DiameterMsg &msg);
+        bool MsgIdRxMessage(DiameterMsg &msg);
 
     private:
         AAA_SessionId m_SessionId;            // session id (RTM)
@@ -220,17 +220,17 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionAttributes :
         diameter_unsigned32_t m_LastRxHopId;
         diameter_unsigned32_t m_LastRxEndId;
         diameter_unsigned32_t m_ApplicationId;
-        AAA_ScholarAttribute<std::string> m_DestinationHost;
-        AAA_ScholarAttribute<std::string> m_DestinationRealm;
-        AAA_ScholarAttribute<std::string> m_Username;
+        DiameterScholarAttribute<std::string> m_DestinationHost;
+        DiameterScholarAttribute<std::string> m_DestinationRealm;
+        DiameterScholarAttribute<std::string> m_Username;
         AAA_NegotiatedAttribute<diameter_unsigned32_t> m_SessionTimeout;
 };
 
-class AAA_AuthSessionAttributes : 
+class AAA_AuthSessionAttributes :
     public AAA_SessionAttributes
 {
     public:
-        AAA_ScholarAttribute<AAA_ReAuthValue> &ReAuthRequestValue() {
+        DiameterScholarAttribute<AAA_ReAuthValue> &ReAuthRequestValue() {
             return m_ReAuthRequestValue;
         }
         AAA_NegotiatedAttribute<diameter_unsigned32_t> &AuthSessionState() {
@@ -244,7 +244,7 @@ class AAA_AuthSessionAttributes :
         }
 
     private:
-        AAA_ScholarAttribute<AAA_ReAuthValue> m_ReAuthRequestValue;
+        DiameterScholarAttribute<AAA_ReAuthValue> m_ReAuthRequestValue;
         AAA_NegotiatedAttribute<diameter_unsigned32_t> m_AuthSessionState;
         AAA_NegotiatedAttribute<diameter_unsigned32_t> m_AuthLifetime;
         AAA_NegotiatedAttribute<diameter_unsigned32_t> m_AuthGrace;
@@ -254,7 +254,7 @@ class AAA_AcctSessionAttributes :
     public AAA_SessionAttributes
 {
     public:
-        AAA_ScholarAttribute<diameter_unsigned64_t> &SubSessionId() {
+        DiameterScholarAttribute<diameter_unsigned64_t> &SubSessionId() {
             return m_SubSessionId;
         }
         AAA_NegotiatedAttribute<diameter_enumerated_t> &RealtimeRequired() {
@@ -263,31 +263,31 @@ class AAA_AcctSessionAttributes :
         AAA_NegotiatedAttribute<diameter_unsigned32_t> &InterimInterval() {
             return m_InterimInterval;
         }
-        AAA_ScholarAttribute<diameter_unsigned32_t> &RecordType() {
+        DiameterScholarAttribute<diameter_unsigned32_t> &RecordType() {
             return m_RecordType;
         }
-        AAA_ScholarAttribute<diameter_unsigned32_t> &RecordNumber() {
+        DiameterScholarAttribute<diameter_unsigned32_t> &RecordNumber() {
             return m_RecordNumber;
         }
-        AAA_ScholarAttribute<diameter_octetstring_t> &RadiusAcctSessionId() {
+        DiameterScholarAttribute<diameter_octetstring_t> &RadiusAcctSessionId() {
             return m_RadiusAcctSessionId;
         }
-        AAA_ScholarAttribute<diameter_utf8string_t> &MultiSessionId() {
+        DiameterScholarAttribute<diameter_utf8string_t> &MultiSessionId() {
             return m_MultiSessionId;
         }
-        AAA_ScholarAttribute<bool> &BackwardCompatibility() {
+        DiameterScholarAttribute<bool> &BackwardCompatibility() {
             return m_BackwardCompatibilityEnabled;
         }
 
     private:
-        AAA_ScholarAttribute<diameter_unsigned64_t> m_SubSessionId;
+        DiameterScholarAttribute<diameter_unsigned64_t> m_SubSessionId;
         AAA_NegotiatedAttribute<diameter_unsigned32_t> m_RealtimeRequired;
         AAA_NegotiatedAttribute<diameter_unsigned32_t> m_InterimInterval;
-        AAA_ScholarAttribute<diameter_unsigned32_t> m_RecordType;
-        AAA_ScholarAttribute<diameter_unsigned32_t> m_RecordNumber;
-        AAA_ScholarAttribute<diameter_octetstring_t> m_RadiusAcctSessionId;
-        AAA_ScholarAttribute<diameter_utf8string_t> m_MultiSessionId;
-        AAA_ScholarAttribute<bool> m_BackwardCompatibilityEnabled;
+        DiameterScholarAttribute<diameter_unsigned32_t> m_RecordType;
+        DiameterScholarAttribute<diameter_unsigned32_t> m_RecordNumber;
+        DiameterScholarAttribute<diameter_octetstring_t> m_RadiusAcctSessionId;
+        DiameterScholarAttribute<diameter_utf8string_t> m_MultiSessionId;
+        DiameterScholarAttribute<bool> m_BackwardCompatibilityEnabled;
 };
 
 #endif

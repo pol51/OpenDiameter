@@ -36,20 +36,20 @@
 
 template <class ATTRIBUTE>
 AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
-   AAA_IdentityAvpContainerWidget dHostAvp(msg->acl);
-   AAA_IdentityAvpContainerWidget dRealmAvp(msg->acl);
-   AAA_IdentityAvpContainerWidget orHostAvp(msg->acl);
-   AAA_IdentityAvpContainerWidget orRealmAvp(msg->acl);
-   AAA_Utf8AvpContainerWidget unameAvp(msg->acl);
+   DiameterIdentityAvpContainerWidget dHostAvp(msg->acl);
+   DiameterIdentityAvpContainerWidget dRealmAvp(msg->acl);
+   DiameterIdentityAvpContainerWidget orHostAvp(msg->acl);
+   DiameterIdentityAvpContainerWidget orRealmAvp(msg->acl);
+   DiameterUtf8AvpContainerWidget unameAvp(msg->acl);
 
    // resolve the destination host
    diameter_identity_t *dHost = dHostAvp.GetAvp
            (AAA_AVPNAME_DESTHOST);
    if (dHost == NULL) {
        if (! m_Attributes.DestinationHost().IsSet()) {
-           AAA_ScholarAttribute<diameter_identity_t> dHostAttr;
+           DiameterScholarAttribute<diameter_identity_t> dHostAttr;
            SetDestinationHost(dHostAttr);
            if (dHostAttr.IsSet()) {
                dHostAvp.AddAvp(AAA_AVPNAME_DESTHOST) = dHostAttr();
@@ -70,7 +70,7 @@ AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
                    (AAA_AVPNAME_DESTREALM);
    if (dRealm == NULL) {
        if (! m_Attributes.DestinationRealm().IsSet()) {
-           AAA_ScholarAttribute<diameter_identity_t> dRealmAttr;
+           DiameterScholarAttribute<diameter_identity_t> dRealmAttr;
            SetDestinationRealm(dRealmAttr);
            if (dRealmAttr.IsSet()) {
                dRealmAvp.AddAvp(AAA_AVPNAME_DESTREALM) = dRealmAttr();
@@ -96,7 +96,7 @@ AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
        diameter_utf8string_t *uname = unameAvp.GetAvp
            (AAA_AVPNAME_USERNAME);
        if (uname == NULL) {
-           AAA_ScholarAttribute<diameter_utf8string_t> unameAttr;
+           DiameterScholarAttribute<diameter_utf8string_t> unameAttr;
            SetUsername(unameAttr);
            if (unameAttr.IsSet()) {
                unameAvp.AddAvp(AAA_AVPNAME_USERNAME) = unameAttr();

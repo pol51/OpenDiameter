@@ -33,10 +33,10 @@
 /* $Id: parser_q_avplist.cxx,v 1.28 2006/03/16 17:01:50 vfajardo Exp $ */
 #include <sys/types.h>
 #include <list>
-#include "parser.h"
-#include "parser_avp.h"
-#include "parser_q_avplist.h"
-#include "q_avplist.h"
+#include "aaa_parser.h"
+#include "aaa_parser_avp.h"
+#include "aaa_parser_q_avplist.h"
+#include "aaa_q_avplist.h"
 #include "resultcodes.h"    
 
 static 
@@ -107,7 +107,7 @@ parseRawToAppWithoutDict(DiameterAvpHeaderList *ahl,
   for (i = acl->begin(); i != acl->end(); i++)
     {
       c = *i;
-      c->ParseType() = DIAMETER_PARSE_TYPE_OPTIONAL;
+      c->ParseType() = AAA_PARSE_TYPE_OPTIONAL;
       name = c->getAvpName();
 #ifdef DEBUG
       cout << __FUNCTION__ << ": Container "<< name << "matches\n";
@@ -115,17 +115,18 @@ parseRawToAppWithoutDict(DiameterAvpHeaderList *ahl,
 
       DiameterDictionaryEntry* avp;
       // use default dictionary only
-      if ((avp = AAAAvpList::instance()->search(name)) == NULL)
+      if ((avp = DiameterAvpList::instance()->search(name)) == NULL)
 	{
 	  AAA_LOG(LM_ERROR, "No dictionary entry for %s avp.\n", name);
-	  st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+	  st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
 	  throw;
 	}
 
       do 
 	{
 	  DiameterAvpParser ap;
-	  AvpRawData rawData;
+	  DiameterAvpRawData rawData;
 	  rawData.ahl = ahl;
 	  ap.setRawData(&rawData);
 	  ap.setAppData(c);
@@ -135,7 +136,8 @@ parseRawToAppWithoutDict(DiameterAvpHeaderList *ahl,
 	  }
 	  catch (DiameterErrorCode &st)
 	    {
-	      int type, code;
+	      AAA_PARSE_ERROR_TYPE type;
+              int code;
 	      st.get(type, code);
 	      if (type == AAA_PARSE_ERROR_TYPE_NORMAL && code == AAA_MISSING_AVP)
 		{
@@ -157,17 +159,17 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
                       AAAAvpContainerList *acl,
 		      DiameterDictionary *dict)
 {
-  AAAQualifiedAVP *qavp;
+  DiameterQualifiedAVP *qavp;
   AAAAvpContainer *c;
   DiameterErrorCode st;
-  AAAAvpContainerManager cm;
+  DiameterAvpContainerManager cm;
   unsigned int min, max;
   const char *name;
   int type;
-  AAAQualifiedAvpList::iterator i;
-  DiameterAvpParseType pt;
+  DiameterQualifiedAvpList::iterator i;
+  AAAAvpParseType pt;
 
-  AAAQualifiedAvpList *qavp_l[3] =
+  DiameterQualifiedAvpList *qavp_l[3] =
     {dict->avp_f, dict->avp_r, dict->avp_o};
 
   for (int j=0; j<4; j++)
@@ -190,7 +192,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 	  do 
 	    {
 	      DiameterAvpParser ap;
-	      AvpRawData rawData;
+	      DiameterAvpRawData rawData;
 	      rawData.ahl = ahl;
 	      ap.setRawData(&rawData);
 	      ap.setAppData(c);
@@ -200,7 +202,8 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 	      }
 	      catch (DiameterErrorCode &st)
 		{
-		  int type, code;
+                  AAA_PARSE_ERROR_TYPE type;
+                  int code;
 		  st.get(type, code);
 		  if (type == AAA_PARSE_ERROR_TYPE_NORMAL && code == AAA_MISSING_AVP)
 		    {
@@ -208,7 +211,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 		      c->releaseEntries();
 		      cm.release(c);
 
-		      if (pt == DIAMETER_PARSE_TYPE_OPTIONAL) 
+		      if (pt == AAA_PARSE_TYPE_OPTIONAL) 
 			continue;
 
             if (0 == min)
@@ -259,15 +262,16 @@ parseAppToRawWithoutDict(AAAMessageBlock *msg, AAAAvpContainerList *acl)
   for (i = acl->begin(); i != acl->end(); i++)
     {
       c = *i;
-      c->ParseType() = DIAMETER_PARSE_TYPE_OPTIONAL;
+      c->ParseType() = AAA_PARSE_TYPE_OPTIONAL;
       name = c->getAvpName();
 
       DiameterDictionaryEntry* avp;
       // use default dictionary only
-      if ((avp = AAAAvpList::instance()->search(name)) == NULL)
+      if ((avp = DiameterAvpList::instance()->search(name)) == NULL)
 	{
 	  AAA_LOG(LM_ERROR, "No dictionary entry for %s avp.\n", name);
-	  st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+	  st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                 AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
 	  throw;
 	}
 
@@ -277,7 +281,7 @@ parseAppToRawWithoutDict(AAAMessageBlock *msg, AAAAvpContainerList *acl)
 	}
 
       DiameterAvpParser ap;
-      AvpRawData rawData;
+      DiameterAvpRawData rawData;
       rawData.msg = msg;
       ap.setRawData(&rawData);
       ap.setAppData(c);
@@ -299,16 +303,16 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
                       AAAAvpContainerList *acl,
    	              DiameterDictionary *dict)
 {
-  AAAQualifiedAVP *qavp;
+  DiameterQualifiedAVP *qavp;
   AAAAvpContainer *c;
   DiameterErrorCode st;
   unsigned int min, max;
   const char *name;
   int type;
-  AAAQualifiedAvpList::iterator i;
-  DiameterAvpParseType pt;
+  DiameterQualifiedAvpList::iterator i;
+  AAAAvpParseType pt;
 
-  AAAQualifiedAvpList *qavp_l[3] =
+  DiameterQualifiedAvpList *qavp_l[3] =
     {dict->avp_f, dict->avp_r, dict->avp_o};
 
   for (int j=0; j<4; j++)
@@ -322,12 +326,13 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
 	  name = qavp->avp->avpName.c_str();
 	  type = qavp->avp->avpType;
 
-	  if ((c = acl->search(qavp->avp)) == NULL)
+	  if ((c = acl->search(qavp->avp->avpName.c_str())) == NULL)
 	    {
-	      if (min > 0 && max > 0 && pt != DIAMETER_PARSE_TYPE_OPTIONAL)
+	      if (min > 0 && max > 0 && pt != AAA_PARSE_TYPE_OPTIONAL)
 		{
 		  AAA_LOG(LM_ERROR, "missing avp %s in container.\n", name);
-		  st.set(BUG, AAA_PARSE_ERROR_MISSING_CONTAINER);
+		  st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                         AAA_PARSE_ERROR_MISSING_CONTAINER);
 		  throw st;
 		}
 	      continue;
@@ -336,19 +341,22 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
 	  if (max == 0)
 	    {
 	      AAA_LOG(LM_ERROR, "%s must not appear in container.\n", name);
-	      st.set(BUG, AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
+	      st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                     AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
 	      throw st;
 	    }
 	  if (c->size() < min)
 	    {
 	      AAA_LOG(LM_ERROR, "less than min entries for the AVP.\n");
-	      st.set(BUG, AAA_PARSE_ERROR_TOO_LESS_AVP_ENTRIES);
+              st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                     AAA_PARSE_ERROR_TOO_LESS_AVP_ENTRIES);
 	      throw st;
 	    }
 	  if (c->size() > max)
 	    {
 	      AAA_LOG(LM_ERROR, "more than max entries for the AVP.\n");
-	      st.set(BUG, AAA_PARSE_ERROR_TOO_MUCH_AVP_ENTRIES);
+	      st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                     AAA_PARSE_ERROR_TOO_MUCH_AVP_ENTRIES);
 	      throw st;
 	    }
 	  if (c->size() == 0)
@@ -362,7 +370,7 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
 #endif
 	  c->ParseType() = pt;
 	  DiameterAvpParser ap;
-	  AvpRawData rawData;
+	  DiameterAvpRawData rawData;
 	  rawData.msg = msg;
 	  ap.setRawData(&rawData);
 	  ap.setAppData(c);

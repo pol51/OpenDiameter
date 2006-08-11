@@ -38,7 +38,7 @@
 #include <search.h>
 #include <list>
 #include <ace/Synch.h>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 class DiameterAvpList_S :
     public std::list<DiameterDictionaryEntry*>
@@ -56,7 +56,7 @@ class DiameterAvpList_S :
         ACE_Thread_Mutex mutex;
 };
 
-typedef ACE_Singleton<DiameterAvpList_S, ACE_Recursive_Thread_Mutex> AAAAvpList;
+typedef ACE_Singleton<DiameterAvpList_S, ACE_Recursive_Thread_Mutex> DiameterAvpList;
 
 #define AVP_HEADER_LEN(avp) \
   (avp->avpCode == 0 ? 0 : \

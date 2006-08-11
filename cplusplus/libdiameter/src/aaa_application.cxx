@@ -63,7 +63,7 @@ AAAReturnCode AAA_Application::Open(char *cfgfile)
     AAA_CFG_RUNTIME()->originStateId = time(0);
 
     /// initialize dictionary 
-    AAADictionaryManager dm;
+    DiameterDictionaryManager dm;
     dm.init((char*)AAA_CFG_PARSER()->dictionary.c_str());
 
     /// make sure we have a reactor
@@ -87,7 +87,7 @@ AAAReturnCode AAA_Application::Open(char *cfgfile)
              (AAA_CFG_TRANSPORT()->retx_interval/AAA_ROUTER_RETX_DIVISOR, 0);
     m_ReTxHandler.Handle() = m_Task.ScheduleTimer
              (&m_ReTxHandler, 0, interval, interval);
-                  
+
     return (AAA_ERR_SUCCESS);
 }
 
@@ -97,11 +97,11 @@ AAAReturnCode AAA_Application::Close()
 
     /// cancel re-transmission timer
     m_Task.CancelTimer(m_ReTxHandler.Handle(), 0);
-            
+
     /// disconnect from peers
     m_PeerAcceptor.Stop();
     AAA_PeerConnector::Stop(AAA_DISCONNECT_REBOOTING);
-           
+
     /// close logging facility
     AAA_LogFacility::Close();
 

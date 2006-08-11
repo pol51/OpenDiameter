@@ -204,7 +204,7 @@ void PANA_Session::TxPUR()
     msg->seq() = LastTxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    DiameterUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -214,7 +214,7 @@ void PANA_Session::TxPUR()
     // add pac ip
     PANA_DeviceId pacIp;
     PANA_DeviceIdConverter::PopulateFromAddr(PacIpAddress(), pacIp);
-    AAA_AddressAvpWidget deviceAvp(PANA_AVPNAME_DEVICEID);
+    DiameterAddressAvpWidget deviceAvp(PANA_AVPNAME_DEVICEID);
     deviceAvp.Get() = pacIp();
     msg->avpList().add(deviceAvp());
 
@@ -250,7 +250,7 @@ void PANA_Session::TxPUA()
     msg->seq() = LastRxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    DiameterUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -293,7 +293,7 @@ void PANA_Session::TxPPR()
     msg->seq() = LastTxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    DiameterUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -415,7 +415,7 @@ void PANA_Session::TxPPA()
     msg->seq() = LastRxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    DiameterUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -486,12 +486,12 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
     msg->seq() = LastTxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    DiameterUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
     // termination cause
-    AAA_UInt32AvpWidget causeAvp(PANA_AVPNAME_TERMCAUSE);
+    DiameterUInt32AvpWidget causeAvp(PANA_AVPNAME_TERMCAUSE);
     causeAvp.Get() = ACE_HTONL(cause);
     msg->avpList().add(causeAvp());
 
@@ -540,7 +540,7 @@ void PANA_Session::RxPTR()
     TxPTA();
 
     // termination cause
-    AAA_UInt32AvpContainerWidget causeAvp(msg.avpList());
+    DiameterUInt32AvpContainerWidget causeAvp(msg.avpList());
     diameter_unsigned32_t *cause = causeAvp.GetAvp(PANA_AVPNAME_TERMCAUSE);
     if (cause) {
         Disconnect(ACE_NTOHL(*cause));
@@ -571,7 +571,7 @@ void PANA_Session::TxPTA()
     msg->seq() = LastRxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    DiameterUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -643,12 +643,12 @@ void PANA_Session::TxPER(diameter_unsigned32_t rcode)
     msg->seq() = LastTxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    DiameterUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
     // add result-code
-    AAA_UInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
+    DiameterUInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
     rcodeAvp.Get() = ACE_HTONL(rcode);
     msg->avpList().add(rcodeAvp());
 
@@ -695,7 +695,7 @@ void PANA_Session::RxPER()
     ProcessNotification(msg);
 
     // result-code
-    AAA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
+    DiameterUInt32AvpContainerWidget rcodeAvp(msg.avpList());
     diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
     if (rcode == NULL) {
         throw (PANA_Exception(PANA_Exception::FAILED, 
@@ -728,7 +728,7 @@ void PANA_Session::TxPEA()
     msg->seq() = LastRxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    DiameterUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -807,7 +807,7 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
 
    // validate auth-avp
    if (! skipAuth) {
-       AAA_StringAvpContainerWidget authAvp(msg.avpList());
+       DiameterStringAvpContainerWidget authAvp(msg.avpList());
        if (authAvp.GetAvp(PANA_AVPNAME_AUTH) && SecurityAssociation().IsSet()) {
            if (SecurityAssociation().ValidateAuthAvp(msg) == false) {
                 throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
@@ -818,7 +818,7 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
    }
 
    // verify the session id
-   AAA_Utf8AvpContainerWidget sessionIdAvp(msg.avpList());
+   DiameterUtf8AvpContainerWidget sessionIdAvp(msg.avpList());
    diameter_utf8string_t *sid = sessionIdAvp.GetAvp(PANA_AVPNAME_SESSIONID);
    if (sid) {
        if (ACE_OS::memcmp(SessionId().data(), sid->data(), sid->size())) {
@@ -875,7 +875,7 @@ void PANA_Session::TxFormatAddress(PANA_Message &msg)
 void PANA_Session::AddNotification(PANA_Message& msg)
 {
     if (LastTxNotification().size() > 0) {
-        AAA_StringAvpWidget NotificationAvp(PANA_AVPNAME_NOTIFICATION);
+        DiameterStringAvpWidget NotificationAvp(PANA_AVPNAME_NOTIFICATION);
         NotificationAvp.Get() = LastTxNotification();
         msg.avpList().add(NotificationAvp());
         
@@ -886,10 +886,10 @@ void PANA_Session::AddNotification(PANA_Message& msg)
 
 void PANA_Session::ProcessNotification(PANA_Message &msg)
 {
-    AAA_AddressAvpContainerWidget pacIdAvp(msg.avpList());
+    DiameterAddressAvpContainerWidget pacIdAvp(msg.avpList());
     diameter_address_t *pacId = pacIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
 
-    AAA_StringAvpContainerWidget NotificationAvp(msg.avpList());
+    DiameterStringAvpContainerWidget NotificationAvp(msg.avpList());
     diameter_octetstring_t *note = NotificationAvp.GetAvp
         (PANA_AVPNAME_NOTIFICATION);
 

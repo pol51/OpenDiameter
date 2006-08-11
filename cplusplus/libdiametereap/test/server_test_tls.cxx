@@ -273,7 +273,7 @@ class MyDiameterEapServerSession : public DiameterEapServerSession
 // New
     /// Authorization function called from Authorize() function.
     bool AuthorizeEapMasterSessionKey
-	(AAA_ScholarAttribute<diameter_octetstring_t> &eapMasterSessionKey)
+	(DiameterScholarAttribute<diameter_octetstring_t> &eapMasterSessionKey)
     {
 	std::cout << "Setting master session key" << std::endl;
 	if (userNameValidate)

@@ -73,7 +73,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
     DiameterMip4HaClientSession<SpecificHaClientSession> &session;
 
   
-    AAAReturnCode HandleMessage (AAAMessage &msg)
+    AAAReturnCode HandleMessage (DiameterMsg &msg)
     {
     // Header flag check.
       if (msg.hdr.flags.r)
@@ -158,7 +158,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
   /// method. It is the responsibility of the derived class to
   /// override this function and capture the events if it is
   /// interested in it.
-  AAAReturnCode HandleMessage(AAAMessage &msg)
+  AAAReturnCode HandleMessage(DiameterMsg &msg)
   {
     AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
     return AAA_ERR_UNKNOWN_CMD;
@@ -243,7 +243,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
   // operator. More documentation in the sample application file.
   virtual void Abort(){}
 
- void SetUserName(AAA_ScholarAttribute<diameter_utf8string_t> &userName)
+ void SetUserName(DiameterScholarAttribute<diameter_utf8string_t> &userName)
   {
     diameter_utf8string_t _userName;
     specificHaClientSession.SetUserName( _userName);
@@ -260,7 +260,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
   }
 #ifdef XXX
    void SetDestinationRealm
-  (AAA_ScholarAttribute<diameter_utf8string_t> &destinationRealm)
+  (DiameterScholarAttribute<diameter_utf8string_t> &destinationRealm)
   {
     diameter_utf8string_t _destinationRealm;
     specificHaClientSession.SetDestinationRealm( _destinationRealm);
@@ -271,10 +271,10 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
   //  MipRegRequest will be set by the fn RxMipregReq()
 
   void SetMipMnAaaAuth
-    (AAA_ScholarAttribute<mip_mn_aaa_auth_info_t> &mipMnAaaAuth)
+    (AAAScholarAttribute<mip_mn_aaa_auth_info_t, DiameterAvpContainerEntryManager> &mipMnAaaAuth)
   {
 
-    AAA_ScholarAttribute<mip_mn_aaa_auth_info_t> _mipMnAaaAuth; 
+    DiameterScholarAttribute<mip_mn_aaa_auth_info_t> _mipMnAaaAuth; 
     
     specificHaClientSession.SetMipMnAaaSpi( 
 			 &( _mipMnAaaAuth().MipMnAaaSpi() ));
@@ -309,7 +309,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
   }
 
   void SetMipMobileNodeAddress
-  (AAA_ScholarAttribute<diameter_address_t> &mipMobileNodeAddress)
+  (DiameterScholarAttribute<diameter_address_t> &mipMobileNodeAddress)
   {
     diameter_address_t _mipMobileNodeAddress;
     specificHaClientSession.SetMipMobileNodeAddress(_mipMobileNodeAddress);
@@ -317,7 +317,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
   }
 
   void SetMipHomeAgentAddress
-  (AAA_ScholarAttribute<diameter_address_t> &mipHomeAgentAddress)
+  (DiameterScholarAttribute<diameter_address_t> &mipHomeAgentAddress)
   {
     diameter_address_t _mipHomeAgentAddress;
     specificHaClientSession.SetMipHomeAgentAddress(_mipHomeAgentAddress);
@@ -325,7 +325,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
   }
 
   void SetAuthorizationLifetime
-  (AAA_ScholarAttribute<diameter_unsigned32_t> &authorizationLifetime)
+  (DiameterScholarAttribute<diameter_unsigned32_t> &authorizationLifetime)
   {
     diameter_unsigned32_t _authorizationLifetime;
     if ( specificHaClientSession.SetAuthorizationLifetime(
@@ -337,11 +337,11 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
 
 // fn not needed=> static info
 // void SetAuthSessionState
-//  (AAA_ScholarAttribute<diameter_enumerated_t> &authSessionState) {}
+//  (DiameterScholarAttribute<diameter_enumerated_t> &authSessionState) {}
 
   //int 
   void SetMipHomeAgentHost
-  (AAA_ScholarAttribute<mip_home_agent_host_info_t> &mipHomeAgentHost)
+  (DiameterScholarAttribute<mip_home_agent_host_info_t> &mipHomeAgentHost)
   {
     //mip_home_agent_host_info_t 
     diameter_identity_t _mipHomeAgentHost;

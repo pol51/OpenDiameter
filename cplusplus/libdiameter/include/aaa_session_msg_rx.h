@@ -47,18 +47,18 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ProxyHandler
         }
 
         /// This function is called when incomming request message is received
-        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+        virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
             // Incomming request messages are received here.
             return (AAA_ERR_SUCCESS);
         }
 
         /// This function is called when incomming answer message is received
-        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+        virtual AAAReturnCode AnswerMsg(DiameterMsg &msg) {
             return (AAA_ERR_SUCCESS);
         }
 
         /// This function is called when incomming error message is received
-        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+        virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
             return (AAA_ERR_SUCCESS);
         }
 
@@ -153,7 +153,7 @@ class AAA_SessionMsgRx
        }
 
     protected:
-       virtual AAAReturnCode RxUnknownSession(std::auto_ptr<AAAMessage> msg);
+       virtual AAAReturnCode RxUnknownSession(std::auto_ptr<DiameterMsg> msg);
 
     protected:
        class RxLocalMsgHandler : public AAA_MsgRouterHandler {
@@ -161,10 +161,10 @@ class AAA_SessionMsgRx
               RxLocalMsgHandler(AAA_SessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
-              int Request(std::auto_ptr<AAAMessage> &msg,
+              int Request(std::auto_ptr<DiameterMsg> &msg,
                           AAA_PeerEntry *source,
                           AAA_PeerEntry *dest);
-              int Answer(std::auto_ptr<AAAMessage> &msg,
+              int Answer(std::auto_ptr<DiameterMsg> &msg,
                          AAA_PeerEntry *source,
                          AAA_PeerEntry *dest);
            private:
@@ -175,10 +175,10 @@ class AAA_SessionMsgRx
               RxProxyMsgHandler(AAA_SessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
-              int Request(std::auto_ptr<AAAMessage> &msg,
+              int Request(std::auto_ptr<DiameterMsg> &msg,
                           AAA_PeerEntry *source,
                           AAA_PeerEntry *dest);
-              int Answer(std::auto_ptr<AAAMessage> &msg,
+              int Answer(std::auto_ptr<DiameterMsg> &msg,
                           AAA_PeerEntry *source,
                          AAA_PeerEntry *dest);
            private:
@@ -189,21 +189,21 @@ class AAA_SessionMsgRx
               RxErrorMsgHandler(AAA_SessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
-              int Request(std::auto_ptr<AAAMessage> &msg,
+              int Request(std::auto_ptr<DiameterMsg> &msg,
                           AAA_PeerEntry *source,
                           AAA_PeerEntry *dest) {
                   AAA_LOG(LM_DEBUG, "(%P|%t) **** Request Message Error ****\n");
-                  AAA_MsgDump::Dump(*msg);
+                  DiameterMsgHeaderDump::Dump(*msg);
                   return LocalErrorHandling(msg, source, dest);
               }
-              int Answer(std::auto_ptr<AAAMessage> &msg,
+              int Answer(std::auto_ptr<DiameterMsg> &msg,
                          AAA_PeerEntry *source,
                          AAA_PeerEntry *dest) {
                   AAA_LOG(LM_DEBUG, "(%P|%t) **** Answer Message Error ****\n");
-                  AAA_MsgDump::Dump(*msg);
+                  DiameterMsgHeaderDump::Dump(*msg);
                   return LocalErrorHandling(msg, source, dest);
               }
-              int LocalErrorHandling(std::auto_ptr<AAAMessage> &msg,
+              int LocalErrorHandling(std::auto_ptr<DiameterMsg> &msg,
                                      AAA_PeerEntry *source,
                                      AAA_PeerEntry *dest);
            private:
@@ -211,7 +211,7 @@ class AAA_SessionMsgRx
        };
 
     private:
-       void TxASA(std::auto_ptr<AAAMessage> &msg);
+       void TxASA(std::auto_ptr<DiameterMsg> &msg);
 
     private:
        AAA_SessionFactoryMap m_SessionFactoryMap;

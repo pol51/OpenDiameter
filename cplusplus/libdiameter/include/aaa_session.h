@@ -46,16 +46,16 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionIO :
 {
     public:
         /// This fucntion sends a message to the peer session
-        virtual AAAReturnCode Send(std::auto_ptr<AAAMessage> msg) = 0;
+        virtual AAAReturnCode Send(std::auto_ptr<DiameterMsg> msg) = 0;
 
         /// This fucntion is called by the internal message rx
-        virtual void RxRequest(std::auto_ptr<AAAMessage> msg) = 0;
+        virtual void RxRequest(std::auto_ptr<DiameterMsg> msg) = 0;
 
         /// This fucntion is called by the internal message rx
-        virtual void RxAnswer(std::auto_ptr<AAAMessage> msg) = 0;
+        virtual void RxAnswer(std::auto_ptr<DiameterMsg> msg) = 0;
 
         /// This fucntion is called by the internal message rx
-        virtual void RxError(std::auto_ptr<AAAMessage> msg) = 0;
+        virtual void RxError(std::auto_ptr<DiameterMsg> msg) = 0;
 
         virtual ~AAA_SessionIO() {
 	}
@@ -71,25 +71,25 @@ class AAA_Session :
 
         /// This function is used for setting Auth-Session-State 
         virtual void SetSessionTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
         }
 
         /// This function is used for setting the destination host
         virtual void SetDestinationHost
-        (AAA_ScholarAttribute<diameter_identity_t> &dHost)
+        (DiameterScholarAttribute<diameter_identity_t> &dHost)
         {
         }
 
         /// This function is used for setting the destination realm
         virtual void SetDestinationRealm
-        (AAA_ScholarAttribute<diameter_identity_t> &dRealm)
+        (DiameterScholarAttribute<diameter_identity_t> &dRealm)
         {
         }
 
         /// This function is used for setting the Username attribute
         virtual void SetUsername
-        (AAA_ScholarAttribute<diameter_utf8string_t> &uname)
+        (DiameterScholarAttribute<diameter_utf8string_t> &uname)
         {
         }
 
@@ -107,18 +107,18 @@ class AAA_Session :
         }
 
         /// This function is called when incomming request message is received
-        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+        virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
             // Incomming request messages are received here.
             return (AAA_ERR_SUCCESS);
         }
 
         /// This function is called when incomming answer message is received
-        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+        virtual AAAReturnCode AnswerMsg(DiameterMsg &msg) {
             return (AAA_ERR_SUCCESS);
         }
 
         /// This function is called when incomming answer message is received
-        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+        virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
             return (AAA_ERR_SUCCESS);
         }
 
@@ -138,13 +138,13 @@ class AAA_Session :
         }
 
         /// This fucntion is called internally to handle messages
-        virtual AAAReturnCode RxDelivery(std::auto_ptr<AAAMessage> msg) {
+        virtual AAAReturnCode RxDelivery(std::auto_ptr<DiameterMsg> msg) {
             // by default, discard msg
             return (AAA_ERR_SUCCESS);
 	}
 
         /// This fucntion is called internally to route messages
-        virtual AAAReturnCode TxDelivery(std::auto_ptr<AAAMessage> msg);
+        virtual AAAReturnCode TxDelivery(std::auto_ptr<DiameterMsg> msg);
 
         /// This function resets the current session attributes to default
         virtual AAAReturnCode Reset();
@@ -173,31 +173,31 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AuthSession :
 
         /// This function is used for setting Auth-Session-State 
         virtual void SetAuthLifetimeTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
         }
 
         /// This function is used for setting Auth-Session-State 
         virtual void SetAuthGracePeriodTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
         }
 
         /// This function is used for setting Class AVP contents in STR msg
         virtual void SetClassAvp
-        (AAA_ScholarAttribute<diameter_octetstring_t> &cls)
+        (DiameterScholarAttribute<diameter_octetstring_t> &cls)
         {
         }
 
         /// This function called when an STA message contains a Class AVP
         virtual void ClassAvp
-        (AAA_ScholarAttribute<diameter_octetstring_t> &cls)
+        (DiameterScholarAttribute<diameter_octetstring_t> &cls)
         {
         }
 
         /// This function is used for setting Auth-Session-State 
         virtual void SetAuthSessionState
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &authState)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &authState)
         {
         }
 
@@ -240,25 +240,25 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSession :
 
         /// This function is used for setting realtime required AVP
         virtual void SetRealTimeRequired
-        (AAA_ScholarAttribute<diameter_enumerated_t> &rt)
+        (DiameterScholarAttribute<diameter_enumerated_t> &rt)
         {
         }
 
         /// This function is used for setting acct interim interval
         virtual void SetInterimInterval
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
         }
 
         /// This function is used for setting RADIUS acct session id
         virtual void SetRadiusAcctSessionId
-        (AAA_ScholarAttribute<diameter_octetstring_t> &sid)
+        (DiameterScholarAttribute<diameter_octetstring_t> &sid)
         {
         }
 
         /// This function is used for setting multi-session id
         virtual void SetMultiSessionId
-        (AAA_ScholarAttribute<diameter_utf8string_t> &sid)
+        (DiameterScholarAttribute<diameter_utf8string_t> &sid)
         {
         }
 

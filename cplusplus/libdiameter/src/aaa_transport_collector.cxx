@@ -40,10 +40,10 @@ AAA_MsgCollector::AAA_MsgCollector() :
     m_MsgLength(0),
     m_Handler(NULL)
 {
-   m_Buffer = (char*)ACE_OS::malloc(HEADER_SIZE +
+   m_Buffer = (char*)ACE_OS::malloc(DIAMETER_HEADER_SIZE +
                                     MAX_MSG_LENGTH);
    if (m_Buffer != NULL) {
-      m_BufSize = HEADER_SIZE + MAX_MSG_LENGTH;
+      m_BufSize = DIAMETER_HEADER_SIZE + MAX_MSG_LENGTH;
       ACE_OS::memset(m_Buffer, 0, m_BufSize);
       m_PersistentError.Reset(0, 0, 
               (m_BufSize * MAX_MSG_BLOCK)/sizeof(ACE_UINT32));
@@ -76,29 +76,30 @@ void AAA_MsgCollector::Message(void *data, size_t length)
       data = (char*)data + r_bytes;
       m_Offset += (r_bytes > 0) ? r_bytes : 0;
 
-      while (m_Offset > HEADER_SIZE) {
+      while (m_Offset > DIAMETER_HEADER_SIZE) {
          if (m_MsgLength == 0) {
 
-            AAADiameterHeader hdr; 
+            DiameterMsgHeader hdr; 
             AAAMessageBlock *aBuffer = AAAMessageBlock::Acquire
-                (m_Buffer, HEADER_SIZE);
+                (m_Buffer, DIAMETER_HEADER_SIZE);
 
-            HeaderParser hp;
+            DiameterMsgHeaderParser hp;
             hp.setRawData(aBuffer);
             hp.setAppData(&hdr);
-            hp.setDictData(PARSE_STRICT);
+            hp.setDictData(DIAMETER_PARSE_STRICT);
 
             try {
                hp.parseRawToApp();
                bHasHeaderError = false;
             }
-            catch (AAAErrorStatus &st) {
-               int eType, eCode;
+            catch (DiameterErrorCode &st) {
+               int eCode;
+               AAA_PARSE_ERROR_TYPE eType;
                std::string eDesc;
                st.get(eType, eCode, eDesc);
 
                AAA_RangedValue lengthRange
-                  (hdr.length, HEADER_SIZE, m_BufSize * MAX_MSG_BLOCK);
+                  (hdr.length, DIAMETER_HEADER_SIZE, m_BufSize * MAX_MSG_BLOCK);
 
                if ((eCode == AAA_COMMAND_UNSUPPORTED) &&
                    ! lengthRange.InRange()) {
@@ -152,7 +153,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
             if (! bHasHeaderError) {
 
                 AAAMessageBlock *aBuffer = NULL; 
-                std::auto_ptr<AAAMessage> msg(new AAAMessage);
+                std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
                 try { 
                    if (msg.get() == NULL) {
                       throw (0); 
@@ -160,28 +161,28 @@ void AAA_MsgCollector::Message(void *data, size_t length)
                    aBuffer = AAAMessageBlock::Acquire
                                 (m_Buffer, m_MsgLength);
 
-                   HeaderParser hp;
+                   DiameterMsgHeaderParser hp;
                    hp.setRawData(aBuffer);
                    hp.setAppData(&msg->hdr);
-                   hp.setDictData(PARSE_STRICT);
+                   hp.setDictData(DIAMETER_PARSE_STRICT);
 
                    try {
                       hp.parseRawToApp();
                    }
-                   catch (AAAErrorStatus &st) {
+                   catch (DiameterErrorCode &st) {
                       throw (0); 
                    }
 
-                   PayloadParser pp;
+                   DiameterMsgPayloadParser pp;
                    pp.setRawData(aBuffer);
                    pp.setAppData(&msg->acl);
                    pp.setDictData(msg->hdr.getDictHandle());
  
-                   aBuffer->rd_ptr(aBuffer->base() + HEADER_SIZE);
+                   aBuffer->rd_ptr(aBuffer->base() + DIAMETER_HEADER_SIZE);
                    try {
                       pp.parseRawToApp();
                    }
-                   catch (AAAErrorStatus &st) {
+                   catch (DiameterErrorCode &st) {
                       throw (0);
                    }
 

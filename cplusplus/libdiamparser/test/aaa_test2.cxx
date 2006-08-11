@@ -39,7 +39,7 @@
 #include <string>
 #include <iostream>
 #include <ace/INET_Addr.h>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 using namespace std;
 
 #define GET_DATA_REF(dataType, data, containerEntryPtr) \
@@ -134,7 +134,8 @@ rtest(unsigned char *buf, int size)
   }
   catch (DiameterErrorCode &st) {
     std::cout << "payload parser error" << endl;
-      int type, code;
+      AAA_PARSE_ERROR_TYPE type;
+      int code;
       std::string avp;
       st.get(type, code, avp);
       std::cout << "Error type=" << type << ", code=" 
@@ -290,8 +291,8 @@ rtest(unsigned char *buf, int size)
 static void
 stest(unsigned char *buf, int size)
 {
-  AAAAvpContainerManager cm;
-  AAAAvpContainerEntryManager em;
+  DiameterAvpContainerManager cm;
+  DiameterAvpContainerEntryManager em;
   AAAAvpContainer *c_orhost = cm.acquire("Origin-Host");
   AAAAvpContainer *c_orrealm = cm.acquire("Origin-Realm");
   AAAAvpContainer *c_hostip = cm.acquire("Host-IP-Address");
@@ -416,8 +417,8 @@ stest(unsigned char *buf, int size)
 static void
 mstest(unsigned char *buf, int size)
 {
-  AAAAvpContainerManager cm;
-  AAAAvpContainerEntryManager em;
+  DiameterAvpContainerManager cm;
+  DiameterAvpContainerEntryManager em;
   AAAAvpContainer *c_dhost = cm.acquire("Destination-Host");
   AAAAvpContainer *c_acctId = cm.acquire("Acct-Application-Id");
   AAAAvpContainer *c_proxyInfo = cm.acquire("Proxy-Info");
@@ -583,7 +584,8 @@ mrtest(unsigned char *buf, int size)
   }
   catch (DiameterErrorCode &st) {
     std::cout << "payload parser error" << endl;
-      int type, code;
+      AAA_PARSE_ERROR_TYPE type;
+      int code;
       std::string avp;
       st.get(type, code, avp);
       std::cout << "Error type=" << type << ", code=" 
@@ -666,15 +668,35 @@ main(int argc, char** argv)
   //  ACE_Log_Msg::instance()->open(argv[0], ACE_Log_Msg::SYSLOG);
 
   // Read dictionary file.
-  dm.init("./dictionary.xml");
+  dm.init("./config/dictionary.xml");
 
-  rtest(rbuf, sizeof(rbuf));
-  stest(sbuf, sizeof(sbuf));
+  struct timeval tm1, tm2;
+  long rd = 0, wr = 0, x = 0;
+  for (x = 0; x < 1000; x++) {
+    gettimeofday(&tm1, 0);
+    rtest(rbuf, sizeof(rbuf));
+    gettimeofday(&tm2, 0);
+    rd += (tm2.tv_usec - tm1.tv_usec);
 
-  std::cout << std::endl << std::endl;
+    gettimeofday(&tm1, 0);
+    stest(sbuf, sizeof(sbuf));
+    gettimeofday(&tm2, 0);
+    wr += (tm2.tv_usec - tm1.tv_usec);
 
-  stest(sbuf, sizeof(sbuf));
-  rtest(sbuf, sizeof(sbuf));
+    std::cout << std::endl << std::endl;
+
+    gettimeofday(&tm1, 0);
+    stest(sbuf, sizeof(sbuf));
+    gettimeofday(&tm2, 0);
+    wr += (tm2.tv_usec - tm1.tv_usec);
+
+    gettimeofday(&tm1, 0);
+    rtest(sbuf, sizeof(sbuf));
+    gettimeofday(&tm2, 0);
+    rd += (tm2.tv_usec - tm1.tv_usec);
+  }
+  printf("************** read test = %ld\n", rd/x);
+  printf("************** write test = %ld\n", wr/x);
 
   std::cout << std::endl << std::endl;
 

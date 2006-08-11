@@ -40,13 +40,13 @@
 #include <ace/Log_Msg.h>
 #include <string>
 #include <iostream>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 using namespace std;
 
 #define GET_DATA_REF(dataType, data, containerEntryPtr) \
         dataType &data = (containerEntryPtr)->dataRef(Type2Type<dataType>())
 
-unsigned char rbuf[] = 
+unsigned char rbuf[] =
 { 
   //  0x01, 0x00, 0x00, 0xbc, 0xc0, 0x98, 0x96, 0x7f, // header (length = 188)
   0x01, 0x00, 0x01, 0x0c, 0xc0, 0x98, 0x96, 0x7f, // header (length = 268)
@@ -138,12 +138,12 @@ void
 print_ipfilter_rule(diameter_ipfilter_rule_t& r)
 {
   std::string str;
-      if (r.action == AAA_IPFILTER_RULE_ACTION_PERMIT)
+      if (r.action == DIAMETER_IPFILTER_RULE_ACTION_PERMIT)
 	str.append("permit ");
       else
 	str.append("deny ");
 
-      if (r.dir == AAA_IPFILTER_RULE_DIRECTION_IN)
+      if (r.dir == DIAMETER_IPFILTER_RULE_DIRECTION_IN)
 	str.append("in ");
       else
 	str.append("out ");
@@ -158,14 +158,14 @@ print_ipfilter_rule(diameter_ipfilter_rule_t& r)
       str.append("from ");
       if (!r.src.modifier)
 	str.append("!");
-      if (r.src.representation == AAA_IPFILTER_RULE_SRCDST_KEYWORD_ANY)
+      if (r.src.representation == DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ANY)
 	str.append("any ");
       else if (r.src.representation 
-	       == AAA_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED)
+	       == DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED)
 	str.append("assigned ");
       else {
 	str.append(r.src.ipno);
-	if (r.src.representation == AAA_IPFILTER_RULE_SRCDST_MASK)
+	if (r.src.representation == DIAMETER_IPFILTER_RULE_SRCDST_MASK)
 	  {
 	    char bitsStr[5];
 	    ACE_OS::sprintf(bitsStr, "/%u", r.src.bits);
@@ -195,14 +195,14 @@ print_ipfilter_rule(diameter_ipfilter_rule_t& r)
       str.append("to ");
       if (!r.dst.modifier)
 	str.append("!");
-      if (r.dst.representation == AAA_IPFILTER_RULE_SRCDST_KEYWORD_ANY)
+      if (r.dst.representation == DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ANY)
 	str.append("any ");
       else if (r.dst.representation 
-	       == AAA_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED)
+	       == DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED)
 	str.append("assigned ");
       else {
 	str.append(r.dst.ipno);
-	if (r.dst.representation == AAA_IPFILTER_RULE_SRCDST_MASK)
+	if (r.dst.representation == DIAMETER_IPFILTER_RULE_SRCDST_MASK)
 	  {
 	    char bitsStr[5];
 	    ACE_OS::sprintf(bitsStr, "/%u", r.dst.bits);
@@ -239,13 +239,13 @@ print_ipfilter_rule(diameter_ipfilter_rule_t& r)
 	    }
 	  if (negation)
 	    str.append("!");
-	  if (opt == AAA_IPFILTER_RULE_IP_OPTION_SSRR)
+	  if (opt == DIAMETER_IPFILTER_RULE_IP_OPTION_SSRR)
 	    str.append("ssrr");
-	  else if (opt == AAA_IPFILTER_RULE_IP_OPTION_LSRR)
+	  else if (opt == DIAMETER_IPFILTER_RULE_IP_OPTION_LSRR)
 	    str.append("lsrr");
-	  else if (opt == AAA_IPFILTER_RULE_IP_OPTION_RR)
+	  else if (opt == DIAMETER_IPFILTER_RULE_IP_OPTION_RR)
 	    str.append("rr");
-	  else if (opt == AAA_IPFILTER_RULE_IP_OPTION_TS)
+	  else if (opt == DIAMETER_IPFILTER_RULE_IP_OPTION_TS)
 	    str.append("ts");
 	  if (++i != r.ipOptionList.end())
 	    str.append(",");
@@ -267,15 +267,15 @@ print_ipfilter_rule(diameter_ipfilter_rule_t& r)
 	    }
 	  if (negation)
 	    str.append("!");
-	  if (opt == AAA_IPFILTER_RULE_TCP_OPTION_MSS)
+	  if (opt == DIAMETER_IPFILTER_RULE_TCP_OPTION_MSS)
 	    str.append("mss");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_OPTION_WINDOW)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_OPTION_WINDOW)
 	    str.append("window");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_OPTION_SACK)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_OPTION_SACK)
 	    str.append("sack");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_OPTION_TS)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_OPTION_TS)
 	    str.append("ts");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_OPTION_CC)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_OPTION_CC)
 	    str.append("cc");
 	  if (++i != r.tcpOptionList.end())
 	    str.append(",");
@@ -303,17 +303,17 @@ print_ipfilter_rule(diameter_ipfilter_rule_t& r)
 	    }
 	  if (negation)
 	    str.append("!");
-	  if (opt == AAA_IPFILTER_RULE_TCP_FLAG_FIN)
+	  if (opt == DIAMETER_IPFILTER_RULE_TCP_FLAG_FIN)
 	    str.append("fin");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_FLAG_SYN)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_FLAG_SYN)
 	    str.append("syn");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_FLAG_RST)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_FLAG_RST)
 	    str.append("rst");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_FLAG_PSH)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_FLAG_PSH)
 	    str.append("psh");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_FLAG_ACK)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_FLAG_ACK)
 	    str.append("ack");
-	  else if (opt == AAA_IPFILTER_RULE_TCP_FLAG_URG)
+	  else if (opt == DIAMETER_IPFILTER_RULE_TCP_FLAG_URG)
 	    str.append("urg");
 	  if (++i != r.tcpFlagList.end())
 	    str.append(",");
@@ -342,7 +342,7 @@ rtest(unsigned char *buf, int size)
 {
   unsigned int i, j;
   DiameterMsg msg;
-  HEADERPARSER hp;
+  DiameterMsgHeaderParser hp;
   AAAMessageBlock *aBuffer;
 
   aBuffer = AAAMessageBlock::Acquire((char*)rbuf, size);
@@ -352,7 +352,7 @@ rtest(unsigned char *buf, int size)
   try {
     hp.parseRawToApp();
   }
-  catch (DiameterErrorCode st) {
+  catch (DiameterErrorCode &st) {
     cout << "header error" << endl;
     exit(1);
   }
@@ -369,16 +369,17 @@ rtest(unsigned char *buf, int size)
   try {
     pp.parseRawToApp();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       aBuffer->Release();
-      int code, type;
+      AAA_PARSE_ERROR_TYPE type;
+      int code;
       std::string avp;
       msg.status.get(type, code);
       std::cout << "Disassemble failure.  Status code = " << code << std::endl;
       exit(1);
     }
-      
+
   aBuffer->Release();
 
   std::cout << "Disassemble success." << std::endl;
@@ -469,8 +470,8 @@ rtest(unsigned char *buf, int size)
 void
 stest_nas_request(unsigned char *buf, int size)
 {
-  AAAAvpContainerManager cm;
-  AAAAvpContainerEntryManager em;
+  DiameterAvpContainerManager cm;
+  DiameterAvpContainerEntryManager em;
   AAAAvpContainer *c_appid = cm.acquire("Acct-Application-Id");
   AAAAvpContainer *c_dhost = cm.acquire("Destination-Host");
   AAAAvpContainer *c_uri = cm.acquire("Example-URI");
@@ -481,7 +482,7 @@ stest_nas_request(unsigned char *buf, int size)
   AAAAvpContainerEntry *e;
 
   msg.hdr = h;
-  HEADERPARSER hp;
+  DiameterMsgHeaderParser hp;
   AAAMessageBlock *aBuffer = AAAMessageBlock::Acquire((char*)buf, size);
   /* 
      The first call of hp.set() checks validity of 
@@ -494,7 +495,7 @@ stest_nas_request(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st) {
+  catch (DiameterErrorCode &st) {
     std::cout << "header error" << std::endl;
     exit(1);
   }
@@ -535,15 +536,15 @@ stest_nas_request(unsigned char *buf, int size)
   uri.port = 6666;
   uri.transport = DIAMETER_TRANSPORT_PROTO_TCP;
   /* Example-IPFilterRule */
-  rule.action = AAA_IPFILTER_RULE_ACTION_PERMIT;
-  rule.dir = AAA_IPFILTER_RULE_DIRECTION_IN;
+  rule.action = DIAMETER_IPFILTER_RULE_ACTION_PERMIT;
+  rule.dir = DIAMETER_IPFILTER_RULE_DIRECTION_IN;
   rule.proto = 0;
-  rule.src = AAA_IPFILTER_RULE_SRCDST(AAA_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED);
-  rule.dst = AAA_IPFILTER_RULE_SRCDST(AAA_IPFILTER_RULE_SRCDST_MASK, 
+  rule.src = DiameterIPFilterRuleSrcDst(DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED);
+  rule.dst = DiameterIPFilterRuleSrcDst(DIAMETER_IPFILTER_RULE_SRCDST_MASK,
 				      std::string("10.0.1.0"), 24);
   rule.dst.portRangeList.push_back(AAAUInt16Range(22));
   rule.dst.portRangeList.push_back(AAAUInt16Range(1000,2000));
-  rule.ipOptionList.push_back(-AAA_IPFILTER_RULE_IP_OPTION_SSRR);
+  rule.ipOptionList.push_back(-DIAMETER_IPFILTER_RULE_IP_OPTION_SSRR);
  
   DiameterMsgPayloadParser pp;
   pp.setRawData(aBuffer);
@@ -553,7 +554,7 @@ stest_nas_request(unsigned char *buf, int size)
   try {
     pp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "assemble failed" << std::endl;
       aBuffer->Release();
@@ -566,7 +567,7 @@ stest_nas_request(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "header error" << std::endl;
       aBuffer->Release();
@@ -587,9 +588,9 @@ void
 stest_proxy_request(unsigned char *buf, int size)
 {
   DiameterMsg msg;
-  HEADERPARSER hp;
-  AAAAvpContainerManager cm;
-  AAAAvpContainerEntryManager em;
+  DiameterMsgHeaderParser hp;
+  DiameterAvpContainerManager cm;
+  DiameterAvpContainerEntryManager em;
   AAAAvpContainerEntry *e;
   AAAMessageBlock *aBuffer;
 
@@ -601,7 +602,7 @@ stest_proxy_request(unsigned char *buf, int size)
   try {
     hp.parseRawToApp();
   }
-  catch (DiameterErrorCode st) {
+  catch (DiameterErrorCode &st) {
     std::cout << "header error" << std::endl;
     aBuffer->Release();
     exit(1);
@@ -623,7 +624,7 @@ stest_proxy_request(unsigned char *buf, int size)
   try {
     pp.parseRawToApp();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "failed to get specific sets of AVPs." << std::endl;
       aBuffer->Release();
@@ -665,7 +666,7 @@ stest_proxy_request(unsigned char *buf, int size)
   try {
     pp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "failed to set specific sets of AVPs." << std::endl;
       aBuffer->Release();
@@ -678,7 +679,7 @@ stest_proxy_request(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "header error" << std::endl;
     }
@@ -698,7 +699,7 @@ void
 stest_server_answer(unsigned char *buf, int size)
 {
   DiameterMsg msg;
-  HEADERPARSER hp;
+  DiameterMsgHeaderParser hp;
   unsigned int i,j;
   AAAMessageBlock *aBuffer;
 
@@ -710,7 +711,7 @@ stest_server_answer(unsigned char *buf, int size)
   try {
     hp.parseRawToApp();
   }
-  catch (DiameterErrorCode st) {
+  catch (DiameterErrorCode &st) {
     std::cout << "header error" << std::endl;
     aBuffer->Release();
     exit(1);
@@ -725,7 +726,7 @@ stest_server_answer(unsigned char *buf, int size)
   try {
     pp.parseRawToApp();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "failed to get AVPs." << std::endl;
       aBuffer->Release();
@@ -803,7 +804,7 @@ stest_server_answer(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st) {
+  catch (DiameterErrorCode &st) {
     std::cout << "header error" << std::endl;
     aBuffer->Release();
     exit(1);
@@ -820,7 +821,7 @@ stest_server_answer(unsigned char *buf, int size)
   try {
     pp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "failed to set AVPs." << std::endl;
       aBuffer->Release();
@@ -833,7 +834,7 @@ stest_server_answer(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "header error" << std::endl;
     }
@@ -853,9 +854,9 @@ void
 stest_proxy_answer(unsigned char *buf, int size)
 {
   DiameterMsg msg;
-  HEADERPARSER hp;
-  AAAAvpContainerManager cm;
-  AAAAvpContainerEntryManager em;
+  DiameterMsgHeaderParser hp;
+  DiameterAvpContainerManager cm;
+  DiameterAvpContainerEntryManager em;
   AAAAvpContainerEntry *e;
   AAAMessageBlock *aBuffer;
 
@@ -868,7 +869,7 @@ stest_proxy_answer(unsigned char *buf, int size)
   try {
     hp.parseRawToApp();
   }
-  catch (DiameterErrorCode st) {
+  catch (DiameterErrorCode &st) {
     std::cout << "header error" << std::endl;
     aBuffer->Release();
     exit(1);
@@ -890,7 +891,7 @@ stest_proxy_answer(unsigned char *buf, int size)
   try {
     pp.parseRawToApp();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "failed to get specific sets of AVPs." << std::endl;
       aBuffer->Release();
@@ -918,7 +919,7 @@ stest_proxy_answer(unsigned char *buf, int size)
   try {
     pp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "failed to set specific sets of AVPs." << std::endl;
       aBuffer->Release();
@@ -931,7 +932,7 @@ stest_proxy_answer(unsigned char *buf, int size)
   try {
     hp.parseAppToRaw();
   }
-  catch (DiameterErrorCode st)
+  catch (DiameterErrorCode &st)
     {
       std::cout << "header error" << std::endl;
     }
@@ -955,7 +956,7 @@ main(int argc, char** argv)
   //ACE_Log_Msg::instance()->enable_debug_messages();
 
   // Read dictionary file.
-  dm.init("./dictionary.xml");
+  dm.init("./config/dictionary.xml");
 
   rtest(rbuf, sizeof(rbuf));
   stest_nas_request(sbuf, sizeof(sbuf));

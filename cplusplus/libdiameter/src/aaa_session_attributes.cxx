@@ -35,7 +35,7 @@
 #include "aaa_route_id_generator.h"
 #include "aaa_session_attributes.h"
 
-void AAA_SessionAttributes::MsgIdTxMessage(AAAMessage &msg)
+void AAA_SessionAttributes::MsgIdTxMessage(DiameterMsg &msg)
 {
    if (msg.hdr.flags.r) {
        if (msg.hdr.hh == 0) {
@@ -59,7 +59,7 @@ void AAA_SessionAttributes::MsgIdTxMessage(AAAMessage &msg)
    }
 }
 
-bool AAA_SessionAttributes::MsgIdRxMessage(AAAMessage &msg)
+bool AAA_SessionAttributes::MsgIdRxMessage(DiameterMsg &msg)
 {
    if (msg.hdr.flags.r) {
        m_LastRxHopId = msg.hdr.hh;
@@ -70,9 +70,9 @@ bool AAA_SessionAttributes::MsgIdRxMessage(AAAMessage &msg)
            (msg.hdr.ee == m_LastTxEndId));
 }
 
-AAAReturnCode AAA_SessionId::Get(AAAMessage &msg)
+AAAReturnCode AAA_SessionId::Get(DiameterMsg &msg)
 {
-   AAA_Utf8AvpContainerWidget sidAvp(msg.acl);
+   DiameterUtf8AvpContainerWidget sidAvp(msg.acl);
    diameter_utf8string_t *sid = sidAvp.GetAvp(AAA_AVPNAME_SESSIONID);
    try {
       if (sid == NULL) {
@@ -108,9 +108,9 @@ AAAReturnCode AAA_SessionId::Get(AAAMessage &msg)
    }
 }
 
-AAAReturnCode AAA_SessionId::Set(AAAMessage &msg)
+AAAReturnCode AAA_SessionId::Set(DiameterMsg &msg)
 {
-   AAA_Utf8AvpContainerWidget sidAvp(msg.acl);
+   DiameterUtf8AvpContainerWidget sidAvp(msg.acl);
    diameter_utf8string_t &sid = sidAvp.AddAvp(AAA_AVPNAME_SESSIONID);
 
    char nums[64];

@@ -35,7 +35,7 @@
 #define __AAA_SESSION_MSG_MUX_H__
 
 #include <map>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 template<class ARG>
 class AAA_SessionMsgMuxHandler
@@ -44,13 +44,13 @@ class AAA_SessionMsgMuxHandler
         virtual ~AAA_SessionMsgMuxHandler() {
 	}
         /// This function is called when incomming request message is received
-        virtual AAAReturnCode RequestMsg(ARG &arg, AAAMessage &msg) = 0;
+        virtual AAAReturnCode RequestMsg(ARG &arg, DiameterMsg &msg) = 0;
 
         /// This function is called when incomming answer message is received
-        virtual AAAReturnCode AnswerMsg(ARG &arg, AAAMessage &msg) = 0;
+        virtual AAAReturnCode AnswerMsg(ARG &arg, DiameterMsg &msg) = 0;
 
         /// This function is called when incomming error message is received
-        virtual AAAReturnCode ErrorMsg(ARG &arg, AAAMessage &msg) = 0;
+        virtual AAAReturnCode ErrorMsg(ARG &arg, DiameterMsg &msg) = 0;
 
     protected:
         AAA_SessionMsgMuxHandler() {
@@ -78,7 +78,7 @@ class AAA_SessionMsgMux
 		m_Map.erase(i);
 	    }
 	}
-        AAAReturnCode Mux(AAAMessage &msg) {
+        AAAReturnCode Mux(DiameterMsg &msg) {
 	    typename std::map<AAACommandCode, 
 		    AAA_SessionMsgMuxHandler<ARG>* >::iterator i = m_Map.find(msg.hdr.code);
             if (i != m_Map.end()) {

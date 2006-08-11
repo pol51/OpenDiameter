@@ -35,7 +35,7 @@
 #include "aaa_session_msg_rx.h"
 
 int AAA_SessionMsgRx::RxLocalMsgHandler::Request
-  (std::auto_ptr<AAAMessage> &msg, 
+  (std::auto_ptr<DiameterMsg> &msg, 
    AAA_PeerEntry *source, 
    AAA_PeerEntry *dest)
 {
@@ -91,12 +91,12 @@ int AAA_SessionMsgRx::RxLocalMsgHandler::Request
     else {
         AAA_LOG(LM_DEBUG,"(%P|%t) *** Missing session id, discard req msg ***\n");
     }
-    AAA_MsgDump::Dump(*msg);
+    DiameterMsgHeaderDump::Dump(*msg);
     return (-1);
 }
 
 int AAA_SessionMsgRx::RxLocalMsgHandler::Answer
-  (std::auto_ptr<AAAMessage> &msg, 
+  (std::auto_ptr<DiameterMsg> &msg, 
    AAA_PeerEntry *source, 
    AAA_PeerEntry *dest)
 {
@@ -123,12 +123,12 @@ int AAA_SessionMsgRx::RxLocalMsgHandler::Answer
     else {
         AAA_LOG(LM_DEBUG,"(%P|%t) *** Missing session id, discard answer msg ***\n");
     }
-    AAA_MsgDump::Dump(*msg);
+    DiameterMsgHeaderDump::Dump(*msg);
     return (-1);
 }
 
 AAAReturnCode AAA_SessionMsgRx::RxUnknownSession
-  (std::auto_ptr<AAAMessage> msg)
+  (std::auto_ptr<DiameterMsg> msg)
 {
     // special base protocol handling for unknown session id
     if (msg->hdr.code == AAA_MSGCODE_ABORTSESSION) {
@@ -140,7 +140,7 @@ AAAReturnCode AAA_SessionMsgRx::RxUnknownSession
 }
 
 int AAA_SessionMsgRx::RxProxyMsgHandler::Request
-  (std::auto_ptr<AAAMessage> &msg, 
+  (std::auto_ptr<DiameterMsg> &msg, 
    AAA_PeerEntry *source, 
    AAA_PeerEntry *dest)
 {
@@ -157,12 +157,12 @@ int AAA_SessionMsgRx::RxProxyMsgHandler::Request
         AAA_LOG(LM_DEBUG,"(%P|%t) *** No proxy support for appId=%d, forwarding message ***\n",
                 msg->hdr.appId);
     }
-    AAA_MsgDump::Dump(*msg);
+    DiameterMsgHeaderDump::Dump(*msg);
     return (-1);
 }
 
 int AAA_SessionMsgRx::RxProxyMsgHandler::Answer
-  (std::auto_ptr<AAAMessage> &msg, 
+  (std::auto_ptr<DiameterMsg> &msg, 
    AAA_PeerEntry *source, 
    AAA_PeerEntry *dest)
 {
@@ -179,7 +179,7 @@ int AAA_SessionMsgRx::RxProxyMsgHandler::Answer
 }
 
 int AAA_SessionMsgRx::RxErrorMsgHandler::LocalErrorHandling
-  (std::auto_ptr<AAAMessage> &msg, 
+  (std::auto_ptr<DiameterMsg> &msg, 
    AAA_PeerEntry *source, 
    AAA_PeerEntry *dest) 
 {
@@ -211,7 +211,7 @@ int AAA_SessionMsgRx::RxErrorMsgHandler::LocalErrorHandling
     return (-1);
 }
 
-void AAA_SessionMsgRx::TxASA(std::auto_ptr<AAAMessage> &asr)
+void AAA_SessionMsgRx::TxASA(std::auto_ptr<DiameterMsg> &asr)
 {
     /*
         8.5.2.  Abort-Session-Answer
@@ -247,15 +247,15 @@ void AAA_SessionMsgRx::TxASA(std::auto_ptr<AAAMessage> &asr)
                       * [ AVP ]
    */
 
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    ACE_OS::memset(&msg->hdr, 0, sizeof(msg->hdr));
-   msg->hdr.ver = AAA_PROTOCOL_VERSION;
+   msg->hdr.ver = DIAMETER_PROTOCOL_VERSION;
    msg->hdr.length = 0;
-   msg->hdr.flags.r = AAA_FLG_CLR;
-   msg->hdr.flags.p = AAA_FLG_CLR;
-   msg->hdr.flags.e = AAA_FLG_CLR;
+   msg->hdr.flags.r = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.p = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.e = DIAMETER_FLAG_CLR;
    msg->hdr.code = AAA_MSGCODE_ABORTSESSION;
-   msg->hdr.appId = AAA_BASE_APPLICATION_ID;
+   msg->hdr.appId = DIAMETER_BASE_APPLICATION_ID;
 
    // required
    AAA_SessionId sid;
@@ -264,11 +264,11 @@ void AAA_SessionMsgRx::TxASA(std::auto_ptr<AAAMessage> &asr)
    msg->hdr.hh = asr->hdr.hh;
    msg->hdr.ee = asr->hdr.ee;
 
-   AAA_UInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
-   AAA_IdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
-   AAA_IdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
-   AAA_Utf8AvpWidget orErrMsgAvp(AAA_AVPNAME_ERRORMESSAGE);
-   AAA_IdentityAvpWidget orErrHostAvp(AAA_AVPNAME_ERRORREPORTINGHOST);
+   DiameterUInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
+   DiameterIdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
+   DiameterUtf8AvpWidget orErrMsgAvp(AAA_AVPNAME_ERRORMESSAGE);
+   DiameterIdentityAvpWidget orErrHostAvp(AAA_AVPNAME_ERRORREPORTINGHOST);
 
    rcodeAvp.Get() = AAA_UNKNOWN_SESSION_ID;
    orHostAvp.Get() = AAA_CFG_TRANSPORT()->identity;

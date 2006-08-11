@@ -34,14 +34,14 @@
 #ifndef __PARSER_AVP_H__
 #define __PARSER_AVP_H__
 
-#include "avplist.h"
-#include "parser.h"
-#include "avp_header.h"
-#include "diameter_parser_api.h"
-#include "q_avplist.h"
-#include "comlist.h"
+#include "diameter_parser.h"
+#include "aaa_avplist.h"
+#include "aaa_parser.h"
+#include "aaa_avp_header.h"
+#include "aaa_q_avplist.h"
+#include "aaa_comlist.h"
 
-class AvpRawData 
+class DiameterAvpRawData 
 {
  public:
   union 
@@ -51,11 +51,11 @@ class AvpRawData
   };
 };
 
-typedef AAAParser<AvpRawData*,
+typedef AAAParser<DiameterAvpRawData*,
                   DiameterAvpHeader*,
                   DiameterDictionaryEntry*>
                   DiameterAvpHeaderParser;
-typedef AAAParser<AvpRawData*,
+typedef AAAParser<DiameterAvpRawData*,
                   AAAAvpContainer*,
                   DiameterDictionaryEntry*>
                   DiameterAvpParser;

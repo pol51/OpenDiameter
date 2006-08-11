@@ -107,7 +107,7 @@ class DiameterMip4HaClientStateTable_S
     {
       AMA_Data &amaData = sm.AMA();
 
-      AAAResultCode resultCode = amaData.ResultCode();
+      DiameterResultCode resultCode = amaData.ResultCode();
 
       switch (resultCode)
 	{
@@ -332,7 +332,7 @@ DiameterMip4HaClientStateMachine::SendAMR()
   AAAClientSession &session = Session();
   AMR_Data &amrData = AMR(); 
 
-  AAAMessage msg; 
+  DiameterMsg msg; 
 
   AMR_Parser parser;
   parser.setAppData(&amrData);   

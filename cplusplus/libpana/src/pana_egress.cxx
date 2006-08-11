@@ -39,7 +39,7 @@ int PANA_EgressSender::Serve()
     PANA_MessageBuffer *rawBuf = PANA_MESSAGE_POOL()->malloc();
 
     PANA_HeaderParser hp;
-    AAADictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
+    DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
     hp.setRawData(reinterpret_cast<AAAMessageBlock*>(rawBuf));
     hp.setAppData(static_cast<PANA_MsgHeader*>(m_Msg.get()));
     hp.setDictData(&opt);

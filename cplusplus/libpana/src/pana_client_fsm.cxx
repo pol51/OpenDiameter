@@ -1693,12 +1693,12 @@ class PANA_CsmRxPSR : public PANA_ClientRxStateFilter
          // resolve the event
          PANA_PacEventVariable ev;
          ev.MsgType(PANA_EV_MTYPE_PSR);
-         AAA_StringAvpContainerWidget eapAvp(msg.avpList());
+         DiameterStringAvpContainerWidget eapAvp(msg.avpList());
          if (eapAvp.GetAvp(PANA_AVPNAME_EAP)) {
              ev.AvpExist_EapPayload();
          }
          else {
-             AAA_StringAvpContainerWidget cookieAvp(msg.avpList());
+             DiameterStringAvpContainerWidget cookieAvp(msg.avpList());
              if (cookieAvp.GetAvp(PANA_AVPNAME_COOKIE)) {
                  ev.AvpExist_Cookie();
              }
@@ -1738,7 +1738,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
       virtual void HandleMessage(PANA_Message &msg) { 
          // update session-id 
          if (msg.flags().request && (m_arg.SessionId().size() == 0)) {
-             AAA_Utf8AvpContainerWidget sidAvp(msg.avpList());
+             DiameterUtf8AvpContainerWidget sidAvp(msg.avpList());
              diameter_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
              if (sid == NULL) {
                  throw (PANA_Exception(PANA_Exception::FAILED, 
@@ -1784,7 +1784,7 @@ class PANA_CsmRxPFER : public PANA_ClientRxStateFilter
          m_arg.RxValidateMsg(msg, true);
 
          // third level validation
-         AAA_UInt32AvpContainerWidget algoAvp(msg.avpList());
+         DiameterUInt32AvpContainerWidget algoAvp(msg.avpList());
          diameter_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
          if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
@@ -1806,13 +1806,13 @@ class PANA_CsmRxPFER : public PANA_ClientRxStateFilter
          if (m_arg.AuxVariables().SeparateAuthentication()) {
             ev.EnableCfg_Separate();
          }
-         AAA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
+         DiameterUInt32AvpContainerWidget rcodeAvp(msg.avpList());
          diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
          if (rcode && (PANA_RCODE_SUCCESS(ACE_NTOHL(*rcode)))) {
             ev.Result_Eap(PANA_EAP_RESULT_SUCCESS);
          }
          else {
-            AAA_StringAvpContainerWidget eapAvp(msg.avpList());
+            DiameterStringAvpContainerWidget eapAvp(msg.avpList());
             diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
             if (payload) {
                 ev.AvpExist_EapPayload();
@@ -1851,7 +1851,7 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
          m_arg.RxValidateMsg(msg, true);
 
          // third level validation
-         AAA_UInt32AvpContainerWidget algoAvp(msg.avpList());
+         DiameterUInt32AvpContainerWidget algoAvp(msg.avpList());
          diameter_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
          if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
@@ -1863,7 +1863,7 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
          ev.MsgType(PANA_EV_MTYPE_PBR);
          
          // resolve the eap event
-         AAA_StringAvpContainerWidget eapAvp(msg.avpList());
+         DiameterStringAvpContainerWidget eapAvp(msg.avpList());
          diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
          if (payload) {
             ev.AvpExist_EapPayload();
@@ -1877,7 +1877,7 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
          else {
             ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
          }
-         AAA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
+         DiameterUInt32AvpContainerWidget rcodeAvp(msg.avpList());
          diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
          if (rcode && (PANA_RCODE_SUCCESS(ACE_NTOHL(*rcode)))) {
             ev.Result_Eap(PANA_EAP_RESULT_SUCCESS);
@@ -1887,12 +1887,12 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
          }
          if (m_arg.AuxVariables().SecAssociationResumed()) {
             ev.Do_ResumeSession();
-            AAA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
+            DiameterUInt32AvpContainerWidget keyIdAvp(msg.avpList());
             diameter_unsigned32_t *keyId = keyIdAvp.GetAvp(PANA_AVPNAME_KEYID);
             if (keyId) {
                 ev.AvpExist_KeyId();
             }
-            AAA_StringAvpContainerWidget authAvp(msg.avpList());
+            DiameterStringAvpContainerWidget authAvp(msg.avpList());
             diameter_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
             if (auth) {
                 ev.AvpExist_Auth();
@@ -2029,7 +2029,7 @@ class PANA_CsmRxPE : public PANA_ClientRxStateFilter
           if (msg.flags().request) {
               ev.MsgType(PANA_EV_MTYPE_PER);
               if (m_arg.IsFatalError()) {
-                  AAA_StringAvpContainerWidget authAvp(msg.avpList());
+                  DiameterStringAvpContainerWidget authAvp(msg.avpList());
                   diameter_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
                   if (auth && m_arg.SecurityAssociation().IsSet()) {
                       ev.Do_FatalError();

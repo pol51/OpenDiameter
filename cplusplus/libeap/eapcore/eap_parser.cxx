@@ -37,7 +37,7 @@
 #include <ace/OS.h>
 #include <ace/Message_Block.h>
 #include <ace/Message_Queue.h>
-#include "diameter_parser_api.h"
+#include "aaa_parser_api.h"
 #include "eap.hxx"
 #include "eap_parser.hxx"
 #include "eap_log.hxx"

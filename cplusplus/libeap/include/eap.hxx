@@ -51,7 +51,7 @@
 #include <ace/Message_Queue.h>
 #include <ace/Synch.h>
 #include <list>
-#include "diameter_parser_api.h"
+#include "aaa_parser_api.h"
 
 /*!
  * Windows specific export declarations

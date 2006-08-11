@@ -266,7 +266,7 @@ DiameterMip4HaServerStateMachine::DiameterMip4HaServerStateMachine
 void 
 DiameterMip4HaServerStateMachine::SendHAA()
 {
-  AAAMessage msg;
+  DiameterMsg msg;
 
   HAA_Data &haaData= HAA();
   

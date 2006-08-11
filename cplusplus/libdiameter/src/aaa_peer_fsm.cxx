@@ -90,7 +90,7 @@ void AAA_PeerR_ISendConnReq::operator()(AAA_PeerStateMachine &fsm)
 void AAA_PeerR_AcceptSendCEA::operator()(AAA_PeerStateMachine &fsm)
 {
     fsm.PeerData().m_IOResponder = fsm.m_CurrentPeerEventParam->m_IO;    
-    std::auto_ptr<AAAMessage> cer = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
 
     fsm.DisassembleCE(*cer);
 
@@ -150,7 +150,7 @@ void AAA_Peer_Retry::operator()(AAA_PeerStateMachine &fsm)
 void AAA_PeerR_Accept::operator()(AAA_PeerStateMachine &fsm)
 {
     fsm.PeerData().m_IOResponder = fsm.m_CurrentPeerEventParam->m_IO;
-    std::auto_ptr<AAAMessage> cer = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
    
     fsm.DisassembleCE(*cer);
     
@@ -183,11 +183,11 @@ void AAA_Peer_Error::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_Peer_ProcessCEA::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> cea = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> cea = fsm.m_CurrentPeerEventParam->m_Msg;
     
-    AAA_MsgResultCode rcode(*cea);
+    DiameterMsgResultCode rcode(*cea);
     if (rcode.InterpretedResultCode() ==
-        AAA_MsgResultCode::RCODE_SUCCESS) {
+        DiameterMsgResultCode::RCODE_SUCCESS) {
         fsm.DisassembleCE(*cea);
         fsm.CancelTimer(AAA_PEER_EV_TIMEOUT);
         fsm.ScheduleTimer(AAA_PEER_EV_WATCHDOG,
@@ -198,7 +198,7 @@ void AAA_Peer_ProcessCEA::operator()(AAA_PeerStateMachine &fsm)
         fsm.PeerFsmConnected();
     }
     else {
-       AAA_Utf8AvpContainerWidget errorMsg(cea->acl);
+       DiameterUtf8AvpContainerWidget errorMsg(cea->acl);
        diameter_utf8string_t *strMsg = errorMsg.GetAvp
            (AAA_AVPNAME_ERRORMESSAGE);
        if (strMsg) {
@@ -213,7 +213,7 @@ void AAA_Peer_ProcessCEA::operator()(AAA_PeerStateMachine &fsm)
 void AAA_PeerR_AcceptElect::operator()(AAA_PeerStateMachine &fsm)
 {
     fsm.PeerData().m_IOResponder = fsm.m_CurrentPeerEventParam->m_IO;
-    std::auto_ptr<AAAMessage> cer = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
    
     fsm.DisassembleCE(*cer);
     
@@ -253,7 +253,7 @@ void AAA_PeerR_SendCEA::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_PeerR_SendCEAOpen::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> cer = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
    
     fsm.DisassembleCE(*cer);
     
@@ -277,11 +277,11 @@ void AAA_PeerR_DisconnectResp::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_PeerR_DisconnectIOpen::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> cea = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> cea = fsm.m_CurrentPeerEventParam->m_Msg;
     
-    AAA_MsgResultCode rcode(*cea);
+    DiameterMsgResultCode rcode(*cea);
     if (rcode.InterpretedResultCode() ==
-        AAA_MsgResultCode::RCODE_SUCCESS) {
+        DiameterMsgResultCode::RCODE_SUCCESS) {
         fsm.DisassembleCE(*cea);
         fsm.CancelTimer(AAA_PEER_EV_TIMEOUT);
         fsm.ScheduleTimer(AAA_PEER_EV_WATCHDOG,
@@ -293,7 +293,7 @@ void AAA_PeerR_DisconnectIOpen::operator()(AAA_PeerStateMachine &fsm)
         fsm.PeerFsmConnected();
     }
     else {
-       AAA_Utf8AvpContainerWidget errorMsg(cea->acl);
+       DiameterUtf8AvpContainerWidget errorMsg(cea->acl);
        diameter_utf8string_t *strMsg = errorMsg.GetAvp
            (AAA_AVPNAME_ERRORMESSAGE);
        if (strMsg) {
@@ -309,7 +309,7 @@ void AAA_PeerR_Reject::operator()(AAA_PeerStateMachine &fsm)
 {
     AAA_LOG(LM_DEBUG, "(%P|%t) Responder connection attempt rejected\n");
     std::auto_ptr<AAA_IO_Base> io = fsm.m_CurrentPeerEventParam->m_IO;
-    std::auto_ptr<AAAMessage> msg = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> msg = fsm.m_CurrentPeerEventParam->m_Msg;
     io.reset();
 }
 
@@ -330,7 +330,7 @@ void AAA_PeerI_DisconnectSendCEA::operator()(AAA_PeerStateMachine &fsm)
 void AAA_PeerR_SendMessage::operator()(AAA_PeerStateMachine &fsm)
 {
 #if ASYNC_SEND
-    boost::shared_ptr<AAAMessage> msg = fsm.DequeueSendMsg();
+    boost::shared_ptr<DiameterMsg> msg = fsm.DequeueSendMsg();
     if (fsm.Send(*msg, fsm.PeerData().m_IOResponder.get()) < 0) {
         AAA_LOG(LM_INFO, "(%P|%t) Error sending message: %d\n",
                    msg->hdr.code);
@@ -340,7 +340,7 @@ void AAA_PeerR_SendMessage::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_Peer_Process::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> msg = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> msg = fsm.m_CurrentPeerEventParam->m_Msg;
     AAA_MsgQuery query(*msg);
     if (query.IsRequest()) {
         AAA_MSG_ROUTER()->RequestMsg(msg,
@@ -354,7 +354,7 @@ void AAA_Peer_Process::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_PeerProcessDWRSendDWA::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> dwr = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> dwr = fsm.m_CurrentPeerEventParam->m_Msg;
     fsm.DisassembleDW(*dwr);
 
     // TBD: do failover here
@@ -365,15 +365,15 @@ void AAA_PeerProcessDWRSendDWA::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_Peer_ProcessDWA::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> dwa = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> dwa = fsm.m_CurrentPeerEventParam->m_Msg;
     
-    AAA_MsgResultCode rcode(*dwa);
+    DiameterMsgResultCode rcode(*dwa);
     if (rcode.InterpretedResultCode() ==
-        AAA_MsgResultCode::RCODE_SUCCESS) {
+        DiameterMsgResultCode::RCODE_SUCCESS) {
         fsm.DisassembleDW(*dwa);
     }
     else {
-        AAA_Utf8AvpContainerWidget errorMsg(dwa->acl);
+        DiameterUtf8AvpContainerWidget errorMsg(dwa->acl);
         diameter_utf8string_t *strMsg = errorMsg.GetAvp
             (AAA_AVPNAME_ERRORMESSAGE);
         if (strMsg) {
@@ -388,7 +388,7 @@ void AAA_Peer_ProcessDWA::operator()(AAA_PeerStateMachine &fsm)
 void AAA_PeerI_SendMessage::operator()(AAA_PeerStateMachine &fsm)
 {
 #if ASYNC_SEND
-    boost::shared_ptr<AAAMessage> msg = fsm.DequeueSendMsg();
+    boost::shared_ptr<DiameterMsg> msg = fsm.DequeueSendMsg();
     if (fsm.Send(*msg, fsm.PeerData().m_IOInitiator.get()) < 0) {
         AAA_LOG(LM_INFO, "(%P|%t) Error sending message: %d\n",
                    msg->hdr.code);
@@ -398,7 +398,7 @@ void AAA_PeerI_SendMessage::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_PeerI_SendCEA::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> cer = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
    
     fsm.DisassembleCE(*cer);
     
@@ -433,13 +433,13 @@ void AAA_PeerR_SendDPR::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_PeerI_SendDPADisconnect::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> dpr = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> dpr = fsm.m_CurrentPeerEventParam->m_Msg;
     
     AAA_LOG(LM_INFO, "(%P|%t) Peer initiator requested termination, disconnecting\n");
     std::string message = "Disconnected";
     fsm.SendDPA(true, AAA_SUCCESS, message);
     
-    AAA_UInt32AvpContainerWidget cause(dpr->acl);
+    DiameterUInt32AvpContainerWidget cause(dpr->acl);
     diameter_unsigned32_t *uint32 = cause.GetAvp(AAA_AVPNAME_DISCONNECT_CAUSE);   
     
     fsm.Cleanup();    
@@ -449,13 +449,13 @@ void AAA_PeerI_SendDPADisconnect::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_PeerR_SendDPADisconnect::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> dpr = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> dpr = fsm.m_CurrentPeerEventParam->m_Msg;
     
     AAA_LOG(LM_INFO, "(%P|%t) Peer responder requested termination, disconnecting\n");
     std::string message = "Disconnected";
     fsm.SendDPA(false, AAA_SUCCESS, message);
     
-    AAA_UInt32AvpContainerWidget cause(dpr->acl);
+    DiameterUInt32AvpContainerWidget cause(dpr->acl);
     diameter_unsigned32_t *uint32 = cause.GetAvp(AAA_AVPNAME_DISCONNECT_CAUSE);   
     
     fsm.Cleanup();    
@@ -480,15 +480,15 @@ void AAA_Peer_Disconnect::operator()(AAA_PeerStateMachine &fsm)
 
 void AAA_Peer_DisconnectDPA::operator()(AAA_PeerStateMachine &fsm)
 {
-    std::auto_ptr<AAAMessage> dpa = fsm.m_CurrentPeerEventParam->m_Msg;
+    std::auto_ptr<DiameterMsg> dpa = fsm.m_CurrentPeerEventParam->m_Msg;
     
-    AAA_MsgResultCode rcode(*dpa);
+    DiameterMsgResultCode rcode(*dpa);
     if (rcode.InterpretedResultCode() ==
-        AAA_MsgResultCode::RCODE_SUCCESS) {
+        DiameterMsgResultCode::RCODE_SUCCESS) {
         fsm.DisassembleDP(*dpa);
     }
     else {
-        AAA_Utf8AvpContainerWidget errorMsg(dpa->acl);
+        DiameterUtf8AvpContainerWidget errorMsg(dpa->acl);
         diameter_utf8string_t *strMsg = errorMsg.GetAvp
             (AAA_AVPNAME_ERRORMESSAGE);
         if (strMsg) {
@@ -508,32 +508,32 @@ void AAA_Peer_Watchdog::operator()(AAA_PeerStateMachine &fsm)
     fsm.SendDWR();
 }
 
-void AAA_PeerStateMachine::AssembleCE(AAAMessage &msg,
+void AAA_PeerStateMachine::AssembleCE(DiameterMsg &msg,
                                       bool request)
 {
-   AAADiameterHeader &h = msg.hdr;
+   DiameterMsgHeader &h = msg.hdr;
    ACE_OS::memset(&msg.hdr, 0, sizeof(msg.hdr));
-   h.ver = AAA_PROTOCOL_VERSION;
+   h.ver = DIAMETER_PROTOCOL_VERSION;
    h.length = 0;
-   h.flags.r = request ? AAA_FLG_SET : AAA_FLG_CLR;
-   h.flags.p = AAA_FLG_CLR;
-   h.flags.e = AAA_FLG_CLR;
+   h.flags.r = request ? DIAMETER_FLAG_SET : DIAMETER_FLAG_CLR;
+   h.flags.p = DIAMETER_FLAG_CLR;
+   h.flags.e = DIAMETER_FLAG_CLR;
    h.code = AAA_MSGCODE_CAPABILITIES_EXCHG;
-   h.appId = AAA_BASE_APPLICATION_ID;
+   h.appId = DIAMETER_BASE_APPLICATION_ID;
    MsgIdTxMessage(msg);
 
-   AAA_IdentityAvpWidget originHost(AAA_AVPNAME_ORIGINHOST);
-   AAA_IdentityAvpWidget originRealm(AAA_AVPNAME_ORIGINREALM);
-   AAA_AddressAvpWidget  hostIp(AAA_AVPNAME_HOSTIP);
-   AAA_UInt32AvpWidget   vendorId(AAA_AVPNAME_VENDORID);
-   AAA_Utf8AvpWidget     product(AAA_AVPNAME_PRODUCTNAME);
-   AAA_UInt32AvpWidget   originStateId(AAA_AVPNAME_ORIGINSTATEID);
-   AAA_UInt32AvpWidget   supportedVendorId(AAA_AVPNAME_SUPPORTEDVENDORID);
-   AAA_UInt32AvpWidget   authId(AAA_AVPNAME_AUTHAPPID);
-   AAA_UInt32AvpWidget   acctId(AAA_AVPNAME_ACCTAPPID);
-   AAA_GroupedAvpWidget  vendorSpecificId(AAA_AVPNAME_VENDORAPPID);
-   AAA_UInt32AvpWidget   firmware(AAA_AVPNAME_FIRMWAREREV);
-   AAA_UInt32AvpWidget   inbandSecId(AAA_AVPNAME_INBANDSECID);
+   DiameterIdentityAvpWidget originHost(AAA_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget originRealm(AAA_AVPNAME_ORIGINREALM);
+   DiameterAddressAvpWidget  hostIp(AAA_AVPNAME_HOSTIP);
+   DiameterUInt32AvpWidget   vendorId(AAA_AVPNAME_VENDORID);
+   DiameterUtf8AvpWidget     product(AAA_AVPNAME_PRODUCTNAME);
+   DiameterUInt32AvpWidget   originStateId(AAA_AVPNAME_ORIGINSTATEID);
+   DiameterUInt32AvpWidget   supportedVendorId(AAA_AVPNAME_SUPPORTEDVENDORID);
+   DiameterUInt32AvpWidget   authId(AAA_AVPNAME_AUTHAPPID);
+   DiameterUInt32AvpWidget   acctId(AAA_AVPNAME_ACCTAPPID);
+   DiameterGroupedAvpWidget  vendorSpecificId(AAA_AVPNAME_VENDORAPPID);
+   DiameterUInt32AvpWidget   firmware(AAA_AVPNAME_FIRMWAREREV);
+   DiameterUInt32AvpWidget   inbandSecId(AAA_AVPNAME_INBANDSECID);
 
    originHost.Get() = AAA_CFG_TRANSPORT()->identity;
    originRealm.Get() = AAA_CFG_TRANSPORT()->realm;
@@ -579,12 +579,12 @@ void AAA_PeerStateMachine::AssembleCE(AAAMessage &msg,
        &AAA_CFG_GENERAL()->authAppIdLst,
        &AAA_CFG_GENERAL()->acctAppIdLst
    };
-   AAA_UInt32AvpWidget *widgets[] = {
+   DiameterUInt32AvpWidget *widgets[] = {
        &supportedVendorId,
        &authId,
        &acctId
    };
-   for (unsigned int i=0; i<sizeof(widgets)/sizeof(AAA_UInt32AvpWidget*); i++) {
+   for (unsigned int i=0; i<sizeof(widgets)/sizeof(DiameterUInt32AvpWidget*); i++) {
        AAA_ApplicationIdLst::iterator x = idList[i]->begin();
        for (; x != idList[i]->end(); x++) {
            widgets[i]->Get() = *x;
@@ -602,15 +602,15 @@ void AAA_PeerStateMachine::AssembleCE(AAAMessage &msg,
        diameter_grouped_t &grp = vendorSpecificId.Get();
 
        if (vid.authAppId > 0) {
-           AAA_UInt32AvpWidget gAuthId(AAA_AVPNAME_AUTHAPPID, vid.authAppId);
+           DiameterUInt32AvpWidget gAuthId(AAA_AVPNAME_AUTHAPPID, vid.authAppId);
            grp.add(gAuthId());
        }
        if (vid.acctAppId > 0) {
-           AAA_UInt32AvpWidget gAcctId(AAA_AVPNAME_ACCTAPPID, vid.acctAppId);
+           DiameterUInt32AvpWidget gAcctId(AAA_AVPNAME_ACCTAPPID, vid.acctAppId);
            grp.add(gAcctId());
        }       
 
-       AAA_UInt32AvpWidget gVendorId(AAA_AVPNAME_VENDORID);       
+       DiameterUInt32AvpWidget gVendorId(AAA_AVPNAME_VENDORID);       
        AAA_ApplicationIdLst::iterator z = vid.vendorIdLst.begin();
        for (; z != vid.vendorIdLst.end(); z++) {
            gVendorId.Get() = *z;
@@ -632,23 +632,23 @@ void AAA_PeerStateMachine::AssembleCE(AAAMessage &msg,
    msg.acl.add(inbandSecId());
 }
 
-void AAA_PeerStateMachine::DisassembleCE(AAAMessage &msg)
+void AAA_PeerStateMachine::DisassembleCE(DiameterMsg &msg)
 {
    int ndx; 
    AAA_PeerCapabilities &cap = m_Data.m_PeerCapabilities;
    
-   AAA_IdentityAvpContainerWidget originHost(msg.acl);
-   AAA_IdentityAvpContainerWidget originRealm(msg.acl);
-   AAA_AddressAvpContainerWidget hostIp(msg.acl);
-   AAA_UInt32AvpContainerWidget vendorId(msg.acl);
-   AAA_Utf8AvpContainerWidget product(msg.acl);
-   AAA_UInt32AvpContainerWidget originState(msg.acl);
-   AAA_UInt32AvpContainerWidget supportedVendorId(msg.acl);
-   AAA_UInt32AvpContainerWidget authAppId(msg.acl);
-   AAA_UInt32AvpContainerWidget inbandSecId(msg.acl);
-   AAA_UInt32AvpContainerWidget acctAppId(msg.acl);
-   AAA_GroupedAvpContainerWidget vendorSpecificId(msg.acl);
-   AAA_UInt32AvpContainerWidget firmware(msg.acl);
+   DiameterIdentityAvpContainerWidget originHost(msg.acl);
+   DiameterIdentityAvpContainerWidget originRealm(msg.acl);
+   DiameterAddressAvpContainerWidget hostIp(msg.acl);
+   DiameterUInt32AvpContainerWidget vendorId(msg.acl);
+   DiameterUtf8AvpContainerWidget product(msg.acl);
+   DiameterUInt32AvpContainerWidget originState(msg.acl);
+   DiameterUInt32AvpContainerWidget supportedVendorId(msg.acl);
+   DiameterUInt32AvpContainerWidget authAppId(msg.acl);
+   DiameterUInt32AvpContainerWidget inbandSecId(msg.acl);
+   DiameterUInt32AvpContainerWidget acctAppId(msg.acl);
+   DiameterGroupedAvpContainerWidget vendorSpecificId(msg.acl);
+   DiameterUInt32AvpContainerWidget firmware(msg.acl);
 
    diameter_identity_t *identity = originHost.GetAvp(AAA_AVPNAME_ORIGINHOST);
    cap.m_Host.assign((identity) ? identity->data() : "",
@@ -694,7 +694,7 @@ void AAA_PeerStateMachine::DisassembleCE(AAAMessage &msg)
        &cap.m_AuthAppIdLst,
        &cap.m_AcctAppIdLst
    };
-   AAA_UInt32AvpContainerWidget *widgets[] = {
+   DiameterUInt32AvpContainerWidget *widgets[] = {
        &supportedVendorId,
        &authAppId,
        &acctAppId
@@ -712,7 +712,7 @@ void AAA_PeerStateMachine::DisassembleCE(AAAMessage &msg)
        }
    }
    for (unsigned int i=0;
-        i<sizeof(widgets)/sizeof(AAA_UInt32AvpContainerWidget*);
+        i<sizeof(widgets)/sizeof(DiameterUInt32AvpContainerWidget*);
         i++) {
        uint32 = widgets[i]->GetAvp(avpNames[i]);
        for (ndx=1; uint32; ndx++) {
@@ -733,9 +733,9 @@ void AAA_PeerStateMachine::DisassembleCE(AAAMessage &msg)
    diameter_grouped_t *grouped = vendorSpecificId.GetAvp(AAA_AVPNAME_VENDORAPPID);
    for (ndx=1; grouped; ndx++) {
        AAA_DataVendorSpecificApplicationId vsid;
-       AAA_UInt32AvpContainerWidget gAuthId(*grouped);
-       AAA_UInt32AvpContainerWidget gAcctId(*grouped);
-       AAA_UInt32AvpContainerWidget gVendorId(*grouped);
+       DiameterUInt32AvpContainerWidget gAuthId(*grouped);
+       DiameterUInt32AvpContainerWidget gAcctId(*grouped);
+       DiameterUInt32AvpContainerWidget gVendorId(*grouped);
 
        uint32 = gVendorId.GetAvp(AAA_AVPNAME_VENDORID);
        for (int p=1; uint32; p++) {
@@ -755,22 +755,22 @@ void AAA_PeerStateMachine::DisassembleCE(AAAMessage &msg)
    DumpPeerCapabilities();
 }
 
-void AAA_PeerStateMachine::AssembleDW(AAAMessage &msg, bool request)
+void AAA_PeerStateMachine::AssembleDW(DiameterMsg &msg, bool request)
 {
-   AAADiameterHeader &h = msg.hdr;
+   DiameterMsgHeader &h = msg.hdr;
    ACE_OS::memset(&msg.hdr, 0, sizeof(msg.hdr));
-   h.ver = AAA_PROTOCOL_VERSION;
+   h.ver = DIAMETER_PROTOCOL_VERSION;
    h.length = 0;
-   h.flags.r = request ? AAA_FLG_SET : AAA_FLG_CLR;
-   h.flags.p = AAA_FLG_CLR;
-   h.flags.e = AAA_FLG_CLR;
+   h.flags.r = request ? DIAMETER_FLAG_SET : DIAMETER_FLAG_CLR;
+   h.flags.p = DIAMETER_FLAG_CLR;
+   h.flags.e = DIAMETER_FLAG_CLR;
    h.code = AAA_MSGCODE_WATCHDOG;
-   h.appId = AAA_BASE_APPLICATION_ID;
+   h.appId = DIAMETER_BASE_APPLICATION_ID;
    MsgIdTxMessage(msg);
 
-   AAA_IdentityAvpWidget originHost(AAA_AVPNAME_ORIGINHOST);
-   AAA_IdentityAvpWidget originRealm(AAA_AVPNAME_ORIGINREALM);
-   AAA_UInt32AvpWidget   originStateId(AAA_AVPNAME_ORIGINSTATEID);
+   DiameterIdentityAvpWidget originHost(AAA_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget originRealm(AAA_AVPNAME_ORIGINREALM);
+   DiameterUInt32AvpWidget   originStateId(AAA_AVPNAME_ORIGINSTATEID);
 
    originHost.Get() = AAA_CFG_TRANSPORT()->identity;
    originRealm.Get() = AAA_CFG_TRANSPORT()->realm;
@@ -781,14 +781,14 @@ void AAA_PeerStateMachine::AssembleDW(AAAMessage &msg, bool request)
    msg.acl.add(originStateId());
 }
 
-void AAA_PeerStateMachine::DisassembleDW(AAAMessage &msg)
+void AAA_PeerStateMachine::DisassembleDW(DiameterMsg &msg)
 {
    diameter_identity_t Host;
    diameter_identity_t Realm;
    
-   AAA_IdentityAvpContainerWidget originHost(msg.acl);
-   AAA_IdentityAvpContainerWidget originRealm(msg.acl);
-   AAA_UInt32AvpContainerWidget originState(msg.acl);
+   DiameterIdentityAvpContainerWidget originHost(msg.acl);
+   DiameterIdentityAvpContainerWidget originRealm(msg.acl);
+   DiameterUInt32AvpContainerWidget originState(msg.acl);
 
    diameter_identity_t *identity = originHost.GetAvp(AAA_AVPNAME_ORIGINHOST);
    Host.assign((identity) ? identity->data() : "",
@@ -805,21 +805,21 @@ void AAA_PeerStateMachine::DisassembleDW(AAAMessage &msg)
              Host.data(), Realm.data(), OriginStateId, time(0));
 }
 
-void AAA_PeerStateMachine::AssembleDP(AAAMessage &msg,
+void AAA_PeerStateMachine::AssembleDP(DiameterMsg &msg,
                                       bool request)
 {
-   AAADiameterHeader &h = msg.hdr;
-   h.ver = AAA_PROTOCOL_VERSION;
+   DiameterMsgHeader &h = msg.hdr;
+   h.ver = DIAMETER_PROTOCOL_VERSION;
    h.length = 0;
-   h.flags.r = request ? AAA_FLG_SET : AAA_FLG_CLR;
-   h.flags.p = AAA_FLG_CLR;
-   h.flags.e = AAA_FLG_CLR;
+   h.flags.r = request ? DIAMETER_FLAG_SET : DIAMETER_FLAG_CLR;
+   h.flags.p = DIAMETER_FLAG_CLR;
+   h.flags.e = DIAMETER_FLAG_CLR;
    h.code = AAA_MSGCODE_DISCONNECT_PEER;
-   h.appId = AAA_BASE_APPLICATION_ID;
+   h.appId = DIAMETER_BASE_APPLICATION_ID;
    MsgIdTxMessage(msg);
 
-   AAA_IdentityAvpWidget originHost(AAA_AVPNAME_ORIGINHOST);
-   AAA_IdentityAvpWidget originRealm(AAA_AVPNAME_ORIGINREALM);
+   DiameterIdentityAvpWidget originHost(AAA_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget originRealm(AAA_AVPNAME_ORIGINREALM);
 
    originHost.Get() = AAA_CFG_TRANSPORT()->identity;
    originRealm.Get() = AAA_CFG_TRANSPORT()->realm;
@@ -829,13 +829,13 @@ void AAA_PeerStateMachine::AssembleDP(AAAMessage &msg,
 
 }
 
-void AAA_PeerStateMachine::DisassembleDP(AAAMessage &msg)
+void AAA_PeerStateMachine::DisassembleDP(DiameterMsg &msg)
 {
    diameter_identity_t Host;
    diameter_identity_t Realm;
    
-   AAA_IdentityAvpContainerWidget originHost(msg.acl);
-   AAA_IdentityAvpContainerWidget originRealm(msg.acl);
+   DiameterIdentityAvpContainerWidget originHost(msg.acl);
+   DiameterIdentityAvpContainerWidget originRealm(msg.acl);
 
    diameter_identity_t *identity = originHost.GetAvp(AAA_AVPNAME_ORIGINHOST);
    Host.assign((identity) ? identity->data() : "",
@@ -884,7 +884,7 @@ void AAA_PeerStateMachine::SendCER()
                      * [ AVP ]
     */
     
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleCE(*msg);   
    if (RawSend(msg, m_Data.m_IOInitiator.get()) == 0) {
        AAA_LOG(LM_INFO, "(%P|%t) Sent CER\n");
@@ -928,18 +928,18 @@ void AAA_PeerStateMachine::SendCEA(diameter_unsigned32_t rcode,
                     * [ AVP ]
     */
 
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleCE(*msg, false);
 
-   AAA_UInt32AvpWidget resultCode(AAA_AVPNAME_RESULTCODE, rcode);
+   DiameterUInt32AvpWidget resultCode(AAA_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
    
-   AAA_MsgResultCode::RCODE interpretedRcode = 
-       AAA_MsgResultCode::InterpretedResultCode(rcode);
+   DiameterMsgResultCode::RCODE interpretedRcode = 
+       DiameterMsgResultCode::InterpretedResultCode(rcode);
    if ((message.length() > 0) && 
-       (interpretedRcode != AAA_MsgResultCode::RCODE_NOT_PRESENT) &&
-       (interpretedRcode != AAA_MsgResultCode::RCODE_SUCCESS)) {
-       AAA_Utf8AvpWidget errorMsg(AAA_AVPNAME_ERRORMESSAGE);
+       (interpretedRcode != DiameterMsgResultCode::RCODE_NOT_PRESENT) &&
+       (interpretedRcode != DiameterMsgResultCode::RCODE_SUCCESS)) {
+       DiameterUtf8AvpWidget errorMsg(AAA_AVPNAME_ERRORMESSAGE);
        errorMsg.Get() = message.data();
        msg->acl.add(errorMsg());
    }
@@ -973,7 +973,7 @@ void AAA_PeerStateMachine::SendDWR()
                         { Origin-Realm }
                         [ Origin-State-Id ]
     */
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDW(*msg);
    
    // check resulting state to determine
@@ -1007,15 +1007,15 @@ void AAA_PeerStateMachine::SendDWA(diameter_unsigned32_t rcode,
                         [ Original-State-Id ]
     */
 
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDW(*msg, false);
 
-   AAA_UInt32AvpWidget resultCode(AAA_AVPNAME_RESULTCODE, rcode);
+   DiameterUInt32AvpWidget resultCode(AAA_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
    
 #if INTEROP
    if (message.length() > 0) {
-       AAA_Utf8AvpWidget errorMsg(AAA_AVPNAME_ERRORMESSAGE);
+       DiameterUtf8AvpWidget errorMsg(AAA_AVPNAME_ERRORMESSAGE);
        errorMsg.Get() = message.data();
        msg->acl.add(errorMsg());
    }
@@ -1050,10 +1050,10 @@ void AAA_PeerStateMachine::SendDPR(bool initiator)
                        { Origin-Realm }
                        { Disconnect-Cause }
     */
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDP(*msg);
    
-   AAA_UInt32AvpWidget disCause(AAA_AVPNAME_DISCONNECT_CAUSE);
+   DiameterUInt32AvpWidget disCause(AAA_AVPNAME_DISCONNECT_CAUSE);
    disCause.Get() = diameter_unsigned32_t(m_Data.m_DisconnectCause);
    msg->acl.add(disCause());   
    
@@ -1087,14 +1087,14 @@ void AAA_PeerStateMachine::SendDPA(bool initiator,
                      * [ Failed-AVP ]
 
     */
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDP(*msg, false);
 
-   AAA_UInt32AvpWidget resultCode(AAA_AVPNAME_RESULTCODE, rcode);
+   DiameterUInt32AvpWidget resultCode(AAA_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
    
    if (message.length() > 0) {
-       AAA_Utf8AvpWidget errorMsg(AAA_AVPNAME_ERRORMESSAGE);
+       DiameterUtf8AvpWidget errorMsg(AAA_AVPNAME_ERRORMESSAGE);
        errorMsg.Get() = message.data();
        msg->acl.add(errorMsg());
    }
@@ -1222,7 +1222,7 @@ void AAA_PeerStateMachine::Cleanup(unsigned int flags)
    m_CleanupEvent = true;
 }
 
-int AAA_PeerStateMachine::RawSend(std::auto_ptr<AAAMessage> &msg, 
+int AAA_PeerStateMachine::RawSend(std::auto_ptr<DiameterMsg> &msg, 
                                   AAA_IO_Base *io)
 {
    AAAMessageBlock *aBuffer = NULL;
@@ -1236,21 +1236,21 @@ int AAA_PeerStateMachine::RawSend(std::auto_ptr<AAAMessage> &msg,
 
        msg->acl.reset();
 
-       HeaderParser hp;
+       DiameterMsgHeaderParser hp;
        hp.setRawData(aBuffer);
        hp.setAppData(&msg->hdr);
-       hp.setDictData(PARSE_STRICT);
+       hp.setDictData(DIAMETER_PARSE_STRICT);
    
        try {
           hp.parseAppToRaw();
        }
-       catch (AAAErrorStatus &st) {
+       catch (DiameterErrorCode &st) {
           ACE_UNUSED_ARG(st);
           aBuffer->Release();
           return (-1);
        }
 
-       PayloadParser pp;
+       DiameterMsgPayloadParser pp;
        pp.setRawData(aBuffer);
        pp.setAppData(&msg->acl);
        pp.setDictData(msg->hdr.getDictHandle());
@@ -1258,12 +1258,13 @@ int AAA_PeerStateMachine::RawSend(std::auto_ptr<AAAMessage> &msg,
        try { 
           pp.parseAppToRaw();
        }
-       catch (AAAErrorStatus &st) {
+       catch (DiameterErrorCode &st) {
           aBuffer->Release();
 
-          int type, code;
+          AAA_PARSE_ERROR_TYPE type;
+          int code;
           st.get(type, code);
-          if ((type == NORMAL) && (code == AAA_OUT_OF_SPACE)) {
+          if ((type == AAA_PARSE_ERROR_TYPE_NORMAL) && (code == AAA_OUT_OF_SPACE)) {
               if (blockCnt < AAA_MsgCollector::MAX_MSG_BLOCK) {
                    msg->acl.reset();
                    continue;
@@ -1277,7 +1278,7 @@ int AAA_PeerStateMachine::RawSend(std::auto_ptr<AAAMessage> &msg,
       try {
           hp.parseAppToRaw();
       }
-      catch (AAAErrorStatus &st) {
+      catch (DiameterErrorCode &st) {
           aBuffer->Release();
           return (-1);
       }
@@ -1473,7 +1474,7 @@ bool AAA_PeerStateMachine::ValidatePeer(diameter_unsigned32_t &rcode,
    return true;
 }
 
-void AAA_PeerStateMachine::MsgIdTxMessage(AAAMessage &msg)
+void AAA_PeerStateMachine::MsgIdTxMessage(DiameterMsg &msg)
 {
    if (msg.hdr.flags.r) {
        m_Data.m_PeerCapabilities.m_MsgId.m_LastTxHopId = AAA_HOPBYHOP_GEN()->Get();
@@ -1487,7 +1488,7 @@ void AAA_PeerStateMachine::MsgIdTxMessage(AAAMessage &msg)
    }
 }
 
-bool AAA_PeerStateMachine::MsgIdRxMessage(AAAMessage &msg)
+bool AAA_PeerStateMachine::MsgIdRxMessage(DiameterMsg &msg)
 {
    if (msg.hdr.flags.r) {
        m_Data.m_PeerCapabilities.m_MsgId.m_LastRxHopId = msg.hdr.hh;

@@ -38,7 +38,7 @@
 
 #ifndef __DIAMETER_MIP_FA_CLIENT_INTERFACE_H__
 #define __DIAMETER_MIP_FA_CLIENT_INTERFACE_H__
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "diameter_mip4_fa_client_session.hxx"
 #include "mip4_diameter_fa_client_interface.hxx"
 
@@ -196,7 +196,7 @@ class FaClientSession {
   virtual void EnforceErrorMessage(const diameter_utf8string_t &errorMessage){}
 
   virtual void EnforceMipFilterRule ( 
-      const  AAA_VectorAttribute<diameter_ipfilter_rule_t> &mipFilterRule)=0;
+      const  DiameterVectorAttribute<diameter_ipfilter_rule_t> &mipFilterRule)=0;
 
   
 };

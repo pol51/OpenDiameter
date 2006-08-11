@@ -74,7 +74,7 @@ class AAASampleAuthAnswerMessage : public AAASessionMessageHandler {
        /*
 	* Actual message handler for this command code
 	*/
-       AAAReturnCode HandleMessage(AAAMessage &msg);
+       AAAReturnCode HandleMessage(DiameterMsg &msg);
 
     protected:
        AAASampleServer &_session; /* reference to the original session */
@@ -137,7 +137,7 @@ class AAASampleServer : public AAAServerSession {
 	* message handler for a particular message, you may
 	* capture that message here.
 	*/
-       AAAReturnCode HandleMessage(AAAMessage &msg);
+       AAAReturnCode HandleMessage(DiameterMsg &msg);
 
        /*
 	* On creation of a server session, the HandleDisconnect,
@@ -162,7 +162,7 @@ class AAASampleServer : public AAAServerSession {
 	* request answers. The command code is 300 
 	* for the sample client message.
 	*/
-       AAAReturnCode SendTestAuthAnswer(AAAMessage &request);
+       AAAReturnCode SendTestAuthAnswer(DiameterMsg &request);
 
        /*
 	* State access functions
@@ -239,7 +239,7 @@ class AAASampleXMLTrans : public AAAAccountingXMLRecTransformer
         /*!
          * We provide our own storage mechanism here
          */
-        AAAReturnCode OutputRecord(AAAMessage *originalMsg);
+        AAAReturnCode OutputRecord(DiameterMsg *originalMsg);
 
     protected:
         AAASampleAccountingServer &session;
@@ -259,10 +259,10 @@ class AAASampleXMLTrans : public AAAAccountingXMLRecTransformer
  * uses the same session database. The biggest
  * difference would be the alternative use of 
  * record transformers. These objects allows the
- * transformation of AAAMessage to an application
+ * transformation of DiameterMsg to an application
  * specific message type. Open diameter currently
  * provides a default transformer that converts
- * AAAMessage to a streamed XML format. An application
+ * DiameterMsg to a streamed XML format. An application
  * may implement it's own transformer as it wishes.
  * This sample code uses the default transfomer.
  *
@@ -289,7 +289,7 @@ class AAASampleAccountingServer : public AAAAccountingServerSession {
 	* request answers. The command code is 271
 	* for the sample client message.
 	*/
-       AAAReturnCode SendAcctAnswer(AAAMessage &request);
+       AAAReturnCode SendAcctAnswer(DiameterMsg &request);
 
     private:
        AAASampleXMLTrans xml; /* Default transformer */

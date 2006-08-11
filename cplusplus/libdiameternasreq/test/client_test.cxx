@@ -168,7 +168,7 @@ class MyDiameterNasreqClientSession : public DiameterNasreqClientSession
 
   /// Reimplemented from the parent class.
   void SetDestinationRealm
-  (AAA_ScholarAttribute<diameter_utf8string_t> &realm);
+  (DiameterScholarAttribute<diameter_utf8string_t> &realm);
 
   /// Reimplemented from parent class.
   void SetAuthInfo(DiameterNasreqAuthenticationInfo &authInfo);
@@ -391,7 +391,7 @@ MyDiameterNasreqClientSession::SignalReauthentication()
 
 void
 MyDiameterNasreqClientSession::SetDestinationRealm
-(AAA_ScholarAttribute<diameter_utf8string_t> &realm)
+(DiameterScholarAttribute<diameter_utf8string_t> &realm)
 {
   std::string& userName = AuthenticationInfo().UserName();
 

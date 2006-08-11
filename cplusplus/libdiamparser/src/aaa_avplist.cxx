@@ -32,52 +32,51 @@
 /* END_COPYRIGHT                                                          */
 /* $Id: avplist.cxx,v 1.24 2004/06/17 21:07:49 yohba Exp $ */
 #include <ace/OS.h>
-#include "avplist.h"
-#include "g_avplist.h"
-#include "diameter_parser_api.h"
+#include "aaa_avplist.h"
+#include "aaa_g_avplist.h"
+#include "diameter_parser.h"
 
-static DiameterDictionaryEntry Any(0, "AVP", AAA_AVP_DATA_TYPE, 0, 0, 0);
+static DiameterDictionaryEntry Any(0, "AVP", AAA_AVP_DATA_TYPE, 0, 0);
 
 // calculate minimum AVP length
 ACE_UINT32
-getMinSize(DiameterDictionaryEntry *avp) throw (DiameterErrorCode) 
+getMinSize(DiameterDictionaryEntry *avp) throw (DiameterErrorCode)
 {
+  int sum=0;
   DiameterGroupedAVP *gavp;
   DiameterAvpType *avpt;
-  int sum=0;
   DiameterErrorCode st;
 
-  if (!avp)
-  {
-	AAA_LOG(LM_ERROR, "getMinSize(): AVP dictionary cannot be null.");
-    st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
-	throw st;
+  if (!avp) {
+    AAA_LOG(LM_ERROR, "getMinSize(): AVP dictionary cannot be null.");
+    st.set(AAA_PARSE_ERROR_TYPE_BUG,
+           AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+    throw st;
   }
 
-  avpt = DiameterAvpTypeList::instance()->search(avp->avpType);
-  if (!avpt)
-  {
-	AAA_LOG(LM_ERROR, "getMinSize(): Cannot find AVP type.");
-    st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER);
-	throw st;
+  avpt = (DiameterAvpType*)DiameterAvpTypeList::instance()->search(avp->avpType);
+  if (!avpt) {
+    AAA_LOG(LM_ERROR, "getMinSize(): Cannot find AVP type.");
+    st.set(AAA_PARSE_ERROR_TYPE_BUG,
+           AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER);
+    throw st;
   }
 
-  if (avp->avpType == AAA_AVP_GROUPED_TYPE)
-    {
-      gavp = AAAGroupedAvpList::instance()->search(avp->avpCode, avp->vendorId);
-      if (!gavp)
-	    {
-		  AAA_LOG(LM_ERROR, "getMinSize(): Cannot grouped AVP dictionary.");
-		  st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
-	      throw st;
-        }
+  if (avp->avpType == AAA_AVP_GROUPED_TYPE) {
+      gavp = DiameterGroupedAvpList::instance()->search(avp->avpCode, avp->vendorId);
+      if (!gavp) {
+        AAA_LOG(LM_ERROR, "getMinSize(): Cannot grouped AVP dictionary.");
+        st.set(AAA_PARSE_ERROR_TYPE_BUG,
+               AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+        throw st;
+      }
 
       /* Fixed AVPs */
       sum = gavp->avp_f->getMinSize();
       /* Required AVPs */
       sum = gavp->avp_r->getMinSize();
-    }
-  sum += avpt->getMinSize() + 8 + (avp->vendorId ? 4 : 0);  
+  }
+  sum += avpt->getMinSize() + 8 + (avp->vendorId ? 4 : 0);
   // getMinSize() returns 0 for grouped AVP */
   return sum;
 }

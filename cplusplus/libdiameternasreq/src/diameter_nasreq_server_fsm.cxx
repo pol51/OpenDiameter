@@ -323,7 +323,7 @@ DiameterNasreqServerStateMachine::DiameterNasreqServerStateMachine
 
 void 
 DiameterNasreqServerStateMachine::SendAA_Answer(){
-  AAAMessage msg;
+  DiameterMsg msg;
 
   aaAnswerData.AuthApplicationId = NasreqApplicationId;
 

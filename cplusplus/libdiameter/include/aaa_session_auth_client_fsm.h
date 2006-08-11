@@ -48,9 +48,9 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AuthSessionClientStateMachine :
       void TxSTR(diameter_unsigned32_t cause);
       void TxASA(diameter_unsigned32_t rcode);
       void TxRAA(diameter_unsigned32_t rcode);
-      void RxASR(AAAMessage &msg);
-      void RxSTA(AAAMessage &msg);
-      void RxRAR(AAAMessage &msg);
+      void RxASR(DiameterMsg &msg);
+      void RxSTA(DiameterMsg &msg);
+      void RxRAR(DiameterMsg &msg);
 };
 
 class AAA_SessAuthClient_TxSSAR : 
@@ -58,7 +58,7 @@ class AAA_SessAuthClient_TxSSAR :
 {
    public:
       virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
-          std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           fsm.Session().TxDelivery(msg);
       }
 };
@@ -68,9 +68,9 @@ class AAA_SessAuthClient_TxSSAR_Discard :
 {
    public:
       virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
-          std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           AAA_LOG(LM_INFO, "(%P|%t) Message sent in invalid session state, discarding\n");
-          AAA_MsgDump::Dump(*msg);
+          DiameterMsgHeaderDump::Dump(*msg);
       }
 };
 
@@ -79,7 +79,7 @@ class AAA_SessAuthClient_RxSSA :
 {
    public:
       virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
-          std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           fsm.Session().RxDelivery(msg);
       }
 };
@@ -89,9 +89,9 @@ class AAA_SessAuthClient_RxSSAA_Discard :
 {
    public:
       virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
-          std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           AAA_LOG(LM_INFO, "(%P|%t) Message received in invalid session state, discarding\n");
-          AAA_MsgDump::Dump(*msg);
+          DiameterMsgHeaderDump::Dump(*msg);
       }
 };
 

@@ -41,7 +41,7 @@
 #define __DIAMETER_MIP4_PARSER_H__
 
 #include <vector>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 /*!
  * Windows specific export declarations
  */
@@ -70,7 +70,7 @@ class mip_mn_aaa_auth_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
     if (MipMnAaaSpi.IsSet())
       {
@@ -118,10 +118,10 @@ class mip_mn_aaa_auth_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipMnAaaSpi;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipAuthInputDataLength;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipAuthenticatorLength;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipAuthenticatorOffset;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipMnAaaSpi;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipAuthInputDataLength;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipAuthenticatorLength;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipAuthenticatorOffset;
 };
 /// Definition for MIP-Originating-Foreign-AAA-Info AVP internal structure.
 class mip_originating_foreign_aaa_info_t
@@ -129,7 +129,7 @@ class mip_originating_foreign_aaa_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
     if (OriginRealm.IsSet())
       {
@@ -167,10 +167,10 @@ class mip_originating_foreign_aaa_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_unsigned32_t> OriginRealm;
-  AAA_ScholarAttribute<diameter_unsigned32_t> OriginHost;
+  DiameterScholarAttribute<diameter_unsigned32_t> OriginRealm;
+  DiameterScholarAttribute<diameter_unsigned32_t> OriginHost;
    // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 /// Definition for MIP-Home-Agent-Host-Info AVP internal structure.
 class mip_home_agent_host_info_t
@@ -178,7 +178,7 @@ class mip_home_agent_host_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
     if (DestinationRealm.IsSet())
       {
@@ -216,10 +216,10 @@ class mip_home_agent_host_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_unsigned32_t> DestinationRealm;
-  AAA_ScholarAttribute<diameter_unsigned32_t> DestinationHost;
+  DiameterScholarAttribute<diameter_unsigned32_t> DestinationRealm;
+  DiameterScholarAttribute<diameter_unsigned32_t> DestinationHost;
    // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 /// Definition for Proxy-Info AVP internal structure.
 class proxyinfo_t
@@ -227,7 +227,7 @@ class proxyinfo_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
     if (ProxyHost.IsSet())
       {
@@ -265,10 +265,10 @@ class proxyinfo_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_identity_t> ProxyHost;
-  AAA_ScholarAttribute<diameter_octetstring_t> ProxyState;
+  DiameterScholarAttribute<diameter_identity_t> ProxyHost;
+  DiameterScholarAttribute<diameter_octetstring_t> ProxyState;
   // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 /// Definition for AMR message contents internal structure.
@@ -280,7 +280,7 @@ class mip_mn_to_fa_msa_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
 
     if (MipAlgorithmType.IsSet())
@@ -330,11 +330,11 @@ class mip_mn_to_fa_msa_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipNonce;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipMnAaaSpi;
+  DiameterScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
+  DiameterScholarAttribute<diameter_octetstring_t> MipNonce;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipMnAaaSpi;
  // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 // Definition for MIP-MN-to-HA-MSA-Info AVP internal structure.
@@ -343,7 +343,7 @@ class mip_mn_to_ha_msa_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
 
     if (MipAlgorithmType.IsSet())
@@ -403,12 +403,12 @@ class mip_mn_to_ha_msa_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
-  AAA_ScholarAttribute<diameter_enumerated_t> MipReplayMode;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipNonce;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipMnAaaSpi;
+  DiameterScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
+  DiameterScholarAttribute<diameter_enumerated_t> MipReplayMode;
+  DiameterScholarAttribute<diameter_octetstring_t> MipNonce;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipMnAaaSpi;
  // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 // Definition for MIP-FA-to-HA-MSA-Info AVP internal structure.
@@ -417,7 +417,7 @@ class mip_fa_to_ha_msa_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
 
     if (MipFaToHaSpi.IsSet())
@@ -469,12 +469,12 @@ class mip_fa_to_ha_msa_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipFaToHaSpi;
-  AAA_ScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipSessionKey;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipFaToHaSpi;
+  DiameterScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
+  DiameterScholarAttribute<diameter_octetstring_t> MipSessionKey;
 
  // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 // Definition for MIP-FA-to-MN-MSA-Info AVP internal structure.
 class mip_fa_to_mn_msa_info_t
@@ -482,7 +482,7 @@ class mip_fa_to_mn_msa_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
 
     if (MipFaToMnSpi.IsSet())
@@ -534,12 +534,12 @@ class mip_fa_to_mn_msa_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipFaToMnSpi;
-  AAA_ScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipSessionKey;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipFaToMnSpi;
+  DiameterScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
+  DiameterScholarAttribute<diameter_octetstring_t> MipSessionKey;
 
  // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 // Definition for MIP-HA-to-MN-MSA-Info AVP internal structure.
 class mip_ha_to_mn_msa_info_t
@@ -547,7 +547,7 @@ class mip_ha_to_mn_msa_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
 
     if (MipAlgorithmType.IsSet())
@@ -597,11 +597,11 @@ class mip_ha_to_mn_msa_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
-  AAA_ScholarAttribute<diameter_enumerated_t> MipReplayMode;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipSessionKey;
+  DiameterScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
+  DiameterScholarAttribute<diameter_enumerated_t> MipReplayMode;
+  DiameterScholarAttribute<diameter_octetstring_t> MipSessionKey;
  // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 // Definition for MIP-HA-to-FA-MSA-Info AVP internal structure.
@@ -610,7 +610,7 @@ class mip_ha_to_fa_msa_info_t
  public:
   void CopyTo(AAAAvpContainerList &cl)
   {
-    AAAAvpContainerManager cm;
+    DiameterAvpContainerManager cm;
     AAAAvpContainer *c;
 
     if (MipHaToFaSpi.IsSet())
@@ -662,12 +662,12 @@ class mip_ha_to_fa_msa_info_t
       }
   }	  
   // Required AVPs
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipHaToFaSpi;
-  AAA_ScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipSessionKey;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipHaToFaSpi;
+  DiameterScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
+  DiameterScholarAttribute<diameter_octetstring_t> MipSessionKey;
 
  // Optional AVPs
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 class MipFeatureVectorOperations {
@@ -683,7 +683,7 @@ public:
 #define FV_HA_IN_FOREIGN_NET       128
 #define FV_CO_LOCATED_MN_BIT       256
 
-  static void SetMipFeatureVectorBits( AAA_ScholarAttribute<diameter_unsigned32_t> MipFeatureVector, int bitToSetOn ) 
+  static void SetMipFeatureVectorBits( DiameterScholarAttribute<diameter_unsigned32_t> MipFeatureVector, int bitToSetOn ) 
   {
 
     if (bitToSetOn < 1 || bitToSetOn > 256)
@@ -698,7 +698,7 @@ public:
     MipFeatureVector.Set( _mipFeatureVector);
   }
 
-  static bool IsFeatureVectorSet(AAA_ScholarAttribute<diameter_unsigned32_t> MipFeatureVector, int bit )
+  static bool IsFeatureVectorSet(DiameterScholarAttribute<diameter_unsigned32_t> MipFeatureVector, int bit )
   {
     diameter_unsigned32_t _mipFeatureVector =  MipFeatureVector();
     if ( _mipFeatureVector & bit )
@@ -748,28 +748,28 @@ class AMR_Data
   }
 
   /// AMR AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> SessionId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
-  AAA_ScholarAttribute<diameter_utf8string_t> UserName;
-  AAA_ScholarAttribute<diameter_identity_t>  DestinationRealm;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginHost;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginRealm;
+  DiameterScholarAttribute<diameter_utf8string_t> SessionId;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
+  DiameterScholarAttribute<diameter_utf8string_t> UserName;
+  DiameterScholarAttribute<diameter_identity_t>  DestinationRealm;
+  DiameterScholarAttribute<diameter_identity_t>  OriginHost;
+  DiameterScholarAttribute<diameter_identity_t>  OriginRealm;
 
-  AAA_ScholarAttribute<diameter_octetstring_t> MipRegRequest;
-  AAA_GroupedScholarAttribute<mip_mn_aaa_auth_info_t> MipMnAaaAuth;
+  DiameterScholarAttribute<diameter_octetstring_t> MipRegRequest;
+  DiameterGroupedScholarAttribute<mip_mn_aaa_auth_info_t> MipMnAaaAuth;
 
   // optional AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> AcctMultiSessionId; 
+  DiameterScholarAttribute<diameter_utf8string_t> AcctMultiSessionId; 
   
-  AAA_ScholarAttribute<diameter_identity_t>  DestinationHost;
-  AAA_ScholarAttribute<diameter_unsigned32_t> OriginStateId;
+  DiameterScholarAttribute<diameter_identity_t>  DestinationHost;
+  DiameterScholarAttribute<diameter_unsigned32_t> OriginStateId;
   
-  AAA_ScholarAttribute<diameter_address_t> MipMobileNodeAddress;
-  AAA_ScholarAttribute<diameter_address_t> MipHomeAgentAddress;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipFeatureVector;
-  AAA_GroupedScholarAttribute<mip_originating_foreign_aaa_info_t> MipOriginatingForeignAaa;
-  AAA_GroupedScholarAttribute<mip_home_agent_host_info_t> MipHomeAgentHost;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
+  DiameterScholarAttribute<diameter_address_t> MipMobileNodeAddress;
+  DiameterScholarAttribute<diameter_address_t> MipHomeAgentAddress;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipFeatureVector;
+  DiameterGroupedScholarAttribute<mip_originating_foreign_aaa_info_t> MipOriginatingForeignAaa;
+  DiameterGroupedScholarAttribute<mip_home_agent_host_info_t> MipHomeAgentHost;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
 
   
   /* In Section 8 of RFC3588:
@@ -820,14 +820,14 @@ class AMR_Data
       Authorization-Lifetime."
 
     */
-  AAA_ScholarAttribute<diameter_enumerated_t> AuthSessionState;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipFaChallenge;
-  AAA_ScholarAttribute<diameter_identity_t> MipCandidateHomeAgentHost;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipHaToFaSpi;
+  DiameterScholarAttribute<diameter_enumerated_t> AuthSessionState;
+  DiameterScholarAttribute<diameter_octetstring_t> MipFaChallenge;
+  DiameterScholarAttribute<diameter_identity_t> MipCandidateHomeAgentHost;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipHaToFaSpi;
 
-  AAA_GroupedVectorAttribute<proxyinfo_t> ProxyInfo;
-  AAA_VectorAttribute<diameter_identity_t> RouteRecord;
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterGroupedVectorAttribute<proxyinfo_t> ProxyInfo;
+  DiameterVectorAttribute<diameter_identity_t> RouteRecord;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 /// Definition for AMA message contents internal structure.
@@ -878,38 +878,38 @@ class AMA_Data
   }
 
   /// AMA AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> SessionId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> ResultCode;
+  DiameterScholarAttribute<diameter_utf8string_t> SessionId;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
+  DiameterScholarAttribute<diameter_unsigned32_t> ResultCode;
 
-  AAA_ScholarAttribute<diameter_identity_t>  OriginHost;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginRealm;
+  DiameterScholarAttribute<diameter_identity_t>  OriginHost;
+  DiameterScholarAttribute<diameter_identity_t>  OriginRealm;
 
   // optional AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> AcctMultiSessionId; 
-  AAA_ScholarAttribute<diameter_utf8string_t> UserName;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
-  AAA_ScholarAttribute<diameter_enumerated_t> AuthSessionState;  
+  DiameterScholarAttribute<diameter_utf8string_t> AcctMultiSessionId; 
+  DiameterScholarAttribute<diameter_utf8string_t> UserName;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
+  DiameterScholarAttribute<diameter_enumerated_t> AuthSessionState;  
   
-  AAA_ScholarAttribute<diameter_identity_t>  ErrorReportingHost;
-  AAA_ScholarAttribute<diameter_utf8string_t> ErrorMessage; 
-  AAA_ScholarAttribute<diameter_enumerated_t> ReAuthRequestType; 
+  DiameterScholarAttribute<diameter_identity_t>  ErrorReportingHost;
+  DiameterScholarAttribute<diameter_utf8string_t> ErrorMessage; 
+  DiameterScholarAttribute<diameter_enumerated_t> ReAuthRequestType; 
 
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipFeatureVector;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipRegReply;
-  AAA_GroupedScholarAttribute<mip_mn_to_fa_msa_info_t> MipMnToFaMsa;
-  AAA_GroupedScholarAttribute<mip_mn_to_ha_msa_info_t> MipMnToHaMsa;
-  AAA_GroupedScholarAttribute<mip_fa_to_mn_msa_info_t> MipFaToMnMsa;
-  AAA_GroupedScholarAttribute<mip_fa_to_ha_msa_info_t> MipFaToHaMsa;
-  AAA_GroupedScholarAttribute<mip_ha_to_mn_msa_info_t> MipHaToMnMsa;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipMsaLifetime;
-  AAA_ScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
-  AAA_ScholarAttribute<diameter_address_t> MipHomeAgentAddress;
-  AAA_ScholarAttribute<diameter_address_t> MipMobileNodeAddress;
-  AAA_VectorAttribute<diameter_ipfilter_rule_t> MipFilterRule;
-  AAA_ScholarAttribute<diameter_unsigned32_t> OriginStateId;
-  AAA_GroupedVectorAttribute<proxyinfo_t> ProxyInfo;
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipFeatureVector;
+  DiameterScholarAttribute<diameter_octetstring_t> MipRegReply;
+  DiameterGroupedScholarAttribute<mip_mn_to_fa_msa_info_t> MipMnToFaMsa;
+  DiameterGroupedScholarAttribute<mip_mn_to_ha_msa_info_t> MipMnToHaMsa;
+  DiameterGroupedScholarAttribute<mip_fa_to_mn_msa_info_t> MipFaToMnMsa;
+  DiameterGroupedScholarAttribute<mip_fa_to_ha_msa_info_t> MipFaToHaMsa;
+  DiameterGroupedScholarAttribute<mip_ha_to_mn_msa_info_t> MipHaToMnMsa;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipMsaLifetime;
+  DiameterScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
+  DiameterScholarAttribute<diameter_address_t> MipHomeAgentAddress;
+  DiameterScholarAttribute<diameter_address_t> MipMobileNodeAddress;
+  DiameterVectorAttribute<diameter_ipfilter_rule_t> MipFilterRule;
+  DiameterScholarAttribute<diameter_unsigned32_t> OriginStateId;
+  DiameterGroupedVectorAttribute<proxyinfo_t> ProxyInfo;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 class HAR_Data
@@ -951,9 +951,9 @@ class HAR_Data
   }
 
   /// HAR AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> SessionId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
+  DiameterScholarAttribute<diameter_utf8string_t> SessionId;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthorizationLifetime;
   
  /*
 
@@ -977,34 +977,34 @@ class HAR_Data
       Authorization-Lifetime."
 
     */
-  AAA_ScholarAttribute<diameter_enumerated_t> AuthSessionState;
-  AAA_ScholarAttribute<diameter_octetstring_t> MipRegRequest; 
-  AAA_ScholarAttribute<diameter_identity_t>  OriginHost;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginRealm;  
-  AAA_ScholarAttribute<diameter_utf8string_t> UserName;
-  AAA_ScholarAttribute<diameter_identity_t>  DestinationRealm;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipFeatureVector;
+  DiameterScholarAttribute<diameter_enumerated_t> AuthSessionState;
+  DiameterScholarAttribute<diameter_octetstring_t> MipRegRequest; 
+  DiameterScholarAttribute<diameter_identity_t>  OriginHost;
+  DiameterScholarAttribute<diameter_identity_t>  OriginRealm;  
+  DiameterScholarAttribute<diameter_utf8string_t> UserName;
+  DiameterScholarAttribute<diameter_identity_t>  DestinationRealm;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipFeatureVector;
 
   // optional AVPs 
   
-  AAA_ScholarAttribute<diameter_identity_t>  DestinationHost;
-  AAA_GroupedScholarAttribute<mip_mn_to_ha_msa_info_t> MipMnToHaMsa;  
-  AAA_GroupedScholarAttribute<mip_mn_to_fa_msa_info_t> MipMnToFaMsa;
-  AAA_GroupedScholarAttribute<mip_ha_to_mn_msa_info_t> MipHaToMnMsa;
-  AAA_GroupedScholarAttribute<mip_ha_to_fa_msa_info_t> MipHaToFaMsa;
+  DiameterScholarAttribute<diameter_identity_t>  DestinationHost;
+  DiameterGroupedScholarAttribute<mip_mn_to_ha_msa_info_t> MipMnToHaMsa;  
+  DiameterGroupedScholarAttribute<mip_mn_to_fa_msa_info_t> MipMnToFaMsa;
+  DiameterGroupedScholarAttribute<mip_ha_to_mn_msa_info_t> MipHaToMnMsa;
+  DiameterGroupedScholarAttribute<mip_ha_to_fa_msa_info_t> MipHaToFaMsa;
 
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipMsaLifetime;
-  AAA_GroupedScholarAttribute<mip_originating_foreign_aaa_info_t> MipOriginatingForeignAaa;
-  AAA_ScholarAttribute<diameter_address_t> MipMobileNodeAddress;
-  AAA_ScholarAttribute<diameter_address_t> MipHomeAgentAddress;
-  AAA_ScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipMsaLifetime;
+  DiameterGroupedScholarAttribute<mip_originating_foreign_aaa_info_t> MipOriginatingForeignAaa;
+  DiameterScholarAttribute<diameter_address_t> MipMobileNodeAddress;
+  DiameterScholarAttribute<diameter_address_t> MipHomeAgentAddress;
+  DiameterScholarAttribute<diameter_enumerated_t> MipAlgorithmType;
 
 
-  AAA_VectorAttribute<diameter_ipfilter_rule_t> MipFilterRule;
-  AAA_ScholarAttribute<diameter_unsigned32_t> OriginStateId;
-  AAA_GroupedVectorAttribute<proxyinfo_t> ProxyInfo;
-  AAA_VectorAttribute<diameter_identity_t> RouteRecord;
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterVectorAttribute<diameter_ipfilter_rule_t> MipFilterRule;
+  DiameterScholarAttribute<diameter_unsigned32_t> OriginStateId;
+  DiameterGroupedVectorAttribute<proxyinfo_t> ProxyInfo;
+  DiameterVectorAttribute<diameter_identity_t> RouteRecord;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
 
@@ -1041,36 +1041,36 @@ class HAA_Data
   }
 
   /// HAA AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> SessionId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
-  AAA_ScholarAttribute<diameter_unsigned32_t> ResultCode;
+  DiameterScholarAttribute<diameter_utf8string_t> SessionId;
+  DiameterScholarAttribute<diameter_unsigned32_t> AuthApplicationId;
+  DiameterScholarAttribute<diameter_unsigned32_t> ResultCode;
 
-  AAA_ScholarAttribute<diameter_identity_t>  OriginHost;
-  AAA_ScholarAttribute<diameter_identity_t>  OriginRealm;
+  DiameterScholarAttribute<diameter_identity_t>  OriginHost;
+  DiameterScholarAttribute<diameter_identity_t>  OriginRealm;
 
   // optional AVPs
-  AAA_ScholarAttribute<diameter_utf8string_t> AcctMultiSessionId; 
-  AAA_ScholarAttribute<diameter_utf8string_t> UserName;
+  DiameterScholarAttribute<diameter_utf8string_t> AcctMultiSessionId; 
+  DiameterScholarAttribute<diameter_utf8string_t> UserName;
   
-  AAA_ScholarAttribute<diameter_identity_t>  ErrorReportingHost;
-  AAA_ScholarAttribute<diameter_utf8string_t> ErrorMessage; 
-  AAA_ScholarAttribute<diameter_octetstring_t> MipRegReply;
+  DiameterScholarAttribute<diameter_identity_t>  ErrorReportingHost;
+  DiameterScholarAttribute<diameter_utf8string_t> ErrorMessage; 
+  DiameterScholarAttribute<diameter_octetstring_t> MipRegReply;
 
-  AAA_ScholarAttribute<diameter_address_t> MipHomeAgentAddress;
-  AAA_ScholarAttribute<diameter_address_t> MipMobileNodeAddress;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipFaToHaSpi;
-  AAA_ScholarAttribute<diameter_unsigned32_t> MipFaToMnSpi;
+  DiameterScholarAttribute<diameter_address_t> MipHomeAgentAddress;
+  DiameterScholarAttribute<diameter_address_t> MipMobileNodeAddress;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipFaToHaSpi;
+  DiameterScholarAttribute<diameter_unsigned32_t> MipFaToMnSpi;
 
-  AAA_ScholarAttribute<diameter_unsigned32_t> OriginStateId;
-  AAA_GroupedVectorAttribute<proxyinfo_t> ProxyInfo;
-  AAA_VectorAttribute<avp_t> Avp;
+  DiameterScholarAttribute<diameter_unsigned32_t> OriginStateId;
+  DiameterGroupedVectorAttribute<proxyinfo_t> ProxyInfo;
+  DiameterVectorAttribute<diameter_avp_t> Avp;
 };
 
-typedef AAAParser<AAAMessage*, AMR_Data*> AMR_Parser;
-typedef AAAParser<AAAMessage*, AMA_Data*> AMA_Parser;
+typedef AAAParser<DiameterMsg*, AMR_Data*> AMR_Parser;
+typedef AAAParser<DiameterMsg*, AMA_Data*> AMA_Parser;
 
-typedef AAAParser<AAAMessage*, HAR_Data*> HAR_Parser;
-typedef AAAParser<AAAMessage*, HAA_Data*> HAA_Parser;
+typedef AAAParser<DiameterMsg*, HAR_Data*> HAR_Parser;
+typedef AAAParser<DiameterMsg*, HAA_Data*> HAA_Parser;
 
 template<> void AMR_Parser::parseRawToApp();
 template<> void AMR_Parser::parseAppToRaw();

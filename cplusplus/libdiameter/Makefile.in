@@ -363,10 +363,9 @@ SRC = src/aaa_application.cxx \
 AM_CPPFLAGS = @L_CPPFLAGS@ @L_ODBCFLAGS@ \
               -I@top_srcdir@/include \
               -I@top_srcdir@/libodutl/include \
-              -I$(top_srcdir)/libdiamparser \
+              -I$(top_srcdir)/libdiamparser/include \
               -I$(srcdir)/include \
-              -D@HOST_OS@ \
-              -DNEXT_GEN
+              -D@HOST_OS@ 
 
 AM_LDFLAGS = @L_LDFLAGS@
 lib_LTLIBRARIES = libdiameter.la

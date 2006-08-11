@@ -36,7 +36,7 @@
 
 #include <string>
 #include <xercesc/dom/DOM.hpp>
-#include "diameter_parser_api.h"
+#include "aaa_parser_api.h"
 
 #if defined(XERCES_HAS_CPP_NAMESPACE)
 using namespace xercesc;

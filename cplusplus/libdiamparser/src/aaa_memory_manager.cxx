@@ -30,25 +30,25 @@
 /* changes to one unified version of this software.                       */
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
-#include "memory_manager.h"
+#include "aaa_memory_manager.h"
 
 #define AAA_MSGBLOCK_USED   0x0001
 
-AAAMessageManager AAAMessageManager::allocator_;
+DiameterMsgManager DiameterMsgManager::allocator_;
 
-AAAMessageManager::AAAMessageManager(int n_blocks) :
+DiameterMsgManager::DiameterMsgManager(int n_blocks) :
     pool_(NULL),
     num_blocks_(n_blocks)
 {    
     ACE_NEW_NORETURN(this->pool_, AAAMessageBlock*[this->num_blocks_]);
 }
 
-AAAMessageManager::~AAAMessageManager()
+DiameterMsgManager::~DiameterMsgManager()
 {
     delete this->pool_;
 }
 
-AAAMessageBlock *AAAMessageManager::malloc()
+AAAMessageBlock *DiameterMsgManager::malloc()
 {
     if (pool_) {
 
@@ -67,7 +67,7 @@ AAAMessageBlock *AAAMessageManager::malloc()
     return (NULL);
 }
 
-void AAAMessageManager::free(AAAMessageBlock *buffer)
+void DiameterMsgManager::free(AAAMessageBlock *buffer)
 {
     if (buffer->flags() & AAA_MSGBLOCK_USED) {
        buffer->clr_flags(AAA_MSGBLOCK_USED);

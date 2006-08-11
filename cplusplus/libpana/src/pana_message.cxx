@@ -38,15 +38,15 @@
 
 template<> void PANA_HeaderParser::parseRawToApp()
 {
-   AAAErrorStatus st;
-   AAADictionaryOption *opt = getDictData();
+   DiameterErrorCode st;
+   DiameterDictionaryOption *opt = getDictData();
    AAAMessageBlock *aBuffer = reinterpret_cast<AAAMessageBlock*>(getRawData());
    PANA_MsgHeader *h = reinterpret_cast<PANA_MsgHeader*>(getAppData());
 
    char *p = aBuffer->rd_ptr();
 
    // version
-   h->version() = AAA_UINT8(*((AAA_UINT8*)(p)));
+   h->version() = AAAUInt8(*((AAAUInt8*)(p)));
    p += sizeof(ACE_UINT16);
 
    // length
@@ -54,9 +54,9 @@ template<> void PANA_HeaderParser::parseRawToApp()
    p += sizeof(ACE_UINT16);
 
    // flags
-   h->flags().request = *((AAA_UINT8*)(p)) & 0x80 ? 1 : 0;
-   h->flags().separate = *((AAA_UINT8*)(p)) & 0x40 ? 1 : 0;
-   h->flags().nap = *((AAA_UINT8*)(p)) & 0x20 ? 1 : 0;
+   h->flags().request = *((AAAUInt8*)(p)) & 0x80 ? 1 : 0;
+   h->flags().separate = *((AAAUInt8*)(p)) & 0x40 ? 1 : 0;
+   h->flags().nap = *((AAAUInt8*)(p)) & 0x20 ? 1 : 0;
    h->flags().reserved = 0;
    p += sizeof(ACE_UINT16);
 
@@ -75,14 +75,14 @@ template<> void PANA_HeaderParser::parseRawToApp()
       return;
    }
 
-   AAADictionaryManager dm(opt->protocolId);
-   AAADictionaryHandle *handle = NULL;
+   DiameterDictionaryManager dm(opt->protocolId);
+   DiameterDictionaryHandle *handle = NULL;
 
    if ((handle = dm.getDictHandle(h->type(), 
                     0, h->flags().request)) == NULL) {
        ACE_DEBUG((LM_ERROR, "command (%d,r-flag=%1d,proto=%d) not found\n",
                   h->type(), h->flags().request, opt->protocolId));
-       st.set(NORMAL, AAA_COMMAND_UNSUPPORTED);
+       st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
        throw st;
    }
 
@@ -91,8 +91,8 @@ template<> void PANA_HeaderParser::parseRawToApp()
 
 template<> void PANA_HeaderParser::parseAppToRaw()
 {
-   AAAErrorStatus st;
-   AAADictionaryOption *opt = getDictData();
+   DiameterErrorCode st;
+   DiameterDictionaryOption *opt = getDictData();
    AAAMessageBlock *aBuffer = reinterpret_cast<AAAMessageBlock*>
                                                (getRawData());
    PANA_MsgHeader *h = reinterpret_cast<PANA_MsgHeader*>
@@ -100,15 +100,15 @@ template<> void PANA_HeaderParser::parseAppToRaw()
 
    aBuffer->wr_ptr(aBuffer->base());
 
-   AAADictionaryManager dm(opt->protocolId);
-   AAADictionaryHandle *handle = NULL;
+   DiameterDictionaryManager dm(opt->protocolId);
+   DiameterDictionaryHandle *handle = NULL;
 
    if (opt->option != PARSE_LOOSE) {
        if ((handle = dm.getDictHandle(h->type(), 
                  0, h->flags().request)) == NULL) {
           ACE_DEBUG((LM_ERROR, "command (%d,r-flag=%1d,proto=%d) not found\n",
                      h->type(), h->flags().request, opt->protocolId));
-	      st.set(NORMAL, AAA_COMMAND_UNSUPPORTED);
+	      st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
 	      throw st;
 	  }
    }
@@ -117,7 +117,7 @@ template<> void PANA_HeaderParser::parseAppToRaw()
 
    // version
    *((ACE_UINT16*)(p)) = 0;
-   *((AAA_UINT8*)(p)) = h->version();
+   *((AAAUInt8*)(p)) = h->version();
    p += sizeof(ACE_UINT16);
 
    // length
@@ -126,9 +126,9 @@ template<> void PANA_HeaderParser::parseAppToRaw()
 
    // flags
    *((ACE_UINT16*)(p)) = 0;
-   *((AAA_UINT8*)(p)) |= h->flags().request ? 0x80 : 0x0;
-   *((AAA_UINT8*)(p)) |= h->flags().separate ? 0x40 : 0x0;
-   *((AAA_UINT8*)(p)) |= h->flags().nap ? 0x20 : 0x0;
+   *((AAAUInt8*)(p)) |= h->flags().request ? 0x80 : 0x0;
+   *((AAAUInt8*)(p)) |= h->flags().separate ? 0x40 : 0x0;
+   *((AAAUInt8*)(p)) |= h->flags().nap ? 0x20 : 0x0;
    p += sizeof(ACE_UINT16);
 
    // type
@@ -169,9 +169,9 @@ void PANA_AvpHeaderCodec::parseRawToApp()
   h->length = ACE_NTOHS(*((ACE_UINT16*)p.first)); p.first+=4;  
   if (h->length == 0 || h->length > (ACE_UINT32)p.second)
     {
-      AAAErrorStatus st;
+      DiameterErrorCode st;
       AAA_LOG(LM_ERROR, "invalid message length\n");
-      st.set(NORMAL, AAA_INVALID_MESSAGE_LENGTH);
+      st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_MESSAGE_LENGTH);
       throw st;
     }
   if (h->flag.v == 1)

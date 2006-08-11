@@ -34,6 +34,8 @@
 #ifndef __DIAMETER_PARSER_H__
 #define __DIAMETER_PARSER_H__
 
+#include "aaa_parser_api.h"
+
 /*!
  *==================================================
  * Macros and Preprocessor Definitions
@@ -216,18 +218,18 @@ typedef struct
  *==================================================
  */
 enum {
-    DIAMETER_IPFILTER_RULESRCDST_EXACT,
-    DIAMETER_IPFILTER_RULESRCDST_MASK,
-    DIAMETER_IPFILTER_RULESRCDST_KEYWORD_ANY,
-    DIAMETER_IPFILTER_RULESRCDST_KEYWORD_ASSIGNED
+    DIAMETER_IPFILTER_RULE_SRCDST_EXACT,
+    DIAMETER_IPFILTER_RULE_SRCDST_MASK,
+    DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ANY,
+    DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED
 };
 
 class DiameterIPFilterRuleSrcDst
 {
     public:
-        DiameterIPFilterRuleSrcDst(AAA_UINT8 repr=DIAMETER_IPFILTER_RULESRCDST_EXACT,
+        DiameterIPFilterRuleSrcDst(AAAUInt8 repr=DIAMETER_IPFILTER_RULE_SRCDST_EXACT,
                                    diameter_utf8string_t ipno=std::string(),
-                                   AAA_UINT8 bits=0,
+                                   AAAUInt8 bits=0,
                                    bool mod=true) :
             modifier(mod),
             representation(repr),
@@ -237,47 +239,47 @@ class DiameterIPFilterRuleSrcDst
 
     public:
         bool         modifier;        /*! Modifier '!' maps to false */
-        AAA_UINT8    representation;  /*! One of the following:
-                                          DIAMETER_IPFILTER_RULESRCDST_EXACT,
-                                          DIAMETER_IPFILTER_RULESRCDST_MASK,
-                                          DIAMETER_IPFILTER_RULESRCDST_KEYWORD_ANY,
-                                          DIAMETER_IPFILTER_RULESRCDST_KEYWORD_ASSGINED.
+        AAAUInt8     representation;  /*! One of the following:
+                                          DIAMETER_IPFILTER_RULE_SRCDST_EXACT,
+                                          DIAMETER_IPFILTER_RULE_SRCDST_MASK,
+                                          DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ANY,
+                                          DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ASSGINED.
 
                                           When representation is
-                                          DIAMETER_IPFILTER_RULESRCDST_EXACT, only ipno is
+                                          DIAMETER_IPFILTER_RULE_SRCDST_EXACT, only ipno is
                                           used.  When representation is
-                                          DIAMETER_IPFILTER_RULESRCDST_MASK, ipno and bits
+                                          DIAMETER_IPFILTER_RULE_SRCDST_MASK, ipno and bits
                                           are used.  For other represntations, both ipno and
                                           bits are not used.
                                         */
 
         diameter_utf8string_t  ipno;
-        AAA_UINT8              bits;
-        std::list<AAA_UINT16_RANGE> portRangeList;   /*! list of port ranges. */
+        AAAUInt8               bits;
+        std::list<AAAUInt16Range> portRangeList;   /*! list of port ranges. */
 };
 
 enum {
-    DIAMETER_IPFILTER_RULEIP_OPTION_SSRR    =   1,
-    DIAMETER_IPFILTER_RULEIP_OPTION_LSRR,
-    DIAMETER_IPFILTER_RULEIP_OPTION_RR,
-    DIAMETER_IPFILTER_RULEIP_OPTION_TS
+    DIAMETER_IPFILTER_RULE_IP_OPTION_SSRR    =   1,
+    DIAMETER_IPFILTER_RULE_IP_OPTION_LSRR,
+    DIAMETER_IPFILTER_RULE_IP_OPTION_RR,
+    DIAMETER_IPFILTER_RULE_IP_OPTION_TS
 };
 
 enum {
-    DIAMETER_IPFILTER_RULETCP_OPTION_MSS    =   1,
-    DIAMETER_IPFILTER_RULETCP_OPTION_WINDOW,
-    DIAMETER_IPFILTER_RULETCP_OPTION_SACK,
-    DIAMETER_IPFILTER_RULETCP_OPTION_TS,
-    DIAMETER_IPFILTER_RULETCP_OPTION_CC
+    DIAMETER_IPFILTER_RULE_TCP_OPTION_MSS    =   1,
+    DIAMETER_IPFILTER_RULE_TCP_OPTION_WINDOW,
+    DIAMETER_IPFILTER_RULE_TCP_OPTION_SACK,
+    DIAMETER_IPFILTER_RULE_TCP_OPTION_TS,
+    DIAMETER_IPFILTER_RULE_TCP_OPTION_CC
 };
 
 enum {
-    DIAMETER_IPFILTER_RULETCP_FLAG_FIN=1,
-    DIAMETER_IPFILTER_RULETCP_FLAG_SYN,
-    DIAMETER_IPFILTER_RULETCP_FLAG_RST,
-    DIAMETER_IPFILTER_RULETCP_FLAG_PSH,
-    DIAMETER_IPFILTER_RULETCP_FLAG_ACK,
-    DIAMETER_IPFILTER_RULETCP_FLAG_URG
+    DIAMETER_IPFILTER_RULE_TCP_FLAG_FIN=1,
+    DIAMETER_IPFILTER_RULE_TCP_FLAG_SYN,
+    DIAMETER_IPFILTER_RULE_TCP_FLAG_RST,
+    DIAMETER_IPFILTER_RULE_TCP_FLAG_PSH,
+    DIAMETER_IPFILTER_RULE_TCP_FLAG_ACK,
+    DIAMETER_IPFILTER_RULE_TCP_FLAG_URG
 };
 
 /*! IPFilterRule type. */
@@ -289,14 +291,14 @@ class diameter_ipfilter_rule_t {
             setup(false) {
         }
 
-        AAA_UINT8   action; /*! DIAMETER_IPFILTER_RULEACTION_PERMIT or
+        AAAUInt8   action; /*! DIAMETER_IPFILTER_RULEACTION_PERMIT or
                              *  DIAMETER_IPFILTER_RULEACTION_DENY
                              */
-        AAA_UINT8   dir;    /*!
+        AAAUInt8   dir;    /*!
                              *  DIAMETER_IPFILTER_RULEDIRECTION_IN or
                              *  DIAMETER_IPFILTER_RULEDIRECTION_OUT
                              */
-        AAA_UINT8   proto;  /*!
+        AAAUInt8   proto;  /*!
                              *  The value 0 means wildcard number that matches
                              *  any protocol
                              */
@@ -333,13 +335,13 @@ class diameter_ipfilter_rule_t {
 } ;
 
 enum {
-    DIAMETER_IPFILTER_RULEACTION_PERMIT,
-    DIAMETER_IPFILTER_RULEACTION_DENY
+    DIAMETER_IPFILTER_RULE_ACTION_PERMIT,
+    DIAMETER_IPFILTER_RULE_ACTION_DENY
 };
 
 enum {
-    DIAMETER_IPFILTER_RULEDIRECTION_IN,
-    DIAMETER_IPFILTER_RULEDIRECTION_OUT
+    DIAMETER_IPFILTER_RULE_DIRECTION_IN,
+    DIAMETER_IPFILTER_RULE_DIRECTION_OUT
 };
 
 /*!
@@ -348,6 +350,23 @@ enum {
  * dictionary
  *==================================================
  */
+
+/*!
+ * Parser options
+ */
+enum DiameterParseOption {
+    DIAMETER_PARSE_LOOSE     = 0,
+    DIAMETER_PARSE_STRICT    = 1,
+};
+
+/*!
+ * Parser error enumration.
+ */
+enum DiameterParserError {
+    DiameterDictionaryError,
+    DiameterHeaderError,
+    DiameterPayloadError
+};
 
 /*! \brief DiameterDictionaryEntry Dictionary Entry for Diameter
  *
@@ -372,13 +391,13 @@ class DiameterDictionaryEntry
         DiameterDictionaryEntry(DiameterAVPCode code,
                                 const char *name,
                                 AAAAvpDataType type,
-                                DiameterVendorId id,
+                                DiameterVendorId vid,
                                 DiameterAVPFlag flg) :
-            avpCode(code),
             avpName(name),
+            avpCode(code),
             avpType(type),
             vendorId(vid),
-            flags(flgs) {
+            flags(flg) {
         }
 
 
@@ -470,7 +489,7 @@ class DiameterDictionaryOption
 /*!
  *==================================================
  * The following are definitions for diameter
- * specific error codes including failed-avp 
+ * specific error codes including failed-avp
  * determination
  *==================================================
  */
@@ -479,7 +498,7 @@ class DiameterDictionaryOption
  *
  * parser functions throw this class instance when an error occurs.
  */
-class DiameterErrorCode :
+class AAA_PARSER_EXPORT_ONLY DiameterErrorCode :
    public AAAErrorCode
 {
    public:
@@ -496,8 +515,10 @@ class DiameterErrorCode :
        * \param code Result or Bug code
        * \param avp AVP that had the error
        */
-      void get(int &type, int &code, std::string &avp) {
-          AAAErrorCode::get(int, code);
+      void get(AAA_PARSE_ERROR_TYPE &type,
+               int &code,
+               std::string &avp) {
+          AAAErrorCode::get(type, code);
           avp = this->avp;
       }
 
@@ -508,9 +529,33 @@ class DiameterErrorCode :
        * \param code Result or Bug code to set
        * \param data Data dictionary entry
        */
-      void set(int type,
+      void set(AAA_PARSE_ERROR_TYPE type,
                int code,
                DiameterDictionaryEntry* data);
+
+      /*!
+       * Access function to retrieve some private data.
+       * Overlaod AAAErrorCode::get(..) to fix function
+       * hiding.
+       *
+       * \param type Error type
+       * \param code Result or Bug code
+       */
+      void get(AAA_PARSE_ERROR_TYPE &t, int &c) {
+          AAAErrorCode::get(t, c);
+      }
+
+      /*!
+       * Access function to set some private data 
+       * Overlaod AAAErrorCode::set(..) to fix function
+       * hiding.
+       *
+       * \param type Error type to set
+       * \param code Result or Bug code to set
+       */
+      void set(AAA_PARSE_ERROR_TYPE t, int c) {
+          AAAErrorCode::set(t, c);
+      }
 
    private:
       std::string avp;   /**< errornous AVP */
@@ -528,21 +573,12 @@ class DiameterErrorCode :
  */
 
 /*!
- * Parser type definitions
- */
-enum DiameterAvpParseType {
-    DIAMETER_PARSE_TYPE_FIXED_HEAD = 0,
-    DIAMETER_PARSE_TYPE_REQUIRED,
-    DIAMETER_PARSE_TYPE_OPTIONAL
-};
-
-/*!
  * AVP header flags
  */
 struct diameter_avp_flag {
-    AAA_UINT8    v;        /**< Vendor flag */
-    AAA_UINT8    m;        /**< Mandatory flag */
-    AAA_UINT8    p;        /**< end-to-end security flag */
+    AAAUInt8    v;        /**< Vendor flag */
+    AAAUInt8    m;        /**< Mandatory flag */
+    AAAUInt8    p;        /**< end-to-end security flag */
 };
 
 /*!
@@ -556,10 +592,10 @@ class DiameterAvpHeader
             length(0),
             vendor(0),
             value_p(0),
-            parseType(DIAMETER_PARSE_TYPE_OPTIONAL) {
+            parseType(AAA_PARSE_TYPE_OPTIONAL) {
             memset(&flag, 0, sizeof(flag));
         }
-        inline DiameterAvpParseType& ParseType() {
+        inline AAAAvpParseType& ParseType() {
             return parseType;
         }
 
@@ -571,18 +607,18 @@ class DiameterAvpHeader
         char*                      value_p;      /**< Value */
 
     private:
-        DiameterAvpParseType       parseType;
+        AAAAvpParseType            parseType;
 }; 
 
 /*!
  * Header bit field definition
  */
 struct diameter_hdr_flag {
-    AAA_UINT8    r    :1;  /**< Request */
-    AAA_UINT8    p    :1;  /**< Proxiable */
-    AAA_UINT8    e    :1;  /**< Error */
-    AAA_UINT8    t    :1;  /**< Potentially re-transmitted */
-    AAA_UINT8    rsvd :4;  /**< Reserved */
+    AAAUInt8    r    :1;  /**< Request */
+    AAAUInt8    p    :1;  /**< Proxiable */
+    AAAUInt8    e    :1;  /**< Error */
+    AAAUInt8    t    :1;  /**< Potentially re-transmitted */
+    AAAUInt8    rsvd :4;  /**< Reserved */
 };
 
 /*!
@@ -598,7 +634,7 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
 {
         friend class AAAParser<AAAMessageBlock*,
                                DiameterMsgHeader*,
-                               ParseOption>; /**< Parser friend */
+                               DiameterParseOption>; /**< Parser friend */
 
         friend class AAAParser<AAAMessageBlock*,
                                DiameterMsgHeader*,
@@ -616,9 +652,9 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
         * \param hh Hop-to-Hop ID
         * \param ee End-to-End ID
         */
-        DiameterMsgHeader(AAA_UINT8 ver,
+        DiameterMsgHeader(AAAUInt8 ver,
                           ACE_UINT32 length,
-                          struct hdr_flag flags,
+                          struct diameter_hdr_flag flags,
                           AAACommandCode code,
                           DiameterApplicationId appId,
                           ACE_UINT32 hh,
@@ -651,7 +687,7 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
         const char* getCommandName();
 
     public:
-        AAA_UINT8                  ver;         /**< Version */
+        AAAUInt8                   ver;         /**< Version */
         ACE_UINT32                 length:24;   /**< Message length (payload) */
         struct diameter_hdr_flag   flags;       /**< Header flags */
         AAACommandCode             code:24;     /**< Command code */
@@ -660,7 +696,7 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
         ACE_UINT32                 ee;          /**< End-to-End ID */
 
     private:
-        AAADictionaryHandle* dictHandle;
+        DiameterDictionaryHandle   *dictHandle;
 };
 
 /*! \brief Message Diameter Message
@@ -671,11 +707,11 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
 class DiameterMsg
 {
     public:
-        AAADiameterHeader     hdr;                  /**< Message header */
+        DiameterMsgHeader     hdr;                  /**< Message header */
         AAAAvpContainerList   acl;                  /**< AVP container list */
-        AAAErrorStatus        status;               /**< Error status */
-        IP_ADDR               originator;           /**< Originator IP address  */
-        IP_ADDR               sender;               /**< Sender IP address */
+        DiameterErrorCode     status;               /**< Error status */
+        AAAIpAddr             originator;           /**< Originator IP address  */
+        AAAIpAddr             sender;               /**< Sender IP address */
         time_t                secondsTillExpire;    /**< Expiration time of message */
         time_t                startTime;            /**< Time of transmission */
 };
@@ -686,23 +722,6 @@ class DiameterMsg
  * functions and objects
  *==================================================
  */
-
-/*!
- * Parser options
- */
-enum DiameterParseOption {
-    DIAMETER_PARSE_LOOSE     = 0,
-    DIAMETER_PARSE_STRICT    = 1,
-};
-
-/*!
- * Parser error enumration.
- */
-enum DiameterParserError {
-    DiameterDictionaryError,
-    DiameterHeaderError,
-    DiameterPayloadError
-};
 
 /*!
  * Diameter AVP value parser
@@ -717,7 +736,7 @@ typedef AAAParser<AAAMessageBlock*,
  *  AVP value.  When parsing fails, an error status is thrown.  A
  *  non-null dictionary data must be specified.
  */
-template<> void DIAMETERPARSER_EXPORT_ONLY DiameterAvpValueParser::parseRawToApp();
+template<> void AAA_PARSER_EXPORT_ONLY DiameterAvpValueParser::parseRawToApp();
 
 /*! Parsing starts from the current write pointer of the raw data,
  *  i.e., AAAMessageBlock.  When parsing is successful, the write
@@ -725,7 +744,7 @@ template<> void DIAMETERPARSER_EXPORT_ONLY DiameterAvpValueParser::parseRawToApp
  *  AVP value.  When parsing fails, an error status is thrown.  A
  *  non-null dictionary data must be specified.
  */
-template<> void DIAMETERPARSER_EXPORT_ONLY DiameterAvpValueParser::parseAppToRaw();
+template<> void AAA_PARSER_EXPORT_ONLY DiameterAvpValueParser::parseAppToRaw();
 
 /*!
  * Diameter header parser definition
@@ -743,7 +762,7 @@ typedef AAAParser<AAAMessageBlock*,
  *  DiameterParseOption is set to DIAMETER_PARSE_STRICT, an DiameterDictionaryHandle will be
  *  set inside the DiameterMsgHeader so that the command
  *  dictionary can be passed to the payload parser. */
-template<> void DIAMETERPARSER_EXPORT_ONLY DiameterMsgHeaderParser::parseRawToApp();
+template<> void AAA_PARSER_EXPORT_ONLY DiameterMsgHeaderParser::parseRawToApp();
 
 /*! Parsing starts from the head of the raw data, i.e.,
  *  AAAMessageBlock.  When parsing is successful, the write pointer
@@ -755,7 +774,7 @@ template<> void DIAMETERPARSER_EXPORT_ONLY DiameterMsgHeaderParser::parseRawToAp
  *  set inside the DiameterMsgHeader so that the command dictionary
  *  can be passed to the payload parser.
  */
-template<> void DIAMETERPARSER_EXPORT_ONLY DiameterMsgHeaderParser::parseAppToRaw();
+template<> void AAA_PARSER_EXPORT_ONLY DiameterMsgHeaderParser::parseAppToRaw();
 
 /*!
  * Payload parser definition
@@ -776,7 +795,7 @@ typedef AAAParser<AAAMessageBlock*,
  *  When a null dictionary data is set, validity check on command
  *  semantics are not performed (loose parsing). 
  */
-template<> void DIAMETERPARSER_EXPORT_ONLY DiameterMsgPayloadParser::parseRawToApp();// throw(DiameterErrorCode);
+template<> void AAA_PARSER_EXPORT_ONLY DiameterMsgPayloadParser::parseRawToApp();// throw(DiameterErrorCode);
 
 /*! Parsing starts from the current write pointer of the raw data,
  *  i.e., AAAMessageBlock.  When parsing is successful, the write
@@ -790,7 +809,7 @@ template<> void DIAMETERPARSER_EXPORT_ONLY DiameterMsgPayloadParser::parseRawToA
  *  When a null dictionary data is set, validity check on command
  *  semantics are not performed (loose parsing).
  */
-template<> void DIAMETERPARSER_EXPORT_ONLY DiameterMsgPayloadParser::parseAppToRaw();// throw(DiameterErrorCode);
+template<> void AAA_PARSER_EXPORT_ONLY DiameterMsgPayloadParser::parseAppToRaw();// throw(DiameterErrorCode);
 
 /*! Functor type definition for AVP value parser creator.  The creator
  *  function takes null argument and returns a pointer to an AVP value
@@ -802,7 +821,7 @@ typedef boost::function0<DiameterAvpValueParser*> DiameterAvpValueParserFunctor;
  * A template class for type-specific AVP value parser creator.
  */
 template <class T>
-class DiameterDiameterAvpValueParserCreator
+class DiameterAvpValueParserCreator
 {
     public:
         /*!
@@ -835,8 +854,8 @@ class DiameterAvpType :
                         AAAAvpDataType type,
                         ACE_UINT32 size,
                         DiameterAvpValueParserFunctor parserCreator,
-                        AvpContainerEntryFunctor containerEntryCreator) :
-            DiameterAvpType(name, type, size, containerEntryCreator),
+                        AAAAvpContainerEntryFunctor containerEntryCreator) :
+            AAAAvpType(name, type, size, containerEntryCreator),
             parserCreator(parserCreator) {
         }
 
@@ -883,14 +902,14 @@ class AAA_PARSER_EXPORT DiameterAvpTypeList_S :
         /*!
         * protected consturctor
         */
-        DiameterAvpTypeList(void) {
+        DiameterAvpTypeList_S(void) {
             registerDefaultTypes();
         }
 
         /*!
         * protected destructor
         */
-        ~DiameterAvpTypeList(void) {
+        ~DiameterAvpTypeList_S(void) {
         }
 
         /*!
@@ -902,6 +921,210 @@ class AAA_PARSER_EXPORT DiameterAvpTypeList_S :
 typedef ACE_Singleton<DiameterAvpTypeList_S, ACE_Recursive_Thread_Mutex> DiameterAvpTypeList;
 AAA_PARSER_SINGLETON_DECLARE(ACE_Singleton, DiameterAvpTypeList_S, ACE_Recursive_Thread_Mutex);
 
+
+/*! \brief DiameterAvpContainerEntryManager AVP Container Entry Manager
+ *
+ * This class is a specialization of AAAAvpContainerEntryManager
+ * and links itself directly with DiameterAvpTypeList
+ */
+class DiameterAvpContainerEntryManager :
+    public AAAAvpContainerEntryMngr
+{
+    public:
+        DiameterAvpContainerEntryManager() :
+            AAAAvpContainerEntryMngr(*DiameterAvpTypeList::instance()) {
+        }
+};
+
+/*! \brief AvpContainerEntryManager AVP Container Entry Manager
+ *
+ * This class is a specialization of AAAAvpContainerEntryManager
+ * and links itself directly with DiameterAvpTypeList
+ */
+typedef class AAAAvpContainerMngr DiameterAvpContainerManager;
+
+/*! DiameterScholarAttribute
+ *
+ * Specialization of scholar and vector data manipulation class.
+ */
+template <typename T>
+class DiameterScholarAttribute :
+    public AAAScholarAttribute<T, DiameterAvpContainerEntryManager>
+{
+    public:
+        DiameterScholarAttribute() {
+        }
+        DiameterScholarAttribute(T &val) :
+            AAAScholarAttribute<T, DiameterAvpContainerEntryManager>(val) {
+        }
+        /*! overload the operator=() so as not
+         * to hide the base class implementation
+         */
+        virtual T& operator=(T v) {
+            return (AAAScholarAttribute<T, DiameterAvpContainerEntryManager>&)(*this) = v;
+        }
+};
+
+/*! AAAGroupedScholarAttribute
+ *
+ * Specialization of scholar and vector data manipulation class.
+ */
+template <typename T>
+class DiameterGroupedScholarAttribute :
+    public AAAGroupedScholarAttribute<T, DiameterAvpContainerEntryManager>
+{
+    public:
+        /*! overload the operator=() so as not
+         * to hide the base class implementation
+         */
+        virtual T& operator=(T v) {
+            (AAAGroupedScholarAttribute<T, DiameterAvpContainerEntryManager>&)(*this) = v;
+            return AAAScholarAttribute<T, DiameterAvpContainerEntryManager>::value;
+        }
+};
+
+/*! DiameterVectorAttribute
+ *
+ * Specialization of scholar and vector data manipulation class.
+ */
+template <typename T>
+class DiameterVectorAttribute :
+    public AAAVectorAttribute<T, DiameterAvpContainerEntryManager>
+{
+    public:
+        /*! overload the operator=() so as not
+         * to hide the base class implementation
+         */
+        virtual std::vector<T>& operator=(std::vector<T>& value) {
+            return (AAAVectorAttribute<T, DiameterAvpContainerEntryManager>&)(*this) = value;
+        }
+};
+
+/*! DiameterGroupedVectorAttribute
+ *
+ * Specialization of scholar and vector data manipulation class.
+ */
+template <typename T>
+class DiameterGroupedVectorAttribute :
+    public AAAGroupedVectorAttribute<T, DiameterAvpContainerEntryManager>
+{
+    public:
+        /*! overload the operator=() so as not
+         * to hide the base class implementation
+         */
+        virtual DiameterGroupedVectorAttribute<T> &operator=
+            (DiameterGroupedVectorAttribute<T>& v) {
+            (AAAGroupedVectorAttribute<T, DiameterAvpContainerEntryManager>&)(*this) = v;
+            return *this;
+        }
+};
+
+/*!
+ *==================================================
+ * Predefined diameter widget types
+ *==================================================
+ */
+
+/*! \brief Type specific AVP widget classes
+ *
+ *  This template class is a wrapper class format
+ *  the most common AVP operations. Users should
+ *  use this class for manipulating AVP containers.
+ */
+typedef AAAAvpWidget<diameter_identity_t,
+                     AAA_AVP_DIAMID_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterIdentityAvpWidget;
+typedef AAAAvpWidget<diameter_address_t,
+                     AAA_AVP_ADDRESS_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterAddressAvpWidget;
+typedef AAAAvpWidget<diameter_integer32_t,
+                     AAA_AVP_INTEGER32_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterInt32AvpWidget;
+typedef AAAAvpWidget<diameter_unsigned32_t,
+                     AAA_AVP_UINTEGER32_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterUInt32AvpWidget;
+typedef AAAAvpWidget<diameter_integer64_t,
+                     AAA_AVP_INTEGER64_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterInt64AvpWidget;
+typedef AAAAvpWidget<diameter_unsigned64_t,
+                     AAA_AVP_UINTEGER64_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterUInt64AvpWidget;
+typedef AAAAvpWidget<diameter_utf8string_t,
+                     AAA_AVP_UTF8_STRING_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterUtf8AvpWidget;
+typedef AAAAvpWidget<diameter_grouped_t,
+                     AAA_AVP_GROUPED_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterGroupedAvpWidget;
+typedef AAAAvpWidget<diameter_octetstring_t,
+                     AAA_AVP_STRING_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterStringAvpWidget;
+typedef AAAAvpWidget<diameter_uri_t,
+                     AAA_AVP_DIAMURI_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterDiamUriAvpWidget;
+typedef AAAAvpWidget<diameter_enumerated_t,
+                     AAA_AVP_ENUM_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterEnumAvpWidget;
+typedef AAAAvpWidget<diameter_time_t,
+                     AAA_AVP_TIME_TYPE,
+                     DiameterAvpContainerEntryManager> DiameterTimeAvpWidget;
+
+/*! \brief Type specific AVP widget lookup and parser
+ *
+ *  Assist in adding, deleting and modifying AVP's
+ *  contained in a message list.
+ *
+ *  This template class is a wrapper class format
+ *  the most common AVP operations. Users should
+ *  use this class for manipulating AVP containers.
+ */
+typedef AAAAvpContainerWidget<diameter_identity_t,
+                              AAA_AVP_DIAMID_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterIdentityAvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_address_t,
+                              AAA_AVP_ADDRESS_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterAddressAvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_integer32_t,
+                              AAA_AVP_INTEGER32_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterInt32AvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_unsigned32_t,
+                              AAA_AVP_UINTEGER32_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterUInt32AvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_integer64_t,
+                              AAA_AVP_INTEGER64_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterInt64AvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_unsigned64_t,
+                              AAA_AVP_UINTEGER64_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterUInt64AvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_utf8string_t,
+                              AAA_AVP_UTF8_STRING_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterUtf8AvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_grouped_t,
+                              AAA_AVP_GROUPED_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterGroupedAvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_octetstring_t,
+                              AAA_AVP_STRING_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterStringAvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_uri_t,
+                              AAA_AVP_DIAMURI_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterUriAvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_enumerated_t,
+                              AAA_AVP_ENUM_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterEnumAvpContainerWidget;
+typedef AAAAvpContainerWidget<diameter_time_t,
+                              AAA_AVP_TIME_TYPE,
+                              DiameterAvpContainerEntryManager>
+                DiameterTimeAvpContainerWidget;
 
 /*!
  *==================================================
@@ -928,16 +1151,16 @@ class DiameterMsgResultCode
         } RCODE;
 
     public:
-        DiameterMsgResultCode(AAAMessage &msg) :
-            m_Msg(msg) {
+        DiameterMsgResultCode(DiameterMsg &msg) :
+            message(msg) {
         }
         diameter_unsigned32_t ResultCode() {
-            AAAUInt32AvpContainerWidget resultCode(m_Msg.acl);
+            DiameterUInt32AvpContainerWidget resultCode(message.acl);
             diameter_unsigned32_t *rc = resultCode.GetAvp("Result-Code");
             return (rc) ? *rc : 0;
         }
         void ResultCode(diameter_unsigned32_t c) {
-            AAAUInt32AvpContainerWidget resultCode(m_Msg.acl);
+            DiameterUInt32AvpContainerWidget resultCode(message.acl);
             resultCode.AddAvp("Result-Code") = c;
         }
         static RCODE InterpretedResultCode(diameter_unsigned32_t code) {
@@ -957,7 +1180,7 @@ class DiameterMsgResultCode
         }
 
     private:
-        AAAMessage &m_Msg;
+        DiameterMsg &message;
 };
 
 /*! \brief Generic message header printer
@@ -982,48 +1205,48 @@ class DiameterMsgHeaderDump {
 
 /*! \brief Wrapper functions for message composition/decomposition
  *
- * Assist in composing and decomposing AAAMessage
+ * Assist in composing and decomposing DiameterMsg
  */
 class DiameterMsgWidget
 {
     public:
         DiameterMsgWidget(int code,
                     int request = true,
-                    int appId = AAA_BASE_APPLICATION_ID) :
-            m_Msg(std::auto_ptr<AAAMessage>(new AAAMessage)) {
-            ACE_OS::memset(&(m_Msg->hdr), 0, sizeof(m_Msg->hdr));
-            m_Msg->hdr.ver = DIAMETER_PROTOCOL_VERSION;
-            m_Msg->hdr.length = 0;
-            m_Msg->hdr.flags.r = request ? DIAMETER_FLAG_SET : DIAMETER_FLAG_CLR;
-            m_Msg->hdr.flags.p = DIAMETER_FLAG_CLR;
-            m_Msg->hdr.flags.e = DIAMETER_FLAG_CLR;
-            m_Msg->hdr.flags.t = DIAMETER_FLAG_CLR;
-            m_Msg->hdr.code = code;
-            m_Msg->hdr.appId = appId;
+                    int appId = DIAMETER_BASE_APPLICATION_ID) :
+            message(std::auto_ptr<DiameterMsg>(new DiameterMsg)) {
+            ACE_OS::memset(&(message->hdr), 0, sizeof(message->hdr));
+            message->hdr.ver = DIAMETER_PROTOCOL_VERSION;
+            message->hdr.length = 0;
+            message->hdr.flags.r = request ? DIAMETER_FLAG_SET : DIAMETER_FLAG_CLR;
+            message->hdr.flags.p = DIAMETER_FLAG_CLR;
+            message->hdr.flags.e = DIAMETER_FLAG_CLR;
+            message->hdr.flags.t = DIAMETER_FLAG_CLR;
+            message->hdr.code = code;
+            message->hdr.appId = appId;
         }
         ~DiameterMsgWidget() {
         }
-        std::auto_ptr<AAAMessage> &operator()() {
-            return m_Msg;
+        std::auto_ptr<DiameterMsg> &operator()() {
+            return message;
         }
-        AAAMessage &Release() {
-            return *(m_Msg.release());
+        DiameterMsg &Release() {
+            return *(message.release());
         }
         void Dump() {
-            if (m_Msg.get()) {
-                AAA_MsgDump::Dump(*m_Msg);
+            if (message.get()) {
+                DiameterMsgHeaderDump::Dump(*message);
                 return;
             }
             AAA_LOG(LM_INFO, "Msg widget is un-assigned\n");
         }
 
     private:
-        std::auto_ptr<AAAMessage> m_Msg;
+        std::auto_ptr<DiameterMsg> message;
 };
 
 /*! \brief Wrapper functions for message composition/decomposition
  *
- * Assist in composing and decomposing AAAMessage
+ * Assist in composing and decomposing DiameterMsg
  */
 class DiameterMsgParserWidget
 {
@@ -1031,14 +1254,14 @@ class DiameterMsgParserWidget
         virtual int ParseRawToApp(DiameterMsgWidget &msg,
                                   AAAMessageBlock& rawBuf,
                                   int option) {
-            HeaderParser hp;
+            DiameterMsgHeaderParser hp;
             hp.setRawData(&rawBuf);
             hp.setAppData(&msg()->hdr);
-            hp.setDictData((ParseOption)option);
+            hp.setDictData((DiameterParseOption)option);
             hp.parseRawToApp();
             rawBuf.size(msg()->hdr.length);
 
-            PayloadParser pp;
+            DiameterMsgPayloadParser pp;
             pp.setRawData(&rawBuf);
             pp.setAppData(&msg()->acl);
             pp.setDictData(msg()->hdr.getDictHandle());
@@ -1048,13 +1271,13 @@ class DiameterMsgParserWidget
         virtual int ParseAppToRaw(DiameterMsgWidget &msg,
                                 AAAMessageBlock& rawBuf,
                                 int option) {
-            HeaderParser hp;
+            DiameterMsgHeaderParser hp;
             hp.setRawData(&rawBuf);
             hp.setAppData(&msg()->hdr);
-            hp.setDictData((ParseOption)option);
+            hp.setDictData((DiameterParseOption)option);
             hp.parseAppToRaw();
 
-            PayloadParser pp;
+            DiameterMsgPayloadParser pp;
             pp.setRawData(&rawBuf);
             pp.setAppData(&msg()->acl);
             pp.setDictData(msg()->hdr.getDictHandle());
@@ -1071,7 +1294,7 @@ class DiameterMsgParserWidget
 
 /*! \brief Wrapper functions for message composition/decomposition
  *
- * Assist in composing and decomposing AAAMessage
+ * Assist in composing and decomposing DiameterMsg
  */
 class DiameterMsgParserWidgetChecked :
     public DiameterMsgParserWidget
@@ -1094,7 +1317,7 @@ class DiameterMsgParserWidgetChecked :
                 return DiameterMsgParserWidget::ParseRawToApp
                         (msg, rawBuf, option);
             }
-            catch (AAAErrorStatus &st) {
+            catch (DiameterErrorCode &st) {
                 ErrorDump(st);
             }
             catch (...) {
@@ -1120,7 +1343,7 @@ class DiameterMsgParserWidgetChecked :
                 return DiameterMsgParserWidget::ParseAppToRaw
                         (msg, rawBuf, option);
             }
-            catch (AAAErrorStatus &st) {
+            catch (DiameterErrorCode &st) {
                 ErrorDump(st);
             }
             catch (...) {
@@ -1129,9 +1352,10 @@ class DiameterMsgParserWidgetChecked :
             }
             return (-1);
         }
-        static void ErrorDump(AAAErrorStatus &st) {
+        static void ErrorDump(DiameterErrorCode &st) {
             AAA_LOG(LM_INFO, "Parser error: ");
-            int type, code;
+            AAA_PARSE_ERROR_TYPE type;
+            int code;
             std::string avp;
             st.get(type, code, avp);
             AAA_LOG(LM_INFO, "Error type=%d, code=%d, name=%s\n",

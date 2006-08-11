@@ -52,7 +52,7 @@ AAA_ServerAcctSession<REC_STORAGE>::AAA_ServerAcctSession
 
 template <class REC_STORAGE>
 AAAReturnCode AAA_ServerAcctSession<REC_STORAGE>::Send
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
     ////        !!!! WARNING !!!!
     //// un-used for current accounting application
@@ -64,12 +64,12 @@ AAAReturnCode AAA_ServerAcctSession<REC_STORAGE>::Send
 
 template <class REC_STORAGE>
 void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
     // validate messge
     if (msg->hdr.code != AAA_MSGCODE_ACCOUNTING) {
         AAA_LOG(LM_INFO, "(%P|%t) Non-accounting request message received, discarding\n");
-        AAA_MsgDump::Dump(*msg);
+        DiameterMsgHeaderDump::Dump(*msg);
         return;
     }
 
@@ -86,7 +86,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     }
 
     // filter sub-session id
-    AAA_UInt64AvpContainerWidget subSessionIdAvp(msg->acl);
+    DiameterUInt64AvpContainerWidget subSessionIdAvp(msg->acl);
     diameter_unsigned64_t *subSid = subSessionIdAvp.GetAvp
                  (AAA_AVPNAME_ACCTSUBSID);
     if (subSid) {
@@ -94,7 +94,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     }
 
     // filter record number
-    AAA_UInt32AvpContainerWidget recNumAvp(msg->acl);
+    DiameterUInt32AvpContainerWidget recNumAvp(msg->acl);
     diameter_unsigned32_t *recNum = recNumAvp.GetAvp
                  (AAA_AVPNAME_ACCTREC_NUM);
     if (recNum) {
@@ -102,7 +102,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     }
 
     // filter record-type
-    AAA_EnumAvpContainerWidget recTypeAvp(msg->acl);
+    DiameterEnumAvpContainerWidget recTypeAvp(msg->acl);
     diameter_enumerated_t *recType = recTypeAvp.GetAvp
                  (AAA_AVPNAME_ACCTREC_TYPE);
     if (recType) {
@@ -110,7 +110,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     }
 
     // filter RADIUS accounting id    
-    AAA_StringAvpContainerWidget radiusIdAvp(msg->acl);
+    DiameterStringAvpContainerWidget radiusIdAvp(msg->acl);
     diameter_octetstring_t *radius = radiusIdAvp.GetAvp
              (AAA_AVPNAME_ACCTSID);
     if (radius) {
@@ -118,7 +118,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     }
 
     // filter multi-session id
-    AAA_Utf8AvpContainerWidget multiSidAvp(msg->acl);
+    DiameterUtf8AvpContainerWidget multiSidAvp(msg->acl);
     diameter_utf8string_t *multi = multiSidAvp.GetAvp
              (AAA_AVPNAME_ACCTMULTISID);
     if (multi) {
@@ -127,7 +127,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
 
     // set the realtime required
     if (! Attributes().RealtimeRequired().IsNegotiated()) {
-        AAA_ScholarAttribute<diameter_enumerated_t> rt;
+        DiameterScholarAttribute<diameter_enumerated_t> rt;
         this->SetRealTimeRequired(rt);
         if (rt.IsSet()) {
             Attributes().RealtimeRequired().Set(rt());
@@ -139,7 +139,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
 
     // set the interim interval
     if (! Attributes().InterimInterval().IsNegotiated()) {
-        AAA_ScholarAttribute<diameter_unsigned32_t> ival;
+        DiameterScholarAttribute<diameter_unsigned32_t> ival;
         this->SetInterimInterval(ival);
         if (ival.IsSet()) {
             Attributes().InterimInterval().Set(ival());
@@ -188,15 +188,15 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
 
 template <class REC_STORAGE>
 void AAA_ServerAcctSession<REC_STORAGE>::RxAnswer
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
     AAA_LOG(LM_INFO, "(%P|%t) Service specific answer msg received in server, discarding\n");
-    AAA_MsgDump::Dump(*msg);
+    DiameterMsgHeaderDump::Dump(*msg);
 }
 
 template <class REC_STORAGE>
 void AAA_ServerAcctSession<REC_STORAGE>::RxError
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
     ErrorMsg(*msg);
 }

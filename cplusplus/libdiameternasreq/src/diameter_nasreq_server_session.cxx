@@ -39,7 +39,7 @@
    Created May 1, 2004.
 */
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "diameter_nasreq_server_session.hxx"
 #include "diameter_nasreq_server_fsm.hxx"
 #include "diameter_nasreq_parser.hxx"
@@ -59,7 +59,7 @@ DiameterNasreqServerSession::DiameterNasreqServerSession
 }
 
 AAAReturnCode
-DiameterNasreqServerSession::HandleMessage(AAAMessage &msg)
+DiameterNasreqServerSession::HandleMessage(DiameterMsg &msg)
 {
   // Header flag check.
   if (!msg.hdr.flags.r)
@@ -113,7 +113,7 @@ DiameterNasreqServerSession::HandleTimeout()
 }
 
 AAAReturnCode 
-AA_RequestHandler::HandleMessage (AAAMessage &msg)
+AA_RequestHandler::HandleMessage (DiameterMsg &msg)
 {
   // Header flag check.
   if (!msg.hdr.flags.r)

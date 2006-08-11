@@ -43,7 +43,7 @@
 #include <ace/OS.h>
 #include <ace/INET_Addr.h>
 #include <ace/Thread_Manager.h>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 using namespace std;
 
 #define GET_DATA_REF(dataType, data, containerEntryPtr) \
@@ -139,7 +139,8 @@ rtest(unsigned char *buf, int size)
   }
   catch (DiameterErrorCode &st) {
     std::cout << "payload parser error" << endl;
-      int type, code;
+      AAA_PARSE_ERROR_TYPE type;
+      int code;
       std::string avp;
       st.get(type, code, avp);
       std::cout << "Error type=" << type << ", code=" 
@@ -295,8 +296,8 @@ rtest(unsigned char *buf, int size)
 static void
 stest(unsigned char *buf, int size)
 {
-  AAAAvpContainerManager cm;
-  AAAAvpContainerEntryManager em;
+  DiameterAvpContainerManager cm;
+  DiameterAvpContainerEntryManager em;
   AAAAvpContainer *c_orhost = cm.acquire("Origin-Host");
   AAAAvpContainer *c_orrealm = cm.acquire("Origin-Realm");
   AAAAvpContainer *c_hostip = cm.acquire("Host-IP-Address");
@@ -443,7 +444,7 @@ main(int argc, char** argv)
   //  ACE_Log_Msg::instance()->open(argv[0], ACE_Log_Msg::SYSLOG);
 
   // Read dictionary file.
-  dm.init("./dictionary.xml");
+  dm.init("./config/dictionary.xml");
   grp_id = threads->spawn_n(NUM_THREADS, worker);
   if (grp_id < 1) {
       printf("Thread creation failed\n");

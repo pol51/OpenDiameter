@@ -38,7 +38,7 @@
 #include <string>
 #include <ace/Singleton.h>
 #include "framework.h"
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "nasd_config.h"
 
 class NASD_CallElement :

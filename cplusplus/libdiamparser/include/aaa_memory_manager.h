@@ -34,7 +34,7 @@
 #ifndef __AAA_MEMORY_MANAGER_H__
 #define __AAA_MEMORY_MANAGER_H__
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 /*!
  * AAA Message Manager
@@ -61,7 +61,7 @@
  * send or recieve. If adjustments need to be made, adjust 
  * the AAA_MAX_MESSAGE_SIZE macro in defs.h
  */
-class AAAMessageManager
+class DiameterMsgManager
 {
     public:
         /*!
@@ -77,17 +77,17 @@ class AAAMessageManager
          *
          * \param n_blocks Number of blocks to manage
          */
-        AAAMessageManager(int n_blocks = AAA_MIN_MESSAGE_COUNT);
+        DiameterMsgManager(int n_blocks = AAA_MIN_MESSAGE_COUNT);
 
 	/*!
 	 * destructor
 	 */
-	~AAAMessageManager();
+	~DiameterMsgManager();
 
         /*!
          * Access function to message singleton
          */
-        static AAAMessageManager *instance() { return &AAAMessageManager::allocator_; }
+        static DiameterMsgManager *instance() { return &DiameterMsgManager::allocator_; }
 
         /*!
          * Allocates an un-used message buffer 
@@ -100,7 +100,7 @@ class AAAMessageManager
         void free(AAAMessageBlock *buffer);
 
     private:
-        static AAAMessageManager allocator_; /*<< Singleton instance of the allocator */
+        static DiameterMsgManager allocator_; /*<< Singleton instance of the allocator */
 
         AAAMessageBlock **pool_; /*<< Message pool */
 

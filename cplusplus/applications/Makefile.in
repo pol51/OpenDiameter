@@ -167,7 +167,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = nas aaa pana
+SUBDIRS = aaa
 EXTRA_DIST = README
 all: all-recursive
 

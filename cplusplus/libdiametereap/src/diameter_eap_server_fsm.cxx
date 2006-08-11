@@ -293,7 +293,7 @@ DiameterEapServerStateMachine::DiameterEapServerStateMachine
 void 
 DiameterEapServerStateMachine::SendDEA()
 {
-  AAAMessage msg;
+  DiameterMsg msg;
 
   deaData.AuthApplicationId = EapApplicationId;
 
@@ -672,7 +672,9 @@ DiameterEapServerStateMachine::Authorize()
     }
 
   if (der.Tunneling.IsSet())
-    r = AuthorizeTunneling(der.Tunneling(), dea.Tunneling);
+    r = AuthorizeTunneling(der.Tunneling(), 
+                           (AAAVectorAttribute<tunneling_t, 
+                            DiameterAvpContainerEntryManager>&)dea.Tunneling);
   else
     r = AuthorizeTunneling(dea.Tunneling);
   if (!r)

@@ -39,28 +39,28 @@ AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Begin
 (bool oneTime)
 {
     // check if RADIUS/DIAMETER translation
-    AAA_ScholarAttribute<diameter_octetstring_t> rsid;
+    DiameterScholarAttribute<diameter_octetstring_t> rsid;
     this->SetRadiusAcctSessionId(rsid);
     if (rsid.IsSet()) {
         Attributes().RadiusAcctSessionId() = rsid;
     }
 
     // check for multi-session id
-    AAA_ScholarAttribute<diameter_utf8string_t> msid;
+    DiameterScholarAttribute<diameter_utf8string_t> msid;
     this->SetMultiSessionId(msid);
     if (msid.IsSet()) {
         Attributes().MultiSessionId() = rsid;
     }
 
     // check application for realtime
-    AAA_ScholarAttribute<diameter_enumerated_t> rt;
+    DiameterScholarAttribute<diameter_enumerated_t> rt;
     this->SetRealTimeRequired(rt);
     if (rt.IsSet()) {
         Attributes().RealtimeRequired() = rt();
     }
 
     // check application for interval
-    AAA_ScholarAttribute<diameter_unsigned32_t> interval;
+    DiameterScholarAttribute<diameter_unsigned32_t> interval;
     this->SetInterimInterval(interval);
     if (interval.IsSet()) {
         Attributes().InterimInterval() = interval();
@@ -83,7 +83,7 @@ AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Begin
 
 template <class REC_COLLECTOR>
 AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Send
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
    ////        !!!! WARNING !!!!
    //// un-used for current accounting application
@@ -121,20 +121,20 @@ AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Send
 
 template <class REC_COLLECTOR>
 void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxRequest
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
     AAA_LOG(LM_INFO, "(%P|%t) Service specific request msg received in client, no handlers so discarding\n");
-    AAA_MsgDump::Dump(*msg);
+    DiameterMsgHeaderDump::Dump(*msg);
 }
 
 template <class REC_COLLECTOR>
 void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
     // validate messge
     if (msg->hdr.code != AAA_MSGCODE_ACCOUNTING) {
         AAA_LOG(LM_INFO, "(%P|%t) Non-accounting answer message received, discarding\n");
-        AAA_MsgDump::Dump(*msg);
+        DiameterMsgHeaderDump::Dump(*msg);
         return;
     }
 
@@ -142,7 +142,7 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     m_Fsm.RxACA(*msg);
      
     // filter record-type
-    AAA_EnumAvpContainerWidget recTypeAvp(msg->acl);
+    DiameterEnumAvpContainerWidget recTypeAvp(msg->acl);
     diameter_enumerated_t *recType = recTypeAvp.GetAvp
                  (AAA_AVPNAME_ACCTREC_TYPE);
     if (recType) {
@@ -150,7 +150,7 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     }
 
     // filter realtime-required
-    AAA_EnumAvpContainerWidget realTimeAvp(msg->acl);
+    DiameterEnumAvpContainerWidget realTimeAvp(msg->acl);
     diameter_enumerated_t *realTime = realTimeAvp.GetAvp
                  (AAA_AVPNAME_ACCTREALTIME);
     if (realTime) {
@@ -158,7 +158,7 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     }
 
     // filter interval
-    AAA_UInt32AvpContainerWidget intervalAvp(msg->acl);
+    DiameterUInt32AvpContainerWidget intervalAvp(msg->acl);
     diameter_unsigned32_t *interval = intervalAvp.GetAvp
                  (AAA_AVPNAME_ACCTINTERVAL);
     if (interval) {
@@ -166,9 +166,9 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     }
 
     // notification rules 
-    AAA_MsgResultCode rcode(*msg);
+    DiameterMsgResultCode rcode(*msg);
     if (rcode.InterpretedResultCode() == 
-        AAA_MsgResultCode::RCODE_SUCCESS) {
+        DiameterMsgResultCode::RCODE_SUCCESS) {
         m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACA_OK);
     }
     else if (RecCollector().IsLastRecordInStorage() ||
@@ -191,7 +191,7 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
 
 template <class REC_COLLECTOR>
 void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxError
-(std::auto_ptr<AAAMessage> msg) 
+(std::auto_ptr<DiameterMsg> msg) 
 {
     ErrorMsg(*msg);
 }

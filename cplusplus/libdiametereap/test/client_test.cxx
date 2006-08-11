@@ -171,10 +171,10 @@ class MyDiameterEapClientSession : public DiameterEapClientSession
 
   /// Reimplemented from the parent class.
   void SetDestinationRealm
-  (AAA_ScholarAttribute<diameter_utf8string_t> &realm);
+  (DiameterScholarAttribute<diameter_utf8string_t> &realm);
 
   /// Reimplemented from parent class.
-  void SetUserName(AAA_ScholarAttribute<diameter_utf8string_t> &username);
+  void SetUserName(DiameterScholarAttribute<diameter_utf8string_t> &username);
 };
 
 // Class definition for authenticator identity method for my application.
@@ -582,7 +582,7 @@ MyDiameterEapClientSession::SignalReauthentication()
 
 void
 MyDiameterEapClientSession::SetDestinationRealm
-(AAA_ScholarAttribute<diameter_utf8string_t> &realm)
+(DiameterScholarAttribute<diameter_utf8string_t> &realm)
 {
   std::string& userName 
     = JobData(Type2Type<NAS_Application>()).Eap().PeerIdentity();
@@ -600,7 +600,7 @@ MyDiameterEapClientSession::SetDestinationRealm
 
 void
 MyDiameterEapClientSession::SetUserName
-(AAA_ScholarAttribute<diameter_utf8string_t> &username)
+(DiameterScholarAttribute<diameter_utf8string_t> &username)
 {
   std::string& userName 
     = JobData(Type2Type<NAS_Application>()).Eap().PeerIdentity();

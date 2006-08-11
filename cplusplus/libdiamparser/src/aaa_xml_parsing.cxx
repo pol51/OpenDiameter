@@ -37,12 +37,12 @@
 #include "ACEXML/common/FileCharStream.h"
 #include "ACEXML/parser/parser/Parser.h"
 #include "ACEXML/common/DefaultHandler.h"
-#include "comlist.h"
-#include "avplist.h"
-#include "q_avplist.h"
-#include "g_avplist.h"
-#include "parser.h"
-#include "diameter_parser_api.h"
+#include "aaa_comlist.h"
+#include "aaa_avplist.h"
+#include "aaa_q_avplist.h"
+#include "aaa_g_avplist.h"
+#include "aaa_parser.h"
+#include "diameter_parser.h"
 
 // #define AAAXML_DEBUG
 
@@ -336,9 +336,9 @@ class AAAXML_RequestRulesElement :
             (AAAXML_CommandElement*)Parent();
 
         m_command = new DiameterCommand;
-        m_command->avp_f = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_FIXED_HEAD);
-        m_command->avp_r = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_REQUIRED);
-        m_command->avp_o = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_OPTIONAL);
+        m_command->avp_f = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
+        m_command->avp_r = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
+        m_command->avp_o = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
 
         m_command->name = cmdElm->Name() + std::string("-Request");
         m_command->code = cmdElm->Code();
@@ -380,9 +380,9 @@ class AAAXML_AnswerRulesElement :
         }
 
         m_command = new DiameterCommand;
-        m_command->avp_f = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_FIXED_HEAD);
-        m_command->avp_r = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_REQUIRED);
-        m_command->avp_o = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_OPTIONAL);
+        m_command->avp_f = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
+        m_command->avp_r = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
+        m_command->avp_o = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
 
         AAAXML_CommandElement *cmdElm = 
             (AAAXML_CommandElement*)Parent();
@@ -493,7 +493,7 @@ class AAAXML_AvpElement :
             m_avp->flags |= 
                 ((vendorId == 0) ? 0 : DIAMETER_AVP_FLAG_VENDOR_SPECIFIC);
             if (m_avp->avpCode != 0)  { // Do not add "AVP" AVP
-                AAAAvpList::instance()->add(m_avp);
+                DiameterAvpList::instance()->add(m_avp);
             }
             else {
                 delete m_avp;
@@ -544,7 +544,7 @@ class AAAXML_TypeElement :
         }
  
         // check for validity of type
-        DiameterAvpType *avpt = DiameterAvpTypeList::instance()->search(tname.c_str());
+        DiameterAvpType *avpt = (DiameterAvpType*)DiameterAvpTypeList::instance()->search(tname.c_str());
         if (avpt == NULL) {
             ACE_DEBUG((LM_ERROR, 
                  "Unknown AVP type %s.\n", tname.c_str()));
@@ -579,11 +579,11 @@ class AAAXML_GroupedElement :
         m_grpAvp = new DiameterGroupedAVP;
         m_grpAvp->code = avpElm->Avp()->avpCode;
         m_grpAvp->vendorId = avpElm->Avp()->vendorId;
-        m_grpAvp->avp_f = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_FIXED_HEAD);
-        m_grpAvp->avp_r = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_REQUIRED);
-        m_grpAvp->avp_o = new AAAQualifiedAvpList(DIAMETER_PARSE_TYPE_OPTIONAL);
+        m_grpAvp->avp_f = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
+        m_grpAvp->avp_r = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
+        m_grpAvp->avp_o = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
 
-        AAAGroupedAvpList::instance()->add(m_grpAvp);  // to be revisited
+        DiameterGroupedAvpList::instance()->add(m_grpAvp);  // to be revisited
 						       // after parsing
                                                        // all avps.
         avpElm->Avp()->avpType = AAA_AVP_GROUPED_TYPE;
@@ -658,10 +658,10 @@ class AAAXML_PositionElement :
         m_qAvpList = NULL;
         return AAAXML_Element::endElement();
      }
-     AAAQualifiedAvpList* AvpList() {
+     DiameterQualifiedAvpList* AvpList() {
         return m_qAvpList;
      }
-     AAAQualifiedAvpList *ResolveAvpList(DiameterDictionary *dict, 
+     DiameterQualifiedAvpList *ResolveAvpList(DiameterDictionary *dict, 
                                          std::string &position) {
         if (dict == NULL) {
             ACE_DEBUG((LM_ERROR, "Command not allocated !!!\n"));
@@ -683,7 +683,7 @@ class AAAXML_PositionElement :
      }
 
   private:
-     AAAQualifiedAvpList* m_qAvpList;
+     DiameterQualifiedAvpList* m_qAvpList;
 };
 
 class AAAXML_FixedElement : 
@@ -730,7 +730,7 @@ class AAAXML_AvpRuleElement :
             return true;
         }
 
-        AAAQualifiedAVP *qavp;
+        DiameterQualifiedAVP *qavp;
         DiameterDictionaryEntry *avp;
 
         std::string avpName, sMax = "", sMin = "";
@@ -756,7 +756,7 @@ class AAAXML_AvpRuleElement :
             throw;
         }
 
-        if ((avp = AAAAvpList::instance()->search(avpName)) == NULL) {
+        if ((avp = DiameterAvpList::instance()->search(avpName)) == NULL) {
             AAA_LOG(LM_ERROR, "*** Cannot find AVP named %s ***\n\
   If %s is included inside a grouped avp, \n\
   make sure it's <avp> definition comes before \n\
@@ -773,7 +773,7 @@ class AAAXML_AvpRuleElement :
                    (sMax == std::string(""))) ? 
 		   QUAL_INFINITY : ACE_OS::atoi(sMax.c_str());
 
-        qavp = new AAAQualifiedAVP;
+        qavp = new DiameterQualifiedAVP;
         qavp->avp = avp; 
         qavp->qual.min = min; 
         qavp->qual.max = max; 

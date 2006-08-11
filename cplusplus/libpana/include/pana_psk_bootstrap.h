@@ -1,7 +1,7 @@
 #ifndef __PANA_PSK_BOOTSTRAP_H__
 #define __PANA_PSK_BOOTSTRAP_H__
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "pana_exports.h"
 #include "pana_prf_plus.h"
 

@@ -69,7 +69,7 @@ AAASampleAuthAnswerMessage::~AAASampleAuthAnswerMessage()
    _session.RemoveMessageHandler(this);
 }
 
-AAAReturnCode AAASampleAuthAnswerMessage::HandleMessage(AAAMessage &msg)
+AAAReturnCode AAASampleAuthAnswerMessage::HandleMessage(DiameterMsg &msg)
 {
    /*
     * For test purposes, we leave error messages unhandled
@@ -136,7 +136,7 @@ AAASampleServer::AAASampleServer(AAAApplicationCore &appCore,
    _sessionIndex = AAASampleServer::_sessionCount;
 }
 
-AAAReturnCode AAASampleServer::HandleMessage(AAAMessage &msg)
+AAAReturnCode AAASampleServer::HandleMessage(DiameterMsg &msg)
 {
    /* 
     * After being created by the factory on receipt of a
@@ -226,16 +226,16 @@ AAAReturnCode AAASampleServer::HandleAbort()
    return (AAA_ERR_SUCCESS);
 }
 
-AAAReturnCode AAASampleServer::SendTestAuthAnswer(AAAMessage &request)
+AAAReturnCode AAASampleServer::SendTestAuthAnswer(DiameterMsg &request)
 {
    /*
     * Sample authorization request answer. This message
     * composition follows libdiamparser rules in
-    * composing an AAAMessage. 
+    * composing an DiameterMsg. 
     */
 
-   AAAAvpContainerManager cm;
-   AAAAvpContainerEntryManager em;
+   DiameterAvpContainerManager cm;
+   DiameterAvpContainerEntryManager em;
 
    AAAAvpContainer *c_sessId = cm.acquire("Session-Id");
    AAAAvpContainer *c_orhost = cm.acquire("Origin-Host");
@@ -251,9 +251,9 @@ AAAReturnCode AAASampleServer::SendTestAuthAnswer(AAAMessage &request)
    e = em.acquire(AAA_AVP_DIAMID_TYPE);
    c_orrealm->add(e);
  
-   AAAMessage acaMsg;
-   hdr_flag flag = {0,0,0,0,0};
-   AAADiameterHeader h(1, 0, flag, request.hdr.code, 10000, 0, 0);
+   DiameterMsg acaMsg;
+   diameter_hdr_flag flag = {0,0,0,0,0};
+   DiameterMsgHeader h(1, 0, flag, request.hdr.code, 10000, 0, 0);
    acaMsg.hdr = h;
 
    acaMsg.acl.add(c_sessId);
@@ -294,19 +294,19 @@ AAASampleAccountingServer::~AAASampleAccountingServer()
    // do nothing
 }
 
-AAAReturnCode AAASampleAccountingServer::SendAcctAnswer(AAAMessage &request)
+AAAReturnCode AAASampleAccountingServer::SendAcctAnswer(DiameterMsg &request)
 {
    /*
     * Sample accounting request. This message
     * composition follows libdiamparser rules in
-    * composing an AAAMessage. The commandn code
+    * composing an DiameterMsg. The commandn code
     * for accounting request is AAASampleAccountingRequestMsg::ACR.
     */
 
    ACE_DEBUG((LM_DEBUG, "(%P|%t) Server: Sending test acct answer message\n"));
 
-   AAAAvpContainerManager cm;
-   AAAAvpContainerEntryManager em;
+   DiameterAvpContainerManager cm;
+   DiameterAvpContainerEntryManager em;
 
    AAAAvpContainer *c_sessId = cm.acquire("Session-Id");
    AAAAvpContainer *c_orhost = cm.acquire("Origin-Host");
@@ -377,9 +377,9 @@ AAAReturnCode AAASampleAccountingServer::SendAcctAnswer(AAAMessage &request)
    diameter_unsigned32_t &origin = e->dataRef(Type2Type<diameter_unsigned32_t>());
    c_origin->add(e);
 
-   AAAMessage acctMsg;
-   hdr_flag flag = {0,0,0,0,0};
-   AAADiameterHeader h(0, 0, flag, AAASampleAccountingServer::ACR, 20000, 0, 0);
+   DiameterMsg acctMsg;
+   diameter_hdr_flag flag = {0,0,0,0,0};
+   DiameterMsgHeader h(0, 0, flag, AAASampleAccountingServer::ACR, 20000, 0, 0);
    acctMsg.hdr = h;
 
    acctMsg.acl.add(c_sessId);
@@ -427,7 +427,7 @@ AAAReturnCode AAASampleAccountingServer::SendAcctAnswer(AAAMessage &request)
    return (AAA_ERR_SUCCESS);
 }
 
-AAAReturnCode AAASampleXMLTrans::OutputRecord(AAAMessage *originalMsg)
+AAAReturnCode AAASampleXMLTrans::OutputRecord(DiameterMsg *originalMsg)
 {
    ACE_DEBUG((LM_DEBUG, "(%P|%t) Server: Accounting transformer successfully converted record\n"));
 

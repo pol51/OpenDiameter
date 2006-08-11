@@ -50,7 +50,7 @@ void AAA_PeerEntry::Stop(AAA_DISCONNECT_CAUSE cause)
 }
 
 void AAA_PeerEntry::IncommingConnectionRequest(std::auto_ptr<AAA_IO_Base> io,
-                                               std::auto_ptr<AAAMessage> cer)
+                                               std::auto_ptr<DiameterMsg> cer)
 {
    AAA_MsgCollector *h = reinterpret_cast<AAA_MsgCollector*>(io->Handler());
    h->RegisterHandler(*this);
@@ -70,7 +70,7 @@ void AAA_PeerEntry::ConnectionRequestFailed()
    Notify(AAA_PEER_EV_I_RCV_CONN_NACK);
 }
 
-void AAA_PeerEntry::Message(std::auto_ptr<AAAMessage> msg)
+void AAA_PeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
 {
 
    ////////////////////////////////////////////

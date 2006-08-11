@@ -83,7 +83,7 @@ AAASampleAuthMessage::~AAASampleAuthMessage()
    session.RemoveMessageHandler(this);
 }
 
-AAAReturnCode AAASampleAuthMessage::HandleMessage(AAAMessage &msg)
+AAAReturnCode AAASampleAuthMessage::HandleMessage(DiameterMsg &msg)
 {
    /*
     * For test purposes, we leave error messages unhandled
@@ -150,7 +150,7 @@ AAASampleClient::AAASampleClient(AAAApplicationCore &appCore,
    _sessionIndex = AAASampleClient::_sessionCount;
 }
 
-AAAReturnCode AAASampleClient::HandleMessage(AAAMessage &msg)
+AAAReturnCode AAASampleClient::HandleMessage(DiameterMsg &msg)
 {
    /*
     * This is the default message handler. Any message
@@ -255,14 +255,14 @@ AAAReturnCode AAASampleClient::SendTestAuth()
    /*
     * Sample authorization request. This message
     * composition follows libdiamparser rules in
-    * composing an AAAMessage. The test command
+    * composing an DiameterMsg. The test command
     * code we use is 300.
     */
 
    ACE_DEBUG((LM_DEBUG, "(%P|%t) Client: Sending test auth message # %d\n",  _sessionIndex));
 
-   AAAAvpContainerManager cm;
-   AAAAvpContainerEntryManager em;
+   DiameterAvpContainerManager cm;
+   DiameterAvpContainerEntryManager em;
 
    AAAAvpContainer *c_sessId = cm.acquire("Session-Id");
    AAAAvpContainer *c_orhost = cm.acquire("Origin-Host");
@@ -298,9 +298,9 @@ AAAReturnCode AAASampleClient::SendTestAuth()
    diameter_unsigned32_t &reauth = e->dataRef(Type2Type<diameter_unsigned32_t>());
    c_reauth->add(e);
  
-   AAAMessage authMsg;
-   hdr_flag flag = {1,0,0,0,0};
-   AAADiameterHeader h(1, 0, flag, 300, 10000, 0, 0);
+   DiameterMsg authMsg;
+   diameter_hdr_flag flag = {1,0,0,0,0};
+   DiameterMsgHeader h(1, 0, flag, 300, 10000, 0, 0);
    authMsg.hdr = h;
 
    authMsg.acl.add(c_sessId);
@@ -352,14 +352,14 @@ AAAReturnCode AAASampleAccountingClient::SendAcctMessage(RECTYPE type)
    /*
     * Sample accounting request. This message
     * composition follows libdiamparser rules in
-    * composing an AAAMessage. The commandn code
+    * composing an DiameterMsg. The commandn code
     * for accounting request is AAASampleAccountingRequestMsg::ACR.
     */
 
    ACE_DEBUG((LM_DEBUG, "(%P|%t) Client: Sending test acct message\n"));
 
-   AAAAvpContainerManager cm;
-   AAAAvpContainerEntryManager em;
+   DiameterAvpContainerManager cm;
+   DiameterAvpContainerEntryManager em;
 
    AAAAvpContainer *c_sessId = cm.acquire("Session-Id");
    AAAAvpContainer *c_orhost = cm.acquire("Origin-Host");
@@ -431,9 +431,9 @@ AAAReturnCode AAASampleAccountingClient::SendAcctMessage(RECTYPE type)
    diameter_unsigned32_t &origin = e->dataRef(Type2Type<diameter_unsigned32_t>());
    c_origin->add(e);
 
-   AAAMessage acctMsg;
-   hdr_flag flag = {1,0,0,0,0};
-   AAADiameterHeader h(1, 0, flag, AAASampleAccountingRequestMsg::ACR, 20000, 0, 0);
+   DiameterMsg acctMsg;
+   diameter_hdr_flag flag = {1,0,0,0,0};
+   DiameterMsgHeader h(1, 0, flag, AAASampleAccountingRequestMsg::ACR, 20000, 0, 0);
    acctMsg.hdr = h;
 
    acctMsg.acl.add(c_sessId);
@@ -531,7 +531,7 @@ AAASampleAccountingRequestMsg::~AAASampleAccountingRequestMsg()
    session.RemoveMessageHandler(this);
 }
 
-AAAReturnCode AAASampleAccountingRequestMsg::HandleMessage(AAAMessage &msg)
+AAAReturnCode AAASampleAccountingRequestMsg::HandleMessage(DiameterMsg &msg)
 {
    /* This is the default handler for accounting messages.
     * In real implementations, applications MUST examine 

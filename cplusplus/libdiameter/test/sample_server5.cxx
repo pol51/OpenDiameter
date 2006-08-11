@@ -61,11 +61,11 @@ class AAA_SampleAcctRecStorage :
            /// as Accounting-Sub-Session-Id, Acct-Session
            /// -Id ... etc which the application may wish
            /// to track
-           AAA_Utf8AvpContainerWidget recAvp(avpList);
+           DiameterUtf8AvpContainerWidget recAvp(avpList);
            diameter_utf8string_t *rec = recAvp.GetAvp("Example-Accounting-Record");
            return rec;
         }
-        virtual void UpdateAcctResponse(AAAMessage &aca) {
+        virtual void UpdateAcctResponse(DiameterMsg &aca) {
            /// If you wish to add AVP's to the ACA
            /// before it is sent, you need to override
            /// this method and insert your AVP's here
@@ -73,7 +73,7 @@ class AAA_SampleAcctRecStorage :
            // as an example, add a timestamp to your aca
            time_t currentTime = time(0);
            if (currentTime > 0) {
-              AAA_TimeAvpWidget tstampAvp("Event-Timestamp");
+              DiameterTimeAvpWidget tstampAvp("Event-Timestamp");
               tstampAvp.Get() = currentTime;
               aca.acl.add(tstampAvp());
            }
@@ -105,7 +105,7 @@ class AAA_SampleAcctServer :
         /// This function is used for setting realtime required 
         /// AVP as a hint to the server
         virtual void SetRealTimeRequired
-        (AAA_ScholarAttribute<diameter_enumerated_t> &rt)
+        (DiameterScholarAttribute<diameter_enumerated_t> &rt)
         {
             /// The following are possible values:
             ///   AAA_ACCT_REALTIME_DELIVER_AND_GRANT
@@ -116,7 +116,7 @@ class AAA_SampleAcctServer :
         /// This function is used for setting acct interim 
         /// interval AVP dictated by the server to client
         virtual void SetInterimInterval
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
             timeout = 2; // tell client to generate record every 2 sec
         }
@@ -151,7 +151,7 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
            m_EndOnSuccess(endOnSuccess) {
         }
         virtual void SetAuthSessionState
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &authState)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &authState)
         {
             // optional override, called by the library to set 
             // the auth state. Note that this overrides the 
@@ -160,7 +160,7 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
             authState = AAA_SESSION_STATE_MAINTAINED;
         }
         virtual void SetSessionTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
             // optional override, called by the library so 
             // this server can dictate the session timeout 
@@ -169,7 +169,7 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
             timeout = 30;
         }
         virtual void SetAuthLifetimeTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
             // optional override, called by the library so 
             // this server can dictate the session timeout 
@@ -178,7 +178,7 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
             timeout = 2;
         }
         virtual void SetAuthGracePeriodTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
             // optional override, called by the library so 
             // this server can dictate the auth grace period
@@ -195,7 +195,7 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
             AAA_LOG(LM_INFO, "(%P|%t) **** client responded to re-auth ****\n");
             return (AAA_ERR_SUCCESS);
         }
-        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+        virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
 
             // all request messages are handled by this function. 
             // This function can retrun the following values:
@@ -205,13 +205,13 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
             // c. AAA_ERR_FAILURE - client authentication failed
 
             AAA_LOG(LM_INFO, "(%P|%t) Request message received\n");
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
 
-            AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-            AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-            AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
-            AAA_UInt32AvpContainerWidget authAppIdAvp(msg.acl);
-            AAA_EnumAvpContainerWidget reAuthAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+            DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
+            DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
+            DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
             diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
             diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
@@ -238,7 +238,7 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
             // Send answer back
             return TxAuthenticationAnswer();
         }
-        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+        virtual AAAReturnCode AnswerMsg(DiameterMsg &msg) {
             // all answer messages are handled by this function.
             // AAA servers normally will receive answer messages
             // in the open state
@@ -249,10 +249,10 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
             //                      to server request
             // b. AAA_ERR_FAILURE - client failed. 
             AAA_LOG(LM_INFO, "(%P|%t) **** Answer message message received in server ****\n");
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
             return (AAA_ERR_SUCCESS);
         }
-        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+        virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
             // all error messages are handled by this function.
             AAA_LOG(LM_INFO, "(%P|%t) **** Received message with error bit set ****\n");
             return (AAA_ERR_SUCCESS);
@@ -292,10 +292,10 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
         AAAReturnCode TxAuthenticationAnswer() {
             std::cout << "Sending answer message" << std::endl;
 
-            AAA_MsgWidget msg(300, false, 10000);
+            DiameterMsgWidget msg(300, false, 10000);
 
-            AAA_UInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-            AAA_Utf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+            DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
@@ -303,7 +303,7 @@ class AAA_SampleAuthServer : public AAA_ServerAuthSession {
             msg()->acl.add(authIdAvp());
             msg()->acl.add(unameAvp());
 
-            AAA_MsgResultCode rcode(*msg());
+            DiameterMsgResultCode rcode(*msg());
             rcode.ResultCode(AAA_SUCCESS);
 
             Send(msg());

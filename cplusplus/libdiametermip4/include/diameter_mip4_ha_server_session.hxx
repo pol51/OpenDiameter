@@ -72,7 +72,7 @@ class HAR_Handler:public AAASessionMessageHandler
     {}
   private:
     DiameterMip4HaServerSession<SpecificHaServerSession >  &session;
-    AAAReturnCode HandleMessage (AAAMessage &msg)
+    AAAReturnCode HandleMessage (DiameterMsg &msg)
     {
 
       // Header flag check.
@@ -140,7 +140,7 @@ class HAR_Handler:public AAASessionMessageHandler
   DiameterMip4HaServerSession* Self() { return this; }
 
   /// Reimplemented from AAAServerSession. 
-  AAAReturnCode HandleMessage(AAAMessage &msg)
+  AAAReturnCode HandleMessage(DiameterMsg &msg)
   {
     AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
     return AAA_ERR_UNKNOWN_CMD;
@@ -225,7 +225,7 @@ class HAR_Handler:public AAASessionMessageHandler
   }
 
   /****
-  int SetHaMnKey(  AAA_ScholarAttribute<diameter_octetstring_t> &mipSessionKey)
+  int SetHaMnKey(  DiameterScholarAttribute<diameter_octetstring_t> &mipSessionKey)
   {
     diameter_octetstring_t _mipSessionKey;
     int rc = specificAaaSServerSession.SetHaMnKey( _mipSessionKey);
@@ -234,7 +234,7 @@ class HAR_Handler:public AAASessionMessageHandler
     return rc;
   }
   ********/
-  int SetErrorMessage(AAA_ScholarAttribute<diameter_utf8string_t> &errorMessage)
+  int SetErrorMessage(DiameterScholarAttribute<diameter_utf8string_t> &errorMessage)
   {
     diameter_utf8string_t _errorMessage;
     int rc;
@@ -243,7 +243,7 @@ class HAR_Handler:public AAASessionMessageHandler
     return rc;
   }
 
-  int SetMipRegReply(AAA_ScholarAttribute<diameter_octetstring_t> &reply)
+  int SetMipRegReply(DiameterScholarAttribute<diameter_octetstring_t> &reply)
   {
     diameter_octetstring_t _reply="";
     int rc=0;
@@ -253,7 +253,7 @@ class HAR_Handler:public AAASessionMessageHandler
   }
 
   // is called if MN address does not appear in HAR
-  int SetMipMnAddress(AAA_ScholarAttribute<diameter_address_t> &address)
+  int SetMipMnAddress(DiameterScholarAttribute<diameter_address_t> &address)
   {
     diameter_address_t _address;
     int rc;
@@ -263,7 +263,7 @@ class HAR_Handler:public AAASessionMessageHandler
   }
 
   // Must be populated by HA
-  int SetAcctMultiSessionId( AAA_ScholarAttribute<diameter_utf8string_t> &acctMultiSessionId)
+  int SetAcctMultiSessionId( DiameterScholarAttribute<diameter_utf8string_t> &acctMultiSessionId)
   {
     diameter_utf8string_t _acctMultiSessionId;
     int rc;

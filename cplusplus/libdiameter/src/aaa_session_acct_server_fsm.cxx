@@ -43,7 +43,7 @@ AAA_AcctSessionServerStateMachine::AAA_AcctSessionServerStateMachine
 {
 }
 
-void AAA_AcctSessionServerStateMachine::RxACR(AAAMessage &msg)
+void AAA_AcctSessionServerStateMachine::RxACR(DiameterMsg &msg)
 {
    /*
    9.7.1.  Accounting-Request
@@ -83,12 +83,12 @@ void AAA_AcctSessionServerStateMachine::RxACR(AAAMessage &msg)
               * [ Route-Record ]
               * [ AVP ]
     */
-    AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-    AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-    AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
-    AAA_EnumAvpContainerWidget acctRecTypeAvp(msg.acl);
-    AAA_UInt32AvpContainerWidget acctRecNumAvp(msg.acl);
-    AAA_UInt32AvpContainerWidget acctRealtimeAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+    DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
+    DiameterEnumAvpContainerWidget acctRecTypeAvp(msg.acl);
+    DiameterUInt32AvpContainerWidget acctRecNumAvp(msg.acl);
+    DiameterUInt32AvpContainerWidget acctRealtimeAvp(msg.acl);
 
     diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
     diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
@@ -178,30 +178,30 @@ void AAA_AcctSessionServerStateMachine::TxACA(diameter_unsigned32_t rcode)
               * [ AVP ]
    */
 
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    ACE_OS::memset(&msg->hdr, 0, sizeof(msg->hdr));
-   msg->hdr.ver = AAA_PROTOCOL_VERSION;
+   msg->hdr.ver = DIAMETER_PROTOCOL_VERSION;
    msg->hdr.length = 0;
-   msg->hdr.flags.r = AAA_FLG_CLR;
-   msg->hdr.flags.p = AAA_FLG_CLR;
-   msg->hdr.flags.e = AAA_FLG_CLR;
+   msg->hdr.flags.r = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.p = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.e = DIAMETER_FLAG_CLR;
    msg->hdr.code = AAA_MSGCODE_ACCOUNTING;
    msg->hdr.appId = Attributes().ApplicationId();
 
    // required
    Attributes().SessionId().Set(*msg);
 
-   AAA_UInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
-   AAA_IdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
-   AAA_IdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
-   AAA_EnumAvpWidget acctRecTypeAvp(AAA_AVPNAME_ACCTREC_TYPE);
-   AAA_UInt32AvpWidget acctRecNumAvp(AAA_AVPNAME_ACCTREC_NUM);
-   AAA_UInt32AvpWidget acctIdAvp(AAA_AVPNAME_ACCTAPPID);
-   AAA_UInt64AvpWidget acctSubIdAvp(AAA_AVPNAME_ACCTSUBSID);
-   AAA_IdentityAvpWidget errHostAvp(AAA_AVPNAME_ERRORREPORTINGHOST);
-   AAA_UInt32AvpWidget orStateId(AAA_AVPNAME_ORIGINSTATEID);
-   AAA_EnumAvpWidget realtimeAvp(AAA_AVPNAME_ACCTREALTIME);
-   AAA_UInt32AvpWidget intervalAvp(AAA_AVPNAME_ACCTINTERVAL);
+   DiameterUInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
+   DiameterIdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
+   DiameterEnumAvpWidget acctRecTypeAvp(AAA_AVPNAME_ACCTREC_TYPE);
+   DiameterUInt32AvpWidget acctRecNumAvp(AAA_AVPNAME_ACCTREC_NUM);
+   DiameterUInt32AvpWidget acctIdAvp(AAA_AVPNAME_ACCTAPPID);
+   DiameterUInt64AvpWidget acctSubIdAvp(AAA_AVPNAME_ACCTSUBSID);
+   DiameterIdentityAvpWidget errHostAvp(AAA_AVPNAME_ERRORREPORTINGHOST);
+   DiameterUInt32AvpWidget orStateId(AAA_AVPNAME_ORIGINSTATEID);
+   DiameterEnumAvpWidget realtimeAvp(AAA_AVPNAME_ACCTREALTIME);
+   DiameterUInt32AvpWidget intervalAvp(AAA_AVPNAME_ACCTINTERVAL);
 
    rcodeAvp.Get() = rcode;
    orHostAvp.Get() = AAA_CFG_TRANSPORT()->identity;
@@ -227,19 +227,19 @@ void AAA_AcctSessionServerStateMachine::TxACA(diameter_unsigned32_t rcode)
 
    // optional avps
    if (Attributes().RadiusAcctSessionId().IsSet()) {
-       AAA_StringAvpWidget radiusIdAvp(AAA_AVPNAME_ACCTSID);
+       DiameterStringAvpWidget radiusIdAvp(AAA_AVPNAME_ACCTSID);
        radiusIdAvp.Get() = Attributes().RadiusAcctSessionId()();
        msg->acl.add(radiusIdAvp());
    }
 
    if (Attributes().MultiSessionId().IsSet()) {
-       AAA_Utf8AvpWidget multiIdAvp(AAA_AVPNAME_ACCTMULTISID);
+       DiameterUtf8AvpWidget multiIdAvp(AAA_AVPNAME_ACCTMULTISID);
        multiIdAvp.Get() = Attributes().MultiSessionId()();
        msg->acl.add(multiIdAvp());
    }
 
    if (Attributes().Username().IsSet()) {
-       AAA_Utf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+       DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
        unameAvp.Get() = Attributes().Username()();
        msg->acl.add(unameAvp());
    }

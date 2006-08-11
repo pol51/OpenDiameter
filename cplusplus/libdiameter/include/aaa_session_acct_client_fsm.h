@@ -83,7 +83,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSessionClientStateMachine :
       }
 
       void TxACR();
-      void RxACA(AAAMessage &msg);
+      void RxACA(DiameterMsg &msg);
 
    private:
       AAA_ClientAcctRecCollector &m_RecCollector;

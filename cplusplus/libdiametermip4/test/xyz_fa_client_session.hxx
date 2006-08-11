@@ -192,7 +192,7 @@ public:
   ( const diameter_unsigned32_t &mipMsaLifetime){}
 
   void EnforceMipFilterRule ( 
-   const  AAA_VectorAttribute<diameter_ipfilter_rule_t> &mipFilterRule){}
+   const  DiameterVectorAttribute<diameter_ipfilter_rule_t> &mipFilterRule){}
 
 };
 

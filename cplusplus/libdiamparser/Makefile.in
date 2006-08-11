@@ -60,31 +60,34 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(sysconfdir)" \
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libdiamparser_la_LIBADD =
-am__objects_1 = avplist.lo q_avplist.lo comlist.lo g_avplist.lo \
-	parser.lo avp_container.lo parser_avp.lo avp_header.lo \
-	error_status.lo parser_q_avplist.lo xml_parsing.lo \
-	memory_manager.lo parser_avpvalue.lo
+am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_1 = src/aaa_avplist.lo src/aaa_q_avplist.lo \
+	src/aaa_comlist.lo src/aaa_g_avplist.lo src/aaa_parser.lo \
+	src/aaa_parser_avp.lo src/aaa_avp_header.lo \
+	src/aaa_error_status.lo src/aaa_parser_q_avplist.lo \
+	src/aaa_xml_parsing.lo src/aaa_memory_manager.lo \
+	src/aaa_parser_avpvalue.lo
 am__objects_2 =
 am_libdiamparser_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libdiamparser_la_OBJECTS = $(am_libdiamparser_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
-am_parser_test1_OBJECTS = test1.$(OBJEXT)
+am_parser_test1_OBJECTS = test/aaa_test1.$(OBJEXT)
 parser_test1_OBJECTS = $(am_parser_test1_OBJECTS)
 parser_test1_LDADD = $(LDADD)
 parser_test1_DEPENDENCIES = libdiamparser.la
-am_parser_test2_OBJECTS = test2.$(OBJEXT)
+am_parser_test2_OBJECTS = test/aaa_test2.$(OBJEXT)
 parser_test2_OBJECTS = $(am_parser_test2_OBJECTS)
 parser_test2_LDADD = $(LDADD)
 parser_test2_DEPENDENCIES = libdiamparser.la
-am_parser_test3_OBJECTS = test3.$(OBJEXT)
+am_parser_test3_OBJECTS = test/aaa_test3.$(OBJEXT)
 parser_test3_OBJECTS = $(am_parser_test3_OBJECTS)
 parser_test3_LDADD = $(LDADD)
 parser_test3_DEPENDENCIES = libdiamparser.la
-am_parser_test4_OBJECTS = parser_test4-test1.$(OBJEXT)
+am_parser_test4_OBJECTS = test/aaa_test1.$(OBJEXT)
 parser_test4_OBJECTS = $(am_parser_test4_OBJECTS)
 parser_test4_LDADD = $(LDADD)
 parser_test4_DEPENDENCIES = libdiamparser.la
-am_parser_test5_OBJECTS = test5.$(OBJEXT)
+am_parser_test5_OBJECTS = test/aaa_test5.$(OBJEXT)
 parser_test5_OBJECTS = $(am_parser_test5_OBJECTS)
 parser_test5_LDADD = $(LDADD)
 parser_test5_DEPENDENCIES = libdiamparser.la
@@ -232,52 +235,57 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
-sysconfdir = $(prefix)/etc/opendiameter/parser
+sysconfdir = $(prefix)/etc/opendiameter/diameter
 target_alias = @target_alias@
-AM_CPPFLAGS = @L_CPPFLAGS@ -I@top_srcdir@/include -D@HOST_OS@ 
-AM_LDFLAGS = @L_LDFLAGS@
-PARSER_SRC = avplist.cxx \
-             q_avplist.cxx \
-	     comlist.cxx \
-	     g_avplist.cxx \
-             parser.cxx \
-	     avp_container.cxx \
-	     parser_avp.cxx \
-	     avp_header.cxx \
-             error_status.cxx \
-	     parser_q_avplist.cxx \
-	     xml_parsing.cxx \
-	     memory_manager.cxx \
-	     parser_avpvalue.cxx 
+AM_CPPFLAGS = @L_CPPFLAGS@ \
+              -I$(srcdir)/include \
+              -I@top_srcdir@/include \
+	      -D@HOST_OS@ 
 
-PARSER_HDR = parser_avp.h \
-             parser_avpvalue.h \
-	     parser.h \
-             avp_header.h \
-	     comlist.h \
-	     error_status.h \
-	     parser_q_avplist.h \
-	     avplist.h \
-	     g_avplist.h \
-	     q_avplist.h \
-             memory_manager.h \
-	     xml_parsing.h \
-	     diameter_parser_api.h
+AM_LDFLAGS = @L_LDFLAGS@
+PARSER_SRC = src/aaa_avplist.cxx \
+             src/aaa_q_avplist.cxx \
+	     src/aaa_comlist.cxx \
+	     src/aaa_g_avplist.cxx \
+             src/aaa_parser.cxx \
+	     src/aaa_parser_avp.cxx \
+	     src/aaa_avp_header.cxx \
+             src/aaa_error_status.cxx \
+	     src/aaa_parser_q_avplist.cxx \
+	     src/aaa_xml_parsing.cxx \
+	     src/aaa_memory_manager.cxx \
+	     src/aaa_parser_avpvalue.cxx 
+
+PARSER_HDR = include/aaa_parser_avp.h \
+             include/aaa_parser_avpvalue.h \
+	     include/aaa_parser.h \
+             include/aaa_avp_header.h \
+	     include/aaa_comlist.h \
+	     include/aaa_error_status.h \
+	     include/aaa_parser_q_avplist.h \
+	     include/aaa_avplist.h \
+	     include/aaa_g_avplist.h \
+	     include/aaa_q_avplist.h \
+             include/aaa_memory_manager.h \
+	     include/aaa_xml_parsing.h \
+             include/diameter_parser.h \
+	     include/diameter_parser_api.h
 
 lib_LTLIBRARIES = libdiamparser.la
-libdiamparser_la_SOURCES = $(PARSER_SRC) $(PARSER_HDR) 
+libdiamparser_la_SOURCES = $(PARSER_SRC) $(PARSER_HDR)
 libdiamparser_la_LDFLAGS = -version-info 1:0:0
 libdiamparser_la_AR = $(AR) -qcs
-sysconf_DATA = dictionary.xml dictionary.dtd
 include_HEADERS = $(PARSER_HDR)
+sysconf_DATA = config/dictionary.xml \
+               config/dictionary.dtd
+
 LDADD = @L_LIBS@ libdiamparser.la
-parser_test1_SOURCES = test1.cxx
-parser_test2_SOURCES = test2.cxx
-parser_test3_SOURCES = test3.cxx
-parser_test4_SOURCES = test1.cxx
-parser_test5_SOURCES = test5.cxx
-parser_test4_CPPFLAGS = $(AM_CPPFLAGS) -DPROTOID_TEST
-EXTRA_DIST = dictionary.xml dictionary.dtd
+parser_test1_SOURCES = test/aaa_test1.cxx
+parser_test2_SOURCES = test/aaa_test2.cxx
+parser_test3_SOURCES = test/aaa_test3.cxx
+parser_test4_SOURCES = test/aaa_test1.cxx
+parser_test5_SOURCES = test/aaa_test5.cxx
+EXTRA_DIST = config/dictionary.xml config/dictionary.dtd
 all: all-am
 
 .SUFFIXES:
@@ -338,6 +346,33 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
+src/$(am__dirstamp):
+	@$(mkdir_p) src
+	@: > src/$(am__dirstamp)
+src/$(DEPDIR)/$(am__dirstamp):
+	@$(mkdir_p) src/$(DEPDIR)
+	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_avplist.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_q_avplist.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_comlist.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_g_avplist.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_parser.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_parser_avp.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_avp_header.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_error_status.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_parser_q_avplist.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_xml_parsing.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_memory_manager.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_parser_avpvalue.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 libdiamparser.la: $(libdiamparser_la_OBJECTS) $(libdiamparser_la_DEPENDENCIES) 
 	$(CXXLINK) -rpath $(libdir) $(libdiamparser_la_LDFLAGS) $(libdiamparser_la_OBJECTS) $(libdiamparser_la_LIBADD) $(LIBS)
 
@@ -347,46 +382,86 @@ clean-noinstPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
+test/$(am__dirstamp):
+	@$(mkdir_p) test
+	@: > test/$(am__dirstamp)
+test/$(DEPDIR)/$(am__dirstamp):
+	@$(mkdir_p) test/$(DEPDIR)
+	@: > test/$(DEPDIR)/$(am__dirstamp)
+test/aaa_test1.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
 parser_test1$(EXEEXT): $(parser_test1_OBJECTS) $(parser_test1_DEPENDENCIES) 
 	@rm -f parser_test1$(EXEEXT)
 	$(CXXLINK) $(parser_test1_LDFLAGS) $(parser_test1_OBJECTS) $(parser_test1_LDADD) $(LIBS)
+test/aaa_test2.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
 parser_test2$(EXEEXT): $(parser_test2_OBJECTS) $(parser_test2_DEPENDENCIES) 
 	@rm -f parser_test2$(EXEEXT)
 	$(CXXLINK) $(parser_test2_LDFLAGS) $(parser_test2_OBJECTS) $(parser_test2_LDADD) $(LIBS)
+test/aaa_test3.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
 parser_test3$(EXEEXT): $(parser_test3_OBJECTS) $(parser_test3_DEPENDENCIES) 
 	@rm -f parser_test3$(EXEEXT)
 	$(CXXLINK) $(parser_test3_LDFLAGS) $(parser_test3_OBJECTS) $(parser_test3_LDADD) $(LIBS)
 parser_test4$(EXEEXT): $(parser_test4_OBJECTS) $(parser_test4_DEPENDENCIES) 
 	@rm -f parser_test4$(EXEEXT)
 	$(CXXLINK) $(parser_test4_LDFLAGS) $(parser_test4_OBJECTS) $(parser_test4_LDADD) $(LIBS)
+test/aaa_test5.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
 parser_test5$(EXEEXT): $(parser_test5_OBJECTS) $(parser_test5_DEPENDENCIES) 
 	@rm -f parser_test5$(EXEEXT)
 	$(CXXLINK) $(parser_test5_LDFLAGS) $(parser_test5_OBJECTS) $(parser_test5_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f src/aaa_avp_header.$(OBJEXT)
+	-rm -f src/aaa_avp_header.lo
+	-rm -f src/aaa_avplist.$(OBJEXT)
+	-rm -f src/aaa_avplist.lo
+	-rm -f src/aaa_comlist.$(OBJEXT)
+	-rm -f src/aaa_comlist.lo
+	-rm -f src/aaa_error_status.$(OBJEXT)
+	-rm -f src/aaa_error_status.lo
+	-rm -f src/aaa_g_avplist.$(OBJEXT)
+	-rm -f src/aaa_g_avplist.lo
+	-rm -f src/aaa_memory_manager.$(OBJEXT)
+	-rm -f src/aaa_memory_manager.lo
+	-rm -f src/aaa_parser.$(OBJEXT)
+	-rm -f src/aaa_parser.lo
+	-rm -f src/aaa_parser_avp.$(OBJEXT)
+	-rm -f src/aaa_parser_avp.lo
+	-rm -f src/aaa_parser_avpvalue.$(OBJEXT)
+	-rm -f src/aaa_parser_avpvalue.lo
+	-rm -f src/aaa_parser_q_avplist.$(OBJEXT)
+	-rm -f src/aaa_parser_q_avplist.lo
+	-rm -f src/aaa_q_avplist.$(OBJEXT)
+	-rm -f src/aaa_q_avplist.lo
+	-rm -f src/aaa_xml_parsing.$(OBJEXT)
+	-rm -f src/aaa_xml_parsing.lo
+	-rm -f test/aaa_test1.$(OBJEXT)
+	-rm -f test/aaa_test2.$(OBJEXT)
+	-rm -f test/aaa_test3.$(OBJEXT)
+	-rm -f test/aaa_test5.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avp_container.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avp_header.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avplist.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comlist.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error_status.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g_avplist.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memory_manager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser_avp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser_avpvalue.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser_q_avplist.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser_test4-test1.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/q_avplist.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test1.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test3.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test5.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xml_parsing.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_avp_header.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_avplist.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_comlist.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_error_status.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_g_avplist.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_memory_manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_parser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_parser_avp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_parser_avpvalue.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_parser_q_avplist.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_q_avplist.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_xml_parsing.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/aaa_test1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/aaa_test2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/aaa_test3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/aaa_test5.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`; \
@@ -412,25 +487,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
-parser_test4-test1.o: test1.cxx
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(parser_test4_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT parser_test4-test1.o -MD -MP -MF "$(DEPDIR)/parser_test4-test1.Tpo" -c -o parser_test4-test1.o `test -f 'test1.cxx' || echo '$(srcdir)/'`test1.cxx; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/parser_test4-test1.Tpo" "$(DEPDIR)/parser_test4-test1.Po"; else rm -f "$(DEPDIR)/parser_test4-test1.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='test1.cxx' object='parser_test4-test1.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(parser_test4_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o parser_test4-test1.o `test -f 'test1.cxx' || echo '$(srcdir)/'`test1.cxx
-
-parser_test4-test1.obj: test1.cxx
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(parser_test4_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT parser_test4-test1.obj -MD -MP -MF "$(DEPDIR)/parser_test4-test1.Tpo" -c -o parser_test4-test1.obj `if test -f 'test1.cxx'; then $(CYGPATH_W) 'test1.cxx'; else $(CYGPATH_W) '$(srcdir)/test1.cxx'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/parser_test4-test1.Tpo" "$(DEPDIR)/parser_test4-test1.Po"; else rm -f "$(DEPDIR)/parser_test4-test1.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='test1.cxx' object='parser_test4-test1.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(parser_test4_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o parser_test4-test1.obj `if test -f 'test1.cxx'; then $(CYGPATH_W) 'test1.cxx'; else $(CYGPATH_W) '$(srcdir)/test1.cxx'; fi`
-
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf src/.libs src/_libs
 
 distclean-libtool:
 	-rm -f libtool
@@ -519,6 +581,7 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
+	$(mkdir_p) $(distdir)/config $(distdir)/include
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -575,6 +638,10 @@ clean-generic:
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+	-rm -f src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/$(am__dirstamp)
+	-rm -f test/$(DEPDIR)/$(am__dirstamp)
+	-rm -f test/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -585,7 +652,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf src/$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -611,7 +678,7 @@ install-man:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf src/$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -49,9 +49,9 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AuthSessionServerStateMachine :
       void TxASR();
       void TxSTA(diameter_unsigned32_t rcode);
       void TxRAR(diameter_unsigned32_t rcode);
-      void RxSTR(AAAMessage &msg);
-      void RxASA(AAAMessage &msg);
-      void RxRAA(AAAMessage &msg);
+      void RxSTR(DiameterMsg &msg);
+      void RxASA(DiameterMsg &msg);
+      void RxRAA(DiameterMsg &msg);
 
       bool &ASRSent() {
           return m_ASRSent;
@@ -66,9 +66,9 @@ class AAA_SessAuthServer_RxSSAR_Discard :
 {
    public:
       virtual void operator()(AAA_AuthSessionServerStateMachine &fsm) {
-          std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           AAA_LOG(LM_INFO, "(%P|%t) Message sent in invalid session state, discarding\n");
-          AAA_MsgDump::Dump(*msg);
+          DiameterMsgHeaderDump::Dump(*msg);
       }
 };
 
@@ -77,7 +77,7 @@ class AAA_SessAuthServer_RxSSA :
 {
    public:
       virtual void operator()(AAA_AuthSessionServerStateMachine &fsm) {
-          std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           fsm.Session().RxDelivery(msg);
       }
 };
@@ -87,9 +87,9 @@ class AAA_SessAuthServer_TxSSAA_Discard :
 {
    public:
       virtual void operator()(AAA_AuthSessionServerStateMachine &fsm) {
-          std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           AAA_LOG(LM_INFO, "(%P|%t) Message received in invalid session state, discarding\n");
-          AAA_MsgDump::Dump(*msg);
+          DiameterMsgHeaderDump::Dump(*msg);
       }
 };
 
@@ -98,7 +98,7 @@ class AAA_SessAuthServer_TxSSA :
 {
    public:
       virtual void operator()(AAA_AuthSessionServerStateMachine &fsm) {
-          std::auto_ptr<AAAMessage> msg = fsm.PendingMsg();
+          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           fsm.Session().TxDelivery(msg);
           
           if (fsm.Attributes().AuthSessionState()() != 
@@ -165,7 +165,7 @@ class AAA_SessAuthServer_TxRAR :
       virtual void operator()(AAA_AuthSessionServerStateMachine &fsm) {
           if (fsm.Attributes().ReAuthRequestValue().IsSet()) {
               fsm.TxRAR
-                (fsm.Attributes().ReAuthRequestValue()().reAuthType);  
+                (fsm.Attributes().ReAuthRequestValue()().reAuthType);
 	  }
       }
 };
@@ -177,7 +177,7 @@ class AAA_SessAuthServer_RxRAA :
       virtual void operator()(AAA_AuthSessionServerStateMachine &fsm) {
           if (fsm.Attributes().ReAuthRequestValue().IsSet()) {
               fsm.Session().ReAuthenticate
-                 (fsm.Attributes().ReAuthRequestValue()().resultCode);        
+                 (fsm.Attributes().ReAuthRequestValue()().resultCode);
 	  }
       }
 };

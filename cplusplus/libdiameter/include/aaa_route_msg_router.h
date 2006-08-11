@@ -48,10 +48,10 @@ typedef enum {
 class AAA_MsgRouterHandler
 {
    public:
-       virtual int Request(std::auto_ptr<AAAMessage> &msg,
+       virtual int Request(std::auto_ptr<DiameterMsg> &msg,
                            AAA_PeerEntry *source,
                            AAA_PeerEntry *dest) = 0;
-       virtual int Answer(std::auto_ptr<AAAMessage> &msg,
+       virtual int Answer(std::auto_ptr<DiameterMsg> &msg,
                           AAA_PeerEntry *source,
                           AAA_PeerEntry *dest) = 0;
 
@@ -108,13 +108,13 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                DcLocal(AAA_MsgRouter &r) :
                    AAA_DeliveryRoutingNode<AAA_MsgRouter>(r, 0, "dcLocal") {
                }
-               AAA_ROUTE_RESULT Process(std::auto_ptr<AAAMessage> msg,
+               AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                         AAA_PeerEntry *source,
                                         AAA_PeerEntry *dest);
-               int RequestMsg(std::auto_ptr<AAAMessage> msg,
+               int RequestMsg(std::auto_ptr<DiameterMsg> msg,
                               AAA_PeerEntry *source,
                               AAA_PeerEntry *dest);
-               AAA_ROUTE_RESULT ErrorHandling(std::auto_ptr<AAAMessage> msg,
+               AAA_ROUTE_RESULT ErrorHandling(std::auto_ptr<DiameterMsg> msg,
                                               AAA_PeerEntry *source,
                                               AAA_PeerEntry *dest);
        };
@@ -124,13 +124,13 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                DcForward(AAA_MsgRouter &r) :
                    AAA_DeliveryRoutingNode<AAA_MsgRouter>(r, 0, "dcForward") {
                }
-               AAA_ROUTE_RESULT Process(std::auto_ptr<AAAMessage> msg,
+               AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                         AAA_PeerEntry *source,
                                         AAA_PeerEntry *dest);
-               int RequestMsg(std::auto_ptr<AAAMessage> msg,
+               int RequestMsg(std::auto_ptr<DiameterMsg> msg,
                               AAA_PeerEntry *source,
                               AAA_PeerEntry *dest);
-               int LoopDetection(std::auto_ptr<AAAMessage> &msg);
+               int LoopDetection(std::auto_ptr<DiameterMsg> &msg);
        };
 
        class DcRouted : public AAA_DeliveryRoutingNode<AAA_MsgRouter> {
@@ -138,10 +138,10 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                DcRouted(AAA_MsgRouter &r) :
                    AAA_DeliveryRoutingNode<AAA_MsgRouter>(r, 0, "dcRouted") {
                }
-               AAA_ROUTE_RESULT Process(std::auto_ptr<AAAMessage> msg,
+               AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                         AAA_PeerEntry *source,
                                         AAA_PeerEntry *dest);
-               int RequestMsg(std::auto_ptr<AAAMessage> msg,
+               int RequestMsg(std::auto_ptr<DiameterMsg> msg,
                               AAA_PeerEntry *source,
                               AAA_PeerEntry *dest);
        };
@@ -151,13 +151,13 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                DcReject(AAA_MsgRouter &r) :
                    AAA_DeliveryRoutingNode<AAA_MsgRouter>(r, 0, "dcReject") {
                }
-               AAA_ROUTE_RESULT Process(std::auto_ptr<AAAMessage> msg,
+               AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                         AAA_PeerEntry *source,
                                         AAA_PeerEntry *dest);
-               int RequestMsg(std::auto_ptr<AAAMessage> msg,
+               int RequestMsg(std::auto_ptr<DiameterMsg> msg,
                               AAA_PeerEntry *source,
                               AAA_PeerEntry *dest);
-               AAA_ROUTE_RESULT Lookup(std::auto_ptr<AAAMessage> &msg,
+               AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        AAA_PeerEntry *&dest);
        };
 
@@ -167,7 +167,7 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                RcLocal(AAA_MsgRouter &r) :
                   AAA_RequestRoutingNode<DcLocal,
                                          AAA_MsgRouter>(r, 0, "rcLocal") { }
-               AAA_ROUTE_RESULT Lookup(std::auto_ptr<AAAMessage> &msg,
+               AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        AAA_PeerEntry *&dest);
        };
 
@@ -178,7 +178,7 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                    AAA_RequestRoutingNode<DcForward,
                                           AAA_MsgRouter>(r, 0, "rcForward") {
                }
-               AAA_ROUTE_RESULT Lookup(std::auto_ptr<AAAMessage> &msg,
+               AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        AAA_PeerEntry *&dest);
            };
 
@@ -189,7 +189,7 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                    AAA_RequestRoutingNode<DcRouted,
                                           AAA_MsgRouter>(r, 0, "rcRouted") {
                }
-               AAA_ROUTE_RESULT Lookup(std::auto_ptr<AAAMessage> &msg,
+               AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        AAA_PeerEntry *&dest);
        };
 
@@ -200,7 +200,7 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                    AAA_RequestRoutingNode<DcReject,
                                           AAA_MsgRouter>(r, 0, "rcReject") {
                }
-               AAA_ROUTE_RESULT Lookup(std::auto_ptr<AAAMessage> &msg,
+               AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        AAA_PeerEntry *&dest);
        };
 
@@ -228,10 +228,10 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                      stored record from non-volatile memory such as after reboot of a
                      client or agent).
                    */
-                  pReq->m_ReqMessage->hdr.flags.t = AAA_FLG_SET;
+                  pReq->m_ReqMessage->hdr.flags.t = DIAMETER_FLAG_SET;
                                     
                   AAA_LOG(LM_INFO, "(%P|%t) **** Request message re-transmission ****\n");
-                  AAA_MsgDump::Dump(*(pReq->m_ReqMessage));
+                  DiameterMsgHeaderDump::Dump(*(pReq->m_ReqMessage));
                   
                   ACE_Time_Value expire(AAA_CFG_TRANSPORT()->retx_interval, 0);
                   pReq->m_ReTxExpireTime = ACE_OS::gettimeofday() + expire;
@@ -280,13 +280,13 @@ class AAA_MsgRouter : public AAA_RouterFramework,
 
        class RedirectAgent : public AAA_MsgRouterHandler {
            public:
-               int Request(std::auto_ptr<AAAMessage> &msg,
+               int Request(std::auto_ptr<DiameterMsg> &msg,
                            AAA_PeerEntry *source,
                            AAA_PeerEntry *dest);
-               int Answer(std::auto_ptr<AAAMessage> &msg,
+               int Answer(std::auto_ptr<DiameterMsg> &msg,
                           AAA_PeerEntry *source,
                           AAA_PeerEntry *dest);
-               bool IsRedirected(std::auto_ptr<AAAMessage> &msg);
+               bool IsRedirected(std::auto_ptr<DiameterMsg> &msg);
        };
     
    private:

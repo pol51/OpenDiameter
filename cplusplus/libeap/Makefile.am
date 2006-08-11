@@ -5,7 +5,6 @@ VPATH = @srcdir@
 
 AM_CPPFLAGS = @L_CPPFLAGS@ \
               -I@top_srcdir@/include \
-              -I@top_srcdir@/libdiamparser \
               -I@top_srcdir@/libeap/include \
               -D@HOST_OS@
 AM_LDFLAGS = @L_LDFLAGS@

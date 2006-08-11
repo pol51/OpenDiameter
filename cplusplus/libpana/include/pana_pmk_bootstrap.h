@@ -35,7 +35,7 @@
 #define __PANA_PMK_BOOTSTRAP_H__
 
 #include "pana_exports.h"
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 /*
 10.2.2  PANA with Bootstrapping WPA/IEEE 802.11i

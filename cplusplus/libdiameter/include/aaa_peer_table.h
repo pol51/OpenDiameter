@@ -76,7 +76,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerEntry :
 
       // Internal use only    
       void IncommingConnectionRequest(std::auto_ptr<AAA_IO_Base> io,
-                                      std::auto_ptr<AAAMessage> cer);
+                                      std::auto_ptr<DiameterMsg> cer);
       void ConnectionRequestAccepted(std::auto_ptr<AAA_IO_Base> io);
       void ConnectionRequestFailed();
       void Dump() {
@@ -87,7 +87,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerEntry :
       }
     
    protected:      
-      void Message(std::auto_ptr<AAAMessage> msg);
+      void Message(std::auto_ptr<DiameterMsg> msg);
       void Error(COLLECTOR_ERROR error, std::string &io_name);
 
       class PeerInitiator : public AAA_TcpConnector,

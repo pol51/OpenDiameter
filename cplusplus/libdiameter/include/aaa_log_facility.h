@@ -65,9 +65,9 @@ class AAA_LogFacility
           flags |= (data.targets.console) ? ACE_Log_Msg::STDERR : 0;
           flags |= (data.targets.syslog) ? ACE_Log_Msg::SYSLOG : 0;
           ACE_OS::sprintf(pname, "Open Diameter %d.%d.%d\n", 
-                   AAA_VERSION_MAJOR,
-                   AAA_VERSION_MINOR,
-                   AAA_VERSION_MICRO);
+                   DIAMETER_VERSION_MAJOR,
+                   DIAMETER_VERSION_MINOR,
+                   DIAMETER_VERSION_MICRO);
           logger->open(pname, flags);
       }
       static inline void Close() {

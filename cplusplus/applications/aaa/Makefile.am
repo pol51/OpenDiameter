@@ -14,7 +14,7 @@ HDR = include/aaad_config.h \
 AM_CPPFLAGS = @L_CPPFLAGS@ \
               -I@srcdir@/include \
               -I@top_srcdir@/include \
-              -I@top_srcdir@/libdiamparser \
+              -I@top_srcdir@/libdiamparser/include \
               -I@top_srcdir@/libeap/include \
               -I@top_srcdir@/libdiameter/include \
               -I@top_srcdir@/libdiametereap/include \

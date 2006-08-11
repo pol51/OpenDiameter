@@ -165,7 +165,7 @@ class DiameterEapClientStateTable_S
   {
     void operator()(DiameterEapClientStateMachine& sm)
     {
-      AAAResultCode resultCode = sm.DEA().ResultCode();
+      DiameterResultCode resultCode = sm.DEA().ResultCode();
       switch (resultCode)
 	{
 	case AAA_SUCCESS :
@@ -193,7 +193,7 @@ class DiameterEapClientStateTable_S
   {
     void operator()(DiameterEapClientStateMachine& sm)
     {
-      AAAResultCode resultCode = sm.DEA().ResultCode();
+      DiameterResultCode resultCode = sm.DEA().ResultCode();
       switch (resultCode)
 	{
 	case AAA_SUCCESS :
@@ -501,7 +501,7 @@ void
 DiameterEapClientStateMachine::SendDER()
 {
   DiameterEapClientSession& session = Session();
-  AAAMessage msg;
+  DiameterMsg msg;
 
   DER_Parser parser;
   parser.setAppData(&derData);

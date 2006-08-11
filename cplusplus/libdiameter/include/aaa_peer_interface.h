@@ -264,10 +264,10 @@ class AAA_PeerAcceptor : public AAA_TcpAcceptor,
                }
                virtual ~PendingResponder() {
                }
-               void Message(std::auto_ptr<AAAMessage> msg) {
+               void Message(std::auto_ptr<DiameterMsg> msg) {
                    AAA_MsgQuery query(*msg);
                    if (query.IsCapabilities() && query.IsRequest()) {
-                       AAA_IdentityAvpContainerWidget c_orhost(msg->acl);
+                       DiameterIdentityAvpContainerWidget c_orhost(msg->acl);
                        diameter_identity_t *ohost = c_orhost.GetAvp
                            (AAA_AVPNAME_ORIGINHOST);
                        if (ohost) {

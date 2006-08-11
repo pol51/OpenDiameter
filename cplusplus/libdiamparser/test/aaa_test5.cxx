@@ -43,7 +43,7 @@
 #include <ace/OS.h>
 #include <ace/INET_Addr.h>
 #include <ace/Thread_Manager.h>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 using namespace std;
 
 #define GET_DATA_REF(dataType, data, containerEntryPtr) \
@@ -107,17 +107,17 @@ DiameterMsgParserWidgetChecked   parser;
 
   // widges allow for searching through a message list
   // for a specific AVP
-  AAAIdentityAvpContainerWidget originHost(msg()->acl);
-  AAAIdentityAvpContainerWidget originRealm(msg()->acl);
-  AAAAddressAvpContainerWidget hostIp(msg()->acl);
-  AAAUInt32AvpContainerWidget vendorId(msg()->acl);
-  AAAUtf8AvpContainerWidget product(msg()->acl);
-  AAAUInt32AvpContainerWidget originState(msg()->acl);
-  AAAUInt32AvpContainerWidget supportedVendorId(msg()->acl);
-  AAAUInt32AvpContainerWidget authAppId(msg()->acl);
-  AAAUInt32AvpContainerWidget acctAppId(msg()->acl);
-  AAAGroupedAvpContainerWidget vendorSpecificId(msg()->acl);
-  AAAUInt32AvpContainerWidget firmware(msg()->acl);
+  DiameterIdentityAvpContainerWidget originHost(msg()->acl);
+  DiameterIdentityAvpContainerWidget originRealm(msg()->acl);
+  DiameterAddressAvpContainerWidget hostIp(msg()->acl);
+  DiameterUInt32AvpContainerWidget vendorId(msg()->acl);
+  DiameterUtf8AvpContainerWidget product(msg()->acl);
+  DiameterUInt32AvpContainerWidget originState(msg()->acl);
+  DiameterUInt32AvpContainerWidget supportedVendorId(msg()->acl);
+  DiameterUInt32AvpContainerWidget authAppId(msg()->acl);
+  DiameterUInt32AvpContainerWidget acctAppId(msg()->acl);
+  DiameterGroupedAvpContainerWidget vendorSpecificId(msg()->acl);
+  DiameterUInt32AvpContainerWidget firmware(msg()->acl);
 
   // the following lookups an AVP using is name
 
@@ -185,9 +185,9 @@ DiameterMsgParserWidgetChecked   parser;
   diameter_grouped_t *grouped = vendorSpecificId.GetAvp
       ("Vendor-Specific-Application-Id", 0);
   for (int ndx=1; grouped; ndx++) {
-      AAAUInt32AvpContainerWidget gAuthId(*grouped);
-      AAAUInt32AvpContainerWidget gAcctId(*grouped);
-      AAAUInt32AvpContainerWidget gVendorId(*grouped);
+      DiameterUInt32AvpContainerWidget gAuthId(*grouped);
+      DiameterUInt32AvpContainerWidget gAcctId(*grouped);
+      DiameterUInt32AvpContainerWidget gVendorId(*grouped);
 
       diameter_unsigned32_t *uint32 = gVendorId.GetAvp("Vendor-Id", 0);
       for (int p=1; uint32; p++) {
@@ -220,12 +220,12 @@ stest(unsigned char *buf, int size)
   DiameterMsgWidget msg(257);
 
   // the following widgets allocates AVP containers
-  AAAIdentityAvpWidget originHost("Origin-Host");
-  AAAIdentityAvpWidget originRealm("Origin-Realm");
-  AAAAddressAvpWidget  hostIp("Host-IP-Address");
-  AAAUInt32AvpWidget   vendorId("Vendor-Id");
-  AAAUtf8AvpWidget     product("Product-Name");
-  AAAUInt32AvpWidget   originStateId("Origin-State-Id");
+  DiameterIdentityAvpWidget originHost("Origin-Host");
+  DiameterIdentityAvpWidget originRealm("Origin-Realm");
+  DiameterAddressAvpWidget  hostIp("Host-IP-Address");
+  DiameterUInt32AvpWidget   vendorId("Vendor-Id");
+  DiameterUtf8AvpWidget     product("Product-Name");
+  DiameterUInt32AvpWidget   originStateId("Origin-State-Id");
 
   // the following actions allocates and assigns a
   // value to the AVP container
@@ -284,7 +284,7 @@ main(int argc, char** argv)
   //  ACE_Log_Msg::instance()->open(argv[0], ACE_Log_Msg::SYSLOG);
 
   // Read dictionary file.
-  dm.init("./dictionary.xml");
+  dm.init("./config/dictionary.xml");
   grp_id = threads->spawn_n(NUM_THREADS, worker);
   if (grp_id < 1) {
       printf("Thread creation failed\n");

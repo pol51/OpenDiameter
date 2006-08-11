@@ -132,15 +132,15 @@ class DiameterMip4HaServerStateMachine :
   // called if MN-FA-Key-Requested: HA extract value from MipRegRequest
   virtual int SetMipFaToMnSpi(diameter_unsigned32_t &faMnSpi)=0;
 
-  virtual int SetErrorMessage(AAA_ScholarAttribute<diameter_utf8string_t> &errorMessage)=0;
+  virtual int SetErrorMessage(DiameterScholarAttribute<diameter_utf8string_t> &errorMessage)=0;
 
-  virtual int SetMipRegReply(AAA_ScholarAttribute<diameter_octetstring_t> &reply)=0;
+  virtual int SetMipRegReply(DiameterScholarAttribute<diameter_octetstring_t> &reply)=0;
 
  // is called if MN address does not appear in HAR
- virtual int SetMipMnAddress(AAA_ScholarAttribute<diameter_address_t> &address)=0;
+ virtual int SetMipMnAddress(DiameterScholarAttribute<diameter_address_t> &address)=0;
 
   // Must be populated by HA
-  virtual int SetAcctMultiSessionId( AAA_ScholarAttribute<diameter_utf8string_t> &acctMultiSessionId)=0;
+  virtual int SetAcctMultiSessionId( DiameterScholarAttribute<diameter_utf8string_t> &acctMultiSessionId)=0;
 
 
   inline AAA_JobData& JobData() { return *handle.Job().Data(); }

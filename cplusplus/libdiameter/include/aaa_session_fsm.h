@@ -35,7 +35,7 @@
 #define __AAA_SESSION_FSM_H__
 
 #include "framework.h"
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 template<class ARG, class DEBUG>
 class AAA_SessionStateMachine : public AAA_StateMachineWithTimer<ARG>
@@ -52,11 +52,11 @@ class AAA_SessionStateMachine : public AAA_StateMachineWithTimer<ARG>
       }
 
    private:
-      std::auto_ptr<AAAMessage>  m_PendingMsg;
+      std::auto_ptr<DiameterMsg>  m_PendingMsg;
       ACE_Recursive_Thread_Mutex m_EventFsmMtx;
 
    public:
-      std::auto_ptr<AAAMessage> &PendingMsg() {
+      std::auto_ptr<DiameterMsg> &PendingMsg() {
          return m_PendingMsg;
       }
       virtual void Notify(AAA_Event event) {
@@ -64,7 +64,7 @@ class AAA_SessionStateMachine : public AAA_StateMachineWithTimer<ARG>
          Process(event);
       }
       virtual void Notify(AAA_Event event,
-                          std::auto_ptr<AAAMessage> msg) {
+                          std::auto_ptr<DiameterMsg> msg) {
          AAA_ScopeLock<ACE_Recursive_Thread_Mutex> guard(m_EventFsmMtx);
          m_PendingMsg = msg;
          Process(event);

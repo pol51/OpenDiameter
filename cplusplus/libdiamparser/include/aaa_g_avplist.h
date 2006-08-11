@@ -38,31 +38,31 @@
 #include <ace/Synch.h>
 #include <ace/Singleton.h>
 #include <list>
-#include "q_avplist.h"
-#include "comlist.h"
+#include "aaa_q_avplist.h"
+#include "aaa_comlist.h"
 
 class DiameterGroupedAVP :
     public DiameterDictionary {
 };
 
-class AAAGroupedAvpList_S : 
+class DiameterGroupedAvpList_S : 
     public std::list<DiameterGroupedAVP*>
 {
-    friend class ACE_Singleton<AAAGroupedAvpList_S, ACE_Recursive_Thread_Mutex>;
+    friend class ACE_Singleton<DiameterGroupedAvpList_S, ACE_Recursive_Thread_Mutex>;
 
     public:
         void add(DiameterGroupedAVP*);
         DiameterGroupedAVP* search(ACE_UINT32, ACE_UINT32);
 
     private:
-        AAAGroupedAvpList_S() {
+        DiameterGroupedAvpList_S() {
         }
-        ~AAAGroupedAvpList_S();
+        ~DiameterGroupedAvpList_S();
         ACE_Thread_Mutex mutex;
 };
 
-typedef ACE_Singleton<AAAGroupedAvpList_S, ACE_Recursive_Thread_Mutex>
-    AAAGroupedAvpList;
+typedef ACE_Singleton<DiameterGroupedAvpList_S, ACE_Recursive_Thread_Mutex>
+    DiameterGroupedAvpList;
 
 #endif // __G_AVPLIST_H__
 

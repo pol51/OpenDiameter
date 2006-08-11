@@ -6,7 +6,7 @@ VPATH = @srcdir@
 AM_CPPFLAGS = @L_CPPFLAGS@ @L_ODBCFLAGS@ \
               -I@top_srcdir@/include \
               -I@top_srcdir@/libodutl/include \
-              -I@top_srcdir@/libdiamparser \
+              -I@top_srcdir@/libdiamparser/include \
               -I@top_srcdir@/libdiameter/include \
               -I@top_srcdir@/libdiametermip4/include \
               -I./include \

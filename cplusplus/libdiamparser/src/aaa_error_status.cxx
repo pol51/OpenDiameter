@@ -31,10 +31,10 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 /* $Id: error_status.cxx,v 1.18 2006/03/17 13:36:54 vfajardo Exp $ */
-#include "parser_avp.h"
+#include "aaa_parser_avp.h"
 
 void
-DiameterErrorCode::set(int type,
+DiameterErrorCode::set(AAA_PARSE_ERROR_TYPE type,
                        int code,
                        DiameterDictionaryEntry* dict)
 {
@@ -43,7 +43,7 @@ DiameterErrorCode::set(int type,
     ACE_UINT32 avpSize = h.length = getMinSize(avp);
     char *buffer = new char[avpSize+sizeof(ACE_UINT32)];
     DiameterAvpHeaderParser ahp;
-    AvpRawData rawData;
+    DiameterAvpRawData rawData;
 
     memset(buffer, 0, avpSize+sizeof(ACE_UINT32));
     memset(&rawData, 0, sizeof(rawData));

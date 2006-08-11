@@ -47,7 +47,7 @@ class AAA_ServerSessionFactoryList
         void Add(AAAServerSessionFactory *factory) {
             m_FactoryList.push_back(factory);
         }
-        AAAServerSessionFactory *Lookup(AAAMessage &msg) {
+        AAAServerSessionFactory *Lookup(DiameterMsg &msg) {
             std::list<AAAServerSessionFactory*>::iterator i =
                 m_FactoryList.begin();
             for (; i != m_FactoryList.end(); i++) {

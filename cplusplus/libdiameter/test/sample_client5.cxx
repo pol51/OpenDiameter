@@ -51,7 +51,7 @@ class AAA_SampleClientAcctRecCollector :
            /// to the ACR dictionary definition in dictionary.xml.
            /// Real applications may also need to append Vendor-
            /// Specific-Application-Id here
-           AAA_Utf8AvpWidget recAvp("Example-Accounting-Record");
+           DiameterUtf8AvpWidget recAvp("Example-Accounting-Record");
            recAvp.Get() = "My example record should show up in the server";
            avpList.add(recAvp());
 	}
@@ -102,7 +102,7 @@ class AAA_SampleClientAcctSubSession :
             m_IsComplete(false) {
         }
         virtual void SetDestinationHost
-        (AAA_ScholarAttribute<diameter_identity_t> &dHost)
+        (DiameterScholarAttribute<diameter_identity_t> &dHost)
         {
             // optional override, called by the library to 
             // set the destination host. Note that this 
@@ -111,7 +111,7 @@ class AAA_SampleClientAcctSubSession :
             dHost = "server.isp.net";
         }
         virtual void SetDestinationRealm
-        (AAA_ScholarAttribute<diameter_identity_t> &dRealm)
+        (DiameterScholarAttribute<diameter_identity_t> &dRealm)
         {
             // optional override, called by the library 
             // to set the destination realm. Note that 
@@ -122,25 +122,25 @@ class AAA_SampleClientAcctSubSession :
         /// This function is used for setting realtime required 
         /// AVP as a hint to the server
         virtual void SetRealTimeRequired
-        (AAA_ScholarAttribute<diameter_enumerated_t> &rt)
+        (DiameterScholarAttribute<diameter_enumerated_t> &rt)
         {
         }
         /// This function is used for setting acct interim 
         /// interval AVP as a hint to the server
         virtual void SetInterimInterval
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
         }
         /// This function is used for setting RADIUS acct 
         /// session id for RADIUS/DIAMETER translations
         virtual void SetRadiusAcctSessionId
-        (AAA_ScholarAttribute<diameter_octetstring_t> &sid)
+        (DiameterScholarAttribute<diameter_octetstring_t> &sid)
         {
         }
         /// This function is used for setting multi-session 
         /// id AVP 
         virtual void SetMultiSessionId
-        (AAA_ScholarAttribute<diameter_utf8string_t> &sid)
+        (DiameterScholarAttribute<diameter_utf8string_t> &sid)
         {
         }
         virtual AAAReturnCode Success() {
@@ -206,7 +206,7 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             m_Disconnected(false) {
         }
         virtual void SetAuthSessionState
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &authState)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &authState)
         {
             // optional override, called by the library to set 
             // the auth state. Note that this overrides the 
@@ -215,7 +215,7 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             authState = AAA_SESSION_STATE_MAINTAINED;
         }
         virtual void SetDestinationHost
-        (AAA_ScholarAttribute<diameter_identity_t> &dHost)
+        (DiameterScholarAttribute<diameter_identity_t> &dHost)
         {
             // optional override, called by the library to 
             // set the destination host. Note that this 
@@ -224,7 +224,7 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             dHost = "server.isp.net";
         }
         virtual void SetDestinationRealm
-        (AAA_ScholarAttribute<diameter_identity_t> &dRealm)
+        (DiameterScholarAttribute<diameter_identity_t> &dRealm)
         {
             // optional override, called by the library 
             // to set the destination realm. Note that 
@@ -233,7 +233,7 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             dRealm = "isp.net";
         }
         virtual void SetSessionTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
             // optional override, called by the library so 
             // this client can send a hint to the server 
@@ -243,7 +243,7 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             timeout = 30;
         }
         virtual void SetAuthLifetimeTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
             // optional override, called by the library so 
             // this client can send a hint to the server 
@@ -261,7 +261,7 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             AAA_LOG(LM_INFO, "(%P|%t) **** server re-authentication ****\n");
             return (AAAReturnCode)(AAA_SUCCESS);
         }
-        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+        virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
             // all request messages are handled by this function.
             // AAA clients normally will receive request message
             // in the open state
@@ -272,10 +272,10 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             //                      to server request
             // b. AAA_ERR_FAILURE - client failed. 
             AAA_LOG(LM_INFO, "(%P|%t) **** Request message message received in client ****\n");
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
             return (AAA_ERR_SUCCESS);
         }
-        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+        virtual AAAReturnCode AnswerMsg(DiameterMsg &msg) {
 
             // all answer messages are handled by this function. 
             // This function can retrun the following values:
@@ -285,12 +285,12 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             // c. AAA_ERR_FAILURE - client authentication failed
 
             AAA_LOG(LM_INFO, "(%P|%t) Answer message received\n");
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
 
-            AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-            AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-            AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
-            AAA_UInt32AvpContainerWidget authAppIdAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+            DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
+            DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
 
             diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
             diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
@@ -316,7 +316,7 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
 	    }
             return (AAA_ERR_SUCCESS);
         }
-        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+        virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
             // all error messages are handled by this function.
             AAA_LOG(LM_INFO, "(%P|%t) **** Received message with error bit set ****\n");
             return (AAA_ERR_SUCCESS);
@@ -360,11 +360,11 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
 
             // sample of how to compose a message using parser widgets
 
-            AAA_MsgWidget msg(300, true, 10000);
+            DiameterMsgWidget msg(300, true, 10000);
 
-            AAA_UInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-            AAA_Utf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
-            AAA_EnumAvpWidget reAuthAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+            DiameterEnumAvpWidget reAuthAvp(AAA_AVPNAME_REAUTHREQTYPE);
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";

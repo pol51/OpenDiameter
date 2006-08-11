@@ -51,7 +51,7 @@ class AAA_SampleProxy : public AAA_ProxyHandler
              AAA_ProxyHandler(10000) {
         }
 
-        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+        virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
 
             /// This function is called when incomming request 
             /// message is received. This method is given temporary
@@ -62,13 +62,13 @@ class AAA_SampleProxy : public AAA_ProxyHandler
             /// so routing is done as a means of transport.
             std::cout << "**** Proxy request message ****" << std::endl;
 
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
 
-            AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-            AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-            AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
-            AAA_UInt32AvpContainerWidget authAppIdAvp(msg.acl);
-            AAA_EnumAvpContainerWidget reAuthAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+            DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
+            DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
+            DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
             diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
             diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
@@ -96,20 +96,20 @@ class AAA_SampleProxy : public AAA_ProxyHandler
             return (AAA_ERR_SUCCESS);
         }
 
-        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+        virtual AAAReturnCode AnswerMsg(DiameterMsg &msg) {
 
             /// This function is called when incomming answer message 
             /// is received. Same behavior as RequestMsg().
 
             std::cout << "**** Proxy answer message ****" << std::endl;
 
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
 
-            AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-            AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-            AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
-            AAA_UInt32AvpContainerWidget authAppIdAvp(msg.acl);
-            AAA_EnumAvpContainerWidget reAuthAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+            DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
+            DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
+            DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
             diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
             diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
@@ -138,7 +138,7 @@ class AAA_SampleProxy : public AAA_ProxyHandler
             return (AAA_ERR_SUCCESS);
         }
 
-        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+        virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
 
             /// This function is called when error message 
             /// is received. Same behavior as RequestMsg().
@@ -148,7 +148,7 @@ class AAA_SampleProxy : public AAA_ProxyHandler
 
             std::cout << "**** Proxy message with error ****" << std::endl;
 
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
 
             // This answer will be forwarded regardless of 
             // the return value from this function
@@ -165,26 +165,26 @@ class AAA_SampleProxyWithMux : public AAA_ProxyHandler
              public:
 
                  virtual AAAReturnCode RequestMsg(AAA_SampleProxyWithMux &arg, 
-                                                  AAAMessage &msg) {
+                                                  DiameterMsg &msg) {
                      // same as without mux
                      std::cout << "**** Proxy request message ****" << std::endl;
-                     AAA_MsgDump::Dump(msg);
+                     DiameterMsgHeaderDump::Dump(msg);
                      return (AAA_ERR_SUCCESS);
                  }
 
                  virtual AAAReturnCode AnswerMsg(AAA_SampleProxyWithMux &arg, 
-                                                 AAAMessage &msg) {
+                                                 DiameterMsg &msg) {
                      // same as without mux
                      std::cout << "**** Proxy answer message ****" << std::endl;
-                     AAA_MsgDump::Dump(msg);
+                     DiameterMsgHeaderDump::Dump(msg);
                      return (AAA_ERR_SUCCESS);
                  }
 
                  virtual AAAReturnCode ErrorMsg(AAA_SampleProxyWithMux &arg, 
-                                                AAAMessage &msg) {
+                                                DiameterMsg &msg) {
                     // same as without mux
                     std::cout << "**** Proxy message with error ****" << std::endl;
-                    AAA_MsgDump::Dump(msg);
+                    DiameterMsgHeaderDump::Dump(msg);
                     return (AAA_ERR_SUCCESS);
                  }
         };
@@ -207,16 +207,16 @@ class AAA_SampleProxyWithMux : public AAA_ProxyHandler
              m_Mux.Remove(300);
 	}
 
-        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+        virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
             // same as without mux
             return m_Mux.Mux(msg);
 	}
   
-        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+        virtual AAAReturnCode AnswerMsg(DiameterMsg &msg) {
             // same as without mux
             return m_Mux.Mux(msg);
         }
-        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+        virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
             // same as without mux
             return m_Mux.Mux(msg);
         }

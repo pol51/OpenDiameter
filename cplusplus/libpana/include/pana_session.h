@@ -338,21 +338,21 @@ class PANA_EXPORT PANA_SessionEventInterface
 {
    public:
       typedef struct {
-         AAA_ScholarAttribute<PANA_DeviceId> m_Paa;
-         AAA_ScholarAttribute<PANA_DeviceId> m_Pac;
-         AAA_ScholarAttribute<diameter_octetstring_t> m_Key;
-         AAA_ScholarAttribute<ACE_UINT32> m_KeyId;
-         AAA_ScholarAttribute<ACE_UINT32> m_Lifetime;
-         AAA_ScholarAttribute<ACE_UINT32> m_ProtectionCapability;
-         AAA_ScholarAttribute<PANA_DeviceIdContainer*> m_Ep;
-         AAA_ScholarAttribute<diameter_octetstring_t> m_DhcpKey;
-         AAA_ScholarAttribute<PANA_PMKKeyList> m_PMKKeyList;
-         AAA_ScholarAttribute<PANA_CfgProviderInfo> m_PreferedISP;
-         AAA_ScholarAttribute<PANA_CfgProviderInfo> m_PreferedNAP;
+         AAAScholarAttribute<PANA_DeviceId> m_Paa;
+         AAAScholarAttribute<PANA_DeviceId> m_Pac;
+         AAAScholarAttribute<diameter_octetstring_t> m_Key;
+         AAAScholarAttribute<ACE_UINT32> m_KeyId;
+         AAAScholarAttribute<ACE_UINT32> m_Lifetime;
+         AAAScholarAttribute<ACE_UINT32> m_ProtectionCapability;
+         AAAScholarAttribute<PANA_DeviceIdContainer*> m_Ep;
+         AAAScholarAttribute<diameter_octetstring_t> m_DhcpKey;
+         AAAScholarAttribute<PANA_PMKKeyList> m_PMKKeyList;
+         AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedISP;
+         AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedNAP;
 #if defined(PANA_MPA_SUPPORT)
- 	 AAA_ScholarAttribute<PANA_DeviceId> m_PaaIPaddr;
-         AAA_ScholarAttribute<PANA_DeviceId> m_PacIPaddr;
- 	 AAA_ScholarAttribute<PANA_PACEPKeyList> m_PSKKeyList;
+ 	 AAAScholarAttribute<PANA_DeviceId> m_PaaIPaddr;
+         AAAScholarAttribute<PANA_DeviceId> m_PacIPaddr;
+ 	 AAAScholarAttribute<PANA_PACEPKeyList> m_PSKKeyList;
 #endif
       } PANA_AuthorizationArgs;
 

@@ -212,8 +212,8 @@ void PANA_PMKKey::Seed(diameter_octetstring_t &aaaKey,
             vector = T[i-1] + S + index;
         }
 
-        sha1.Update((AAA_UINT8*)K.data(), K.size());
-        sha1.Update((AAA_UINT8*)vector.data(), vector.size());
+        sha1.Update((AAAUInt8*)K.data(), K.size());
+        sha1.Update((AAAUInt8*)vector.data(), vector.size());
         sha1.Final();
 
         ACE_OS::memset(hash, 0x0, sizeof(hash));

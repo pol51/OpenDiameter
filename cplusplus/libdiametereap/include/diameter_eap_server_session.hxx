@@ -60,7 +60,7 @@ class DIAMETER_EAP_SERVER_EXPORTS DER_Handler : public AAASessionMessageHandler
       session(s)
   {}
  private:
-  AAAReturnCode HandleMessage (AAAMessage &msg);
+  AAAReturnCode HandleMessage (DiameterMsg &msg);
   DiameterEapServerSession &session;
 };
 
@@ -85,7 +85,7 @@ class DIAMETER_EAP_SERVER_EXPORTS DiameterEapServerSession :
   DiameterEapServerSession* Self() { return this; }
 
   /// Reimplemented from AAAServerSession. 
-  AAAReturnCode HandleMessage(AAAMessage &msg);
+  AAAReturnCode HandleMessage(DiameterMsg &msg);
 
   /// Reimplemented from AAAServerSession. 
   AAAReturnCode HandleDisconnect();

@@ -36,8 +36,8 @@
 
 #include <list>
 #include <string>
-#include "parser.h"
-#include "diameter_parser_api.h"
+#include "aaa_parser.h"
+#include "diameter_parser.h"
 
 #define adjust_word_boundary(len)  ((ACE_UINT32)((((len-1)>>2)+1)<<2))
 

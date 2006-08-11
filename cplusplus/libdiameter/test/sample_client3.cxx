@@ -54,7 +54,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
             m_Disconnected(false) {
         }
         virtual void SetAuthSessionState
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &authState)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &authState)
         {
             // optional override, called by the library to set 
             // the auth state. Note that this overrides the 
@@ -63,7 +63,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
             authState = AAA_SESSION_STATE_MAINTAINED;
         }
         virtual void SetDestinationHost
-        (AAA_ScholarAttribute<diameter_identity_t> &dHost)
+        (DiameterScholarAttribute<diameter_identity_t> &dHost)
         {
             // optional override, called by the library to 
             // set the destination host. Note that this 
@@ -72,7 +72,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
             dHost = "server.isp.net";
         }
         virtual void SetDestinationRealm
-        (AAA_ScholarAttribute<diameter_identity_t> &dRealm)
+        (DiameterScholarAttribute<diameter_identity_t> &dRealm)
         {
             // optional override, called by the library 
             // to set the destination realm. Note that 
@@ -81,7 +81,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
             dRealm = "isp.net";
         }
         virtual void SetSessionTimeout
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
             // optional override, called by the library so 
             // this client can send a hint to the server 
@@ -99,7 +99,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
             AAA_LOG(LM_INFO, "(%P|%t) **** server re-authentication ****\n");
             return (AAAReturnCode)(AAA_SUCCESS);
         }
-        virtual AAAReturnCode RequestMsg(AAAMessage &msg) {
+        virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
             // all request messages are handled by this function.
             // AAA clients normally will receive request message
             // in the open state
@@ -110,10 +110,10 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
             //                      to server request
             // b. AAA_ERR_FAILURE - client failed. 
             AAA_LOG(LM_INFO, "(%P|%t) **** Request message message received in client ****\n");
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
             return (AAA_ERR_SUCCESS);
         }
-        virtual AAAReturnCode AnswerMsg(AAAMessage &msg) {
+        virtual AAAReturnCode AnswerMsg(DiameterMsg &msg) {
             // all answer messages are handled by this function.
             // Note that you can call the Mux() method
             // here to deligate handling of messages. See
@@ -121,7 +121,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
             // AnswerMsg() of the mux message handler
             return Mux(msg);
         }
-        virtual AAAReturnCode ErrorMsg(AAAMessage &msg) {
+        virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
             // all error messages are handled by this function.
             AAA_LOG(LM_INFO, "(%P|%t) **** [Num:%d] Received message with error bit set ****\n",
                     m_SessionNum);
@@ -188,7 +188,7 @@ class AAA_SampleClientAction :
         AAA_SampleClientAction(int howManyMsg = 1) :
             m_HowManyMsg(howManyMsg) {
         }
-        virtual AAAReturnCode AnswerMsg(AAA_SampleClient &client, AAAMessage &msg) {
+        virtual AAAReturnCode AnswerMsg(AAA_SampleClient &client, DiameterMsg &msg) {
 
             // all answer messages with code 300 are handled by
             // this function. This function can retrun the following
@@ -200,13 +200,13 @@ class AAA_SampleClientAction :
 
             AAA_LOG(LM_INFO, "(%P|%t) Answer message received\n");
 #if 0
-            AAA_MsgDump::Dump(msg);
+            DiameterMsgHeaderDump::Dump(msg);
 
-            AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-            AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-            AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
-            AAA_UInt32AvpContainerWidget authAppIdAvp(msg.acl);
-            AAA_GroupedAvpContainerWidget tunneling(msg.acl);
+            DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+            DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+            DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
+            DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
+            DiameterGroupedAvpContainerWidget tunneling(msg.acl);
 
             diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
             diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
@@ -227,10 +227,10 @@ class AAA_SampleClientAction :
             }
 
             diameter_grouped_t *grouped = tunneling.GetAvp("Tunneling");
-            AAA_EnumAvpContainerWidget ttypeAvp(*grouped);
-            AAA_EnumAvpContainerWidget tmediumAvp(*grouped);
-            AAA_Utf8AvpContainerWidget cepAvp(*grouped);
-            AAA_Utf8AvpContainerWidget sepAvp(*grouped);
+            DiameterEnumAvpContainerWidget ttypeAvp(*grouped);
+            DiameterEnumAvpContainerWidget tmediumAvp(*grouped);
+            DiameterUtf8AvpContainerWidget cepAvp(*grouped);
+            DiameterUtf8AvpContainerWidget sepAvp(*grouped);
 
             diameter_enumerated_t *ttype = ttypeAvp.GetAvp("Tunnel-Type");
             diameter_enumerated_t *tmedium = tmediumAvp.GetAvp("Tunnel-Medium-Type");
@@ -257,7 +257,7 @@ class AAA_SampleClientAction :
             }
             return (AAA_ERR_SUCCESS);
         }
-        virtual AAAReturnCode RequestMsg(AAA_SampleClient &client, AAAMessage &msg) {
+        virtual AAAReturnCode RequestMsg(AAA_SampleClient &client, DiameterMsg &msg) {
             // all request messages are handled by this function.
             // AAA clients normally should not receive
             // request messags. In this sample, this will not
@@ -265,7 +265,7 @@ class AAA_SampleClientAction :
             // RequestMsg() in the client session
             return (AAA_ERR_SUCCESS);
         }
-        virtual AAAReturnCode ErrorMsg(AAA_SampleClient &client, AAAMessage &msg) {
+        virtual AAAReturnCode ErrorMsg(AAA_SampleClient &client, DiameterMsg &msg) {
             // same as ErrorMsg of client session
             return (AAA_ERR_SUCCESS);
         }
@@ -275,21 +275,21 @@ class AAA_SampleClientAction :
 
             std::cout << "Sending request message" << std::endl;
 
-            AAA_MsgWidget msg(300, true, 10000);
+            DiameterMsgWidget msg(300, true, 10000);
 
-            AAA_UInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-            AAA_Utf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
-            AAA_EnumAvpWidget reAuthAvp(AAA_AVPNAME_REAUTHREQTYPE);
-            AAA_GroupedAvpWidget tunneling("Tunneling");
+            DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+            DiameterEnumAvpWidget reAuthAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            DiameterGroupedAvpWidget tunneling("Tunneling");
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
             reAuthAvp.Get() = 1;
 
-            AAA_EnumAvpWidget ttype("Tunnel-Type");
-            AAA_EnumAvpWidget tmedium("Tunnel-Medium-Type");
-            AAA_Utf8AvpWidget cep("Tunnel-Client-Endpoint");
-            AAA_Utf8AvpWidget sep("Tunnel-Server-Endpoint");
+            DiameterEnumAvpWidget ttype("Tunnel-Type");
+            DiameterEnumAvpWidget tmedium("Tunnel-Medium-Type");
+            DiameterUtf8AvpWidget cep("Tunnel-Client-Endpoint");
+            DiameterUtf8AvpWidget sep("Tunnel-Server-Endpoint");
 
             ttype.Get() = 100;
             tmedium.Get() = 200;

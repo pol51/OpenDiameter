@@ -60,19 +60,19 @@ typedef struct {
 typedef AAATypeSpecificAvpContainerEntry<PANA_DhcpData_t> 
                AAADhcpDataAvpContainerEntry;
 
-typedef AAA_AvpWidget<PANA_DhcpData_t, 
-               AAA_AVPDataType(AAA_AVP_DHCP_TYPE)>
+typedef AAAAvpWidget<PANA_DhcpData_t, 
+               AAAAvpDataType(AAA_AVP_DHCP_TYPE)>
                PANA_DhcpAvpWidget;
 
-typedef AAA_AvpContainerWidget<PANA_DhcpData_t, 
-               AAA_AVPDataType(AAA_AVP_DHCP_TYPE)>
+typedef AAAAvpContainerWidget<PANA_DhcpData_t, 
+               AAAAvpDataType(AAA_AVP_DHCP_TYPE)>
                PANA_DhcpAvpContainerWidget;
 
 // PANA DHCP AVP parser
-class PANA_DhcpDataParser : public AvpValueParser
+class PANA_DhcpDataParser : public DiameterAvpValueParser
 {
    public:
-      void parseRawToApp() throw(AAAErrorStatus) {
+      void parseRawToApp() throw(DiameterErrorCode) {
           AAAMessageBlock* aBuffer = (AAAMessageBlock*)getRawData();
           AAAAvpContainerEntry* e = (AAAAvpContainerEntry*)getAppData();
           PANA_DhcpData_t &dhcp = reinterpret_cast<AAADhcpDataAvpContainerEntry*>
@@ -81,15 +81,15 @@ class PANA_DhcpDataParser : public AvpValueParser
           dhcp.nonce.assign(aBuffer->base() + sizeof(ACE_UINT32), 
                             aBuffer->size() - sizeof(ACE_UINT32));
       }
-      void parseAppToRaw() throw(AAAErrorStatus) {
+      void parseAppToRaw() throw(DiameterErrorCode) {
           AAAMessageBlock* aBuffer = (AAAMessageBlock*)getRawData();
           AAAAvpContainerEntry* e = (AAAAvpContainerEntry*)getAppData();
           PANA_DhcpData_t &dhcp = reinterpret_cast<AAADhcpDataAvpContainerEntry*>
                                                    (e)->dataRef();
-          AAAErrorStatus st;
+          DiameterErrorCode st;
           if (aBuffer->size() - (size_t)aBuffer->wr_ptr() < 
               (dhcp.nonce.size() + sizeof(ACE_UINT32))) {
-              st.set(NORMAL, AAA_OUT_OF_SPACE);
+              st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_OUT_OF_SPACE);
               throw st;
           }
           *((ACE_UINT32*)aBuffer->wr_ptr()) = dhcp.id;
@@ -228,10 +228,10 @@ class PANA_EXPORT PANA_MsgHeader
        inline ACE_UINT32 &seq() { 
            return m_SeqNum; 
        }
-       inline AAADictionaryHandle *getDictHandle() { 
+       inline DiameterDictionaryHandle *getDictHandle() { 
            return m_DictHandle; 
        }
-       inline void setDictHandle(AAADictionaryHandle *handle) { 
+       inline void setDictHandle(DiameterDictionaryHandle *handle) { 
            m_DictHandle = handle; 
        }
 
@@ -244,13 +244,13 @@ class PANA_EXPORT PANA_MsgHeader
        ACE_UINT32 m_SeqNum;
 
        // auxillary
-       AAADictionaryHandle* m_DictHandle;
+       DiameterDictionaryHandle* m_DictHandle;
 };
 
 // PANA Message Header parser
 typedef AAAParser<AAAMessageBlock*,
                   PANA_MsgHeader*,
-                  AAADictionaryOption*> PANA_HeaderParser;
+                  DiameterDictionaryOption*> PANA_HeaderParser;
 
 // PANA Message definition
 class PANA_EXPORT PANA_Message : public PANA_MsgHeader

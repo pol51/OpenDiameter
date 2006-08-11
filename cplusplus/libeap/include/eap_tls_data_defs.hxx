@@ -37,7 +37,7 @@
 #ifdef WIN32
 #include "StdAfx.h"
 #endif
-#include "diameter_parser_api.h"
+#include "aaa_parser_api.h"
 //#include "rbtree.h"
 #include "ace/Singleton.h"
 

@@ -2,7 +2,7 @@
 #define __PANA_PAC_EP_BOOTSTRAP_H__
 
 #include "pana_exports.h"
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "pana_psk_bootstrap.h"
 
 class PANA_EXPORT PANA_PAC_EP_Key

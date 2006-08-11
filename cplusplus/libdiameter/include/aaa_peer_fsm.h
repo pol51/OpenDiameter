@@ -575,7 +575,7 @@ class AAA_PeerStateMachine :
       AAA_GroupedJob &Job() {
           return *m_GroupedJob.get();
       }    
-      virtual int Send(std::auto_ptr<AAAMessage> &msg) {
+      virtual int Send(std::auto_ptr<DiameterMsg> &msg) {
           ///  If using ASYNC SEND
           ///  EnqueueSendMsg(msg);
           ///  Notify(AAA_PEER_EV_SEND_MESSAGE);
@@ -600,7 +600,7 @@ class AAA_PeerStateMachine :
 
       typedef struct {
          AAA_Event m_Event;
-         std::auto_ptr<AAAMessage> m_Msg;
+         std::auto_ptr<DiameterMsg> m_Msg;
          std::auto_ptr<AAA_IO_Base> m_IO;
       } AAA_PeerEventParam;
 
@@ -622,7 +622,7 @@ class AAA_PeerStateMachine :
          }
       }
       virtual void Notify(AAA_Event event,
-                          std::auto_ptr<AAAMessage> msg) {
+                          std::auto_ptr<DiameterMsg> msg) {
          if (AAA_StateMachineWithTimer
              <AAA_PeerStateMachine>::Running()) {
              std::auto_ptr<AAA_PeerEventParam> e(new AAA_PeerEventParam);
@@ -650,7 +650,7 @@ class AAA_PeerStateMachine :
          }
       }
       virtual void Notify(AAA_Event event,
-                          std::auto_ptr<AAAMessage> msg,
+                          std::auto_ptr<DiameterMsg> msg,
                           std::auto_ptr<AAA_IO_Base> io) {
          if (AAA_StateMachineWithTimer
              <AAA_PeerStateMachine>::Running()) {
@@ -722,7 +722,7 @@ class AAA_PeerStateMachine :
       AAA_PeerData &PeerData() {
          return m_Data;
       }
-      int RawSend(std::auto_ptr<AAAMessage> &msg, AAA_IO_Base *io);    
+      int RawSend(std::auto_ptr<DiameterMsg> &msg, AAA_IO_Base *io);    
 
    protected: // Capabilities exchange
 
@@ -730,9 +730,9 @@ class AAA_PeerStateMachine :
       virtual void SendCEA(diameter_unsigned32_t rcode,
                            std::string &message);
     
-      void AssembleCE(AAAMessage &msg,
+      void AssembleCE(DiameterMsg &msg,
                       bool request = true);
-      void DisassembleCE(AAAMessage &msg);
+      void DisassembleCE(DiameterMsg &msg);
       bool ValidatePeer(diameter_unsigned32_t &rcode,
                         std::string &message);
 
@@ -742,9 +742,9 @@ class AAA_PeerStateMachine :
       virtual void SendDWA(diameter_unsigned32_t rcode,
                            std::string &message);
     
-      void AssembleDW(AAAMessage &msg,
+      void AssembleDW(DiameterMsg &msg,
                       bool request = true);
-      void DisassembleDW(AAAMessage &msg);
+      void DisassembleDW(DiameterMsg &msg);
     
    protected: // Disconnection
 
@@ -752,14 +752,14 @@ class AAA_PeerStateMachine :
       virtual void SendDPA(bool initiator,
                            diameter_unsigned32_t rcode,
                            std::string &message);
-      void AssembleDP(AAAMessage &msg,
+      void AssembleDP(DiameterMsg &msg,
                       bool request = true);
-      void DisassembleDP(AAAMessage &msg);
+      void DisassembleDP(DiameterMsg &msg);
 
    protected: // Message Id's
 
-      void MsgIdTxMessage(AAAMessage &msg);
-      bool MsgIdRxMessage(AAAMessage &msg);
+      void MsgIdTxMessage(DiameterMsg &msg);
+      bool MsgIdRxMessage(DiameterMsg &msg);
    
    protected: // Auxillary
 

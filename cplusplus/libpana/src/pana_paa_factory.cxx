@@ -48,7 +48,7 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
    }
 
    try {
-      AAA_Utf8AvpContainerWidget sidAvp(msg.avpList());
+      DiameterUtf8AvpContainerWidget sidAvp(msg.avpList());
       diameter_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
       if (sid) {
          PANA_PaaSession *session = PANA_SESSIONDB_SEARCH
@@ -212,7 +212,7 @@ void PANA_PaaSessionFactory::RxPDI(PANA_Message &msg)
               "PDI has no IP address assigned to packet"));
    }
 
-   AAA_StringAvpContainerWidget NotificationAvp(msg.avpList());
+   DiameterStringAvpContainerWidget NotificationAvp(msg.avpList());
    diameter_octetstring_t *note = NotificationAvp.GetAvp
        (PANA_AVPNAME_NOTIFICATION);
    if (note) {
@@ -260,27 +260,27 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
     diameter_address_t id;
     PANA_AddrConverter::ToAAAAddress(addr, id);
     PANA_COOKIE_GENERATE(id.value, cookie);
-    AAA_StringAvpWidget cookieAvp(PANA_AVPNAME_COOKIE);
+    DiameterStringAvpWidget cookieAvp(PANA_AVPNAME_COOKIE);
     cookieAvp.Get().assign(cookie.data(), cookie.size());
     msg->avpList().add(cookieAvp());
 
     // add ppac
     if (PANA_CFG_GENERAL().m_PPAC() > 0) {
-        AAA_UInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
+        DiameterUInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
         ppacAvp.Get() = ACE_HTONL(PANA_CFG_GENERAL().m_PPAC());
         msg->avpList().add(ppacAvp());
     }
 
     // add protection capability
     if (m_Flags.i.CarryPcapInPSR) {
-        AAA_UInt32AvpWidget pcapAvp(PANA_AVPNAME_PROTECTIONCAP);
+        DiameterUInt32AvpWidget pcapAvp(PANA_AVPNAME_PROTECTIONCAP);
         pcapAvp.Get() = ACE_HTONL(PANA_CFG_GENERAL().m_ProtectionCap);
         msg->avpList().add(pcapAvp());
     }
     
     // add nap information
     if (PANA_CFG_PAA().m_NapInfo.m_Id > 0) {
-        AAA_GroupedAvpWidget napAvp(PANA_AVPNAME_NAPINFO);
+        DiameterGroupedAvpWidget napAvp(PANA_AVPNAME_NAPINFO);
         PANA_ProviderInfoTool infoTool;
         infoTool.Add(napAvp.Get(), PANA_CFG_PAA().m_NapInfo);
         msg->avpList().add(napAvp());
@@ -289,7 +289,7 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
     // add ISP information
     if (! PANA_CFG_PAA().m_IspInfo.empty()) {
         PANA_CfgProviderList::iterator i;
-        AAA_GroupedAvpWidget ispAvp(PANA_AVPNAME_ISPINFO);
+        DiameterGroupedAvpWidget ispAvp(PANA_AVPNAME_ISPINFO);
         for (i = PANA_CFG_PAA().m_IspInfo.begin();
              i != PANA_CFG_PAA().m_IspInfo.end();
              i++) {
@@ -403,7 +403,7 @@ void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
 
 bool PANA_PaaSessionFactory::ValidateCookie(PANA_Message &msg)
 {
-   AAA_StringAvpContainerWidget cookieAvp(msg.avpList());
+   DiameterStringAvpContainerWidget cookieAvp(msg.avpList());
    diameter_octetstring_t *cookie = cookieAvp.GetAvp(PANA_AVPNAME_COOKIE);
    if (cookie) {
        PANA_DeviceId *ipId = PANA_DeviceIdConverter::GetIpOnlyAddress

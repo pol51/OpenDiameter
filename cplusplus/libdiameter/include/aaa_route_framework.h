@@ -34,7 +34,7 @@
 #ifndef __ROUTE_FRAMEWORK_H__
 #define __ROUTE_FRAMEWORK_H__
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "aaa_peer_table.h"
 #include "aaa_route_id_generator.h"
 
@@ -50,7 +50,7 @@ typedef enum {
 class AAA_RoutingNode
 {
    public:
-       AAA_ROUTE_RESULT Route(std::auto_ptr<AAAMessage> msg,
+       AAA_ROUTE_RESULT Route(std::auto_ptr<DiameterMsg> msg,
                               AAA_PeerEntry *source) {
            AAA_PeerEntry *dest = NULL;
            AAA_ROUTE_RESULT r = Lookup(msg, dest);
@@ -65,7 +65,7 @@ class AAA_RoutingNode
                    // fall through
                default:
                    AAA_LOG(LM_INFO, "(%P|%t) **** Message failed to route ****\n");
-                   AAA_MsgDump::Dump(*msg);
+                   DiameterMsgHeaderDump::Dump(*msg);
                    break;
            }
            return (r);
@@ -79,9 +79,9 @@ class AAA_RoutingNode
        std::string &Name() {
            return m_Name;
        }
-       virtual AAA_ROUTE_RESULT Lookup(std::auto_ptr<AAAMessage> &m,
+       virtual AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &m,
                                        AAA_PeerEntry *&dest) = 0;
-       virtual AAA_ROUTE_RESULT Process(std::auto_ptr<AAAMessage> m,
+       virtual AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> m,
                                         AAA_PeerEntry *source,
                                         AAA_PeerEntry *dest) = 0;
     
@@ -122,7 +122,7 @@ typedef struct {
    AAA_PeerEntry *m_Dest;
    ACE_Time_Value m_ReTxExpireTime;
    unsigned int m_ReTxCount;
-   std::auto_ptr<AAAMessage> m_ReqMessage;
+   std::auto_ptr<DiameterMsg> m_ReqMessage;
 } AAA_RouterPendingReq;
 
 typedef AAA_RouterPendingReq* AAA_RouterPendingReqPtr;
@@ -194,10 +194,10 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
        };
        
    public:       
-       virtual int RequestMsg(std::auto_ptr<AAAMessage> msg,
+       virtual int RequestMsg(std::auto_ptr<DiameterMsg> msg,
                               AAA_PeerEntry *source,
                               AAA_PeerEntry *dest) = 0;
-       int AnswerMsg(std::auto_ptr<AAAMessage> msg, AAA_PeerEntry *source) {
+       int AnswerMsg(std::auto_ptr<DiameterMsg> msg, AAA_PeerEntry *source) {
            return (Route(msg, source) == AAA_ROUTE_RESULT_SUCCESS) ?
                0 : (-1);
        }
@@ -226,7 +226,7 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
        }
        
        int Add(int localh2h,
-               std::auto_ptr<AAAMessage> &msg,
+               std::auto_ptr<DiameterMsg> &msg,
                AAA_PeerEntry *source,
                AAA_PeerEntry *dest) {
            AAA_RouterPendingReqPtr r = new AAA_RouterPendingReq;
@@ -256,7 +256,7 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
            m_ReqMap.Iterate(dealloc);
        }
        int StoreRequestMessage(int h2hId,
-                               std::auto_ptr<AAAMessage> &msg) {
+                               std::auto_ptr<DiameterMsg> &msg) {
            AAA_RouterPendingReqPtr r = NULL;
            if (m_ReqMap.Lookup(h2hId, r)) {
                r->m_ReqMessage = msg;              
@@ -264,7 +264,7 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
            }
            return (-1);
        }
-       virtual AAA_ROUTE_RESULT Lookup(std::auto_ptr<AAAMessage> &m,
+       virtual AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &m,
                                        AAA_PeerEntry *&dest) {
            /*    
               6.2.1.  Processing received Answers
@@ -315,7 +315,7 @@ class AAA_RequestRoutingNode : public AAA_RoutingNode
            m_DeliveryNode(a) { }
        virtual ~AAA_RequestRoutingNode() {
        }
-       AAA_ROUTE_RESULT Process(std::auto_ptr<AAAMessage> msg,
+       AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                 AAA_PeerEntry *source,
                                 AAA_PeerEntry *dest) {
            return (m_DeliveryNode.RequestMsg(msg, source, dest) == 0) ?
@@ -332,7 +332,7 @@ class AAA_RoutingChain
        }
        virtual ~AAA_RoutingChain() {
        }
-       AAA_ROUTE_RESULT Route(std::auto_ptr<AAAMessage> msg,
+       AAA_ROUTE_RESULT Route(std::auto_ptr<DiameterMsg> msg,
                               AAA_PeerEntry *source) {
            return (m_Head) ? m_Head->Route(msg, source) :
                AAA_ROUTE_RESULT_FAILED;
@@ -391,11 +391,11 @@ class AAA_RoutingChain
 class AAA_RouterFramework
 {
     public:
-       AAA_ROUTE_RESULT RequestMsg(std::auto_ptr<AAAMessage> msg,
+       AAA_ROUTE_RESULT RequestMsg(std::auto_ptr<DiameterMsg> msg,
                                    AAA_PeerEntry *source) {
            return m_RequestChain.Route(msg, source);
        }
-       AAA_ROUTE_RESULT AnswerMsg(std::auto_ptr<AAAMessage> msg,
+       AAA_ROUTE_RESULT AnswerMsg(std::auto_ptr<DiameterMsg> msg,
                                   AAA_PeerEntry *source) {
            return m_DeliveryChain.Route(msg, source);
        }

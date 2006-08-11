@@ -263,14 +263,14 @@ void PANA_Paa::TxPSR()
     // add paa nonce
     SecurityAssociation().PaaNonce().Generate();
     diameter_octetstring_t &nonce = SecurityAssociation().PaaNonce().Get();
-    AAA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
+    DiameterStringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
     nonceAvp.Get().assign(nonce.data(), nonce.size());
     msg->avpList().add(nonceAvp());
 
     // add eap payload
     if (! AuxVariables().TxEapMessageQueue().Empty()) {
         PANA_MsgBlockGuard eapPkt(AuxVariables().TxEapMessageQueue().Dequeue());
-        AAA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+        DiameterStringAvpWidget eapAvp(PANA_AVPNAME_EAP);
         eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
         msg->avpList().add(eapAvp());
         msg->flags().separate = false;
@@ -278,21 +278,21 @@ void PANA_Paa::TxPSR()
 
     // add ppac
     if (PANA_CFG_GENERAL().m_PPAC() > 0) {
-        AAA_UInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
+        DiameterUInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
         ppacAvp.Get() = ACE_HTONL(PANA_CFG_GENERAL().m_PPAC());
         msg->avpList().add(ppacAvp());
     }
 
     // add protection capability
     if (SupportFlags().i.CarryPcapInPSR) {
-        AAA_UInt32AvpWidget pcapAvp(PANA_AVPNAME_PROTECTIONCAP);
+        DiameterUInt32AvpWidget pcapAvp(PANA_AVPNAME_PROTECTIONCAP);
         pcapAvp.Get() = ACE_HTONL(PANA_CFG_GENERAL().m_ProtectionCap);
         msg->avpList().add(pcapAvp());
     }
 
     // add nap information
     if (PANA_CFG_PAA().m_NapInfo.m_Id > 0) {
-        AAA_GroupedAvpWidget napAvp(PANA_AVPNAME_NAPINFO);
+        DiameterGroupedAvpWidget napAvp(PANA_AVPNAME_NAPINFO);
         PANA_ProviderInfoTool infoTool;
         infoTool.Add(napAvp.Get(), PreferedNAP());
         msg->avpList().add(napAvp());
@@ -301,7 +301,7 @@ void PANA_Paa::TxPSR()
     // add ISP information
     if (! PANA_CFG_PAA().m_IspInfo.empty()) {
         PANA_CfgProviderList::iterator i;
-        AAA_GroupedAvpWidget ispAvp(PANA_AVPNAME_ISPINFO);
+        DiameterGroupedAvpWidget ispAvp(PANA_AVPNAME_ISPINFO);
         for (i = PANA_CFG_PAA().m_IspInfo.begin();
              i != PANA_CFG_PAA().m_IspInfo.end();
              i++) {
@@ -367,7 +367,7 @@ void PANA_Paa::RxPSA()
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // update pac nonce
-    AAA_StringAvpContainerWidget nonceAvp(msg.avpList());
+    DiameterStringAvpContainerWidget nonceAvp(msg.avpList());
     diameter_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && 
         ! SecurityAssociation().PacNonce().IsSet()) {
@@ -380,7 +380,7 @@ void PANA_Paa::RxPSA()
     m_Timer.CancelTxRetry();
 
     // update ISP info
-    AAA_GroupedAvpContainerWidget ispAvp(msg.avpList());
+    DiameterGroupedAvpContainerWidget ispAvp(msg.avpList());
     diameter_grouped_t *isp = ispAvp.GetAvp(PANA_AVPNAME_ISPINFO);
     if (isp) {
         PANA_ProviderInfoTool infoTool;
@@ -389,7 +389,7 @@ void PANA_Paa::RxPSA()
                    PreferedISP().m_Id, PreferedISP().m_Name.data()));
     }
 
-    AAA_Utf8AvpContainerWidget sidAvp(msg.avpList());
+    DiameterUtf8AvpContainerWidget sidAvp(msg.avpList());
     diameter_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
     if (sid && PANA_CFG_GENERAL().m_MobilityEnabled) {
         // mobility support
@@ -405,7 +405,7 @@ void PANA_Paa::RxPSA()
            SecurityAssociation().Type() = PANA_SecurityAssociation::DOUBLE;
         }
 
-        AAA_StringAvpContainerWidget eapAvp(msg.avpList());
+        DiameterStringAvpContainerWidget eapAvp(msg.avpList());
         diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
         if (payload) {
             NotifyEapResponse(*payload);
@@ -454,7 +454,7 @@ void PANA_Paa::TxPAR()
     }
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -465,7 +465,7 @@ void PANA_Paa::TxPAR()
     }
 
     PANA_MsgBlockGuard eapPkt(AuxVariables().TxEapMessageQueue().Dequeue());
-    AAA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+    DiameterStringAvpWidget eapAvp(PANA_AVPNAME_EAP);
     eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
     msg->avpList().add(eapAvp());
 
@@ -475,7 +475,7 @@ void PANA_Paa::TxPAR()
         SecurityAssociation().PaaNonce().Generate();
         
         diameter_octetstring_t &nonce = SecurityAssociation().PaaNonce().Get();
-        AAA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
+        DiameterStringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
         nonceAvp.Get().assign(nonce.data(), nonce.size());
         msg->avpList().add(nonceAvp());
     }
@@ -530,18 +530,18 @@ void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
     msg->seq() = LastTxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
     // add result-code
-    AAA_UInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
+    DiameterUInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
     rcodeAvp.Get() = ACE_HTONL(rcode);
     msg->avpList().add(rcodeAvp());
 
     // add ppac
     if (PANA_CFG_GENERAL().m_PPAC() > 0) {
-        AAA_UInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
+        DiameterUInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
         ppacAvp.Get() = ACE_HTONL(PANA_CFG_GENERAL().m_PPAC());
         msg->avpList().add(ppacAvp());
     }
@@ -555,7 +555,7 @@ void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
         PANA_MsgBlockGuard eapPkt(AuxVariables().TxEapMessageQueue().Dequeue());
         if (eapPkt() && (ev != EAP_TIMEOUT)) {
             // add eap payload
-            AAA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+            DiameterStringAvpWidget eapAvp(PANA_AVPNAME_EAP);
             eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
             msg->avpList().add(eapAvp());
         }
@@ -587,14 +587,14 @@ void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
     if (AddBindingAvp) {
         if (SessionLifetime() > 0) {
             // add session lifetime
-            AAA_UInt32AvpWidget lifetimeAvp(PANA_AVPNAME_SESSIONLIFETIME);
+            DiameterUInt32AvpWidget lifetimeAvp(PANA_AVPNAME_SESSIONLIFETIME);
             lifetimeAvp.Get() = ACE_HTONL(SessionLifetime());
             msg->avpList().add(lifetimeAvp());
         }
 
         // add protection capability
         if (SupportFlags().i.CarryPcapInPBR) {
-            AAA_UInt32AvpWidget pcapAvp(PANA_AVPNAME_PROTECTIONCAP);
+            DiameterUInt32AvpWidget pcapAvp(PANA_AVPNAME_PROTECTIONCAP);
             pcapAvp.Get() = ACE_HTONL(PANA_CFG_GENERAL().m_ProtectionCap);
             msg->avpList().add(pcapAvp());
         }
@@ -602,7 +602,7 @@ void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
         // add EP device id
         if (AuxVariables().CarryDeviceId()) {
             PANA_DeviceIdIterator i = PANA_CFG_PAA().m_EpIdList.begin();
-            AAA_AddressAvpWidget deviceAvp(PANA_AVPNAME_DEVICEID);
+            DiameterAddressAvpWidget deviceAvp(PANA_AVPNAME_DEVICEID);
             for (; i != PANA_CFG_PAA().m_EpIdList.end(); i++) {
                 deviceAvp.Get() = **i;
             }
@@ -623,7 +623,7 @@ void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
         if (local != NULL)
             if (static_cast<PANA_PaaEventInterface&>(m_Event).
                 IsPacIpAddressAvailable(ip,*local,PacIpAddress())) {
-            AAA_AddressAvpWidget pacIpAvp(PANA_AVPNAME_PACIP);
+            DiameterAddressAvpWidget pacIpAvp(PANA_AVPNAME_PACIP);
             pacIpAvp.Get() = ip();
             msg->avpList().add(pacIpAvp());
         }
@@ -644,7 +644,7 @@ void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
             if (! AuxVariables().AlgorithmIsSet()) {
                 // add algorithm
                 // TBD: need to make sure algo value is ok
-                AAA_UInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
+                DiameterUInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
                 algoAvp.Get() = ACE_HTONL(PANA_AUTH_ALGORITHM());
                 msg->avpList().add(algoAvp());   
                 AuxVariables().AlgorithmIsSet() = true;
@@ -706,12 +706,12 @@ void PANA_Paa::TxPFER(diameter_unsigned32_t rcode,
     msg->seq() = LastTxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
     // add result-code
-    AAA_UInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
+    DiameterUInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
     rcodeAvp.Get() = ACE_HTONL(rcode);
     msg->avpList().add(rcodeAvp());
 
@@ -725,7 +725,7 @@ void PANA_Paa::TxPFER(diameter_unsigned32_t rcode,
                 // add eap payload
                 PANA_MsgBlockGuard eapPkt(AuxVariables().
                                TxEapMessageQueue().Dequeue());
-                AAA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+                DiameterStringAvpWidget eapAvp(PANA_AVPNAME_EAP);
                 eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
                 msg->avpList().add(eapAvp());
             }
@@ -738,7 +738,7 @@ void PANA_Paa::TxPFER(diameter_unsigned32_t rcode,
                     if (! AuxVariables().AlgorithmIsSet()) {
                        // add algorithm
                        // TBD: need to make sure algo value is ok
-                       AAA_UInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
+                       DiameterUInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
                        algoAvp.Get() = ACE_HTONL(PANA_AUTH_ALGORITHM());
                        msg->avpList().add(algoAvp());   
                        AuxVariables().AlgorithmIsSet() = true;
@@ -824,7 +824,7 @@ void PANA_Paa::RxPBA(bool success)
         }
 
         // save the device id
-        AAA_AddressAvpContainerWidget pacIdAvp(msg.avpList());
+        DiameterAddressAvpContainerWidget pacIdAvp(msg.avpList());
         diameter_address_t *pacId = pacIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
         if (pacId) {
             PacDeviceId() = *pacId;
@@ -902,7 +902,7 @@ void PANA_Paa::TxPAN()
     }
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -947,7 +947,7 @@ void PANA_Paa::RxPAR()
     // process notification
     ProcessNotification(msg);
 
-    AAA_StringAvpContainerWidget eapAvp(msg.avpList());
+    DiameterStringAvpContainerWidget eapAvp(msg.avpList());
     diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapResponse(*payload);
@@ -987,14 +987,14 @@ void PANA_Paa::RxPAN()
     m_Timer.CancelTxRetry();
 
     // update pac nonce
-    AAA_StringAvpContainerWidget nonceAvp(msg.avpList());
+    DiameterStringAvpContainerWidget nonceAvp(msg.avpList());
     diameter_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && 
         ! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Set(*nonce);
     }
     
-    AAA_StringAvpContainerWidget eapAvp(msg.avpList());
+    DiameterStringAvpContainerWidget eapAvp(msg.avpList());
     diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapResponse(*payload);
@@ -1050,7 +1050,7 @@ void PANA_Paa::TxPRAA()
     msg->seq() = LastRxSeqNum().Value();
 
     // add session id
-    AAA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 

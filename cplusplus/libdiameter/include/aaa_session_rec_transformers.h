@@ -39,8 +39,8 @@ class DIAMETERBASEPROTOCOL_EXPORT AAAAccountingRecTransformer
     public:
         virtual ~AAAAccountingRecTransformer() {
         }
-        virtual AAAReturnCode Convert(AAAMessage *msg) = 0;
-        virtual AAAReturnCode OutputRecord(AAAMessage *originalMsg) = 0;
+        virtual AAAReturnCode Convert(DiameterMsg *msg) = 0;
+        virtual AAAReturnCode OutputRecord(DiameterMsg *originalMsg) = 0;
 
     protected:
         AAAAccountingRecTransformer() {
@@ -58,8 +58,8 @@ class DIAMETERBASEPROTOCOL_EXPORT AAAAccountingXMLRecTransformer :
         virtual ~AAAAccountingXMLRecTransformer() {
         }
 
-        virtual AAAReturnCode Convert(AAAMessage *msg);
-        virtual AAAReturnCode OutputRecord(AAAMessage *msg);
+        virtual AAAReturnCode Convert(DiameterMsg *msg);
+        virtual AAAReturnCode OutputRecord(DiameterMsg *msg);
 
    protected:
         AAASessionPayload m_Record;

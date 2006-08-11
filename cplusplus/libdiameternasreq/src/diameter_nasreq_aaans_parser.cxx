@@ -45,27 +45,27 @@ template<> void
 AA_AnswerParser::parseAppToRaw()
 {
   AA_AnswerData &data = *getAppData();
-  AAAMessage &aaaMessage = *getRawData();
+  DiameterMsg &aaaMessage = *getRawData();
 
   
-  AAADictionaryManager dm;
-  AAAAvpContainerManager cm;
+  DiameterDictionaryManager dm;
+  DiameterAvpContainerManager cm;
   AAAAvpContainer *c;
                           
   AAACommandCode code;
-  AAAApplicationId appId;
+  DiameterApplicationId appId;
 
   // Obtain Command Code and Application Identifier.
   if (!dm.getCommandCode("AA-Answer", &code, &appId))
     {
       AAA_LOG(LM_ERROR, "Cannot find Diameter message in dictionary\n.");
-      throw (DictionaryError);
+      throw (DiameterDictionaryError);
       return;
     }
 
   // Specify the header.
-  hdr_flag flag = {0,0,0};  // Answer
-  aaaMessage.hdr = AAADiameterHeader(1, 0, flag, code, appId, 0, 0);
+  diameter_hdr_flag flag = {0,0,0};  // Answer
+  aaaMessage.hdr = DiameterMsgHeader(1, 0, flag, code, appId, 0, 0);
 
   if (data.AuthApplicationId.IsSet())
     {
@@ -445,7 +445,7 @@ template<> void
 AA_AnswerParser::parseRawToApp()
 {
   AA_AnswerData &data = *getAppData();
-  AAAMessage &aaaMessage = *getRawData();
+  DiameterMsg &aaaMessage = *getRawData();
 
   data.Clear();
 

@@ -65,7 +65,7 @@ typedef AAA_JobHandle<AAA_GroupedJob> DiameterJobHandle;
 /// functions for enforcement of attributes (i.e., EnforceXYZ) and 
 /// for setting attributes (i.e., SetXYX).  Arguments of enforcement
 /// functions are not enveloped with AAA_ScholorAttribute or
-/// AAA_VectorAttributes since they are intended to be unmodified.
+/// DiameterVectorAttribute since they are intended to be unmodified.
 class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientStateMachine 
   : public AAA_StateMachine<DiameterMip4HaClientStateMachine>,
     public AAA_EventQueueJob
@@ -145,40 +145,40 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientStateMachine
   /// This function is used for setting User-Name AVP contents.
  
   virtual void
- SetUserName(AAA_ScholarAttribute<diameter_utf8string_t> &userName)=0;
+ SetUserName(DiameterScholarAttribute<diameter_utf8string_t> &userName)=0;
  
   /// This function is used for setting Destination-Realm AVP
   /// contents.  
   virtual void SetDestinationRealm
-  (AAA_ScholarAttribute<diameter_utf8string_t> &destinationRealm){}//=0; 
+  (DiameterScholarAttribute<diameter_utf8string_t> &destinationRealm){}//=0; 
 
   // OriginHost & OriginRealm --> this will be populated from the config file
 
   virtual void SetMipMnAaaAuth
-  (AAA_ScholarAttribute<mip_mn_aaa_auth_info_t> &mipMnAaaAuth)=0; 
+  (AAAScholarAttribute<mip_mn_aaa_auth_info_t, DiameterAvpContainerEntryManager> &mipMnAaaAuth)=0; 
 
   //optional AVPs
 
   /// This function is used for setting Destination-Host AVP
   /// contents.  
   virtual void SetDestinationHost
-  (AAA_ScholarAttribute<diameter_utf8string_t> &destinationHost)
+  (DiameterScholarAttribute<diameter_utf8string_t> &destinationHost)
   {
   }
 
   virtual void SetMipMobileNodeAddress
-  (AAA_ScholarAttribute<diameter_address_t> &mipMobileNodeAddress)
+  (DiameterScholarAttribute<diameter_address_t> &mipMobileNodeAddress)
   {
   }
 
   virtual void SetMipHomeAgentAddress
-  (AAA_ScholarAttribute<diameter_address_t> &mipHomeAgentAddress)
+  (DiameterScholarAttribute<diameter_address_t> &mipHomeAgentAddress)
   {
   }
 
   // SetMipFeatureVector for HA Client => MN co-located mode
   virtual void SetMipFeatureVector 
-  (AAA_ScholarAttribute<diameter_unsigned32_t> &mipFeatureVector)
+  (DiameterScholarAttribute<diameter_unsigned32_t> &mipFeatureVector)
   {
   
 #define FV_CO_LOCATED_MN            256
@@ -195,21 +195,21 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientStateMachine
   // return 0 - otherwise
   virtual int IsMnHaKeyRequested() =0;
 
-  //AAA_ScholarAttribute<mip_originating_foreign_aaa_info_t> MipOriginatingForeignAaa;
+  //DiameterScholarAttribute<mip_originating_foreign_aaa_info_t> MipOriginatingForeignAaa;
 
   
   virtual void
   SetAuthorizationLifetime
-  (AAA_ScholarAttribute<diameter_unsigned32_t> &authorizationLifetime)
+  (DiameterScholarAttribute<diameter_unsigned32_t> &authorizationLifetime)
   {
   }
 
   // fn not needed 
   //  virtual void  SetAuthSessionState
-  //(AAA_ScholarAttribute<diameter_enumerated_t> &authSessionState) {  }
+  //(DiameterScholarAttribute<diameter_enumerated_t> &authSessionState) {  }
 
   virtual void SetMipHomeAgentHost
-  (AAA_ScholarAttribute<mip_home_agent_host_info_t> &mipHomeAgentHost)
+  (AAAScholarAttribute<mip_home_agent_host_info_t, DiameterAvpContainerEntryManager> &mipHomeAgentHost)
   {
   }
 
@@ -217,7 +217,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientStateMachine
   /// This function is used for setting Auth-Request-Type AVP
   /// contents.  
   virtual void SetAuthRequestType
-  (AAA_ScholarAttribute<diameter_enumerated_t> &authRequestType)
+  (DiameterScholarAttribute<diameter_enumerated_t> &authRequestType)
   {
     authRequestType = AUTH_REQUEST_TYPE_AUTHORIZE_AUTHENTICATE;
   }
@@ -266,12 +266,12 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientStateMachine
   ( const diameter_utf8string_t &errorMessage)=0;
 
   virtual void SetMipCandidateHomeAgentHost
-  (AAA_ScholarAttribute<diameter_identity_t> &mipCandidateHomeAgentHost)
+  (DiameterScholarAttribute<diameter_identity_t> &mipCandidateHomeAgentHost)
   {
   }
 
   virtual void SetMipHaToFaSpi
-  (AAA_ScholarAttribute<diameter_unsigned32_t> &mipHaToFaSpi)
+  (DiameterScholarAttribute<diameter_unsigned32_t> &mipHaToFaSpi)
   {
   }
   

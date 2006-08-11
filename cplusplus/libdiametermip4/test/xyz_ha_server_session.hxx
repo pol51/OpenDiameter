@@ -40,7 +40,7 @@
 #ifndef __XYZ_HA_SERVER_SESSION_H__
 #define __XYZ_HA_SERVER_SESSION_H__
 #include <unistd.h>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "diameter_mip4_parser.hxx"
 
 #include "diameter_mip4_ha_server_interface.hxx"

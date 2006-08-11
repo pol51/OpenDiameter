@@ -69,12 +69,12 @@ void PANA_DhcpKey::Generate(diameter_octetstring_t &aaaKey,
                             Nonce_client | Nonce_NAS)
     */
 
-    AAA_UINT8 digest[16];
+    AAAUInt8 digest[16];
     OD_Utl_Md5 md5;
-    md5.Update((AAA_UINT8*)aaaKey.data(), aaaKey.size());
-    md5.Update((AAA_UINT8*)&secretId, sizeof(ACE_UINT32));
-    md5.Update((AAA_UINT8*)nonceClient.data(), nonceClient.size());
-    md5.Update((AAA_UINT8*)nonceNas.data(), nonceNas.size());
+    md5.Update((AAAUInt8*)aaaKey.data(), aaaKey.size());
+    md5.Update((AAAUInt8*)&secretId, sizeof(ACE_UINT32));
+    md5.Update((AAAUInt8*)nonceClient.data(), nonceClient.size());
+    md5.Update((AAAUInt8*)nonceNas.data(), nonceNas.size());
     md5.Final(digest);
 
     m_Value.assign((char*)digest, sizeof(digest));

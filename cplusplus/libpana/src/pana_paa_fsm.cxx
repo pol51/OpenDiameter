@@ -1914,7 +1914,7 @@ class PANA_PsmRxPSA : public PANA_ServerRxStateFilter
           ev.MsgType(PANA_EV_MTYPE_PSA);
           m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
 
-          AAA_Utf8AvpContainerWidget sidAvp(msg.avpList());
+          DiameterUtf8AvpContainerWidget sidAvp(msg.avpList());
           diameter_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
           if (sid && PANA_CFG_GENERAL().m_MobilityEnabled) {
               ev.Do_Mobility();
@@ -1984,7 +1984,7 @@ class PANA_PsmRxPBA : public PANA_ServerRxStateFilter
           PANA_PaaEventVariable ev;
           ev.MsgType(PANA_EV_MTYPE_PBA);
           // checked for presence of device id
-          AAA_AddressAvpContainerWidget pacIdAvp(msg.avpList());
+          DiameterAddressAvpContainerWidget pacIdAvp(msg.avpList());
           diameter_address_t *id = pacIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
           if (m_arg.AuxVariables().CarryDeviceId()) {
              if (! id) {
@@ -2154,7 +2154,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           ev.MsgType(msg.flags().request ?
                      PANA_EV_MTYPE_PAR : PANA_EV_MTYPE_PAN);
           if (! msg.flags().request) {
-              AAA_StringAvpContainerWidget eapAvp(msg.avpList());
+              DiameterStringAvpContainerWidget eapAvp(msg.avpList());
               diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
               if (payload) {
                   ev.AvpExist_EapPayload();

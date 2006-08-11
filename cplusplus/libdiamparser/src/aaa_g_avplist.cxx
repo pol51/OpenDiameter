@@ -33,10 +33,10 @@
 /* $Id: g_avplist.cxx,v 1.12 2004/06/17 21:07:49 yohba Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
-#include "avplist.h"
-#include "g_avplist.h"
+#include "aaa_avplist.h"
+#include "aaa_g_avplist.h"
 
-AAAGroupedAvpList_S::~AAAGroupedAvpList_S()
+DiameterGroupedAvpList_S::~DiameterGroupedAvpList_S()
 {
   for (iterator i=begin(); i!=end(); i++)
     {
@@ -48,7 +48,7 @@ AAAGroupedAvpList_S::~AAAGroupedAvpList_S()
 }
 
 void
-AAAGroupedAvpList_S::add(DiameterGroupedAVP *gavp)
+DiameterGroupedAvpList_S::add(DiameterGroupedAVP *gavp)
 {
   if (search(gavp->code, gavp->vendorId) != NULL)
     {
@@ -61,7 +61,7 @@ AAAGroupedAvpList_S::add(DiameterGroupedAVP *gavp)
 }
 
 DiameterGroupedAVP*
-AAAGroupedAvpList_S::search(ACE_UINT32 code, ACE_UINT32 vendorId)
+DiameterGroupedAvpList_S::search(ACE_UINT32 code, ACE_UINT32 vendorId)
 {
   mutex.acquire();
   for (iterator c=begin(); c!=end(); c++)

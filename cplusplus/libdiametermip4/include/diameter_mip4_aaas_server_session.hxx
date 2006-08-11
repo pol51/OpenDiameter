@@ -75,7 +75,7 @@ class AMR_Handler:public AAASessionMessageHandler
     {}
   private:
     DiameterMip4AaaSServerSession<SpecificAaaSServerSession >  &session;
-    AAAReturnCode HandleMessage (AAAMessage &msg)
+    AAAReturnCode HandleMessage (DiameterMsg &msg)
     {
       // Header flag check.
       if (!msg.hdr.flags.r)
@@ -150,7 +150,7 @@ class AMR_Handler:public AAASessionMessageHandler
   DiameterMip4AaaSServerSession* Self() { return this; }
 
   /// Reimplemented from AAAServerSession. 
-  AAAReturnCode HandleMessage(AAAMessage &msg)
+  AAAReturnCode HandleMessage(DiameterMsg &msg)
   {
     AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
     return AAA_ERR_UNKNOWN_CMD;
@@ -221,7 +221,7 @@ class AMR_Handler:public AAASessionMessageHandler
     return specificAaaSServerSession.SetMnHaNonce( mnHaNonce);
     //return 1;
   }
-  int SetHaMnKey(  AAA_ScholarAttribute<diameter_octetstring_t> &mipSessionKey)  //MnHaKey for HA
+  int SetHaMnKey(  DiameterScholarAttribute<diameter_octetstring_t> &mipSessionKey)  //MnHaKey for HA
   {
     diameter_octetstring_t _mipSessionKey;
     int rc = specificAaaSServerSession.SetHaMnKey( _mipSessionKey);
@@ -230,7 +230,7 @@ class AMR_Handler:public AAASessionMessageHandler
     return rc;
     
   }
-  int SetAlgorithmType( AAA_ScholarAttribute<diameter_unsigned32_t> &mipAlgorithmType)
+  int SetAlgorithmType( DiameterScholarAttribute<diameter_unsigned32_t> &mipAlgorithmType)
   {
     diameter_unsigned32_t _mipAlgorithmType;
     specificAaaSServerSession.SetAlgorithmType( &_mipAlgorithmType);
@@ -238,7 +238,7 @@ class AMR_Handler:public AAASessionMessageHandler
     return 1;
   }
 
-  int SetReplayMode( AAA_ScholarAttribute<diameter_unsigned32_t> &mipReplayMode)
+  int SetReplayMode( DiameterScholarAttribute<diameter_unsigned32_t> &mipReplayMode)
   {
     diameter_unsigned32_t _mipReplayMode;
     specificAaaSServerSession.SetReplayMode( &_mipReplayMode);
@@ -247,7 +247,7 @@ class AMR_Handler:public AAASessionMessageHandler
   }
 
   int SetAuthorizationLifetime(
-	       AAA_ScholarAttribute<diameter_unsigned32_t>&authLifetime)
+	       DiameterScholarAttribute<diameter_unsigned32_t>&authLifetime)
   {
     diameter_unsigned32_t _authorizationLifetime;
     if ( specificAaaSServerSession.SetAuthorizationLifetime(
@@ -258,7 +258,7 @@ class AMR_Handler:public AAASessionMessageHandler
     return 1;
   }
 
-  void SetAuthState( AAA_ScholarAttribute<diameter_enumerated_t> &state)
+  void SetAuthState( DiameterScholarAttribute<diameter_enumerated_t> &state)
   {
     diameter_enumerated_t _state;
     specificAaaSServerSession.SetAuthState( &_state);
@@ -279,7 +279,7 @@ class AMR_Handler:public AAASessionMessageHandler
   }
 
   int SetMipMsaLifetime( 
-	       AAA_ScholarAttribute<diameter_unsigned32_t>&mipMsaLifetime)
+	       DiameterScholarAttribute<diameter_unsigned32_t>&mipMsaLifetime)
   {
       diameter_unsigned32_t _mipMsaLifetime;
       specificAaaSServerSession.SetMipMsaLifetime( &_mipMsaLifetime);
@@ -322,7 +322,7 @@ class AMR_Handler:public AAASessionMessageHandler
   
   
   int SetAaaSAllocatedHomeAgentHost(
-			 AAA_ScholarAttribute<diameter_identity_t> &hostname)
+			 DiameterScholarAttribute<diameter_identity_t> &hostname)
   {
     //return 
       (specificAaaSServerSession.SetAaaSAllocatedHomeAgentHost(hostname));

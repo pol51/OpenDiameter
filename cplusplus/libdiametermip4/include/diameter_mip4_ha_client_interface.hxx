@@ -38,7 +38,7 @@
 
 #ifndef __DIAMETER_MIP_HA_CLIENT_INTERFACE_H__
 #define __DIAMETER_MIP_HA_CLIENT_INTERFACE_H__
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "diameter_mip4_ha_client_session.hxx"
 #include "mip4_diameter_ha_client_interface.hxx"
 

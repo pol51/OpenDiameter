@@ -191,7 +191,7 @@ bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
     else {
         return (false);
     }
-    AAA_UInt32AvpWidget keyIdAvp(PANA_AVPNAME_KEYID);
+    DiameterUInt32AvpWidget keyIdAvp(PANA_AVPNAME_KEYID);
     keyIdAvp.Get() = ACE_HTONL(keyId);
     msg.avpList().add(keyIdAvp());
     return (true);
@@ -200,7 +200,7 @@ bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
 bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
 {
     // add auth-avp
-    AAA_StringAvpWidget authAvp(PANA_AVPNAME_AUTH);
+    DiameterStringAvpWidget authAvp(PANA_AVPNAME_AUTH);
     diameter_octetstring_t &auth = authAvp.Get();
     msg.avpList().add(authAvp());
 
@@ -212,7 +212,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
     PANA_MessageBuffer *rawBuf = PANA_MESSAGE_POOL()->malloc();
 
     PANA_HeaderParser hp;
-    AAADictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
+    DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
     hp.setRawData(reinterpret_cast<AAAMessageBlock*>(rawBuf));
     hp.setAppData(static_cast<PANA_MsgHeader*>(&msg));
     hp.setDictData(&opt);
@@ -244,7 +244,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
 bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
 {
     try {
-        AAA_StringAvpContainerWidget authAvp(msg.avpList());
+        DiameterStringAvpContainerWidget authAvp(msg.avpList());
         diameter_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
         if (auth == NULL) {
             throw (PANA_Exception(PANA_Exception::FAILED, 
@@ -273,7 +273,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
 
         // parse the message 
         PANA_HeaderParser hp;
-        AAADictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
+        DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
         hp.setRawData(reinterpret_cast<AAAMessageBlock*>(aBuffer));
         hp.setAppData(static_cast<PANA_MsgHeader*>(&msg));
         hp.setDictData(&opt);
@@ -323,7 +323,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         }
         ACE_DEBUG((LM_ERROR, "(%P|%t) AUTH value is invalid\n"));
     }
-    catch (AAAErrorStatus &st) {
+    catch (DiameterErrorCode &st) {
         ACE_DEBUG((LM_ERROR, "(%P|%t) Parsing error is session transmitter\n"));
     }  
     catch (PANA_Exception &e) {

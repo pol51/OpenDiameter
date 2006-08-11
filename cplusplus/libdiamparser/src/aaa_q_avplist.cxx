@@ -32,17 +32,17 @@
 /* END_COPYRIGHT                                                          */
 /* $Id: q_avplist.cxx,v 1.9 2004/06/17 21:07:50 yohba Exp $ */
 #include <stdlib.h>
-#include "q_avplist.h"
-#include "parser.h"
-#include "parser_avp.h"
+#include "aaa_q_avplist.h"
+#include "aaa_parser.h"
+#include "aaa_parser_avp.h"
 
-AAAQualifiedAvpList::~AAAQualifiedAvpList()
+DiameterQualifiedAvpList::~DiameterQualifiedAvpList()
 {
   for (iterator i=begin(); i!=end(); i++) { delete *i; }
 }
 
 unsigned 
-AAAQualifiedAvpList::getMinSize(void)
+DiameterQualifiedAvpList::getMinSize(void)
 {
   unsigned sum=0;
   for (iterator c=begin(); c!=end(); c++)

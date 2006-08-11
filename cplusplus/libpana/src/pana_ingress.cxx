@@ -49,7 +49,7 @@ int PANA_IngressMsgParser::Serve()
        }
 
        PANA_HeaderParser hp;
-       AAADictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
+       DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
        hp.setRawData(aBuffer);
        hp.setAppData(static_cast<PANA_MsgHeader*>(parsedMsg));
        hp.setDictData(&opt);
@@ -69,7 +69,7 @@ int PANA_IngressMsgParser::Serve()
 
        (*m_MsgHandler)(*parsedMsg);
     }
-    catch (AAAErrorStatus &st) {
+    catch (DiameterErrorCode &st) {
        ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, PARSING] parsing error\n"));
     }
     catch (PANA_Exception &e) {

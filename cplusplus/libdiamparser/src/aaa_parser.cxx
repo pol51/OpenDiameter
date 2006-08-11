@@ -34,14 +34,14 @@
 #include <ace/OS.h>
 #include <list>
 #include <typeinfo>
-#include "comlist.h"
-#include "avplist.h"
-#include "q_avplist.h"
-#include "parser.h"
-#include "parser_avp.h"
-#include "parser_q_avplist.h"
+#include "aaa_comlist.h"
+#include "aaa_avplist.h"
+#include "aaa_q_avplist.h"
+#include "aaa_parser.h"
+#include "aaa_parser_avp.h"
+#include "aaa_parser_q_avplist.h"
 #include "resultcodes.h"    /* file location will be changed */
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 
 template<> void
 DiameterMsgHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
@@ -56,13 +56,13 @@ DiameterMsgHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
   DiameterErrorCode st;
   DiameterCommand *com;
 
-  h.ver = *((AAA_UINT8*)(p));
+  h.ver = *((AAAUInt8*)(p));
   h.length = ntohl(*((ACE_UINT32*)(p))) & 0x00ffffff;
   p += 4;
-  h.flags.r = *((AAA_UINT8*)(p)) >> 7;
-  h.flags.p = *((AAA_UINT8*)(p)) >> 6;
-  h.flags.e = *((AAA_UINT8*)(p)) >> 5;
-  h.flags.t = *((AAA_UINT8*)(p)) >> 4;
+  h.flags.r = *((AAAUInt8*)(p)) >> 7;
+  h.flags.p = *((AAAUInt8*)(p)) >> 6;
+  h.flags.e = *((AAAUInt8*)(p)) >> 5;
+  h.flags.t = *((AAAUInt8*)(p)) >> 4;
 
   h.code = ntohl(*((ACE_UINT32*)(p))) & 0x00ffffff;
   p += 4;
@@ -196,10 +196,10 @@ DiameterMsgHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
     }
 
   *((ACE_UINT32*)(p)) = ntohl(h.length);
-  *((AAA_UINT8*)(p)) = h.ver;
+  *((AAAUInt8*)(p)) = h.ver;
   p += 4;
   *((ACE_UINT32*)(p)) = ntohl(h.code);
-  *((AAA_UINT8*)(p)) = 
+  *((AAAUInt8*)(p)) = 
     (h.flags.r << 7) | (h.flags.p << 6)  | 
     (h.flags.e << 5) | (h.flags.t << 4);;
 
@@ -220,7 +220,7 @@ DiameterMsgPayloadParser::parseRawToApp()// throw(DiameterErrorCode)
 {
   AAAMessageBlock *aBuffer = getRawData();
   AAAAvpContainerList *acl = getAppData();
-  AAADictionary *dict = (AAADictionary*)getDictData();
+  DiameterDictionary *dict = (DiameterDictionary*)getDictData();
 
   QualifiedAvpListParser qc;
   qc.setRawData(aBuffer);
@@ -241,7 +241,7 @@ DiameterMsgPayloadParser::parseAppToRaw()// throw(DiameterErrorCode)
 {
   AAAMessageBlock *aBuffer = getRawData();
   AAAAvpContainerList *acl = getAppData();
-  AAADictionary *dict = (AAADictionary*)getDictData();
+  DiameterDictionary *dict = (DiameterDictionary*)getDictData();
 
   ACE_OS::memset(aBuffer->wr_ptr(), 0,
 		 aBuffer->size() - (size_t)aBuffer->wr_ptr() +
@@ -255,7 +255,7 @@ DiameterMsgPayloadParser::parseAppToRaw()// throw(DiameterErrorCode)
   try {
     qc.parseAppToRaw();
   }
-  catch (DiameterErrorCode st) {
+  catch (DiameterErrorCode &st) {
     AAA_LOG(LM_ERROR, "Parse error");
     throw;
   }

@@ -39,7 +39,7 @@
 #ifndef __DIAMETER_MIP_HA_SERVER_INTERFACE_H__
 #define __DIAMETER_MIP_HA_SERVER_INTERFACE_H__
 #include <unistd.h>
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "diameter_mip4_parser.hxx"
 
 //#include "diameter_mip4_ha_server_session.hxx"

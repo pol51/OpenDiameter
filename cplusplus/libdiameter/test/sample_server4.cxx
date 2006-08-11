@@ -61,14 +61,14 @@ class AAA_SampleRecStorage :
            /// as Accounting-Sub-Session-Id, Acct-Session
            /// -Id ... etc which the application may wish
            /// to track
-           AAA_Utf8AvpContainerWidget recAvp(avpList);
+           DiameterUtf8AvpContainerWidget recAvp(avpList);
            diameter_utf8string_t *rec = recAvp.GetAvp("Example-Accounting-Record");
            if (rec) {
                std::cout << "Record: " << *rec << std::endl;
            }
         }
         
-        virtual void UpdateAcctResponse(AAAMessage &aca) {
+        virtual void UpdateAcctResponse(DiameterMsg &aca) {
            /// If you wish to add AVP's to the ACA
            /// before it is sent, you need to override
            /// this method and insert your AVP's here
@@ -76,7 +76,7 @@ class AAA_SampleRecStorage :
            // as an example, add a timestamp to your aca
            time_t currentTime = time(0);
            if (currentTime > 0) {
-              AAA_TimeAvpWidget tstampAvp("Event-Timestamp");
+              DiameterTimeAvpWidget tstampAvp("Event-Timestamp");
               tstampAvp.Get() = currentTime;
               aca.acl.add(tstampAvp());
            }
@@ -105,7 +105,7 @@ class AAA_SampleServer :
         /// This function is used for setting realtime required 
         /// AVP as a hint to the server
         virtual void SetRealTimeRequired
-        (AAA_ScholarAttribute<diameter_enumerated_t> &rt)
+        (DiameterScholarAttribute<diameter_enumerated_t> &rt)
         {
             /// The following are possible values:
             ///   AAA_ACCT_REALTIME_DELIVER_AND_GRANT
@@ -116,7 +116,7 @@ class AAA_SampleServer :
         /// This function is used for setting acct interim 
         /// interval AVP dictated by the server to client
         virtual void SetInterimInterval
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
             timeout = 2; // tell client to generate record every 2 sec
         }

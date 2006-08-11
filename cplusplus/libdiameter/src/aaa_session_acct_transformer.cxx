@@ -62,20 +62,20 @@ class AAAXelement
           m_value += uri.port;
 
           switch (uri.transport) {
-             case TRANSPORT_PROTO_TCP: m_value += ";transport=tcp"; break;
-             case TRANSPORT_PROTO_SCTP: m_value += ";transport=sctp"; break;
-             case TRANSPORT_PROTO_UDP: m_value += ";transport=udp"; break;
+             case DIAMETER_TRANSPORT_PROTO_TCP: m_value += ";transport=tcp"; break;
+             case DIAMETER_TRANSPORT_PROTO_SCTP: m_value += ";transport=sctp"; break;
+             case DIAMETER_TRANSPORT_PROTO_UDP: m_value += ";transport=udp"; break;
           }
 
           switch (uri.protocol) {
-             case AAA_PROTO_DIAMETER: m_value += ";protocol=diameter"; break;
-             case AAA_PROTO_RADIUS: m_value += ";protocol=radius"; break;
-             case AAA_PROTO_TACACSPLUS: m_value += ";protocol=tacacsplus"; break;
+             case DIAMETER_PROTO_DIAMETER: m_value += ";protocol=diameter"; break;
+             case DIAMETER_PROTO_RADIUS: m_value += ";protocol=radius"; break;
+             case DIAMETER_PROTO_TACACSPLUS: m_value += ";protocol=tacacsplus"; break;
           }
 
           switch (uri.scheme) {
-             case AAA_SCHEME_AAA: m_value += ";scheme=aaa"; break;
-             case AAA_SCHEME_AAAS: m_value += ";scheme=aaas"; break;
+             case DIAMETER_SCHEME_AAA: m_value += ";scheme=aaa"; break;
+             case DIAMETER_SCHEME_AAAS: m_value += ";scheme=aaas"; break;
           }
       }
       void SetAttribute(const char *name, const char *value) {
@@ -121,7 +121,7 @@ class AAAXwriter
    public:
       AAAXwriter() { };
 
-      void writeToString(AAAMessage *msg, 
+      void writeToString(DiameterMsg *msg, 
                          std::string &output);
 
    protected:
@@ -129,7 +129,7 @@ class AAAXwriter
                          std::string &output);
 };
 
-void AAAXwriter::writeToString(AAAMessage *msg,
+void AAAXwriter::writeToString(DiameterMsg *msg,
                                       std::string &output)
 {
    output = "<Message>";
@@ -276,7 +276,7 @@ AAAReturnCode AAAXwriter::Walk(AAAAvpContainerList &avplist,
  *     </avp>
  *  </Message>
  */
-AAAReturnCode AAAAccountingXMLRecTransformer::Convert(AAAMessage *msg)
+AAAReturnCode AAAAccountingXMLRecTransformer::Convert(DiameterMsg *msg)
 {
    AAAXwriter writer;
 
@@ -295,7 +295,7 @@ AAAReturnCode AAAAccountingXMLRecTransformer::Convert(AAAMessage *msg)
    return (AAA_ERR_SUCCESS);
 }
 
-AAAReturnCode AAAAccountingXMLRecTransformer::OutputRecord(AAAMessage *originalMessage)
+AAAReturnCode AAAAccountingXMLRecTransformer::OutputRecord(DiameterMsg *originalMessage)
 {
    AAA_LOG(LM_DEBUG, "(%P|%t) Server: Default output record handler\n");
 

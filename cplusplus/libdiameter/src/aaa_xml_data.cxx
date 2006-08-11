@@ -712,7 +712,7 @@ void AAA_XMLConfigParser::dump()
     char *label[] = { "Supported Vendor",
                       "Auth Application",
                       "Acct Application" };
-    for (int i=0;
+    for (unsigned int i=0;
          i < sizeof(idList)/sizeof(AAA_ApplicationIdLst*);
         i++) {
         AAA_ApplicationIdLst::iterator x = idList[i]->begin();

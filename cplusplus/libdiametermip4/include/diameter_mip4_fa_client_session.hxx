@@ -47,7 +47,6 @@
 #include "diameter_mip4_parser.hxx"
 #include "mip4_diameter_fa_client_interface.hxx"
 
-
 /// Diameter MIP FA Client session.  This class is defined as multiple
 /// inheritance,  from AAAClientSession (defined in Diameter API),
 /// DiameterMip4FaClientStateMachine and the abstract interface
@@ -73,7 +72,7 @@ class DiameterMip4FaClientSession :
     DiameterMip4FaClientSession<SpecificFaClientSession> &session;
 
   
-    AAAReturnCode HandleMessage (AAAMessage &msg)
+    AAAReturnCode HandleMessage (DiameterMsg &msg)
     {
     // Header flag check.
       if (msg.hdr.flags.r)
@@ -157,7 +156,7 @@ class DiameterMip4FaClientSession :
   /// method. It is the responsibility of the derived class to
   /// override this function and capture the events if it is
   /// interested in it.
-  AAAReturnCode HandleMessage(AAAMessage &msg)
+  AAAReturnCode HandleMessage(DiameterMsg &msg)
   {
     AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
     return AAA_ERR_UNKNOWN_CMD;
@@ -242,7 +241,7 @@ class DiameterMip4FaClientSession :
   // operator. More documentation in the sample application file.
   virtual void Abort(){}
 
- void SetUserName(AAA_ScholarAttribute<diameter_utf8string_t> &userName)
+ void SetUserName(DiameterScholarAttribute<diameter_utf8string_t> &userName)
   {
     diameter_utf8string_t _userName;
     specificFaClientSession.SetUserName( _userName);
@@ -252,7 +251,7 @@ class DiameterMip4FaClientSession :
   /// This function is used for setting Destination-Realm AVP
   /// contents.  
   virtual void SetDestinationRealm
-  (AAA_ScholarAttribute<diameter_utf8string_t> &destinationRealm)
+  (DiameterScholarAttribute<diameter_utf8string_t> &destinationRealm)
   {
     diameter_utf8string_t _destinationRealm;
     specificFaClientSession.SetDestinationRealm( _destinationRealm);
@@ -262,10 +261,10 @@ class DiameterMip4FaClientSession :
   //  MipRegRequest will be set by the fn RxMipregReq()
 
   void SetMipMnAaaAuth
-    (AAA_ScholarAttribute<mip_mn_aaa_auth_info_t> &mipMnAaaAuth)
+    (AAAScholarAttribute<mip_mn_aaa_auth_info_t, DiameterAvpContainerEntryManager> &mipMnAaaAuth)
   {
 
-    AAA_ScholarAttribute<mip_mn_aaa_auth_info_t> _mipMnAaaAuth; 
+    DiameterScholarAttribute<mip_mn_aaa_auth_info_t> _mipMnAaaAuth; 
     
     specificFaClientSession.SetMipMnAaaSpi( 
 			 &( _mipMnAaaAuth().MipMnAaaSpi() ));
@@ -295,7 +294,7 @@ class DiameterMip4FaClientSession :
   /// This function is used for setting Destination-Host AVP
   /// contents.  
   void SetDestinationHost//( diameter_utf8string_t  _destinationHost)
-  (AAA_ScholarAttribute<diameter_utf8string_t> &destinationHost)
+  (DiameterScholarAttribute<diameter_utf8string_t> &destinationHost)
   {
     diameter_utf8string_t _destinationHost;
     specificFaClientSession.SetDestinationHost( _destinationHost);
@@ -303,7 +302,7 @@ class DiameterMip4FaClientSession :
   }
 
   void SetMipMobileNodeAddress
-  (AAA_ScholarAttribute<diameter_address_t> &mipMobileNodeAddress)
+  (DiameterScholarAttribute<diameter_address_t> &mipMobileNodeAddress)
   {
     diameter_address_t _mipMobileNodeAddress;
     specificFaClientSession.SetMipMobileNodeAddress(_mipMobileNodeAddress);
@@ -311,7 +310,7 @@ class DiameterMip4FaClientSession :
   }
 
   void SetMipHomeAgentAddress
-  (AAA_ScholarAttribute<diameter_address_t> &mipHomeAgentAddress)
+  (DiameterScholarAttribute<diameter_address_t> &mipHomeAgentAddress)
   {
     diameter_address_t _mipHomeAgentAddress;
     specificFaClientSession.SetMipHomeAgentAddress(_mipHomeAgentAddress);
@@ -341,7 +340,7 @@ class DiameterMip4FaClientSession :
   }
 
   void SetAuthorizationLifetime
-  (AAA_ScholarAttribute<diameter_unsigned32_t> &authorizationLifetime)
+  (DiameterScholarAttribute<diameter_unsigned32_t> &authorizationLifetime)
   {
     diameter_unsigned32_t _authorizationLifetime;
     if ( specificFaClientSession.SetAuthorizationLifetime(
@@ -353,11 +352,11 @@ class DiameterMip4FaClientSession :
 
 // fn not needed=> static info take from configuration file
 // void SetAuthSessionState
-//  (AAA_ScholarAttribute<diameter_enumerated_t> &authSessionState) {}
+//  (DiameterScholarAttribute<diameter_enumerated_t> &authSessionState) {}
 
   //int 
   void SetMipHomeAgentHost
-  (AAA_ScholarAttribute<mip_home_agent_host_info_t> &mipHomeAgentHost)
+  (AAAScholarAttribute<mip_home_agent_host_info_t, DiameterAvpContainerEntryManager> &mipHomeAgentHost)
   {
     //mip_home_agent_host_info_t 
     diameter_identity_t _mipHomeAgentHost;
@@ -372,7 +371,7 @@ class DiameterMip4FaClientSession :
   }
 
   virtual int SetMipFaChallenge
-  (AAA_ScholarAttribute<diameter_octetstring_t> &mipFaChallenge)
+  (DiameterScholarAttribute<diameter_octetstring_t> &mipFaChallenge)
   {
     diameter_octetstring_t _mipFaChallenge;
 
@@ -382,11 +381,11 @@ class DiameterMip4FaClientSession :
   }
 
   virtual void SetMipCandidateHomeAgentHost
-  (AAA_ScholarAttribute<diameter_identity_t> &mipCandidateHomeAgentHost)
+  (DiameterScholarAttribute<diameter_identity_t> &mipCandidateHomeAgentHost)
   {}
 
   virtual int SetMipHaToFaSpi
-  (AAA_ScholarAttribute<diameter_unsigned32_t> &mipHaToFaSpi)
+  (DiameterScholarAttribute<diameter_unsigned32_t> &mipHaToFaSpi)
   {
     diameter_unsigned32_t _mipHaToFaSpi;
     if ( specificFaClientSession.SetMipHaToFaSpi( &_mipHaToFaSpi) == 0)
@@ -453,7 +452,7 @@ class DiameterMip4FaClientSession :
   }
 
   void EnforceMipFilterRule ( 
-      const  AAA_VectorAttribute<diameter_ipfilter_rule_t> &mipFilterRule)
+      const  DiameterVectorAttribute<diameter_ipfilter_rule_t> &mipFilterRule)
      //const diameter_ipfilter_rule_t &mipFilterRule)
   {
     specificFaClientSession.EnforceMipFilterRule( mipFilterRule);

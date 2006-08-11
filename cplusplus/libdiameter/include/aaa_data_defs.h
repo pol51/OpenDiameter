@@ -37,7 +37,7 @@
 #ifdef WIN32
 #include "StdAfx.h"
 #endif
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "od_utl_rbtree.h"
 #include "ace/Singleton.h"
 
@@ -330,7 +330,7 @@ class AAA_BaseException
 class AAA_MsgQuery
 {
     public:
-       AAA_MsgQuery(AAAMessage &msg) :
+       AAA_MsgQuery(DiameterMsg &msg) :
            m_Msg(msg) {
        }
        bool IsRequest() {
@@ -375,7 +375,7 @@ class AAA_MsgQuery
        }
 
     private:
-       AAAMessage &m_Msg;
+       DiameterMsg &m_Msg;
 };
 
 template <class ARG>

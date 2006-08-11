@@ -86,7 +86,7 @@ class NASD_DiameterEapClientSession :
           m_Node.PrevNode()->Stop();
       }
       void SetDestinationRealm
-      (AAA_ScholarAttribute<diameter_utf8string_t> &realm) {
+      (DiameterScholarAttribute<diameter_utf8string_t> &realm) {
 	  std::string ident;
           if (m_Node.PrevNode()->Identity(ident)) {
 	      int pos = ident.find('@');
@@ -96,7 +96,7 @@ class NASD_DiameterEapClientSession :
 	  }
       }
       void SetUserName
-      (AAA_ScholarAttribute<diameter_utf8string_t> &username) {
+      (DiameterScholarAttribute<diameter_utf8string_t> &username) {
 	  std::string ident;
           if (m_Node.PrevNode()->Identity(ident)) {
 	      int pos = ident.find('@');

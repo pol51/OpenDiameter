@@ -80,7 +80,7 @@ class DiameterMip4AaaSClientStateTable_S
  
       HAA_Data &haaData = sm.Session().HAA();
 
-      AAAResultCode resultCode = haaData.ResultCode();
+      DiameterResultCode resultCode = haaData.ResultCode();
 
       switch (resultCode)
 	{
@@ -293,7 +293,7 @@ void DiameterMip4AaaSClientStateMachine::SendHAR()
 	 harData.DestinationHost().data() );
 #endif
 
-  AAAMessage msg;
+  DiameterMsg msg;
 
   HAR_Parser parser;
 

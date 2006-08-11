@@ -205,7 +205,6 @@ MISC = $(top_srcdir)/docs/msvc-solution-usage.txt \
        $(top_srcdir)/docs/libdiameternasreq \
        $(top_srcdir)/docs/libdiametermip4 \
        $(top_srcdir)/docs/libeap \
-       $(top_srcdir)/docs/libpana \
        $(top_srcdir)/docs/nasreq \
        $(top_srcdir)/tools/getopt.patch \
        $(top_srcdir)/tools/getopt1.patch \
@@ -219,7 +218,6 @@ SUBDIRS_LIBS = libodutl \
 	       libdiameter \
 	       libdiametermip4 \
 	       libeap \
-	       libpana \
 	       libdiametereap \
 	       libdiameternasreq
 
@@ -227,6 +225,7 @@ SUBDIRS_APPS = applications
 SUBDIRS = $(SUBDIRS_LIBS) $(SUBDIRS_APPS)
 DIST_SUBDIRS = $(SUBDIRS_LIBS) $(SUBDIRS_APPS)
 include_HEADERS = $(top_srcdir)/include/framework.h \
+                  $(top_srcdir)/include/aaa_parser_api.h \
                   $(top_srcdir)/include/resultcodes.h
 
 all: all-recursive

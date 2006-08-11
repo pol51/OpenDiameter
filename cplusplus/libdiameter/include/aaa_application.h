@@ -118,8 +118,8 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_Application :
         AAA_Task &m_Task;
         AAA_PeerAcceptor m_PeerAcceptor;
         AAA_SessionMsgRx m_SessionMsgRx;
-        AAA_IO_SigMask m_IOSigMask;     
-        ReTransmissionTimerHandler m_ReTxHandler;   
+        AAA_IO_SigMask m_IOSigMask;
+        ReTransmissionTimerHandler m_ReTxHandler;
 };
 
 #endif   // __AAA_APPLICATION_H__ 

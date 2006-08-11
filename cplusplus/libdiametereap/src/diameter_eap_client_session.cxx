@@ -39,7 +39,7 @@
    Created December 4, 2003.
 */
 
-#include "diameter_parser_api.h"
+#include "diameter_parser.h"
 #include "diameter_eap_client_session.hxx"
 #include "diameter_eap_client_fsm.hxx"
 #include "diameter_eap_parser.hxx"
@@ -59,7 +59,7 @@ DiameterEapClientSession::DiameterEapClientSession
 }
 
 AAAReturnCode
-DiameterEapClientSession::HandleMessage(AAAMessage &msg)
+DiameterEapClientSession::HandleMessage(DiameterMsg &msg)
 {
   AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
   return AAA_ERR_UNKNOWN_CMD;
@@ -107,7 +107,7 @@ DiameterEapClientSession::HandleTimeout()
 }
 
 AAAReturnCode 
-DEA_Handler::HandleMessage (AAAMessage &msg)
+DEA_Handler::HandleMessage (DiameterMsg &msg)
 {
   // Header flag check.
   if (msg.hdr.flags.r)

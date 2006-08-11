@@ -54,7 +54,7 @@ class AAA_SampleClientAcctRecCollector :
            /// to the ACR dictionary definition in dictionary.xml.
            /// Real applications may also need to append Vendor-
            /// Specific-Application-Id here
-           AAA_Utf8AvpWidget recAvp("Example-Accounting-Record");
+           DiameterUtf8AvpWidget recAvp("Example-Accounting-Record");
            recAvp.Get() = "My example record should show up in the server";
            avpList.add(recAvp());
 	}
@@ -105,7 +105,7 @@ class AAA_SampleClientSubSession :
             m_HowManyRecProcessed(0) {
         }
         virtual void SetDestinationHost
-        (AAA_ScholarAttribute<diameter_identity_t> &dHost)
+        (DiameterScholarAttribute<diameter_identity_t> &dHost)
         {
             // optional override, called by the library to 
             // set the destination host. Note that this 
@@ -114,7 +114,7 @@ class AAA_SampleClientSubSession :
             dHost = "server.isp.net";
         }
         virtual void SetDestinationRealm
-        (AAA_ScholarAttribute<diameter_identity_t> &dRealm)
+        (DiameterScholarAttribute<diameter_identity_t> &dRealm)
         {
             // optional override, called by the library 
             // to set the destination realm. Note that 
@@ -125,25 +125,25 @@ class AAA_SampleClientSubSession :
         /// This function is used for setting realtime required 
         /// AVP as a hint to the server
         virtual void SetRealTimeRequired
-        (AAA_ScholarAttribute<diameter_enumerated_t> &rt)
+        (DiameterScholarAttribute<diameter_enumerated_t> &rt)
         {
         }
         /// This function is used for setting acct interim 
         /// interval AVP as a hint to the server
         virtual void SetInterimInterval
-        (AAA_ScholarAttribute<diameter_unsigned32_t> &timeout)
+        (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
         {
         }
         /// This function is used for setting RADIUS acct 
         /// session id for RADIUS/DIAMETER translations
         virtual void SetRadiusAcctSessionId
-        (AAA_ScholarAttribute<diameter_octetstring_t> &sid)
+        (DiameterScholarAttribute<diameter_octetstring_t> &sid)
         {
         }
         /// This function is used for setting multi-session 
         /// id AVP 
         virtual void SetMultiSessionId
-        (AAA_ScholarAttribute<diameter_utf8string_t> &sid)
+        (DiameterScholarAttribute<diameter_utf8string_t> &sid)
         {
         }
         virtual AAAReturnCode Success() {

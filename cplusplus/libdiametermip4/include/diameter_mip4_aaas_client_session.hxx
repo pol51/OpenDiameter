@@ -76,7 +76,7 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
   private:  
     DiameterMip4AaaSClientSession &session;
 
-    AAAReturnCode HandleMessage (AAAMessage &msg)
+    AAAReturnCode HandleMessage (DiameterMsg &msg)
     {
 
     // Header flag check.
@@ -149,7 +149,7 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
   /// method. It is the responsibility of the derived class to
   /// override this function and capture the events if it is
   /// interested in it.
-  AAAReturnCode HandleMessage(AAAMessage &msg)
+  AAAReturnCode HandleMessage(DiameterMsg &msg)
   {
     AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
     return AAA_ERR_UNKNOWN_CMD;

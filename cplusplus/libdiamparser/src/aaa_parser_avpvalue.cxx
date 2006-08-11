@@ -32,7 +32,7 @@
 /* END_COPYRIGHT                                                          */
 /* $Id: parser_avpvalue.cxx,v 1.21 2006/04/21 19:15:39 vfajardo Exp $ */
 
-#include "parser_avpvalue.h"
+#include "aaa_parser_avpvalue.h"
 
 // static variables
 #ifndef BOOST_SPIRIT_THREADSAFE
@@ -58,25 +58,25 @@ static DiameterAvpValueParserCreator<GroupedParser>       groupedParserCreator;
 static DiameterAvpValueParserCreator<AddressParser>       addressParserCreator;
 
 /// Container entry creators.
-static AvpContainerEntryCreator<AAAStringAvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterStringAvpContainerEntry>
     stringContainerEntryCreator;
-static AvpContainerEntryCreator<AAAInteger32AvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterInteger32AvpContainerEntry>
     integer32ContainerEntryCreator;
-static AvpContainerEntryCreator<AAAUnsigned32AvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterUnsigned32AvpContainerEntry>
     unsigned32ContainerEntryCreator;
-static AvpContainerEntryCreator<AAAInteger64AvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterInteger64AvpContainerEntry>
     integer64ContainerEntryCreator;
-static AvpContainerEntryCreator<AAAUnsigned64AvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterUnsigned64AvpContainerEntry>
     unsigned64ContainerEntryCreator;
-static AvpContainerEntryCreator<AAADiamURIAvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterURIAvpContainerEntry>
     diamuriContainerEntryCreator;
-static AvpContainerEntryCreator<AAAIPFilterRuleAvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterIPFilterRuleAvpContainerEntry>
     ipfilterRuleContainerEntryCreator;
-static AvpContainerEntryCreator<AAAGroupedAvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterGroupedAvpContainerEntry>
     groupedContainerEntryCreator;
-static AvpContainerEntryCreator<AAAAddressAvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterAddressAvpContainerEntry>
     addressContainerEntryCreator;
-static AvpContainerEntryCreator<AAATimeAvpContainerEntry>
+static AAAAvpContainerEntryCreator<DiameterTimeAvpContainerEntry>
     timeContainerEntryCreator;
 
 void

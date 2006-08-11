@@ -151,7 +151,7 @@ CPPFLAGS =
 CXX = g++-4.1
 CXXCPP = g++-4.1 -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS = -g -O
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"OpenDiameter\" -DPACKAGE_TARNAME=\"opendiameter\" -DPACKAGE_VERSION=\"1.0.7-h\" -DPACKAGE_STRING=\"OpenDiameter\ 1.0.7-h\" -DPACKAGE_BUGREPORT=\"yohba@tari.toshiba.com\" -DPACKAGE=\"opendiameter\" -DVERSION=\"1.0.7-h\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DHAVE_IFADDRS_H=1 -DHAVE_SHADOW_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_GETIFADDRS=1
 DEPDIR = .deps
@@ -249,7 +249,7 @@ target_alias =
 AM_CPPFLAGS = -Wall -Wno-strict-aliasing -I/usr/include -I/usr/include  \
               -I../include \
               -I../libodutl/include \
-              -I../libdiamparser \
+              -I../libdiamparser/include \
               -I../libdiameter/include \
               -I../libdiametermip4/include \
               -I./include \

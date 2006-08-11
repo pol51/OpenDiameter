@@ -34,8 +34,8 @@
 #ifndef __COMLIST_H__
 #define __COMLIST_H__
 
-#include "diameter_parser_api.h"
-#include "q_avplist.h"
+#include "diameter_parser.h"
+#include "aaa_q_avplist.h"
 
 class DiameterDictionary :
     public DiameterDictionaryHandle
@@ -44,16 +44,16 @@ class DiameterDictionary :
         AAACommandCode code;
         DiameterApplicationId appId;
         DiameterVendorId vendorId;
-        AAAQualifiedAvpList* avp_f;  /* fixed */
-        AAAQualifiedAvpList* avp_r;  /* required */
-        AAAQualifiedAvpList* avp_o;  /* optional */
+        DiameterQualifiedAvpList* avp_f;  /* fixed */
+        DiameterQualifiedAvpList* avp_r;  /* required */
+        DiameterQualifiedAvpList* avp_o;  /* optional */
 };
 
 struct comflags
 {
-    AAA_UINT8 r:1;
-    AAA_UINT8 p:1;
-    AAA_UINT8 e:1;
+    AAAUInt8 r:1;
+    AAAUInt8 p:1;
+    AAAUInt8 e:1;
 };
 
 class DiameterCommand :

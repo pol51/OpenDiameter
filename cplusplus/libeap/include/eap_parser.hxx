@@ -33,7 +33,7 @@
 #ifndef  __EAP_PARSER_H__
 #define  __EAP_PARSER_H__
 
-#include "diameter_parser_api.h"
+#include "aaa_parser_api.h"
 #include "eap.hxx"
 #include "eap_log.hxx"
 

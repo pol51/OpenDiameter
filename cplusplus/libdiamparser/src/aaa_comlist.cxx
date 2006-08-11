@@ -32,10 +32,10 @@
 /* END_COPYRIGHT                                                          */
 /* $Id: comlist.cxx,v 1.30 2006/05/31 17:53:33 vfajardo Exp $ */
 #include <ace/OS.h>
-#include "avplist.h"
-#include "comlist.h"
-#include "xml_parsing.h"
-#include "parser_avpvalue.h"
+#include "aaa_avplist.h"
+#include "aaa_comlist.h"
+#include "aaa_xml_parsing.h"
+#include "aaa_parser_avpvalue.h"
 
 DiameterCommandList_S::~DiameterCommandList_S()
 {

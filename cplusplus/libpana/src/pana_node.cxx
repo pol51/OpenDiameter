@@ -54,14 +54,14 @@ void PANA_Node::Start(std::string &cfg_file)
     }
     bAlreadyLoaded = true;
 
-    AAADictionaryManager dm;
+    DiameterDictionaryManager dm;
 
     // Registering AVP types and AVP value parsers.
-    static AvpValueParserCreator<PANA_DhcpDataParser> dhcpParserCreator;
+    static DiameterAvpValueParserCreator<PANA_DhcpDataParser> dhcpParserCreator;
 
     static AvpContainerEntryCreator<AAADhcpDataAvpContainerEntry> dhcpContainerEntryCreator;
 
-    AvpTypeList::instance()->add(new AvpType("Dhcp", (AAA_AVPDataType)AAA_AVP_DHCP_TYPE, 0,
+    AvpTypeList::instance()->add(new AvpType("Dhcp", (AAAAvpDataType)AAA_AVP_DHCP_TYPE, 0,
 		  dhcpParserCreator, dhcpContainerEntryCreator));
 
     dm.init((char*)PANA_CFG_GENERAL().m_Dictionary.c_str());

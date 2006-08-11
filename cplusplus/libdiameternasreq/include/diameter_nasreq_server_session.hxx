@@ -62,7 +62,7 @@ class DIAMETER_NASREQ_SERVER_EXPORTS AA_RequestHandler
       session(s)
   {}
  private:
-  AAAReturnCode HandleMessage (AAAMessage &msg);
+  AAAReturnCode HandleMessage (DiameterMsg &msg);
   DiameterNasreqServerSession &session;
 };
 
@@ -87,7 +87,7 @@ class DIAMETER_NASREQ_SERVER_EXPORTS DiameterNasreqServerSession :
   DiameterNasreqServerSession* Self() { return this; }
 
   /// Reimplemented from AAAServerSession. 
-  AAAReturnCode HandleMessage(AAAMessage &msg);
+  AAAReturnCode HandleMessage(DiameterMsg &msg);
 
   /// Reimplemented from AAAServerSession. 
   AAAReturnCode HandleDisconnect();

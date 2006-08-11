@@ -69,25 +69,25 @@ void AAA_AuthSessionClientStateMachine::TxSTR(diameter_unsigned32_t cause)
                       * [ Route-Record ]
                       * [ AVP ]
    */
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    ACE_OS::memset(&msg->hdr, 0, sizeof(msg->hdr));
-   msg->hdr.ver = AAA_PROTOCOL_VERSION;
+   msg->hdr.ver = DIAMETER_PROTOCOL_VERSION;
    msg->hdr.length = 0;
-   msg->hdr.flags.r = AAA_FLG_SET;
-   msg->hdr.flags.p = AAA_FLG_CLR;
-   msg->hdr.flags.e = AAA_FLG_CLR;
+   msg->hdr.flags.r = DIAMETER_FLAG_SET;
+   msg->hdr.flags.p = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.e = DIAMETER_FLAG_CLR;
    msg->hdr.code = AAA_MSGCODE_SESSIONTERMINATION;
-   msg->hdr.appId = AAA_BASE_APPLICATION_ID;
+   msg->hdr.appId = DIAMETER_BASE_APPLICATION_ID;
 
    // required
    Attributes().SessionId().Set(*msg);
 
-   AAA_IdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
-   AAA_IdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
-   AAA_IdentityAvpWidget destRealmAvp(AAA_AVPNAME_DESTREALM);
-   AAA_UInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-   AAA_UInt32AvpWidget causeAvp(AAA_AVPNAME_TERMINATION);
-   AAA_UInt32AvpWidget orStateId(AAA_AVPNAME_ORIGINSTATEID);
+   DiameterIdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
+   DiameterIdentityAvpWidget destRealmAvp(AAA_AVPNAME_DESTREALM);
+   DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
+   DiameterUInt32AvpWidget causeAvp(AAA_AVPNAME_TERMINATION);
+   DiameterUInt32AvpWidget orStateId(AAA_AVPNAME_ORIGINSTATEID);
 
    orHostAvp.Get() = AAA_CFG_TRANSPORT()->identity;
    orRealmAvp.Get() = AAA_CFG_TRANSPORT()->realm;
@@ -103,21 +103,21 @@ void AAA_AuthSessionClientStateMachine::TxSTR(diameter_unsigned32_t cause)
 
    // optional avps
    if (Attributes().Username().IsSet()) {
-       AAA_Utf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+       DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
        unameAvp.Get() = Attributes().Username()();
        msg->acl.add(unameAvp());
    }
 
    if (Attributes().DestinationHost().IsSet()) {
-       AAA_IdentityAvpWidget dhostAvp(AAA_AVPNAME_DESTHOST);
+       DiameterIdentityAvpWidget dhostAvp(AAA_AVPNAME_DESTHOST);
        dhostAvp.Get() = Attributes().DestinationHost()();
        msg->acl.add(dhostAvp());
    }
 
-   AAA_ScholarAttribute<diameter_octetstring_t> cls;
+   DiameterScholarAttribute<diameter_octetstring_t> cls;
    m_Session.SetClassAvp(cls);
    if (cls.IsSet()) {
-       AAA_StringAvpWidget classAvp(AAA_AVPNAME_CLASS);
+       DiameterStringAvpWidget classAvp(AAA_AVPNAME_CLASS);
        classAvp.Get() = cls();
        msg->acl.add(classAvp());
    }
@@ -166,23 +166,23 @@ void AAA_AuthSessionClientStateMachine::TxASA(diameter_unsigned32_t rcode)
                       * [ AVP ]
    */
 
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    ACE_OS::memset(&msg->hdr, 0, sizeof(msg->hdr));
-   msg->hdr.ver = AAA_PROTOCOL_VERSION;
+   msg->hdr.ver = DIAMETER_PROTOCOL_VERSION;
    msg->hdr.length = 0;
-   msg->hdr.flags.r = AAA_FLG_CLR;
-   msg->hdr.flags.p = AAA_FLG_CLR;
-   msg->hdr.flags.e = AAA_FLG_CLR;
+   msg->hdr.flags.r = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.p = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.e = DIAMETER_FLAG_CLR;
    msg->hdr.code = AAA_MSGCODE_ABORTSESSION;
-   msg->hdr.appId = AAA_BASE_APPLICATION_ID;
+   msg->hdr.appId = DIAMETER_BASE_APPLICATION_ID;
 
    // required
    Attributes().SessionId().Set(*msg);
 
-   AAA_UInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
-   AAA_IdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
-   AAA_IdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
-   AAA_UInt32AvpWidget orStateId(AAA_AVPNAME_ORIGINSTATEID);
+   DiameterUInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
+   DiameterIdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
+   DiameterUInt32AvpWidget orStateId(AAA_AVPNAME_ORIGINSTATEID);
 
    rcodeAvp.Get() = rcode;
    orHostAvp.Get() = AAA_CFG_TRANSPORT()->identity;
@@ -194,7 +194,7 @@ void AAA_AuthSessionClientStateMachine::TxASA(diameter_unsigned32_t rcode)
 
    // optional avps
    if (Attributes().Username().IsSet()) {
-       AAA_Utf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+       DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
        unameAvp.Get() = Attributes().Username()();
        msg->acl.add(unameAvp());
    }
@@ -207,7 +207,7 @@ void AAA_AuthSessionClientStateMachine::TxASA(diameter_unsigned32_t rcode)
    m_Session.TxDelivery(msg);
 }
 
-void AAA_AuthSessionClientStateMachine::RxASR(AAAMessage &msg)
+void AAA_AuthSessionClientStateMachine::RxASR(DiameterMsg &msg)
 {
    /*
         8.5.1.  Abort-Session-Request
@@ -232,11 +232,11 @@ void AAA_AuthSessionClientStateMachine::RxASR(AAAMessage &msg)
                       * [ Route-Record ]
                       * [ AVP ]
     */
-    AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-    AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-    AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
-    AAA_UInt32AvpContainerWidget authAppIdAvp(msg.acl);
-    AAA_UInt32AvpContainerWidget acctAppIdAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+    DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
+    DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
+    DiameterUInt32AvpContainerWidget acctAppIdAvp(msg.acl);
 
     diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
     diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
@@ -267,7 +267,7 @@ void AAA_AuthSessionClientStateMachine::RxASR(AAAMessage &msg)
     }
 }
 
-void AAA_AuthSessionClientStateMachine::RxSTA(AAAMessage &msg)
+void AAA_AuthSessionClientStateMachine::RxSTA(DiameterMsg &msg)
 {
     /*
         8.4.2.  Session-Termination-Answer
@@ -303,12 +303,12 @@ void AAA_AuthSessionClientStateMachine::RxSTA(AAAMessage &msg)
                       * [ Proxy-Info ]
                       * [ AVP ]
      */
-    AAA_UInt32AvpContainerWidget rcodeAvp(msg.acl);
-    AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-    AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-    AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
-    AAA_Utf8AvpContainerWidget errMsgAvp(msg.acl);
-    AAA_IdentityAvpContainerWidget errHostAvp(msg.acl);
+    DiameterUInt32AvpContainerWidget rcodeAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+    DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
+    DiameterUtf8AvpContainerWidget errMsgAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget errHostAvp(msg.acl);
 
     diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(AAA_AVPNAME_RESULTCODE);
     diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
@@ -378,23 +378,23 @@ void AAA_AuthSessionClientStateMachine::TxRAA(diameter_unsigned32_t rcode)
                * [ Proxy-Info ]
                * [ AVP ]
      */
-   std::auto_ptr<AAAMessage> msg(new AAAMessage);
+   std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    ACE_OS::memset(&msg->hdr, 0, sizeof(msg->hdr));
-   msg->hdr.ver = AAA_PROTOCOL_VERSION;
+   msg->hdr.ver = DIAMETER_PROTOCOL_VERSION;
    msg->hdr.length = 0;
-   msg->hdr.flags.r = AAA_FLG_CLR;
-   msg->hdr.flags.p = AAA_FLG_CLR;
-   msg->hdr.flags.e = AAA_FLG_CLR;
+   msg->hdr.flags.r = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.p = DIAMETER_FLAG_CLR;
+   msg->hdr.flags.e = DIAMETER_FLAG_CLR;
    msg->hdr.code = AAA_MSGCODE_REAUTH;
-   msg->hdr.appId = AAA_BASE_APPLICATION_ID;
+   msg->hdr.appId = DIAMETER_BASE_APPLICATION_ID;
 
    // required
    Attributes().SessionId().Set(*msg);
 
-   AAA_UInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
-   AAA_IdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
-   AAA_IdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
-   AAA_UInt32AvpWidget orStateId(AAA_AVPNAME_ORIGINSTATEID);
+   DiameterUInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
+   DiameterIdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
+   DiameterUInt32AvpWidget orStateId(AAA_AVPNAME_ORIGINSTATEID);
 
    rcodeAvp.Get() = rcode;
    orHostAvp.Get() = AAA_CFG_TRANSPORT()->identity;
@@ -406,7 +406,7 @@ void AAA_AuthSessionClientStateMachine::TxRAA(diameter_unsigned32_t rcode)
 
    // optional avps
    if (Attributes().Username().IsSet()) {
-       AAA_Utf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+       DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
        unameAvp.Get() = Attributes().Username()();
        msg->acl.add(unameAvp());
    }
@@ -419,7 +419,7 @@ void AAA_AuthSessionClientStateMachine::TxRAA(diameter_unsigned32_t rcode)
    m_Session.TxDelivery(msg);
 }
 
-void AAA_AuthSessionClientStateMachine::RxRAR(AAAMessage &msg)
+void AAA_AuthSessionClientStateMachine::RxRAR(DiameterMsg &msg)
 {
    /*
       8.3.1.  Re-Auth-Request
@@ -445,11 +445,11 @@ void AAA_AuthSessionClientStateMachine::RxRAR(AAAMessage &msg)
                 * [ Route-Record ]
                 * [ AVP ]
     */
-    AAA_IdentityAvpContainerWidget oHostAvp(msg.acl);
-    AAA_IdentityAvpContainerWidget oRealmAvp(msg.acl);
-    AAA_UInt32AvpContainerWidget authAppIdAvp(msg.acl);
-    AAA_UInt32AvpContainerWidget reAuthTypeAvp(msg.acl);
-    AAA_Utf8AvpContainerWidget uNameAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
+    DiameterIdentityAvpContainerWidget oRealmAvp(msg.acl);
+    DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
+    DiameterUInt32AvpContainerWidget reAuthTypeAvp(msg.acl);
+    DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
 
     diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
     diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);

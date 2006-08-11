@@ -9,12 +9,12 @@ MISC = $(top_srcdir)/docs/msvc-solution-usage.txt \
        $(top_srcdir)/docs/libdiameternasreq \
        $(top_srcdir)/docs/libdiametermip4 \
        $(top_srcdir)/docs/libeap \
-       $(top_srcdir)/docs/libpana \
        $(top_srcdir)/docs/nasreq \
        $(top_srcdir)/tools/getopt.patch \
        $(top_srcdir)/tools/getopt1.patch \
        $(top_srcdir)/RELEASE \
        $(top_srcdir)/README 
+##      $(top_srcdir)/docs/libpana \
 
 EXTRA_DIST = $(MISC)
 
@@ -26,9 +26,9 @@ SUBDIRS_LIBS = libodutl \
 	       libdiameter \
 	       libdiametermip4 \
 	       libeap \
-	       libpana \
 	       libdiametereap \
 	       libdiameternasreq
+##	       libpana \
 
 SUBDIRS_APPS = applications
 
@@ -37,6 +37,7 @@ DIST_SUBDIRS = $(SUBDIRS_LIBS) $(SUBDIRS_APPS)
 
 includedir = $(prefix)/include/opendiameter
 include_HEADERS = $(top_srcdir)/include/framework.h \
+                  $(top_srcdir)/include/aaa_parser_api.h \
                   $(top_srcdir)/include/resultcodes.h
 
 dist-hook:

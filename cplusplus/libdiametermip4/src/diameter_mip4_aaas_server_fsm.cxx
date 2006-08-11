@@ -481,7 +481,7 @@ DiameterMip4AaaSServerStateMachine::DiameterMip4AaaSServerStateMachine
 void 
 DiameterMip4AaaSServerStateMachine::SendAMA()
 {
-  AAAMessage msg;
+  DiameterMsg msg;
 
   AMA_Data amaData= AMA();
   
@@ -510,7 +510,7 @@ DiameterMip4AaaSServerStateMachine::SendAMA()
 void 
 DiameterMip4AaaSServerStateMachine::SendHAR()
 {
-  AAAMessage msg;
+  DiameterMsg msg;
  
   AMR_Data &amrData= AMR();
   HAR_Data &harData= HAR();

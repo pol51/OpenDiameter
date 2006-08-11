@@ -35,17 +35,17 @@
 #include <ace/OS.h>
 #include <ace/Log_Msg.h>
 #include <string>
-#include "parser.h"
-#include "parser_avp.h"
-#include "parser_q_avplist.h"
 #include "resultcodes.h"
-#include "parser_avpvalue.h"
+#include "aaa_parser.h"
+#include "aaa_parser_avp.h"
+#include "aaa_parser_q_avplist.h"
+#include "aaa_parser_avpvalue.h"
 
 static DiameterAvpValueParser*
-DiameterErrorCode(AAAAvpDataType type)// throw(DiameterErrorCode)
+createAvpValueParser(AAAAvpDataType type)// throw(DiameterErrorCode)
 {
   DiameterErrorCode st;
-  DiameterAvpType *t = DiameterAvpTypeList::instance()->search(type);
+  DiameterAvpType *t = (DiameterAvpType*)DiameterAvpTypeList::instance()->search(type);
   if (t == NULL)
     {
       // Since it has been proven that the implementation recognize
@@ -55,7 +55,7 @@ DiameterErrorCode(AAAAvpDataType type)// throw(DiameterErrorCode)
       // it must be the implementation bug.
 
       AAA_LOG(LM_ERROR, "Specified avp type not found");
-      st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+      st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
       throw (st);
     }
 
@@ -64,7 +64,7 @@ DiameterErrorCode(AAAAvpDataType type)// throw(DiameterErrorCode)
     {
       // This is also a bug for the same reason as above.
       AAA_LOG(LM_ERROR, "Avp value parser not found");
-      st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER);
+      st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER);
       throw (st);
     }
 
@@ -105,19 +105,20 @@ checkFlags(struct diameter_avp_flag flag, DiameterAVPFlag flags)
 template<> void
 DiameterAvpHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
 {
-  AvpRawData *rawData = getRawData();
+  DiameterAvpRawData *rawData = getRawData();
   DiameterAvpHeader *h = getAppData();
   DiameterDictionaryEntry *avp = getDictData();
 
   DiameterAvpHeaderList *ahl = rawData->ahl;
   DiameterAvpHeaderList::iterator i;
   DiameterErrorCode st;
-  DiameterAvpParseType parseType = h->ParseType();
+  AAAAvpParseType parseType = h->ParseType();
 
   if (! avp)
   {
 	AAA_LOG(LM_ERROR, "AVP dictionary cannot be null.");
-	st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+	st.set(AAA_PARSE_ERROR_TYPE_BUG,
+               AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
 	throw st;
   }
   if (ahl->empty())
@@ -126,13 +127,14 @@ DiameterAvpHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
       throw st;
     }
 
-  if (parseType == DIAMETER_PARSE_TYPE_FIXED_HEAD)
+  if (parseType == AAA_PARSE_TYPE_FIXED_HEAD)
     {
       if (avp->avpCode == 0)
 	  {
-		  AAA_LOG(LM_ERROR, "Wildcard AVP cannot be a fixed AVP.");
-		  st.set(BUG, AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM);
-		  throw st;
+            AAA_LOG(LM_ERROR, "Wildcard AVP cannot be a fixed AVP.");
+            st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                   AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM);
+            throw st;
 	  }
       i = ahl->begin();
       if ((*i).code == avp->avpCode)
@@ -178,7 +180,7 @@ DiameterAvpHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
 template<> void
 DiameterAvpHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
 {
-  AvpRawData *rawData = getRawData();
+  DiameterAvpRawData *rawData = getRawData();
   DiameterAvpHeader *h = getAppData();
   DiameterDictionaryEntry *avp = getDictData();
 
@@ -190,7 +192,7 @@ DiameterAvpHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
   if ((unsigned)AVP_HEADER_LEN(avp) > aBuffer->size())
     {
       AAA_LOG(LM_ERROR, "Header buffer overflow\n");
-      st.set(BUG, AAA_PARSE_ERROR_INVALID_PARSER_USAGE);
+      st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_INVALID_PARSER_USAGE);
       throw st;
     }
 
@@ -226,7 +228,7 @@ DiameterAvpHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
 template<> void
 DiameterAvpParser::parseRawToApp()// throw(DiameterErrorCode)
 {
-  AvpRawData* rawData = getRawData();
+  DiameterAvpRawData* rawData = getRawData();
   AAAAvpContainer *c = getAppData();
   DiameterDictionaryEntry *avp = getDictData();
 
@@ -235,7 +237,7 @@ DiameterAvpParser::parseRawToApp()// throw(DiameterErrorCode)
 
   for (int i=0; ; i++) 
     {
-      AAAAvpContainerEntryManager em;
+      DiameterAvpContainerEntryManager em;
       DiameterAvpValueParser *vp;
       AAAAvpContainerEntry* e;
       DiameterAvpHeader h;
@@ -251,7 +253,8 @@ DiameterAvpParser::parseRawToApp()// throw(DiameterErrorCode)
       }
       catch (DiameterErrorCode &st)
 	{
-	  int type, code;
+	  AAA_PARSE_ERROR_TYPE type;
+          int code;
 	  st.get(type, code);
 
 	  if (i>0 && type == AAA_PARSE_ERROR_TYPE_NORMAL && code == AAA_MISSING_AVP)
@@ -268,7 +271,7 @@ DiameterAvpParser::parseRawToApp()// throw(DiameterErrorCode)
       c->add(e);
 
       try {
-	vp = DiameterErrorCode(avp->avpType);
+	vp = createAvpValueParser(avp->avpType);
       }
       catch (DiameterErrorCode &st) {
 	throw st;
@@ -297,7 +300,7 @@ DiameterAvpParser::parseRawToApp()// throw(DiameterErrorCode)
 template<> void
 DiameterAvpParser::parseAppToRaw()// throw(DiameterErrorCode)
 {
-  AvpRawData* rawData = getRawData();
+  DiameterAvpRawData* rawData = getRawData();
   AAAAvpContainer *c = getAppData();
   DiameterDictionaryEntry *avp = getDictData();
 
@@ -307,7 +310,7 @@ DiameterAvpParser::parseAppToRaw()// throw(DiameterErrorCode)
   if (!avp)
   {
 	  AAA_LOG(LM_ERROR, "AVP dictionary cannot be null.");
-	  st.set(BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+	  st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
 	  throw st;
   }
   h.ParseType() = c->ParseType();
@@ -318,7 +321,7 @@ DiameterAvpParser::parseAppToRaw()// throw(DiameterErrorCode)
 	{
 	  DiameterAvpValueParser *vp;
 	  try {
-	    vp = DiameterErrorCode(avp->avpType);
+	    vp = createAvpValueParser(avp->avpType);
 	  }
 	  catch (DiameterErrorCode &st) {
 	    throw st;
@@ -355,7 +358,7 @@ DiameterAvpParser::parseAppToRaw()// throw(DiameterErrorCode)
       hp.setDictData(avp);
       hp.parseAppToRaw();
 
-      DiameterAvpValueParser *vp = DiameterErrorCode(avp->avpType);
+      DiameterAvpValueParser *vp = createAvpValueParser(avp->avpType);
       vp->setRawData(aBuffer);
       vp->setAppData((*c)[i]);
       vp->setDictData(avp);

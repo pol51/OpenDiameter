@@ -42,26 +42,26 @@ template<> void
 HAR_Parser::parseAppToRaw()
 {
   HAR_Data &data = *getAppData();
-  AAAMessage &aaaMessage = *getRawData();
+  DiameterMsg &aaaMessage = *getRawData();
 
   
-  AAADictionaryManager dm;
-  AAAAvpContainerManager cm;
+  DiameterDictionaryManager dm;
+  DiameterAvpContainerManager cm;
   AAAAvpContainer *c;
                           
   AAACommandCode code;
-  AAAApplicationId appId;
+  DiameterApplicationId appId;
 
   // Obtain Command Code and Application Identifier.
   if (!dm.getCommandCode("Home-Agent-MIP-Request", &code, &appId)) 
     {
       AAA_LOG(LM_ERROR, "[%N] Cannot find message in dictionary\n.");
-      throw (DictionaryError);
+      throw (DiameterDictionaryError);
     }
 
   // Specify the header.
-  hdr_flag flag = {1,0,0};
-  aaaMessage.hdr = AAADiameterHeader(1, 0, flag, code, appId, 0, 0);
+  diameter_hdr_flag flag = {1,0,0};
+  aaaMessage.hdr = DiameterMsgHeader(1, 0, flag, code, appId, 0, 0);
 
   if (data.AuthApplicationId.IsSet())
     {
@@ -225,7 +225,7 @@ template<> void
 HAR_Parser::parseRawToApp()
 {
   HAR_Data &data = *getAppData();
-  AAAMessage &aaaMessage = *getRawData();
+  DiameterMsg &aaaMessage = *getRawData();
 
   data.Clear();
 
@@ -241,7 +241,7 @@ HAR_Parser::parseRawToApp()
 	  != (*c)[0]->dataRef(Type2Type<diameter_unsigned32_t>()))
 	  {
 	  AAA_LOG(LM_ERROR, "[%N] Unexpected application id.\n");
-	  throw (PayloadError);
+	  throw (DiameterPayloadError);
 	  }
     }
  if ((c = aaaMessage.acl.search("Authorization-Lifetime")))
