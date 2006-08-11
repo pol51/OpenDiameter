@@ -296,7 +296,7 @@ typedef enum {
  * address family
  * http://www.iana.org/assignments/address-family-numbers
  */
-enum {
+typedef enum {
     AAA_ADDR_FAMILY_RESERVED    = 0,   // Reserved
     AAA_ADDR_FAMILY_IPV4        = 1,   // IP (IP version 4)
     AAA_ADDR_FAMILY_IPV6        = 2,   // IP6 (IP version 6)
@@ -322,7 +322,7 @@ enum {
     AAA_ADDR_FAMILY_FBRCH_PORT  = 22,  // Fibre Channel World-Wide Port Name
     AAA_ADDR_FAMILY_FBRCH_NODE  = 23,  // Fibre Channel World-Wide Node Name
     AAA_ADDR_FAMILY_GWID        = 24  // GWID
-};
+} AAA_ADDR_FAMILY;
 
 /*!
  * Error types
@@ -330,16 +330,16 @@ enum {
  * AAA_PARSE_ERROR_TYPE_NORMAL : Normal error defined in the Diameter specification.
  * AAA_PARSE_ERROR_TYPE_BUG    : Used when application programs misuse this API.
  */
-enum  {
+typedef enum  {
     AAA_PARSE_ERROR_TYPE_NORMAL  = 0,
     AAA_PARSE_ERROR_TYPE_BUG     = 1,
-};
+} AAA_PARSE_ERROR_TYPE;
 
 /*!
  * The following error code is defined for
  * error type "AAA_PARSE_ERROR_TYPE_BUG"
  */
-enum {
+typedef enum {
     AAA_PARSE_ERROR_MISSING_CONTAINER = 1,
     AAA_PARSE_ERROR_TOO_MUCH_AVP_ENTRIES,
     AAA_PARSE_ERROR_TOO_LESS_AVP_ENTRIES,
@@ -350,16 +350,16 @@ enum {
     AAA_PARSE_ERROR_INVALID_PARSER_USAGE,
     AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY,
     AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER
-};
+} AAA_PARSE_ERROR;
 
 /*!
  * values possible for Auth-Request-Type
  */
-enum {
+typedef enum {
     AUTH_REQUEST_TYPE_AUTHENTICATION_ONLY = 1,
     AUTH_REQUEST_TYPE_AUTHORIZE_ONLY = 2,
     AUTH_REQUEST_TYPE_AUTHORIZE_AUTHENTICATE = 3
-};
+} AUTH_REQUEST_TYPE;
 
 /*!
  * values possible for network address type
@@ -401,39 +401,45 @@ class AAAErrorCode
 {
     public:
         /*!
-        * constructor
-        */
+         * constructor
+         */
         AAAErrorCode(void) {
             type = AAA_PARSE_ERROR_TYPE_NORMAL;
             code = AAA_SUCCESS;
         };
 
         /*!
-        * Access function to retrieve some private data 
-        *
-        * \param type Error type
-        * \param code Result or Bug code
-        */
-        void get(int &type, int &code) {
-            type = this->type;
-            code = this->code;
+         * destructor
+         */
+        virtual ~AAAErrorCode() {
         }
 
         /*!
-        * Access function to set some private data 
-        *
-        * \param type Error type to set
-        * \param code Result or Bug code to set
-        */
-        void set(int type, int code) {
-            this->type = type;
-            this->code = code;
+         * Access function to retrieve some private data 
+         *
+         * \param type Error type
+         * \param code Result or Bug code
+         */
+        virtual void get(AAA_PARSE_ERROR_TYPE &t, int &c) {
+            t = type;
+            c = code;
         }
 
-    private:
-        int type;  /**< error type (AAA_PARSE_ERROR_TYPE_NORMAL
-                    *   or AAA_PARSE_ERROR_TYPE_BUG)
-                    */
+        /*!
+         * Access function to set some private data 
+         *
+         * \param type Error type to set
+         * \param code Result or Bug code to set
+         */
+        virtual void set(AAA_PARSE_ERROR_TYPE t, int c) {
+            type = t;
+            code = c;
+        }
+
+    protected:
+        AAA_PARSE_ERROR_TYPE type;  /**< error type (AAA_PARSE_ERROR_TYPE_NORMAL
+                                     *   or AAA_PARSE_ERROR_TYPE_BUG)
+                                     */
         int code;  /**< either a diameter result code or a bug_code above */
 };
 
@@ -818,7 +824,7 @@ class AAAAvpContainerEntryCreator
  *  to an AVP container entry.
  */
 typedef boost::function1<AAAAvpContainerEntry*,
-                         AAAAvpDataType> AvpContainerEntryFunctor;
+                         AAAAvpDataType> AAAAvpContainerEntryFunctor;
 
 /*!
  * Parser type definitions
@@ -1119,10 +1125,11 @@ class AAAAvpType
         AAAAvpType(char* name,
                    AAAAvpDataType type,
                    ACE_UINT32 size,
-                   AvpContainerEntryFunctor &eCreator) :
+                   AAAAvpContainerEntryFunctor creator) :
             name(name),
             type(type),
-            size(size) {
+            size(size),
+            containerEntryCreator(creator) {
         }
 
         /*!
@@ -1142,7 +1149,7 @@ class AAAAvpType
         /*!
         * This function is used for obtaining the minimum AVP payload size.
         */
-        ACE_UINT32 getMinSize(void) { 
+        ACE_UINT32 getMinSize(void) {
             return size; 
         }
 
@@ -1157,7 +1164,7 @@ class AAAAvpType
         char *           name;  /**< name of the avp type */
         AAAAvpDataType   type;  /**< enumerate type */
         ACE_UINT32       size;  /**< minimum size of this avp payload (0 means variable size) */
-        AvpContainerEntryFunctor containerEntryCreator; /**< Container entry creator */
+        AAAAvpContainerEntryFunctor containerEntryCreator; /**< Container entry creator */
 };
 
 class AAAAvpTypeList :
@@ -1459,10 +1466,10 @@ class AAAScholarAttribute
         }
         virtual ~AAAScholarAttribute() {
         }
-        inline void Clear() {
+        virtual void Clear() {
             isSet = false;
         }
-        inline void Set(T val) {
+        virtual void Set(T val) {
             value = val;
             isSet = true;
         }
@@ -1480,15 +1487,15 @@ class AAAScholarAttribute
         inline bool operator==(const T& v) const {
             return value == v;
         }
-        inline T& operator()() {
+        virtual T& operator()() {
             return value;
         }
-        inline T& operator=(T v) {
+        virtual T& operator=(T v) {
             isSet = true;
             value = v;
             return value;
         }
-        inline bool& IsSet() {
+        virtual bool& IsSet() {
             return isSet;
         }
 
@@ -1519,7 +1526,7 @@ class AAAGroupedScholarAttribute :
                 (e->dataRef(Type2Type<AAAAvpContainerList>()));
             c.add(e);
         }
-        inline T& operator=(T v) {
+        virtual T& operator=(T v) {
             AAAScholarAttribute<T, EM>::isSet = true;
             AAAScholarAttribute<T, EM>::value=v;
             return AAAScholarAttribute<T, EM>::value;
@@ -1540,13 +1547,13 @@ class AAAVectorAttribute :
         }
         virtual ~AAAVectorAttribute() {
         }
-        inline void Clear() {
+        virtual void Clear() {
             isSet = false; std::vector<T>::clear();
         }
-        inline std::vector<T>& operator()() {
+        virtual std::vector<T>& operator()() {
             return *this;
         }
-        inline std::vector<T>& operator=(std::vector<T>& value) {
+        virtual std::vector<T>& operator=(std::vector<T>& value) {
             isSet = true;
             (std::vector<T>&)(*this)=value;
             return *this;
@@ -1569,7 +1576,7 @@ class AAAVectorAttribute :
                 c.add(e);
             }
         }
-        inline bool& IsSet() {
+        virtual bool& IsSet() {
             return isSet;
         }
 
