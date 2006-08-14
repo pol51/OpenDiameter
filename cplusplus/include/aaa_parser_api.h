@@ -1453,7 +1453,7 @@ class AAAMessageBlockScope
  *
  * Scholar and vector data manipulation class.
  */
-template <typename T, class EM>
+template <typename T>
 class AAAScholarAttribute
 {
     public:
@@ -1472,17 +1472,6 @@ class AAAScholarAttribute
         virtual void Set(T val) {
             value = val;
             isSet = true;
-        }
-        virtual void CopyFrom(AAAAvpContainer &c) {
-            value = c[0]->dataRef(Type2Type<T>());
-            isSet = true;
-        }
-        void CopyTo(AAAAvpContainer &c,
-                    AAAAvpDataType t) {
-            EM em;
-            AAAAvpContainerEntry *e = em.acquire(t);
-            e->dataRef(Type2Type<T>()) = value;
-            c.add(e);
         }
         inline bool operator==(const T& v) const {
             return value == v;
@@ -1504,40 +1493,11 @@ class AAAScholarAttribute
         bool isSet;
 };
 
-/*! AAAGroupedScholarAttribute
- *
- * Grouped scholar and vector data manipulation class.
- */
-template <typename T, class EM>
-class AAAGroupedScholarAttribute :
-    public AAAScholarAttribute<T, EM>
-{
-    public:
-        void CopyFrom(AAAAvpContainer &c) {
-            AAAAvpContainerList& cl =
-                c[0]->dataRef(Type2Type<AAAAvpContainerList>());
-            AAAScholarAttribute<T, EM>::value.CopyFrom(cl);
-            AAAScholarAttribute<T, EM>::isSet = true;
-        }
-        void CopyTo(AAAAvpContainer &c) {
-            EM em;
-            AAAAvpContainerEntry *e = em.acquire(AAA_AVP_GROUPED_TYPE);
-            AAAScholarAttribute<T, EM>::value.CopyTo
-                (e->dataRef(Type2Type<AAAAvpContainerList>()));
-            c.add(e);
-        }
-        virtual T& operator=(T v) {
-            AAAScholarAttribute<T, EM>::isSet = true;
-            AAAScholarAttribute<T, EM>::value=v;
-            return AAAScholarAttribute<T, EM>::value;
-        }
-};
-
 /*! AAAVectorAttribute
  *
  * Grouped scholar and vector data manipulation class.
  */
-template <typename T, class EM>
+template <typename T>
 class AAAVectorAttribute :
     public std::vector<T>
 {
@@ -1558,178 +1518,12 @@ class AAAVectorAttribute :
             (std::vector<T>&)(*this)=value;
             return *this;
         }
-        virtual void CopyFrom(AAAAvpContainer &c) {
-            isSet = true;
-            if (std::vector<T>::size() < c.size())
-            std::vector<T>::resize(c.size());
-            for (unsigned i=0; i<c.size(); i++) {
-                (*this)[i] = c[i]->dataRef(Type2Type<T>());
-            }
-        }
-        void CopyTo(AAAAvpContainer &c,
-                    AAAAvpDataType t) {
-            EM em;
-            AAAAvpContainerEntry *e = em.acquire(t);
-            for (unsigned i=0; i<std::vector<T>::size(); i++) {
-                e = em.acquire(t);
-                e->dataRef(Type2Type<T>()) = (*this)[i];
-                c.add(e);
-            }
-        }
         virtual bool& IsSet() {
             return isSet;
         }
 
     protected:
         bool isSet;
-};
-
-/*! AAAGroupedVectorAttribute
- *
- * Grouped scholar and vector data manipulation class.
- */
-template <typename T, class EM>
-class AAAGroupedVectorAttribute :
-    public AAAVectorAttribute<T, EM>
-{
-    public:
-        void CopyFrom(AAAAvpContainer &c) {
-            AAAVectorAttribute<T, EM>::isSet = true;
-            if (AAAVectorAttribute<T, EM>::size() < c.size()) {
-                std::vector<T>::resize(c.size());
-            }
-            for (unsigned i=0; i<c.size(); i++) {
-                AAAAvpContainerList& cl =
-                c[i]->dataRef(Type2Type<AAAAvpContainerList>());
-                (*this)[i].CopyFrom(cl);
-                AAAVectorAttribute<T, EM>::isSet = true;
-            }
-        }
-        void CopyTo(AAAAvpContainer &c) {
-            EM em;
-            AAAAvpContainerEntry *e;
-            for (unsigned i=0; i<AAAVectorAttribute<T, EM>::size(); i++) {
-                e = em.acquire(AAA_AVP_GROUPED_TYPE);
-                (*this)[i].CopyTo(e->dataRef(Type2Type<AAAAvpContainerList>()));
-                e->dataRef(Type2Type<T>()) = (*this)[i];
-                c.add(e);
-            }
-        }
-        inline AAAGroupedVectorAttribute<T, EM> &operator=
-            (AAAGroupedVectorAttribute<T, EM>& value) {
-            AAAVectorAttribute<T, EM>::isSet = true;
-            (std::vector<T>&)(*this)=value; 
-            return *this;
-        }
-};
-
-/*! \brief Generic AVP widget allocator
- *
- *  This template class is a wrapper class format
- *  the most common AVP operations. Users should
- *  use this class for manipulating AVP containers.
- */
-template<class D,
-         AAAAvpDataType t,
-         class EntryMngr,
-         class CntrMngr = AAAAvpContainerMngr>
-class AAAAvpWidget {
-    public:
-        AAAAvpWidget(char *name) {
-            CntrMngr cm;
-            m_cAvp = cm.acquire(name);
-        }
-        AAAAvpWidget(char *name, D &value) {
-            CntrMngr cm;
-            m_cAvp = cm.acquire(name);
-            Get() = value;
-        }
-        AAAAvpWidget(AAAAvpContainer *avp) :
-            m_cAvp(avp) {
-        }
-        ~AAAAvpWidget() {
-        }
-        D &Get() {
-            EntryMngr em;
-            AAAAvpContainerEntry *e = em.acquire(t);
-            m_cAvp->add(e);
-            return e->dataRef(Type2Type<D>());
-        }
-        AAAAvpContainer *operator()() {
-            return m_cAvp;
-        }
-        bool empty() {
-            return (m_cAvp->size() == 0);
-        }
-
-    private:
-        AAAAvpContainer *m_cAvp;
-};
-
-/*! \brief Generic AVP widget lookup and parser
- *
- *  Assist in adding, deleting and modifying AVP's
- *  contained in a message list.
- *
- *  This template class is a wrapper class format
- *  the most common AVP operations. Users should
- *  use this class for manipulating AVP containers.
- */
-template<class D,
-         AAAAvpDataType t,
-         class EntryMngr,
-         class CntrMngr = AAAAvpContainerMngr>
-class AAAAvpContainerWidget
-{
-    public:
-       AAAAvpContainerWidget(AAAAvpContainerList &lst) :
-           list(lst) {
-       }
-       D *GetAvp(char *name, unsigned int index=0) {
-          AAAAvpContainer* c = list.search(name);
-          if (c && (index < c->size())) {
-              AAAAvpContainerEntry *e = (*c)[index];
-              return e->dataPtr(Type2Type<D>());
-          }
-          return (0);
-       }
-       D &AddAvp(char *name, bool append = false) {
-          AAAAvpContainer* c = list.search(name);
-          if (! c) {
-              AAAAvpWidget<D, t, EntryMngr, CntrMngr> avpWidget(name);
-              list.add(avpWidget());
-              return avpWidget.Get();
-          }
-          else if ((c->size() == 0) || append) {
-              AAAAvpWidget<D, t, EntryMngr, CntrMngr> avpWidget(c);
-              return avpWidget.Get();
-          }
-          else {
-              return (*c)[0]->dataRef(Type2Type<D>());
-          }
-       }
-       void AddAvp(AAAAvpContainerWidget<D, t, EntryMngr, CntrMngr> &avp) {
-           list.add(avp());
-       }
-       void DelAvp(char *name) {
-          std::list<AAAAvpContainer*>::iterator i;
-          for (i=list.begin(); i!=list.end();i++) {
-              AAAAvpContainer *c = *i;
-              if (ACE_OS::strcmp(c->getAvpName(), name) == 0) {
-                  list.erase(i);
-                  CntrMngr cm;
-                  cm.release(c);
-                  break;
-              }
-          }
-       }
-       unsigned int GetAvpCount(char *name) {
-          AAAAvpContainer* c = list.search(name);
-          return (c) ? c->size() : 0;
-       }
-
-    private:
-       AAAAvpContainerList &list;
 };
 
 /*!
