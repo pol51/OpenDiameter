@@ -271,7 +271,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientSession :
   //  MipRegRequest will be set by the fn RxMipregReq()
 
   void SetMipMnAaaAuth
-    (AAAScholarAttribute<mip_mn_aaa_auth_info_t, DiameterAvpContainerEntryManager> &mipMnAaaAuth)
+    (DiameterScholarAttribute<mip_mn_aaa_auth_info_t> &mipMnAaaAuth)
   {
 
     DiameterScholarAttribute<mip_mn_aaa_auth_info_t> _mipMnAaaAuth; 

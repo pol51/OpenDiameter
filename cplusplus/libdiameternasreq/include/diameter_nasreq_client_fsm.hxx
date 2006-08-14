@@ -375,7 +375,7 @@ class DIAMETER_NASREQ_CLIENT_EXPORTS DiameterNasreqClientStateMachine
 
   /// This function is used for setting Framed-Tunneling AVP contents.
   virtual void SetTunneling
-  (AAAVectorAttribute<tunneling_t, DiameterAvpContainerEntryManager> &tunneling)
+  (DiameterVectorAttribute<tunneling_t> &tunneling)
   {
   }
 

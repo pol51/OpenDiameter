@@ -155,7 +155,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientStateMachine
   // OriginHost & OriginRealm --> this will be populated from the config file
 
   virtual void SetMipMnAaaAuth
-  (AAAScholarAttribute<mip_mn_aaa_auth_info_t, DiameterAvpContainerEntryManager> &mipMnAaaAuth)=0; 
+  (DiameterScholarAttribute<mip_mn_aaa_auth_info_t> &mipMnAaaAuth)=0; 
 
   //optional AVPs
 
@@ -209,7 +209,7 @@ class DIAMETER_MIP4_HA_CLIENT_EXPORTS DiameterMip4HaClientStateMachine
   //(DiameterScholarAttribute<diameter_enumerated_t> &authSessionState) {  }
 
   virtual void SetMipHomeAgentHost
-  (AAAScholarAttribute<mip_home_agent_host_info_t, DiameterAvpContainerEntryManager> &mipHomeAgentHost)
+  (DiameterScholarAttribute<mip_home_agent_host_info_t> &mipHomeAgentHost)
   {
   }
 

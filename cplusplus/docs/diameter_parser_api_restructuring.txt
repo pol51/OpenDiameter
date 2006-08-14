@@ -25,6 +25,10 @@ diameter_parser.h and pana_parser.h
 
 [15] Inheritnace issue with ScholarAttributes
 
+[16] Fix PANA
+
+[17] Fix PACD and AAAD
+
 Changes:
 
 1. kdevelop

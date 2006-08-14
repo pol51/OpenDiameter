@@ -156,7 +156,7 @@ class DIAMETER_MIP4_FA_CLIENT_EXPORTS DiameterMip4FaClientStateMachine
 
 
   virtual void SetMipMnAaaAuth
-  (AAAScholarAttribute<mip_mn_aaa_auth_info_t, DiameterAvpContainerEntryManager> &mipMnAaaAuth)=0; 
+  (DiameterScholarAttribute<mip_mn_aaa_auth_info_t> &mipMnAaaAuth)=0; 
 
   //optional AVPs
 
@@ -212,7 +212,7 @@ class DIAMETER_MIP4_FA_CLIENT_EXPORTS DiameterMip4FaClientStateMachine
   //(DiameterScholarAttribute<diameter_enumerated_t> &authSessionState) {  }
 
   virtual void SetMipHomeAgentHost
-  (AAAScholarAttribute<mip_home_agent_host_info_t, DiameterAvpContainerEntryManager> &mipHomeAgentHost)=0;
+  (DiameterScholarAttribute<mip_home_agent_host_info_t> &mipHomeAgentHost)=0;
 
 
   /// This function is used for setting Auth-Request-Type AVP

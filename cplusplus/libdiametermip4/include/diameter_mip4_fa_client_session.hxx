@@ -261,7 +261,7 @@ class DiameterMip4FaClientSession :
   //  MipRegRequest will be set by the fn RxMipregReq()
 
   void SetMipMnAaaAuth
-    (AAAScholarAttribute<mip_mn_aaa_auth_info_t, DiameterAvpContainerEntryManager> &mipMnAaaAuth)
+    (DiameterScholarAttribute<mip_mn_aaa_auth_info_t> &mipMnAaaAuth)
   {
 
     DiameterScholarAttribute<mip_mn_aaa_auth_info_t> _mipMnAaaAuth; 
@@ -356,7 +356,7 @@ class DiameterMip4FaClientSession :
 
   //int 
   void SetMipHomeAgentHost
-  (AAAScholarAttribute<mip_home_agent_host_info_t, DiameterAvpContainerEntryManager> &mipHomeAgentHost)
+  (DiameterScholarAttribute<mip_home_agent_host_info_t> &mipHomeAgentHost)
   {
     //mip_home_agent_host_info_t 
     diameter_identity_t _mipHomeAgentHost;

@@ -949,37 +949,59 @@ typedef class AAAAvpContainerMngr DiameterAvpContainerManager;
  */
 template <typename T>
 class DiameterScholarAttribute :
-    public AAAScholarAttribute<T, DiameterAvpContainerEntryManager>
+    public AAAScholarAttribute<T>
 {
     public:
         DiameterScholarAttribute() {
         }
         DiameterScholarAttribute(T &val) :
-            AAAScholarAttribute<T, DiameterAvpContainerEntryManager>(val) {
+            AAAScholarAttribute<T>(val) {
+        }
+        virtual void CopyFrom(AAAAvpContainer &c) {
+            AAAScholarAttribute<T>::value = c[0]->dataRef(Type2Type<T>());
+            AAAScholarAttribute<T>::isSet = true;
+        }
+        void CopyTo(AAAAvpContainer &c,
+                    AAAAvpDataType t) {
+            DiameterAvpContainerEntryManager em;
+            AAAAvpContainerEntry *e = em.acquire(t);
+            e->dataRef(Type2Type<T>()) = AAAScholarAttribute<T>::value;
+            c.add(e);
         }
         /*! overload the operator=() so as not
          * to hide the base class implementation
          */
         virtual T& operator=(T v) {
-            return (AAAScholarAttribute<T, DiameterAvpContainerEntryManager>&)(*this) = v;
+            return AAAScholarAttribute<T>::operator=(v);
         }
 };
 
-/*! AAAGroupedScholarAttribute
+/*! DiameterGroupedScholarAttribute
  *
  * Specialization of scholar and vector data manipulation class.
  */
 template <typename T>
 class DiameterGroupedScholarAttribute :
-    public AAAGroupedScholarAttribute<T, DiameterAvpContainerEntryManager>
+    public DiameterScholarAttribute<T>
 {
     public:
-        /*! overload the operator=() so as not
-         * to hide the base class implementation
-         */
+        void CopyFrom(AAAAvpContainer &c) {
+            AAAAvpContainerList& cl =
+                c[0]->dataRef(Type2Type<AAAAvpContainerList>());
+            AAAScholarAttribute<T>::value.CopyFrom(cl);
+            AAAScholarAttribute<T>::isSet = true;
+        }
+        void CopyTo(AAAAvpContainer &c) {
+            DiameterAvpContainerEntryManager em;
+            AAAAvpContainerEntry *e = em.acquire(AAA_AVP_GROUPED_TYPE);
+            AAAScholarAttribute<T>::value.CopyTo
+                (e->dataRef(Type2Type<AAAAvpContainerList>()));
+            c.add(e);
+        }
         virtual T& operator=(T v) {
-            (AAAGroupedScholarAttribute<T, DiameterAvpContainerEntryManager>&)(*this) = v;
-            return AAAScholarAttribute<T, DiameterAvpContainerEntryManager>::value;
+            AAAScholarAttribute<T>::isSet = true;
+            AAAScholarAttribute<T>::value=v;
+            return AAAScholarAttribute<T>::value;
         }
 };
 
@@ -989,14 +1011,32 @@ class DiameterGroupedScholarAttribute :
  */
 template <typename T>
 class DiameterVectorAttribute :
-    public AAAVectorAttribute<T, DiameterAvpContainerEntryManager>
+    public AAAVectorAttribute<T>
 {
     public:
+        virtual void CopyFrom(AAAAvpContainer &c) {
+            AAAVectorAttribute<T>::isSet = true;
+            if (std::vector<T>::size() < c.size())
+            std::vector<T>::resize(c.size());
+            for (unsigned i=0; i<c.size(); i++) {
+                (*this)[i] = c[i]->dataRef(Type2Type<T>());
+            }
+        }
+        void CopyTo(AAAAvpContainer &c,
+                    AAAAvpDataType t) {
+            DiameterAvpContainerEntryManager em;
+            AAAAvpContainerEntry *e = em.acquire(t);
+            for (unsigned i=0; i<std::vector<T>::size(); i++) {
+                e = em.acquire(t);
+                e->dataRef(Type2Type<T>()) = (*this)[i];
+                c.add(e);
+            }
+        }
         /*! overload the operator=() so as not
          * to hide the base class implementation
          */
         virtual std::vector<T>& operator=(std::vector<T>& value) {
-            return (AAAVectorAttribute<T, DiameterAvpContainerEntryManager>&)(*this) = value;
+            return AAAVectorAttribute<T>::operator=(value);
         }
 };
 
@@ -1006,17 +1046,140 @@ class DiameterVectorAttribute :
  */
 template <typename T>
 class DiameterGroupedVectorAttribute :
-    public AAAGroupedVectorAttribute<T, DiameterAvpContainerEntryManager>
+    public DiameterVectorAttribute<T>
 {
     public:
-        /*! overload the operator=() so as not
-         * to hide the base class implementation
-         */
-        virtual DiameterGroupedVectorAttribute<T> &operator=
-            (DiameterGroupedVectorAttribute<T>& v) {
-            (AAAGroupedVectorAttribute<T, DiameterAvpContainerEntryManager>&)(*this) = v;
+        void CopyFrom(AAAAvpContainer &c) {
+            AAAVectorAttribute<T>::isSet = true;
+            if (AAAVectorAttribute<T>::size() < c.size()) {
+                std::vector<T>::resize(c.size());
+            }
+            for (unsigned i=0; i<c.size(); i++) {
+                AAAAvpContainerList& cl =
+                c[i]->dataRef(Type2Type<AAAAvpContainerList>());
+                (*this)[i].CopyFrom(cl);
+                AAAVectorAttribute<T>::isSet = true;
+            }
+        }
+        void CopyTo(AAAAvpContainer &c) {
+            DiameterAvpContainerEntryManager em;
+            AAAAvpContainerEntry *e;
+            for (unsigned i=0; i<AAAVectorAttribute<T>::size(); i++) {
+                e = em.acquire(AAA_AVP_GROUPED_TYPE);
+                (*this)[i].CopyTo(e->dataRef(Type2Type<AAAAvpContainerList>()));
+                e->dataRef(Type2Type<T>()) = (*this)[i];
+                c.add(e);
+            }
+        }
+        inline DiameterGroupedVectorAttribute<T> &operator=
+            (DiameterGroupedVectorAttribute<T>& value) {
+            AAAVectorAttribute<T>::isSet = true;
+            (std::vector<T>&)(*this)=value;
             return *this;
         }
+};
+
+/*! \brief Generic AVP widget allocator
+ *
+ *  This template class is a wrapper class format
+ *  the most common AVP operations. Users should
+ *  use this class for manipulating AVP containers.
+ */
+template<class D, AAAAvpDataType t>
+class DiameterAvpWidget {
+    public:
+        DiameterAvpWidget(char *name) {
+            DiameterAvpContainerManager cm;
+            m_cAvp = cm.acquire(name);
+        }
+        DiameterAvpWidget(char *name, D &value) {
+            DiameterAvpContainerManager cm;
+            m_cAvp = cm.acquire(name);
+            Get() = value;
+        }
+        DiameterAvpWidget(AAAAvpContainer *avp) :
+            m_cAvp(avp) {
+        }
+        ~DiameterAvpWidget() {
+        }
+        D &Get() {
+            DiameterAvpContainerEntryManager em;
+            AAAAvpContainerEntry *e = em.acquire(t);
+            m_cAvp->add(e);
+            return e->dataRef(Type2Type<D>());
+        }
+        AAAAvpContainer *operator()() {
+            return m_cAvp;
+        }
+        bool empty() {
+            return (m_cAvp->size() == 0);
+        }
+
+    private:
+        AAAAvpContainer *m_cAvp;
+};
+
+/*! \brief Generic AVP widget lookup and parser
+ *
+ *  Assist in adding, deleting and modifying AVP's
+ *  contained in a message list.
+ *
+ *  This template class is a wrapper class format
+ *  the most common AVP operations. Users should
+ *  use this class for manipulating AVP containers.
+ */
+template<class D, AAAAvpDataType t>
+class DiameterAvpContainerWidget
+{
+    public:
+       DiameterAvpContainerWidget(AAAAvpContainerList &lst) :
+           list(lst) {
+       }
+       D *GetAvp(char *name, unsigned int index=0) {
+          AAAAvpContainer* c = list.search(name);
+          if (c && (index < c->size())) {
+              AAAAvpContainerEntry *e = (*c)[index];
+              return e->dataPtr(Type2Type<D>());
+          }
+          return (0);
+       }
+       D &AddAvp(char *name, bool append = false) {
+          AAAAvpContainer* c = list.search(name);
+          if (! c) {
+              DiameterAvpWidget<D, t> avpWidget(name);
+              list.add(avpWidget());
+              return avpWidget.Get();
+          }
+          else if ((c->size() == 0) || append) {
+              DiameterAvpWidget<D, t> avpWidget(c);
+              return avpWidget.Get();
+          }
+          else {
+              return (*c)[0]->dataRef(Type2Type<D>());
+          }
+       }
+       void AddAvp(DiameterAvpContainerWidget<D, t> &avp) {
+           list.add(avp());
+       }
+       void DelAvp(char *name) {
+          std::list<AAAAvpContainer*>::iterator i;
+          for (i=list.begin(); i!=list.end();i++) {
+              AAAAvpContainer *c = *i;
+              if (ACE_OS::strcmp(c->getAvpName(), name) == 0) {
+                  list.erase(i);
+                  DiameterAvpContainerManager cm;
+                  cm.release(c);
+                  break;
+              }
+          }
+       }
+       unsigned int GetAvpCount(char *name) {
+          AAAAvpContainer* c = list.search(name);
+          return (c) ? c->size() : 0;
+       }
+
+    private:
+       AAAAvpContainerList &list;
 };
 
 /*!
@@ -1031,42 +1194,30 @@ class DiameterGroupedVectorAttribute :
  *  the most common AVP operations. Users should
  *  use this class for manipulating AVP containers.
  */
-typedef AAAAvpWidget<diameter_identity_t,
-                     AAA_AVP_DIAMID_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterIdentityAvpWidget;
-typedef AAAAvpWidget<diameter_address_t,
-                     AAA_AVP_ADDRESS_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterAddressAvpWidget;
-typedef AAAAvpWidget<diameter_integer32_t,
-                     AAA_AVP_INTEGER32_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterInt32AvpWidget;
-typedef AAAAvpWidget<diameter_unsigned32_t,
-                     AAA_AVP_UINTEGER32_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterUInt32AvpWidget;
-typedef AAAAvpWidget<diameter_integer64_t,
-                     AAA_AVP_INTEGER64_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterInt64AvpWidget;
-typedef AAAAvpWidget<diameter_unsigned64_t,
-                     AAA_AVP_UINTEGER64_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterUInt64AvpWidget;
-typedef AAAAvpWidget<diameter_utf8string_t,
-                     AAA_AVP_UTF8_STRING_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterUtf8AvpWidget;
-typedef AAAAvpWidget<diameter_grouped_t,
-                     AAA_AVP_GROUPED_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterGroupedAvpWidget;
-typedef AAAAvpWidget<diameter_octetstring_t,
-                     AAA_AVP_STRING_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterStringAvpWidget;
-typedef AAAAvpWidget<diameter_uri_t,
-                     AAA_AVP_DIAMURI_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterDiamUriAvpWidget;
-typedef AAAAvpWidget<diameter_enumerated_t,
-                     AAA_AVP_ENUM_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterEnumAvpWidget;
-typedef AAAAvpWidget<diameter_time_t,
-                     AAA_AVP_TIME_TYPE,
-                     DiameterAvpContainerEntryManager> DiameterTimeAvpWidget;
+typedef DiameterAvpWidget<diameter_identity_t,
+                          AAA_AVP_DIAMID_TYPE> DiameterIdentityAvpWidget;
+typedef DiameterAvpWidget<diameter_address_t,
+                          AAA_AVP_ADDRESS_TYPE> DiameterAddressAvpWidget;
+typedef DiameterAvpWidget<diameter_integer32_t,
+                          AAA_AVP_INTEGER32_TYPE> DiameterInt32AvpWidget;
+typedef DiameterAvpWidget<diameter_unsigned32_t,
+                          AAA_AVP_UINTEGER32_TYPE> DiameterUInt32AvpWidget;
+typedef DiameterAvpWidget<diameter_integer64_t,
+                          AAA_AVP_INTEGER64_TYPE> DiameterInt64AvpWidget;
+typedef DiameterAvpWidget<diameter_unsigned64_t,
+                          AAA_AVP_UINTEGER64_TYPE> DiameterUInt64AvpWidget;
+typedef DiameterAvpWidget<diameter_utf8string_t,
+                          AAA_AVP_UTF8_STRING_TYPE>  DiameterUtf8AvpWidget;
+typedef DiameterAvpWidget<diameter_grouped_t,
+                          AAA_AVP_GROUPED_TYPE> DiameterGroupedAvpWidget;
+typedef DiameterAvpWidget<diameter_octetstring_t,
+                          AAA_AVP_STRING_TYPE> DiameterStringAvpWidget;
+typedef DiameterAvpWidget<diameter_uri_t,
+                          AAA_AVP_DIAMURI_TYPE> DiameterDiamUriAvpWidget;
+typedef DiameterAvpWidget<diameter_enumerated_t,
+                          AAA_AVP_ENUM_TYPE> DiameterEnumAvpWidget;
+typedef DiameterAvpWidget<diameter_time_t,
+                          AAA_AVP_TIME_TYPE> DiameterTimeAvpWidget;
 
 /*! \brief Type specific AVP widget lookup and parser
  *
@@ -1077,54 +1228,42 @@ typedef AAAAvpWidget<diameter_time_t,
  *  the most common AVP operations. Users should
  *  use this class for manipulating AVP containers.
  */
-typedef AAAAvpContainerWidget<diameter_identity_t,
-                              AAA_AVP_DIAMID_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterIdentityAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_address_t,
-                              AAA_AVP_ADDRESS_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterAddressAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_integer32_t,
-                              AAA_AVP_INTEGER32_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterInt32AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_unsigned32_t,
-                              AAA_AVP_UINTEGER32_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterUInt32AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_integer64_t,
-                              AAA_AVP_INTEGER64_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterInt64AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_unsigned64_t,
-                              AAA_AVP_UINTEGER64_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterUInt64AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_utf8string_t,
-                              AAA_AVP_UTF8_STRING_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterUtf8AvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_grouped_t,
-                              AAA_AVP_GROUPED_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterGroupedAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_octetstring_t,
-                              AAA_AVP_STRING_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterStringAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_uri_t,
-                              AAA_AVP_DIAMURI_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterUriAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_enumerated_t,
-                              AAA_AVP_ENUM_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterEnumAvpContainerWidget;
-typedef AAAAvpContainerWidget<diameter_time_t,
-                              AAA_AVP_TIME_TYPE,
-                              DiameterAvpContainerEntryManager>
-                DiameterTimeAvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_identity_t,
+                                   AAA_AVP_DIAMID_TYPE>
+                        DiameterIdentityAvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_address_t,
+                                   AAA_AVP_ADDRESS_TYPE>
+                        DiameterAddressAvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_integer32_t,
+                                   AAA_AVP_INTEGER32_TYPE>
+                        DiameterInt32AvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_unsigned32_t,
+                                   AAA_AVP_UINTEGER32_TYPE>
+                        DiameterUInt32AvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_integer64_t,
+                                   AAA_AVP_INTEGER64_TYPE>
+                        DiameterInt64AvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_unsigned64_t,
+                                   AAA_AVP_UINTEGER64_TYPE>
+                        DiameterUInt64AvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_utf8string_t,
+                                   AAA_AVP_UTF8_STRING_TYPE>
+                        DiameterUtf8AvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_grouped_t,
+                                   AAA_AVP_GROUPED_TYPE>
+                        DiameterGroupedAvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_octetstring_t,
+                                   AAA_AVP_STRING_TYPE>
+                        DiameterStringAvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_uri_t,
+                                   AAA_AVP_DIAMURI_TYPE>
+                        DiameterUriAvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_enumerated_t,
+                                   AAA_AVP_ENUM_TYPE>
+                        DiameterEnumAvpContainerWidget;
+typedef DiameterAvpContainerWidget<diameter_time_t,
+                                   AAA_AVP_TIME_TYPE>
+                        DiameterTimeAvpContainerWidget;
 
 /*!
  *==================================================

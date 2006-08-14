@@ -673,8 +673,7 @@ DiameterEapServerStateMachine::Authorize()
 
   if (der.Tunneling.IsSet())
     r = AuthorizeTunneling(der.Tunneling(), 
-                           (AAAVectorAttribute<tunneling_t, 
-                            DiameterAvpContainerEntryManager>&)dea.Tunneling);
+                           (DiameterVectorAttribute<tunneling_t>&)dea.Tunneling);
   else
     r = AuthorizeTunneling(dea.Tunneling);
   if (!r)

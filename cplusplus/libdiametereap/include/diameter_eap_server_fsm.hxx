@@ -522,7 +522,7 @@ class DIAMETER_EAP_SERVER_EXPORTS DiameterEapServerStateMachine
 
   /// An authorization function called from Authorize() function.
   virtual bool AuthorizeTunneling
-  (AAAVectorAttribute<tunneling_t, DiameterAvpContainerEntryManager> &tunneling)
+  (DiameterVectorAttribute<tunneling_t> &tunneling)
   {
     return true;
   }
@@ -530,7 +530,7 @@ class DIAMETER_EAP_SERVER_EXPORTS DiameterEapServerStateMachine
   /// An authorization function called from Authorize() function.
   virtual bool AuthorizeTunneling
   (const std::vector<tunneling_t> &tunneling1,
-   AAAVectorAttribute<tunneling_t, DiameterAvpContainerEntryManager> &tunneling2)
+   DiameterVectorAttribute<tunneling_t> &tunneling2)
   {
     return true;
   }
