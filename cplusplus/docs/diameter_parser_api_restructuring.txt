@@ -2,26 +2,18 @@ Parser API Restructuring
 By Yoshihiro Ohba
 Created: Jun 20, 2006
 
-[1] Create aaa_parser_api.h under /cplusplus/includes/
+[1] Create pana_parser.h under /cplusplus/libpana/include
 
-    (It is also better to rename /cplusplus/includes/ to /cplusplus/include)
-
-[2] Create diameter_parser.h under /cplusplus/libdiamparser
-
-[3] Create pana_parser.h under /cplusplus/libpana/include
-
-[4] Move contents of diameter_parser_api.h to aaa_parser_api.h,
+[2] Move contents of diameter_parser_api.h to aaa_parser_api.h,
 diameter_parser.h and pana_parser.h
 
-[11] break down parser to several files
+[3] break down parser to several files
 
-[13] backward compatibility test and headers
+[4] backward compatibility test and headers
 
-[14] renaming of diameter api's
+[5] Fix PANA
 
-[16] Fix PANA
-
-[17] Fix PACD and AAAD
+[6] Fix PACD and AAAD
 
 Changes:
 
@@ -32,5 +24,11 @@ Changes:
 5. deprecated really old diameter api
 6. Delete sample1 from diameter
 7. Deprecate old API from diameter
+8. renaming of diameter api's
+9. Create aaa_parser_api.h under /cplusplus/includes/
+    (It is also better to rename /cplusplus/includes/ to /cplusplus/include)
+10. Create diameter_parser.h under /cplusplus/libdiamparser
+
+
 
 

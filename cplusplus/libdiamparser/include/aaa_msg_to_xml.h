@@ -31,14 +31,54 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* Author   : Victor I. Fajardo
- * Synopsis : Base class for accouting support
- */
+#ifndef __AAA_MSG_TO_XML_H__
+#define __AAA_MSG_TO_XML_H__
 
-#include "aaa_msg_to_xml.h"
-#include "aaa_log_facility.h"
-#include "diameter_api.h"
+#include <sstream>
+#include <string>
+#include "diameter_parser.h"
 
+class AAA_PARSER_EXPORT_ONLY AAAXmlElement
+{
+   public:
+      AAAXmlElement(char *name) :
+          m_name(name) {
+      }
+      void SetText(const char *text) {
+          m_value = text;
+      }
+      void SetText(ACE_UINT32 num) {
+          m_value = num;
+      }
+      void SetText(ACE_UINT64 num) {
+          m_value = "undefined";
+      }
+
+      void SetText(diameter_uri_t &uri);
+      void SetAttribute(const char *name, const char *value);
+      void SetAttribute(const char *name, ACE_UINT32 num);
+      void SetAttribute(const char *name, ACE_UINT64 num);
+      std::string Output();
+      void Reset();
+
+   private:
+      std::string m_name;
+      std::string m_attributes;
+      std::string m_value;
+};
+
+class AAA_PARSER_EXPORT_ONLY AAAXmlWriter
+{
+   public:
+      AAAXmlWriter() { };
+
+      void writeToString(DiameterMsg *msg, 
+                         std::string &output);
+
+   protected:
+      AAAReturnCode Walk(AAAAvpContainerList &avplist,
+                         std::string &output);
+};
 
 /*!
  *  <Message>
@@ -66,37 +106,11 @@
  *     </avp>
  *  </Message>
  */
-AAAReturnCode DiameterAccountingXMLRecTransformer::Convert(DiameterMsg *msg)
+
+class AAA_PARSER_EXPORT_ONLY AAADiameterMsgToXML
 {
-   AAAXmlWriter writer;
+    public:
+        static void Convert(DiameterMsg *msg);
+};
 
-   std::string output;
-   writer.writeToString(msg, output);
-
-   if (output.length()) {
-      record = reinterpret_cast<void*>(ACE_OS::strdup(output.data()));
-      record_size = ACE_OS::strlen(output.data());
-   }
-   else {
-      record = NULL;
-      record_size = 0;
-   }
-
-   return (AAA_ERR_SUCCESS);
-}
-
-AAAReturnCode DiameterAccountingXMLRecTransformer::OutputRecord(DiameterMsg *originalMessage)
-{
-   AAA_LOG(LM_DEBUG, "(%P|%t) Server: Default output record handler\n");
-
-   if (record) {
-
-      AAA_LOG(LM_DEBUG, "(%P|%t) Server: Resetting record holder\n");
-
-      ACE_OS::free(record);
-      record = NULL;
-      record_size = 0;
-   }
-   return (AAA_ERR_SUCCESS);
-}
-
+#endif // __AAA_MSG_TO_XML_H__

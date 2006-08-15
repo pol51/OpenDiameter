@@ -66,7 +66,7 @@ am__objects_1 = src/aaa_avplist.lo src/aaa_q_avplist.lo \
 	src/aaa_parser_avp.lo src/aaa_avp_header.lo \
 	src/aaa_error_status.lo src/aaa_parser_q_avplist.lo \
 	src/aaa_xml_parsing.lo src/aaa_memory_manager.lo \
-	src/aaa_parser_avpvalue.lo
+	src/aaa_parser_avpvalue.lo src/aaa_msg_to_xml.lo
 am__objects_2 =
 am_libdiamparser_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libdiamparser_la_OBJECTS = $(am_libdiamparser_la_OBJECTS)
@@ -255,7 +255,8 @@ PARSER_SRC = src/aaa_avplist.cxx \
 	     src/aaa_parser_q_avplist.cxx \
 	     src/aaa_xml_parsing.cxx \
 	     src/aaa_memory_manager.cxx \
-	     src/aaa_parser_avpvalue.cxx 
+	     src/aaa_parser_avpvalue.cxx \
+	     src/aaa_msg_to_xml.cxx
 
 PARSER_HDR = include/aaa_parser_avp.h \
              include/aaa_parser_avpvalue.h \
@@ -269,6 +270,7 @@ PARSER_HDR = include/aaa_parser_avp.h \
 	     include/aaa_q_avplist.h \
              include/aaa_memory_manager.h \
 	     include/aaa_xml_parsing.h \
+	     include/aaa_msg_to_xml.h \
              include/diameter_parser.h \
 	     include/diameter_parser_api.h
 
@@ -374,6 +376,8 @@ src/aaa_memory_manager.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/aaa_parser_avpvalue.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/aaa_msg_to_xml.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 libdiamparser.la: $(libdiamparser_la_OBJECTS) $(libdiamparser_la_DEPENDENCIES) 
 	$(CXXLINK) -rpath $(libdir) $(libdiamparser_la_LDFLAGS) $(libdiamparser_la_OBJECTS) $(libdiamparser_la_LIBADD) $(LIBS)
 
@@ -427,6 +431,8 @@ mostlyclean-compile:
 	-rm -f src/aaa_g_avplist.lo
 	-rm -f src/aaa_memory_manager.$(OBJEXT)
 	-rm -f src/aaa_memory_manager.lo
+	-rm -f src/aaa_msg_to_xml.$(OBJEXT)
+	-rm -f src/aaa_msg_to_xml.lo
 	-rm -f src/aaa_parser.$(OBJEXT)
 	-rm -f src/aaa_parser.lo
 	-rm -f src/aaa_parser_avp.$(OBJEXT)
@@ -453,6 +459,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_error_status.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_g_avplist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_memory_manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_msg_to_xml.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_parser_avp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_parser_avpvalue.Plo@am__quote@

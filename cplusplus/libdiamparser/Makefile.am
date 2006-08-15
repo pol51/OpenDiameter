@@ -20,7 +20,8 @@ PARSER_SRC = src/aaa_avplist.cxx \
 	     src/aaa_parser_q_avplist.cxx \
 	     src/aaa_xml_parsing.cxx \
 	     src/aaa_memory_manager.cxx \
-	     src/aaa_parser_avpvalue.cxx 
+	     src/aaa_parser_avpvalue.cxx \
+	     src/aaa_msg_to_xml.cxx
 
 PARSER_HDR = include/aaa_parser_avp.h \
              include/aaa_parser_avpvalue.h \
@@ -34,6 +35,7 @@ PARSER_HDR = include/aaa_parser_avp.h \
 	     include/aaa_q_avplist.h \
              include/aaa_memory_manager.h \
 	     include/aaa_xml_parsing.h \
+	     include/aaa_msg_to_xml.h \
              include/diameter_parser.h \
 	     include/diameter_parser_api.h
 
