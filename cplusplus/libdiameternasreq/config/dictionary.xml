@@ -808,7 +808,7 @@
   <!-- ************* DIAMETER NASREQ APPLICATION ************* -->
   <application id="1" name="NASREQ" 
     uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-aaa-diameter-nasreq-12.txt">
-    <command name="AA" code="265" >
+    <command name="AA" code="265" pbit="1">
       <requestrules>
         <fixed>
 	  <avprule name="Session-Id" maximum="1" minimum="1"/>

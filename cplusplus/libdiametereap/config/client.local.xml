@@ -9,19 +9,15 @@
       <supported_vendor_id>1</supported_vendor_id>
       <auth_application_id>1</auth_application_id>
       <auth_application_id>2</auth_application_id>
-      <auth_application_id>2000</auth_application_id>
+      <auth_application_id>5</auth_application_id>
       <acct_application_id>3</acct_application_id>
       <acct_application_id>4</acct_application_id>
       <vendor_specific_application_id>
           <vendor_id>31</vendor_id>
-          <vendor_id>32</vendor_id>
-          <vendor_id>33</vendor_id>
           <auth_application_id>1</auth_application_id>
           <acct_application_id>4</acct_application_id>
       </vendor_specific_application_id>
       <vendor_specific_application_id>
-          <vendor_id>41</vendor_id>
-          <vendor_id>42</vendor_id>
           <vendor_id>43</vendor_id>
           <auth_application_id>5</auth_application_id>
           <acct_application_id>6</acct_application_id>
@@ -57,7 +53,7 @@
              <role>1</role> 
              <redirect_usage>0</redirect_usage>
              <application>
-                <application_id>2000</application_id>
+                <application_id>5</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
                     <server>server.research2.org</server>

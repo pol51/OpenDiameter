@@ -23,8 +23,6 @@ diameter_parser.h and pana_parser.h
 
 [14] renaming of diameter api's
 
-[15] Inheritnace issue with ScholarAttributes
-
 [16] Fix PANA
 
 [17] Fix PACD and AAAD

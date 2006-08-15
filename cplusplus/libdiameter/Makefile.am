@@ -88,25 +88,22 @@ LDADD = @L_LIBS@ \
         libdiameter.la \
         $(top_srcdir)/libdiamparser/libdiamparser.la \
         $(top_srcdir)/libodutl/libodutl.la
-noinst_PROGRAMS = aaa_sample_client1 aaa_sample_server1 \
-                  aaa_sample_client2 aaa_sample_server2 \
-                  aaa_sample_client3 aaa_sample_server3 \
-                  aaa_sample_client4 aaa_sample_server4 \
-                  aaa_sample_client5 aaa_sample_server5 \
-                  aaa_sample_client6 \
-                  aaa_sample_agent
+noinst_PROGRAMS = aaa_test_client1 aaa_test_server1 \
+                  aaa_test_client2 aaa_test_server2 \
+                  aaa_test_client3 aaa_test_server3 \
+                  aaa_test_client4 aaa_test_server4 \
+                  aaa_test_client5 \
+                  aaa_test_agent
 
-aaa_sample_client1_SOURCES = test/sample_client1.cxx test/sample_client1.h
-aaa_sample_server1_SOURCES = test/sample_server1.cxx test/sample_server1.h
-aaa_sample_client2_SOURCES = test/sample_client2.cxx
-aaa_sample_server2_SOURCES = test/sample_server2.cxx
-aaa_sample_client3_SOURCES = test/sample_client3.cxx
-aaa_sample_server3_SOURCES = test/sample_server3.cxx
-aaa_sample_client4_SOURCES = test/sample_client4.cxx
-aaa_sample_server4_SOURCES = test/sample_server4.cxx
-aaa_sample_client5_SOURCES = test/sample_client5.cxx
-aaa_sample_server5_SOURCES = test/sample_server5.cxx
-aaa_sample_client6_SOURCES = test/sample_client6.cxx
-aaa_sample_agent_SOURCES = test/sample_agent.cxx
+aaa_test_client1_SOURCES = test/test_client1.cxx test/test_client1.h
+aaa_test_server1_SOURCES = test/test_server1.cxx test/test_server1.h
+aaa_test_client2_SOURCES = test/test_client2.cxx
+aaa_test_server2_SOURCES = test/test_server2.cxx
+aaa_test_client3_SOURCES = test/test_client3.cxx
+aaa_test_server3_SOURCES = test/test_server3.cxx
+aaa_test_client4_SOURCES = test/test_client4.cxx
+aaa_test_server4_SOURCES = test/test_server4.cxx
+aaa_test_client5_SOURCES = test/test_client5.cxx
+aaa_test_agent_SOURCES = test/test_agent.cxx
 
 EXTRA_DIST = config
