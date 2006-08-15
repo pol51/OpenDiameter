@@ -41,6 +41,8 @@
 #include <string>
 #include <iostream>
 #include "diameter_parser.h"
+#include "aaa_msg_to_xml.h"
+
 using namespace std;
 
 #define GET_DATA_REF(dataType, data, containerEntryPtr) \
@@ -576,7 +578,10 @@ stest_nas_request(unsigned char *buf, int size)
 
   std::cout << "assemble success. total length (must be 208) = " 
        << msg.hdr.length << std::endl;
-  
+
+  std::cout << "Message dump is as follows = " << std::endl;
+  AAADiameterMsgToXML::Convert(&msg);
+
   // release all containers after parse.
   msg.acl.releaseContainers();
   aBuffer->Release();
