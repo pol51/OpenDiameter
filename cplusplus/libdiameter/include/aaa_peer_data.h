@@ -38,32 +38,32 @@
 #include "aaa_transport_ace.h"
 #include "aaa_data_defs.h"
 
-typedef AAA_ACE_Transport<ACE_SOCK_Acceptor,
+typedef Diameter_ACE_Transport<ACE_SOCK_Acceptor,
                           ACE_SOCK_Connector,
-                          ACE_SOCK_Stream> AAA_TransportTCP;
-typedef AAA_ACE_Transport<ACE_SSL_SOCK_Acceptor,
+                          ACE_SOCK_Stream> DiameterTransportTCP;
+typedef Diameter_ACE_Transport<ACE_SSL_SOCK_Acceptor,
                           ACE_SSL_SOCK_Connector,
-                          ACE_SSL_SOCK_Stream> AAA_TransportTLS;
+                          ACE_SSL_SOCK_Stream> DiameterTransportTLS;
 
-typedef AAA_IO_Connector<AAA_TransportTCP, AAA_MsgCollector> AAA_TcpConnector;
-typedef AAA_IO_Connector<AAA_TransportTLS, AAA_MsgCollector> AAA_TlsConnector;
+typedef AAA_IO_Connector<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpConnector;
+typedef AAA_IO_Connector<DiameterTransportTLS, DiameterMsgCollector> DiameterTlsConnector;
 
-typedef AAA_IO_Acceptor<AAA_TransportTCP, AAA_MsgCollector> AAA_TcpAcceptor;
-typedef AAA_IO_Acceptor<AAA_TransportTLS, AAA_MsgCollector> AAA_TlsAcceptor;
+typedef AAA_IO_Acceptor<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpAcceptor;
+typedef AAA_IO_Acceptor<DiameterTransportTLS, DiameterMsgCollector> DiameterTlsAcceptor;
 
-typedef AAA_ACE_TransportAddress AAA_IpAddress;
-
-typedef enum {
-    AAA_PEER_CONN_INITIATOR = 0,
-    AAA_PEER_CONN_RESPONDER,
-    AAA_PEER_CONN_MAX,
-} AAA_PEER_CONN;
+typedef Diameter_ACE_TransportAddress DiameterIpAddress;
 
 typedef enum {
-    AAA_PEER_TTYPE_TLS = 0,
-    AAA_PEER_TTYPE_TCP,
-    AAA_PEER_TTYPE_MAX
-} AAA_PEER_TTYPE;
+    DIAMETER_PEER_CONN_INITIATOR = 0,
+    DIAMETER_PEER_CONN_RESPONDER,
+    DIAMETER_PEER_CONN_MAX,
+} DIAMETER_PEER_CONN;
+
+typedef enum {
+    DIAMETER_PEER_TTYPE_TLS = 0,
+    DIAMETER_PEER_TTYPE_TCP,
+    DIAMETER_PEER_TTYPE_MAX
+} DIAMETER_PEER_TTYPE;
 
 typedef enum {
     AAA_DISCONNECT_REBOOTING       = 0,
@@ -72,7 +72,7 @@ typedef enum {
     AAA_DISCONNECT_UNKNOWN         = 1000,
     AAA_DISCONNECT_TRANSPORT       = 10001,
     AAA_DISCONNECT_TIMEOUT         = 10002,
-} AAA_DISCONNECT_CAUSE;
+} DIAMETER_DISCONNECT_CAUSE;
 
 typedef std::list<diameter_address_t*> AAA_HostIpLst;
 
@@ -92,27 +92,27 @@ typedef struct
    diameter_unsigned32_t m_VendorId;
    diameter_utf8string_t m_ProductName; 
    diameter_unsigned32_t m_OriginStateId;
-   AAA_ApplicationIdLst m_SupportedVendorIdLst;
-   AAA_ApplicationIdLst m_AuthAppIdLst;
+   DiameterApplicationIdLst m_SupportedVendorIdLst;
+   DiameterApplicationIdLst m_AuthAppIdLst;
    diameter_unsigned32_t m_InbandSecurityId;
-   AAA_ApplicationIdLst m_AcctAppIdLst;
-   AAA_VendorSpecificIdLst m_VendorSpecificId;
+   DiameterApplicationIdLst m_AcctAppIdLst;
+   DiameterVendorSpecificIdLst m_VendorSpecificId;
    diameter_unsigned32_t m_FirmwareRevision;
    MsgId m_MsgId;
-} AAA_PeerCapabilities;
+} DiameterPeerCapabilities;
 
 typedef struct
 {
    diameter_octetstring_t m_Identity;
    diameter_unsigned32_t  m_Port;
-   AAA_DISCONNECT_CAUSE  m_DisconnectCause;
+   DIAMETER_DISCONNECT_CAUSE  m_DisconnectCause;
    int m_Expiration;
    bool m_Static;
    bool m_TLS;
-   std::auto_ptr<AAA_IO_Base> m_IOInitiator;
-   std::auto_ptr<AAA_IO_Base> m_IOResponder;
-   AAA_PeerCapabilities m_PeerCapabilities; 
-} AAA_PeerData;
+   std::auto_ptr<Diameter_IO_Base> m_IOInitiator;
+   std::auto_ptr<Diameter_IO_Base> m_IOResponder;
+   DiameterPeerCapabilities m_PeerCapabilities; 
+} DiameterPeerData;
 
 #endif /* __AAA_PEER_DATA_H__ */
 

@@ -13,13 +13,9 @@ Created: Jun 20, 2006
 [4] Move contents of diameter_parser_api.h to aaa_parser_api.h,
 diameter_parser.h and pana_parser.h
 
-[6] Delete sample1 from diameter
-
-[7] Deprecate old API from diameter
-
 [11] break down parser to several files
 
-[13] backward compatibility test
+[13] backward compatibility test and headers
 
 [14] renaming of diameter api's
 
@@ -34,4 +30,7 @@ Changes:
 3. directory restructure
 4. backward compatibility
 5. deprecated really old diameter api
+6. Delete sample1 from diameter
+7. Deprecate old API from diameter
+
 

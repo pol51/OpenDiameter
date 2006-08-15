@@ -45,13 +45,13 @@
 /// needs to use the server session factory which
 /// generates instance of this class.
 ///
-class DIAMETERBASEPROTOCOL_EXPORT AAA_ServerAuthSession : 
-    public AAA_AuthSession 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterServerAuthSession :
+    public DiameterAuthSession 
 {
     public:
-        AAA_ServerAuthSession(AAA_Task &task,
+        DiameterServerAuthSession(AAA_Task &task,
                               diameter_unsigned32_t id);
-        virtual ~AAA_ServerAuthSession() {
+        virtual ~DiameterServerAuthSession() {
            m_Fsm.Stop();
         }
 
@@ -84,7 +84,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ServerAuthSession :
         virtual AAAReturnCode Reset();
 
     private:
-        AAA_AuthSessionServerStateMachine m_Fsm;
+        DiameterAuthSessionServerStateMachine m_Fsm;
 };
 
 ///
@@ -92,19 +92,19 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ServerAuthSession :
 /// an Diameter client acct session. Applications
 /// needs to use the server session factory which
 /// generates instance of this class. Note that
-/// this requires a record storage class that 
+/// this requires a record storage class DiameterServerAcctSession 
 /// interfaces with the applications storage
 /// schemes.
 ///
 template<class REC_STORAGE>
-class AAA_ServerAcctSession : 
-    public AAA_AcctSession
+class DiameterServerAcctSession : 
+    public DiameterAcctSession
 {
     public:
-        AAA_ServerAcctSession(AAA_Task &task,
+        DiameterServerAcctSession(AAA_Task &task,
                               diameter_unsigned32_t id,
                               bool stateful = false);
-        virtual ~AAA_ServerAcctSession() {
+        virtual ~DiameterServerAcctSession() {
            m_Fsm.Stop();
         }
 
@@ -131,29 +131,29 @@ class AAA_ServerAcctSession :
     private:
         bool m_Stateful;
         REC_STORAGE m_RecStorage;
-        AAA_AcctSessionServerStateMachine m_Fsm;
+        DiameterAcctSessionServerStateMachine m_Fsm;
 };
 
 ///
 /// Internal garbage collector definitions
 ///
 
-typedef AAA_SessionGarbageCollectorSingleton<AAA_AuthSession>
-             AAA_ServerAuthSessionGC;
-typedef AAA_SessionGarbageCollectorSingleton<AAA_AcctSession>
-             AAA_ServerAcctSessionGC;
+typedef DiameterSessionGarbageCollectorSingleton<DiameterAuthSession>
+             DiameterServerAuthSessionGC;
+typedef DiameterSessionGarbageCollectorSingleton<DiameterAcctSession>
+             DiameterServerAcctSessionGC;
 
-typedef ACE_Singleton<AAA_ServerAuthSessionGC, 
+typedef ACE_Singleton<DiameterServerAuthSessionGC,
                       ACE_Recursive_Thread_Mutex> 
-                      AAA_ServerAuthSessionGC_S;
-#define AAA_AUTH_SESSION_GC_ROOT() (AAA_ServerAuthSessionGC_S::instance())
-#define AAA_AUTH_SESSION_GC() (AAA_ServerAuthSessionGC_S::instance()->Instance()) 
+                      DiameterServerAuthSessionGC_S;
+#define DIAMETER_AUTH_SESSION_GC_ROOT() (DiameterServerAuthSessionGC_S::instance())
+#define DIAMETER_AUTH_SESSION_GC() (DiameterServerAuthSessionGC_S::instance()->Instance()) 
 
-typedef ACE_Singleton<AAA_ServerAcctSessionGC, 
+typedef ACE_Singleton<DiameterServerAcctSessionGC, 
                       ACE_Recursive_Thread_Mutex> 
-                      AAA_ServerAcctSessionGC_S;
-#define AAA_ACCT_SESSION_GC_ROOT() (AAA_ServerAcctSessionGC_S::instance())
-#define AAA_ACCT_SESSION_GC() (AAA_ServerAcctSessionGC_S::instance()->Instance()) 
+                      DiameterServerAcctSessionGC_S;
+#define DIAMETER_ACCT_SESSION_GC_ROOT() (DiameterServerAcctSessionGC_S::instance())
+#define DIAMETER_ACCT_SESSION_GC() (DiameterServerAcctSessionGC_S::instance()->Instance()) 
 
 #include "aaa_session_server.inl"
 

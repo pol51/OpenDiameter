@@ -42,7 +42,7 @@
 /// to applications with regards to record
 /// storage.
 ///
-class AAA_ServerAcctRecStorage
+class DiameterServerAcctRecStorage
 {
     public:
 	/// Checks the server app if there is enough storage space
@@ -58,27 +58,27 @@ class AAA_ServerAcctRecStorage
         virtual void UpdateAcctResponse(DiameterMsg &aca) = 0;
 
     protected:
-        virtual ~AAA_ServerAcctRecStorage() { }
+        virtual ~DiameterServerAcctRecStorage() { }
 };
 
 ///
 /// REC_STORAGE specialization that provides user convertion
 ///
 template <class T>
-class AAA_ServerAcctRecConverter
+class DiameterServerAcctRecConverter
 {
     public:
         virtual T *Convert(AAAAvpContainerList &avpList,
                            int recordType,
                            int recordNum) = 0;
         virtual void Output(T &record) = 0;
-        virtual ~AAA_ServerAcctRecConverter() { }
+        virtual ~DiameterServerAcctRecConverter() { }
 };
 
 template <class T>
-class AAA_ServerAcctRecStorageWithConverter :
-    public AAA_ServerAcctRecStorage,
-    public AAA_ServerAcctRecConverter<T>
+class DiameterServerAcctRecStorageWithConverter :
+    public DiameterServerAcctRecStorage,
+    public DiameterServerAcctRecConverter<T>
 {
     public:
         /// Asks the server app to store record
@@ -92,17 +92,17 @@ class AAA_ServerAcctRecStorageWithConverter :
 	}
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSessionServerStateMachine :
-   public AAA_AcctSessionStateMachine
-           <AAA_AcctSessionServerStateMachine>
+class DIAMETERBASEPROTOCOL_EXPORT DiameterAcctSessionServerStateMachine :
+   public DiameterAcctSessionStateMachine
+           <DiameterAcctSessionServerStateMachine>
 {  
    public:
-      AAA_AcctSessionServerStateMachine(AAA_Task &t,
-                                        AAA_AcctSession &a,
-                                        AAA_ServerAcctRecStorage &s);
-      virtual ~AAA_AcctSessionServerStateMachine() {
+      DiameterAcctSessionServerStateMachine(AAA_Task &t,
+                                        DiameterAcctSession &a,
+                                        DiameterServerAcctRecStorage &s);
+      virtual ~DiameterAcctSessionServerStateMachine() {
       }
-      AAA_ServerAcctRecStorage &RecStorage() {
+      DiameterServerAcctRecStorage &RecStorage() {
         return m_RecStorage;
       }
 
@@ -110,32 +110,32 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSessionServerStateMachine :
       void TxACA(diameter_unsigned32_t rcode);
 
    protected:
-      AAA_ServerAcctRecStorage &m_RecStorage;
+      DiameterServerAcctRecStorage &m_RecStorage;
 };
 
-class AAA_SessAcctServer_RxACR_Start : 
-   public AAA_Action<AAA_AcctSessionServerStateMachine> 
+class DiameterSessAcctServer_RxACR_Start : 
+   public AAA_Action<DiameterAcctSessionServerStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionServerStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionServerStateMachine &fsm) {
          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
          fsm.CancelAllTimer();
          fsm.RecStorage().StoreRecord(msg->acl, 
                                       fsm.Attributes().RecordType()(),
                                       fsm.Attributes().RecordNumber()());
          fsm.TxACA(AAA_SUCCESS);
-         fsm.ScheduleTimer(AAA_SESSION_ACCT_EV_SESSION_TOUT,
+         fsm.ScheduleTimer(DIAMETER_SESSION_ACCT_EV_SESSION_TOUT,
                            fsm.Attributes().SessionTimeout()(),
-                           0, AAA_TIMER_TYPE_SESSION);
+                           0, DIAMETER_TIMER_TYPE_SESSION);
          fsm.Session().Success();
       }
 };
 
-class AAA_SessAcctServer_RxACR_Stop : 
-   public AAA_Action<AAA_AcctSessionServerStateMachine> 
+class DiameterSessAcctServer_RxACR_Stop : 
+   public AAA_Action<DiameterAcctSessionServerStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionServerStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionServerStateMachine &fsm) {
          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
          fsm.CancelAllTimer();
          fsm.RecStorage().StoreRecord(msg->acl, 
@@ -147,11 +147,11 @@ class AAA_SessAcctServer_RxACR_Stop :
       }
 };
 
-class AAA_SessAcctServer_RxACR : 
-   public AAA_Action<AAA_AcctSessionServerStateMachine> 
+class DiameterSessAcctServer_RxACR : 
+   public AAA_Action<DiameterAcctSessionServerStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionServerStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionServerStateMachine &fsm) {
          std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
          fsm.RecStorage().StoreRecord(msg->acl, 
                                       fsm.Attributes().RecordType()(),
@@ -161,33 +161,33 @@ class AAA_SessAcctServer_RxACR :
       }
 };
 
-class AAA_SessAcctServer_RxACR_OutofSpace : 
-   public AAA_Action<AAA_AcctSessionServerStateMachine> 
+class DiameterSessAcctServer_RxACR_OutofSpace : 
+   public AAA_Action<DiameterAcctSessionServerStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionServerStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionServerStateMachine &fsm) {
          fsm.TxACA(AAA_OUT_OF_SPACE);
          fsm.Session().Failed(fsm.Attributes().RecordNumber()());
          fsm.Session().Reset();
       }
 };
 
-class AAA_SessAcctServer_SessionTimeout : 
-   public AAA_Action<AAA_AcctSessionServerStateMachine> 
+class DiameterSessAcctServer_SessionTimeout : 
+   public AAA_Action<DiameterAcctSessionServerStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionServerStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionServerStateMachine &fsm) {
          fsm.CancelAllTimer();
          fsm.Session().SessionTimeout();
          fsm.Session().Reset();
       }
 };
 
-class AAA_SessAcctServerStateTable : 
-   public AAA_StateTable<AAA_AcctSessionServerStateMachine>
+class DiameterSessAcctServerStateTable : 
+   public AAA_StateTable<DiameterAcctSessionServerStateMachine>
 {
    public:
-      AAA_SessAcctServerStateTable() {
+      DiameterSessAcctServerStateTable() {
 
         /*
            State     Event                          Action     New State
@@ -198,9 +198,9 @@ class AAA_SessAcctServerStateTable :
                                                     answer,
                                                     Start Ts
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_IDLE,
-                           AAA_SESSION_ACCT_EV_RX_ACR_START_OK,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_IDLE,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACR_START_OK,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStart); 
 
         /*
@@ -211,9 +211,9 @@ class AAA_SessAcctServerStateTable :
                      processed.                     event
                                                     answer
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_IDLE,
-                           AAA_SESSION_ACCT_EV_RX_ACR_EV_OK,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_IDLE,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACR_EV_OK,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acRxACR); 
 
         /*
@@ -226,9 +226,9 @@ class AAA_SessAcctServerStateTable :
                                                     = OUT_OF_
                                                     SPACE
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_IDLE,
-                           AAA_SESSION_ACCT_EV_RX_ACR_NO_BUF,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_IDLE,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACR_NO_BUF,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acRxACROutOfSpace); 
 
         /*
@@ -236,8 +236,8 @@ class AAA_SessAcctServerStateTable :
            -------------------------------------------------------------
             Idle     Any                            None       Idle   
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_IDLE,
-                                   AAA_SESSION_ACCT_ST_IDLE);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_IDLE,
+                                   DIAMETER_SESSION_ACCT_ST_IDLE);
 
         /*
            State     Event                          Action     New State
@@ -248,9 +248,9 @@ class AAA_SessAcctServerStateTable :
                                                     answer,
                                                     Restart Ts
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                           AAA_SESSION_ACCT_EV_RX_ACR_INT_OK,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACR_INT_OK,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStart); 
 
         /*
@@ -261,9 +261,9 @@ class AAA_SessAcctServerStateTable :
                      processed                      stop answer,
                                                     Stop Ts
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                           AAA_SESSION_ACCT_EV_RX_ACR_STOP_OK,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACR_STOP_OK,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acStop); 
 
         /*
@@ -277,9 +277,9 @@ class AAA_SessAcctServerStateTable :
                                                     SPACE,
                                                     Stop Ts
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                           AAA_SESSION_ACCT_EV_RX_ACR_NO_BUF,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACR_NO_BUF,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acRxACROutOfSpace); 
 
         /*
@@ -288,9 +288,9 @@ class AAA_SessAcctServerStateTable :
            Open      Session supervision timer Ts   Stop Ts    Idle
                      expired
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                           AAA_SESSION_ACCT_EV_SESSION_TOUT,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                           DIAMETER_SESSION_ACCT_EV_SESSION_TOUT,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acTimeout); 
 
         /*
@@ -301,9 +301,9 @@ class AAA_SessAcctServerStateTable :
                      processed.                     event
                                                     answer
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                           AAA_SESSION_ACCT_EV_RX_ACR_EV_OK,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACR_EV_OK,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acRxACR); 
 
         /* 
@@ -316,9 +316,9 @@ class AAA_SessAcctServerStateTable :
                                                     answer,
                                                     Start Ts
         */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                           AAA_SESSION_ACCT_EV_RX_ACR_START_OK,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACR_START_OK,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStart); 
                            
         /*
@@ -326,25 +326,25 @@ class AAA_SessAcctServerStateTable :
            -------------------------------------------------------------
             Open     Any                            None       Open   
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                                   AAA_SESSION_ACCT_ST_OPEN);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                                   DIAMETER_SESSION_ACCT_ST_OPEN);
 
-        InitialState(AAA_SESSION_ACCT_ST_IDLE);
+        InitialState(DIAMETER_SESSION_ACCT_ST_IDLE);
       }
 
-      static AAA_SessAcctServerStateTable &Instance() {
+      static DiameterSessAcctServerStateTable &Instance() {
         return m_AcctServerStateTable;
       }
 
    private:
-       AAA_SessAcctServer_RxACR_Start               m_acStart;
-       AAA_SessAcctServer_RxACR                     m_acRxACR;
-       AAA_SessAcctServer_RxACR_OutofSpace          m_acRxACROutOfSpace;
-       AAA_SessAcctServer_RxACR_Stop                m_acStop;
-       AAA_SessAcctServer_SessionTimeout            m_acTimeout;
+       DiameterSessAcctServer_RxACR_Start               m_acStart;
+       DiameterSessAcctServer_RxACR                     m_acRxACR;
+       DiameterSessAcctServer_RxACR_OutofSpace          m_acRxACROutOfSpace;
+       DiameterSessAcctServer_RxACR_Stop                m_acStop;
+       DiameterSessAcctServer_SessionTimeout            m_acTimeout;
 
    private:
-      static AAA_SessAcctServerStateTable m_AcctServerStateTable;
+      static DiameterSessAcctServerStateTable m_AcctServerStateTable;
 };
 
 #endif /* __AAA_SESSION_ACCT_SERVER_FSM_H__ */

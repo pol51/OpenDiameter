@@ -39,10 +39,10 @@
 #include "aaa_peer_table.h"
 #include "od_utl_xml_sax_parser.h"
 
-class AAA_XMLConfigParser
+class DiameterXMLConfigParser
 {
    public:
-      virtual ~AAA_XMLConfigParser() {
+      virtual ~DiameterXMLConfigParser() {
       }
       virtual void Load(AAA_Task &task, 
                         char *cfgfile);      

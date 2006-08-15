@@ -76,15 +76,15 @@ typedef OD_Utl_XML_RegisteredElement
 
 class AAA_XMLVendorAppIdParser :
     public OD_Utl_XML_RegisteredElement
-              <AAA_VendorSpecificIdLst, 
-               OD_Utl_XML_ContentConvNull<AAA_VendorSpecificIdLst> > 
+              <DiameterVendorSpecificIdLst, 
+               OD_Utl_XML_ContentConvNull<DiameterVendorSpecificIdLst> > 
 {
   public:
-     AAA_XMLVendorAppIdParser(AAA_VendorSpecificIdLst &arg,
+     AAA_XMLVendorAppIdParser(DiameterVendorSpecificIdLst &arg,
                               OD_Utl_XML_SaxParser &parser) :
          OD_Utl_XML_RegisteredElement
-              <AAA_VendorSpecificIdLst,
-               OD_Utl_XML_ContentConvNull<AAA_VendorSpecificIdLst> > 
+              <DiameterVendorSpecificIdLst,
+               OD_Utl_XML_ContentConvNull<DiameterVendorSpecificIdLst> > 
                   (arg, "vendor_specific_application_id", parser) {
      }        
      virtual bool startElement(ACEXML_Attributes *atts) {
@@ -102,12 +102,12 @@ class AAA_XMLVendorAppIdParser :
          m_arg.push_back(m_Id);
      	 return OD_Utl_XML_Element::endElement();
      }
-     AAA_DataVendorSpecificApplicationId &Get() {
+     DiameterDataVendorSpecificApplicationId &Get() {
      	 return m_Id;
      }
      
     private:
-         AAA_DataVendorSpecificApplicationId m_Id;
+         DiameterDataVendorSpecificApplicationId m_Id;
 };
                
 class AAA_XMLAcctAppIdConv :
@@ -122,7 +122,7 @@ class AAA_XMLAcctAppIdConv :
                   int length,
                   diameter_unsigned32_t &arg) {
          if (m_element->Parent()->Name() == std::string("configuration")) {
-              AAA_CFG_GENERAL()->acctAppIdLst.push_back(ACE_OS::atoi(ch));
+              DIAMETER_CFG_GENERAL()->acctAppIdLst.push_back(ACE_OS::atoi(ch));
          }
          else if (m_element->Parent()->Name() == std::string("vendor_specific_application_id")) {
               AAA_XMLVendorAppIdParser *vendorIdElm = 
@@ -149,7 +149,7 @@ class AAA_XMLAuthAppIdConv :
                   int length,
                   diameter_unsigned32_t &arg) {
          if (m_element->Parent()->Name() == std::string("configuration")) {
-              AAA_CFG_GENERAL()->authAppIdLst.push_back(ACE_OS::atoi(ch));
+              DIAMETER_CFG_GENERAL()->authAppIdLst.push_back(ACE_OS::atoi(ch));
          }
          else if (m_element->Parent()->Name() == std::string("vendor_specific_application_id")) {
               AAA_XMLVendorAppIdParser *vendorIdElm = 
@@ -182,15 +182,15 @@ class AAA_XMLRouteParser :
      	 	 return false;
      	 }
          std::string empty("");
-         ACE_NEW_NORETURN(m_route, AAA_RouteEntry(empty));
+         ACE_NEW_NORETURN(m_route, DiameterRouteEntry(empty));
          return true;
      }
      virtual bool endElement() {
          if (Name() == std::string("route")) {
-             AAA_ROUTE_TABLE()->Add(*m_route);
+             DIAMETER_ROUTE_TABLE()->Add(*m_route);
          }
          else if (Name() == std::string("default_route")) {
-             AAA_ROUTE_TABLE()->DefaultRoute(*m_route);
+             DIAMETER_ROUTE_TABLE()->DefaultRoute(*m_route);
          }
          else {
              AAA_LOG(LM_ERROR, 
@@ -201,12 +201,12 @@ class AAA_XMLRouteParser :
          m_route = NULL;
      	 return OD_Utl_XML_Element::endElement();
      }
-     AAA_RouteEntry *Get() {
+     DiameterRouteEntry *Get() {
      	 return m_route;
      }
      
     private:
-        AAA_RouteEntry *m_route;
+        DiameterRouteEntry *m_route;
         diameter_unsigned32_t m_unused;
 };
                
@@ -228,7 +228,7 @@ class AAA_XMLRealmConv :
               rteElm->Get()->Realm() = ch;
          }
          else if (m_element->Parent()->Name() == std::string("configuration")) {
-              AAA_CFG_TRANSPORT()->realm = ch;
+              DIAMETER_CFG_TRANSPORT()->realm = ch;
          }
          else {
              AAA_LOG(LM_ERROR, 
@@ -252,7 +252,7 @@ class AAA_XMLPeerEntryParser :
                m_task(task) {
      }        
      virtual bool endElement() {
-         AAA_PeerManager mngr(m_task);
+         DiameterPeerManager mngr(m_task);
          if (! mngr.Add(m_peerInfo.hostname,
                         m_peerInfo.port,
                         m_peerInfo.tls_enabled,
@@ -263,13 +263,13 @@ class AAA_XMLPeerEntryParser :
          }
      	 return OD_Utl_XML_Element::endElement();
      }
-     AAA_DataPeer &Get() {
+     DiameterDataPeer &Get() {
      	 return m_peerInfo;
      }
      
   private:
      AAA_Task &m_task;
-     AAA_DataPeer m_peerInfo;
+     DiameterDataPeer m_peerInfo;
      diameter_unsigned32_t m_unused;
 };
 
@@ -337,7 +337,7 @@ class AAA_XMLRoleConv :
                   diameter_unsigned32_t &arg) {
             AAA_XMLRouteParser *rteElm = 
                  (AAA_XMLRouteParser*)m_element->Parent();
-             rteElm->Get()->Action() = AAA_ROUTE_ACTION(ACE_OS::atoi(ch));
+             rteElm->Get()->Action() = DIAMETER_ROUTE_ACTION(ACE_OS::atoi(ch));
      }
 };
 
@@ -358,7 +358,7 @@ class AAA_XMLRouteApplicationParser :
      	 if (! OD_Utl_XML_Element::startElement(atts)) {
      	 	 return false;
      	 }
-         ACE_NEW_NORETURN(m_routeApp, AAA_RouteApplication);   
+         ACE_NEW_NORETURN(m_routeApp, DiameterRouteApplication);   
          return true;
      }
      virtual bool endElement() {
@@ -368,12 +368,12 @@ class AAA_XMLRouteApplicationParser :
          m_routeApp = NULL;
      	 return OD_Utl_XML_Element::endElement();
      }
-     AAA_RouteApplication *Get() {
+     DiameterRouteApplication *Get() {
      	 return m_routeApp;
      }
      
     private:
-        AAA_RouteApplication *m_routeApp;
+        DiameterRouteApplication *m_routeApp;
         diameter_unsigned32_t m_unused;
 };
                
@@ -389,7 +389,7 @@ class AAA_XMLVendorIdConv :
                   int length,
                   diameter_unsigned32_t &arg) {
          if (m_element->Parent()->Name() == std::string("configuration")) {
-              AAA_CFG_GENERAL()->vendor = ACE_OS::atoi(ch);
+              DIAMETER_CFG_GENERAL()->vendor = ACE_OS::atoi(ch);
          }
          else if (m_element->Parent()->Name() == std::string("vendor_specific_application_id")) {
               AAA_XMLVendorAppIdParser *vendorIdElm = 
@@ -443,7 +443,7 @@ class AAA_XMLRouteServerEntryParser :
      	 if (! OD_Utl_XML_Element::startElement(atts)) {
              return false;
      	 }
-         ACE_NEW_NORETURN(m_routeServer, AAA_RouteServerEntry);   
+         ACE_NEW_NORETURN(m_routeServer, DiameterRouteServerEntry);   
          return true;
      }
      virtual bool endElement() {
@@ -456,12 +456,12 @@ class AAA_XMLRouteServerEntryParser :
          m_routeServer = NULL;
      	 return OD_Utl_XML_Element::endElement();
      }
-     AAA_RouteServerEntry *Get() {
+     DiameterRouteServerEntry *Get() {
      	 return m_routeServer;
      }
      
     private:
-        AAA_RouteServerEntry *m_routeServer;
+        DiameterRouteServerEntry *m_routeServer;
         diameter_unsigned32_t m_unused;
 };
                
@@ -511,10 +511,10 @@ class AAA_XMLSessionTimeoutConv :
                   int length,
                   diameter_unsigned32_t &arg) {
          if (m_element->Parent()->Name() == std::string("auth_sessions")) {
-             AAA_CFG_AUTH_SESSION()->sessionTm = ACE_OS::atoi(ch);
+             DIAMETER_CFG_AUTH_SESSION()->sessionTm = ACE_OS::atoi(ch);
          }
          else if (m_element->Parent()->Name() == std::string("acct_sessions")) {
-             AAA_CFG_ACCT_SESSION()->sessionTm = ACE_OS::atoi(ch);
+             DIAMETER_CFG_ACCT_SESSION()->sessionTm = ACE_OS::atoi(ch);
          }
          else {
              AAA_LOG(LM_ERROR, 
@@ -524,9 +524,9 @@ class AAA_XMLSessionTimeoutConv :
      }
 };
 
-void AAA_XMLConfigParser::Load(AAA_Task &task, char *cfgfile)
+void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
 {
-    AAA_DataRoot &root = *AAA_CFG_ROOT();
+    DiameterDataRoot &root = *DIAMETER_CFG_ROOT();
 
     OD_Utl_XML_SaxParser parser;
     diameter_unsigned32_t m_unused;
@@ -572,7 +572,7 @@ void AAA_XMLConfigParser::Load(AAA_Task &task, char *cfgfile)
                                    "advertised_host_ip", parser);
 
     // Peer table
-    OD_Utl_XML_UInt32Element trans09((ACE_UINT32&)AAA_PEER_TABLE()->ExpirationTime(), 
+    OD_Utl_XML_UInt32Element trans09((ACE_UINT32&)DIAMETER_PEER_TABLE()->ExpirationTime(), 
                                    "expiration_time", parser);
     AAA_XMLPeerEntryParser trans10(task, parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  AAA_XMLHostnameConv> 
@@ -640,7 +640,7 @@ void AAA_XMLConfigParser::Load(AAA_Task &task, char *cfgfile)
         parser.Load(cfgfile);
 
         // post setup for routing
-        AAA_ROUTE_TABLE()->ExpireTime(transp_01);
+        DIAMETER_ROUTE_TABLE()->ExpireTime(transp_01);
 
         // post parsing setup for logs
         root.log.flags.reserved = 0;
@@ -654,12 +654,12 @@ void AAA_XMLConfigParser::Load(AAA_Task &task, char *cfgfile)
 
         // post parsing setup for tx retries
         if (root.transport.retx_interval &&
-            (root.transport.retx_interval > AAA_ROUTER_MIN_RETX_INTERVAL)) {
-             root.transport.retx_interval = AAA_ROUTER_MIN_RETX_INTERVAL;
+            (root.transport.retx_interval > DIAMETER_ROUTER_MIN_RETX_INTERVAL)) {
+             root.transport.retx_interval = DIAMETER_ROUTER_MIN_RETX_INTERVAL;
         }
         if (root.transport.retx_max_count &&
-            (root.transport.retx_max_count > AAA_ROUTER_MAX_RETX_COUNT)) {
-             root.transport.retx_max_count = AAA_ROUTER_MAX_RETX_COUNT;
+            (root.transport.retx_max_count > DIAMETER_ROUTER_MAX_RETX_COUNT)) {
+             root.transport.retx_max_count = DIAMETER_ROUTER_MAX_RETX_COUNT;
         }
 
         // post validation for advertised host
@@ -678,10 +678,10 @@ void AAA_XMLConfigParser::Load(AAA_Task &task, char *cfgfile)
 
         // post validation for advertised host
         if (! root.session.authSessions.stateful) {
-            root.session.authSessions.stateful = AAA_SESSION_STATE_MAINTAINED;
+            root.session.authSessions.stateful = DIAMETER_SESSION_STATE_MAINTAINED;
         }
         else {
-            root.session.authSessions.stateful = AAA_SESSION_NO_STATE_MAINTAINED;
+            root.session.authSessions.stateful = DIAMETER_SESSION_NO_STATE_MAINTAINED;
         }
 
         this->dump();
@@ -695,9 +695,9 @@ void AAA_XMLConfigParser::Load(AAA_Task &task, char *cfgfile)
     }
 }
 
-void AAA_XMLConfigParser::dump()
+void DiameterXMLConfigParser::dump()
 {
-    AAA_DataRoot &root = *AAA_CFG_ROOT();
+    DiameterDataRoot &root = *DIAMETER_CFG_ROOT();
 
     AAA_LOG(LM_INFO, "(%P|%t)             Product : %s\n", 
                   root.general.product.data());
@@ -706,23 +706,23 @@ void AAA_XMLConfigParser::dump()
     AAA_LOG(LM_INFO, "(%P|%t)           Vendor Id : %d\n", 
                   root.general.vendor);
 
-    AAA_ApplicationIdLst *idList[] = { &root.general.supportedVendorIdLst,
+    DiameterApplicationIdLst *idList[] = { &root.general.supportedVendorIdLst,
                                        &root.general.authAppIdLst,
                                        &root.general.acctAppIdLst };
     char *label[] = { "Supported Vendor",
                       "Auth Application",
                       "Acct Application" };
     for (unsigned int i=0;
-         i < sizeof(idList)/sizeof(AAA_ApplicationIdLst*);
+         i < sizeof(idList)/sizeof(DiameterApplicationIdLst*);
         i++) {
-        AAA_ApplicationIdLst::iterator x = idList[i]->begin();
+        DiameterApplicationIdLst::iterator x = idList[i]->begin();
         for (; x != idList[i]->end(); x++) {
            AAA_LOG(LM_INFO, "(%P|%t)    %s : %d\n",
                     label[i], *x);
         }
     }
 
-    AAA_VendorSpecificIdLst::iterator n = 
+    DiameterVendorSpecificIdLst::iterator n = 
         root.general.vendorSpecificId.begin();
     for (; n != root.general.vendorSpecificId.end(); n ++) {
   
@@ -735,7 +735,7 @@ void AAA_XMLConfigParser::dump()
         }
         AAA_LOG(LM_INFO, "%s\n", (((*n).authAppId == 0) && 
                 ((*n).acctAppId == 0)) ? "---" : "");
-        AAA_ApplicationIdLst::iterator i = (*n).vendorIdLst.begin();
+        DiameterApplicationIdLst::iterator i = (*n).vendorIdLst.begin();
         for (; i != (*n).vendorIdLst.end(); i++) {
             AAA_LOG(LM_INFO, "(%P|%t)                        Vendor=%d\n",
                     (*i));
@@ -770,10 +770,10 @@ void AAA_XMLConfigParser::dump()
     }
 
     // peer table
-    AAA_PEER_TABLE()->Dump();
+    DIAMETER_PEER_TABLE()->Dump();
 
     // route table
-    AAA_ROUTE_TABLE()->Dump();
+    DIAMETER_ROUTE_TABLE()->Dump();
 
     AAA_LOG(LM_INFO, "(%P|%t)            Max Sess : %d\n", 
                  root.session.maxSessions);

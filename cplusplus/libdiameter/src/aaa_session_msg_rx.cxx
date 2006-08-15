@@ -36,20 +36,20 @@
 
 int AAA_SessionMsgRx::RxLocalMsgHandler::Request
   (std::auto_ptr<DiameterMsg> &msg, 
-   AAA_PeerEntry *source, 
-   AAA_PeerEntry *dest)
+   DiameterPeerEntry *source, 
+   DiameterPeerEntry *dest)
 {
     // Note that request message needs to be 
     // maintained and will be delete by the
     // router when a corresponding answer 
     // is received
 
-    AAA_SessionId sid;
+    DiameterSessionId sid;
     if (sid.Get(*msg) == AAA_ERR_SUCCESS) {
         AAA_JobData *data = NULL;
-        if (AAA_SESSION_DB().Lookup(sid, data)) {
+        if (DIAMETER_SESSION_DB().Lookup(sid, data)) {
             try {
-               AAA_SessionIO *io = (AAA_SessionIO*)data;
+               DiameterSessionIO *io = (DiameterSessionIO*)data;
                io->RxRequest(msg);
             }
             catch (...) {
@@ -60,18 +60,18 @@ int AAA_SessionMsgRx::RxLocalMsgHandler::Request
             m_SessionRx.RxUnknownSession(msg);
             return (0);
         }
-        AAA_ServerSessionFactory *factory = m_SessionRx.m_SessionFactoryMap.Lookup
+        DiameterServerSessionFactory *factory = m_SessionRx.m_SessionFactoryMap.Lookup
             (msg->hdr.appId);
         if (factory) {
-            AAA_SessionIO *newSession = factory->CreateInstance();
+            DiameterSessionIO *newSession = factory->CreateInstance();
             if (newSession) {
                 try {
                     newSession->RxRequest(msg);
-                    AAA_SESSION_DB().Add(sid, *newSession);
+                    DIAMETER_SESSION_DB().Add(sid, *newSession);
                 }
-                catch (AAA_BaseException &e) {
+                catch (DiameterBaseException &e) {
                     if (e.Code() == 
-                        AAA_BaseException::MISSING_SESSION_ID) {
+                        DiameterBaseException::MISSING_SESSION_ID) {
                         delete newSession;
                     }
                     AAA_LOG(LM_DEBUG,"(%P|%t) *** Processing error in new session ***\n");
@@ -97,19 +97,19 @@ int AAA_SessionMsgRx::RxLocalMsgHandler::Request
 
 int AAA_SessionMsgRx::RxLocalMsgHandler::Answer
   (std::auto_ptr<DiameterMsg> &msg, 
-   AAA_PeerEntry *source, 
-   AAA_PeerEntry *dest)
+   DiameterPeerEntry *source, 
+   DiameterPeerEntry *dest)
 {
     // Note that answer message will be delete
     // when this function exits since they are
     // not stored by the router
 
-    AAA_SessionId sid;
+    DiameterSessionId sid;
     if (sid.Get(*msg) == AAA_ERR_SUCCESS) {
         AAA_JobData *data = NULL;
-        if (AAA_SESSION_DB().Lookup(sid, data)) {
+        if (DIAMETER_SESSION_DB().Lookup(sid, data)) {
             try {
-               AAA_SessionIO *io = (AAA_SessionIO*)data;
+               DiameterSessionIO *io = (DiameterSessionIO*)data;
                io->RxAnswer(msg);
             }
             catch (...) {
@@ -131,7 +131,7 @@ AAAReturnCode AAA_SessionMsgRx::RxUnknownSession
   (std::auto_ptr<DiameterMsg> msg)
 {
     // special base protocol handling for unknown session id
-    if (msg->hdr.code == AAA_MSGCODE_ABORTSESSION) {
+    if (msg->hdr.code == DIAMETER_MSGCODE_ABORTSESSION) {
         TxASA(msg);
         return (AAA_ERR_SUCCESS);
     }
@@ -141,8 +141,8 @@ AAAReturnCode AAA_SessionMsgRx::RxUnknownSession
 
 int AAA_SessionMsgRx::RxProxyMsgHandler::Request
   (std::auto_ptr<DiameterMsg> &msg, 
-   AAA_PeerEntry *source, 
-   AAA_PeerEntry *dest)
+   DiameterPeerEntry *source, 
+   DiameterPeerEntry *dest)
 {
     // Note that request message needs to be 
     // maintained and will be delete by the
@@ -163,8 +163,8 @@ int AAA_SessionMsgRx::RxProxyMsgHandler::Request
 
 int AAA_SessionMsgRx::RxProxyMsgHandler::Answer
   (std::auto_ptr<DiameterMsg> &msg, 
-   AAA_PeerEntry *source, 
-   AAA_PeerEntry *dest)
+   DiameterPeerEntry *source, 
+   DiameterPeerEntry *dest)
 {
     // Note that answer message will be delete
     // when this function exits since they are
@@ -180,16 +180,16 @@ int AAA_SessionMsgRx::RxProxyMsgHandler::Answer
 
 int AAA_SessionMsgRx::RxErrorMsgHandler::LocalErrorHandling
   (std::auto_ptr<DiameterMsg> &msg, 
-   AAA_PeerEntry *source, 
-   AAA_PeerEntry *dest) 
+   DiameterPeerEntry *source, 
+   DiameterPeerEntry *dest) 
 {
-    AAA_SessionId sid;
+    DiameterSessionId sid;
     if (sid.Get(*msg) == AAA_ERR_SUCCESS) {
         AAA_ProxyHandler *handler = NULL;
         AAA_JobData *data = NULL;
-        if (AAA_SESSION_DB().Lookup(sid, data)) {
+        if (DIAMETER_SESSION_DB().Lookup(sid, data)) {
             try {
-               AAA_SessionIO *io = (AAA_SessionIO*)data;
+               DiameterSessionIO *io = (DiameterSessionIO*)data;
                io->RxError(msg);
             }
             catch (...) {
@@ -254,27 +254,27 @@ void AAA_SessionMsgRx::TxASA(std::auto_ptr<DiameterMsg> &asr)
    msg->hdr.flags.r = DIAMETER_FLAG_CLR;
    msg->hdr.flags.p = DIAMETER_FLAG_CLR;
    msg->hdr.flags.e = DIAMETER_FLAG_CLR;
-   msg->hdr.code = AAA_MSGCODE_ABORTSESSION;
+   msg->hdr.code = DIAMETER_MSGCODE_ABORTSESSION;
    msg->hdr.appId = DIAMETER_BASE_APPLICATION_ID;
 
    // required
-   AAA_SessionId sid;
+   DiameterSessionId sid;
    sid.Get(*asr);
    sid.Set(*msg);
    msg->hdr.hh = asr->hdr.hh;
    msg->hdr.ee = asr->hdr.ee;
 
-   DiameterUInt32AvpWidget rcodeAvp(AAA_AVPNAME_RESULTCODE);
-   DiameterIdentityAvpWidget orHostAvp(AAA_AVPNAME_ORIGINHOST);
-   DiameterIdentityAvpWidget orRealmAvp(AAA_AVPNAME_ORIGINREALM);
-   DiameterUtf8AvpWidget orErrMsgAvp(AAA_AVPNAME_ERRORMESSAGE);
-   DiameterIdentityAvpWidget orErrHostAvp(AAA_AVPNAME_ERRORREPORTINGHOST);
+   DiameterUInt32AvpWidget rcodeAvp(DIAMETER_AVPNAME_RESULTCODE);
+   DiameterIdentityAvpWidget orHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget orRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
+   DiameterUtf8AvpWidget orErrMsgAvp(DIAMETER_AVPNAME_ERRORMESSAGE);
+   DiameterIdentityAvpWidget orErrHostAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
 
    rcodeAvp.Get() = AAA_UNKNOWN_SESSION_ID;
-   orHostAvp.Get() = AAA_CFG_TRANSPORT()->identity;
-   orRealmAvp.Get() = AAA_CFG_TRANSPORT()->realm;
+   orHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
+   orRealmAvp.Get() = DIAMETER_CFG_TRANSPORT()->realm;
    orErrMsgAvp.Get() = std::string("Unknown Session Id");
-   orErrHostAvp.Get() = AAA_CFG_TRANSPORT()->identity;
+   orErrHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
 
    msg->acl.add(rcodeAvp());
    msg->acl.add(orHostAvp());
@@ -282,5 +282,5 @@ void AAA_SessionMsgRx::TxASA(std::auto_ptr<DiameterMsg> &asr)
    msg->acl.add(orErrMsgAvp());
    msg->acl.add(orErrHostAvp());
 
-   AAA_MSG_ROUTER()->AnswerMsg(msg, 0);
+   DIAMETER_MSG_ROUTER()->AnswerMsg(msg, 0);
 }

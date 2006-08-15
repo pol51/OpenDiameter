@@ -40,81 +40,81 @@
 #define AAA_SESSION_AUTH_DEBUG 0
 
 typedef enum {
-    AAA_SESSION_AUTH_ST_IDLE,
-    AAA_SESSION_AUTH_ST_PENDING,
-    AAA_SESSION_AUTH_ST_OPEN,
-    AAA_SESSION_AUTH_ST_DISC,
-} AAA_SESSION_AUTH_ST;
+    DIAMETER_SESSION_AUTH_ST_IDLE,
+    DIAMETER_SESSION_AUTH_ST_PENDING,
+    DIAMETER_SESSION_AUTH_ST_OPEN,
+    DIAMETER_SESSION_AUTH_ST_DISC,
+} DIAMETER_SESSION_AUTH_ST;
 
 typedef enum {
-    AAA_SESSION_AUTH_EV_REQUEST_ACCESS,
-    AAA_SESSION_AUTH_EV_RX_ASR,
-    AAA_SESSION_AUTH_EV_RX_ASA_OK,
-    AAA_SESSION_AUTH_EV_RX_ASA_FAIL,
-    AAA_SESSION_AUTH_EV_RX_ASR_USID,
-    AAA_SESSION_AUTH_EV_RX_ASR_OK,
-    AAA_SESSION_AUTH_EV_RX_ASR_RETRY,
-    AAA_SESSION_AUTH_EV_TX_ASR_FAIL,
-    AAA_SESSION_AUTH_EV_RX_STR,
-    AAA_SESSION_AUTH_EV_RX_STA,
-    AAA_SESSION_AUTH_EV_TX_SSAR,
-    AAA_SESSION_AUTH_EV_RX_SSAR,
-    AAA_SESSION_AUTH_EV_TX_SSAA,
-    AAA_SESSION_AUTH_EV_RX_SSAA,
-    AAA_SESSION_AUTH_EV_RX_RAR,
-    AAA_SESSION_AUTH_EV_RX_RAA,
-    AAA_SESSION_AUTH_EV_SSAR_OK,
-    AAA_SESSION_AUTH_EV_SSAR_FAIL,
-    AAA_SESSION_AUTH_EV_SSAA_OK,
-    AAA_SESSION_AUTH_EV_SSAA_NOSVC,
-    AAA_SESSION_AUTH_EV_SSAA_ERROR,
-    AAA_SESSION_AUTH_EV_SSAA_FAIL,
-    AAA_SESSION_AUTH_EV_REAUTH,
-    AAA_SESSION_AUTH_EV_LIFETIME_TOUT,
-    AAA_SESSION_AUTH_EV_SESSION_TOUT_ST,
-    AAA_SESSION_AUTH_EV_SESSION_TOUT_NOST,
-    AAA_SESSION_AUTH_EV_ABORT,
-    AAA_SESSION_AUTH_EV_STOP,
+    DIAMETER_SESSION_AUTH_EV_REQUEST_ACCESS,
+    DIAMETER_SESSION_AUTH_EV_RX_ASR,
+    DIAMETER_SESSION_AUTH_EV_RX_ASA_OK,
+    DIAMETER_SESSION_AUTH_EV_RX_ASA_FAIL,
+    DIAMETER_SESSION_AUTH_EV_RX_ASR_USID,
+    DIAMETER_SESSION_AUTH_EV_RX_ASR_OK,
+    DIAMETER_SESSION_AUTH_EV_RX_ASR_RETRY,
+    DIAMETER_SESSION_AUTH_EV_TX_ASR_FAIL,
+    DIAMETER_SESSION_AUTH_EV_RX_STR,
+    DIAMETER_SESSION_AUTH_EV_RX_STA,
+    DIAMETER_SESSION_AUTH_EV_TX_SSAR,
+    DIAMETER_SESSION_AUTH_EV_RX_SSAR,
+    DIAMETER_SESSION_AUTH_EV_TX_SSAA,
+    DIAMETER_SESSION_AUTH_EV_RX_SSAA,
+    DIAMETER_SESSION_AUTH_EV_RX_RAR,
+    DIAMETER_SESSION_AUTH_EV_RX_RAA,
+    DIAMETER_SESSION_AUTH_EV_SSAR_OK,
+    DIAMETER_SESSION_AUTH_EV_SSAR_FAIL,
+    DIAMETER_SESSION_AUTH_EV_SSAA_OK,
+    DIAMETER_SESSION_AUTH_EV_SSAA_NOSVC,
+    DIAMETER_SESSION_AUTH_EV_SSAA_ERROR,
+    DIAMETER_SESSION_AUTH_EV_SSAA_FAIL,
+    DIAMETER_SESSION_AUTH_EV_REAUTH,
+    DIAMETER_SESSION_AUTH_EV_LIFETIME_TOUT,
+    DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_ST,
+    DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
+    DIAMETER_SESSION_AUTH_EV_ABORT,
+    DIAMETER_SESSION_AUTH_EV_STOP,
 } AAA_SESSION_EV_AUTH;
 
-class AAA_SessionAuthFsmDebug 
+class DiameterSessionAuthFsmDebug 
 {
    public:
       void DumpEvent(AAA_State state, AAA_Event ev) {
 #if AAA_SESSION_AUTH_DEBUG 
-          static char *evStrTable[] = { "AAA_SESSION_AUTH_EV_REQUEST_ACCESS",
-                                        "AAA_SESSION_AUTH_EV_RX_ASR",
-                                        "AAA_SESSION_AUTH_EV_RX_ASA_OK",
-                                        "AAA_SESSION_AUTH_EV_RX_ASA_FAIL",
-                                        "AAA_SESSION_AUTH_EV_RX_ASR_USID",
-                                        "AAA_SESSION_AUTH_EV_RX_ASR_OK",
-                                        "AAA_SESSION_AUTH_EV_RX_ASR_RETRY",
-                                        "AAA_SESSION_AUTH_EV_TX_ASR_FAIL",
-                                        "AAA_SESSION_AUTH_EV_RX_STR",
-                                        "AAA_SESSION_AUTH_EV_RX_STA",
-                                        "AAA_SESSION_AUTH_EV_TX_SSAR",
-                                        "AAA_SESSION_AUTH_EV_RX_SSAR",
-                                        "AAA_SESSION_AUTH_EV_TX_SSAA",
-                                        "AAA_SESSION_AUTH_EV_RX_SSAA",
-                                        "AAA_SESSION_AUTH_EV_RX_RAR",
-                                        "AAA_SESSION_AUTH_EV_RX_RAA",
-                                        "AAA_SESSION_AUTH_EV_SSAR_OK",
-                                        "AAA_SESSION_AUTH_EV_SSAR_FAIL",
-                                        "AAA_SESSION_AUTH_EV_SSAA_OK",
-                                        "AAA_SESSION_AUTH_EV_SSAA_NOSVC",
-                                        "AAA_SESSION_AUTH_EV_SSAA_ERROR",
-                                        "AAA_SESSION_AUTH_EV_SSAA_FAIL",
-                                        "AAA_SESSION_AUTH_EV_REAUTH",
-                                        "AAA_SESSION_AUTH_EV_LIFETIME_TOUT",
-                                        "AAA_SESSION_AUTH_EV_SESSION_TOUT_ST",
-                                        "AAA_SESSION_AUTH_EV_SESSION_TOUT_NOST",
-                                        "AAA_SESSION_AUTH_EV_ABORT",
-                                        "AAA_SESSION_AUTH_EV_STOP"
+          static char *evStrTable[] = { "DIAMETER_SESSION_AUTH_EV_REQUEST_ACCESS",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_ASR",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_ASA_OK",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_ASA_FAIL",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_ASR_USID",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_ASR_OK",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_ASR_RETRY",
+                                        "DIAMETER_SESSION_AUTH_EV_TX_ASR_FAIL",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_STR",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_STA",
+                                        "DIAMETER_SESSION_AUTH_EV_TX_SSAR",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_SSAR",
+                                        "DIAMETER_SESSION_AUTH_EV_TX_SSAA",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_SSAA",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_RAR",
+                                        "DIAMETER_SESSION_AUTH_EV_RX_RAA",
+                                        "DIAMETER_SESSION_AUTH_EV_SSAR_OK",
+                                        "DIAMETER_SESSION_AUTH_EV_SSAR_FAIL",
+                                        "DIAMETER_SESSION_AUTH_EV_SSAA_OK",
+                                        "DIAMETER_SESSION_AUTH_EV_SSAA_NOSVC",
+                                        "DIAMETER_SESSION_AUTH_EV_SSAA_ERROR",
+                                        "DIAMETER_SESSION_AUTH_EV_SSAA_FAIL",
+                                        "DIAMETER_SESSION_AUTH_EV_REAUTH",
+                                        "DIAMETER_SESSION_AUTH_EV_LIFETIME_TOUT",
+                                        "DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_ST",
+                                        "DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST",
+                                        "DIAMETER_SESSION_AUTH_EV_ABORT",
+                                        "DIAMETER_SESSION_AUTH_EV_STOP"
           };
-          static char *stStrTable[] = { "AAA_SESSION_AUTH_ST_IDLE",
-                                        "AAA_SESSION_AUTH_ST_PENDING",
-                                        "AAA_SESSION_AUTH_ST_OPEN",
-                                        "AAA_SESSION_AUTH_ST_DISC"
+          static char *stStrTable[] = { "DIAMETER_SESSION_AUTH_ST_IDLE",
+                                        "DIAMETER_SESSION_AUTH_ST_PENDING",
+                                        "DIAMETER_SESSION_AUTH_ST_OPEN",
+                                        "DIAMETER_SESSION_AUTH_ST_DISC"
           };
           AAA_LOG(LM_INFO, "(%P|%t) Auth session event [state=%s, event=%s]\n",
                     stStrTable[state], evStrTable[ev]);
@@ -123,31 +123,31 @@ class AAA_SessionAuthFsmDebug
 };
 
 template<class ARG>
-class AAA_AuthSessionStateMachine :
-    public AAA_SessionStateMachine<ARG, AAA_SessionAuthFsmDebug>
+class DiameterAuthSessionStateMachine :
+    public DiameterSessionStateMachine<ARG, DiameterSessionAuthFsmDebug>
 {
    public:
-      virtual ~AAA_AuthSessionStateMachine() {
+      virtual ~DiameterAuthSessionStateMachine() {
       }    
-      AAA_AuthSession &Session() {
+      DiameterAuthSession &Session() {
           return m_Session;
       }
-      AAA_AuthSessionAttributes &Attributes() {
+      DiameterAuthSessionAttributes &Attributes() {
           return m_Session.Attributes();
       }
 
    protected:
-      AAA_AuthSessionStateMachine(AAA_Task &t,
+      DiameterAuthSessionStateMachine(AAA_Task &t,
                                   AAA_StateTable<ARG> &table,
                                   ARG &arg,
-                                  AAA_AuthSession &s) :
-          AAA_SessionStateMachine<ARG, AAA_SessionAuthFsmDebug>
+                                  DiameterAuthSession &s) :
+          DiameterSessionStateMachine<ARG, DiameterSessionAuthFsmDebug>
            (t, table, arg),
           m_Session(s) {
       }
 
    protected:
-      AAA_AuthSession &m_Session;
+      DiameterAuthSession &m_Session;
 };
 
 #endif /* __AAA_SESSION_AUTH_FSM_H__ */

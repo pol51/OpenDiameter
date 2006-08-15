@@ -35,8 +35,8 @@
 
 #include "diameter_api.h"
 
-class AAA_SampleServer : public AAA_ServerAuthSession {
-        // AAA serve session derived from AAA_ServerAuthSession.
+class AAA_SampleServer : public DiameterServerAuthSession {
+        // AAA serve session derived from DiameterServerAuthSession.
         // It provides for all the functionality of a diameter 
         // server session. Note that the server session factory
         // is responsible for instantiating this object
@@ -44,7 +44,7 @@ class AAA_SampleServer : public AAA_ServerAuthSession {
         AAA_SampleServer(AAA_Task &task,
                          diameter_unsigned32_t id,
                          bool endOnSuccess = false) :
-           AAA_ServerAuthSession(task, id),
+           DiameterServerAuthSession(task, id),
            m_EndOnSuccess(endOnSuccess) {
         }
         virtual void SetAuthSessionState
@@ -54,7 +54,7 @@ class AAA_SampleServer : public AAA_ServerAuthSession {
             // the auth state. Note that this overrides the 
             // settings in the configuration file or applications 
             // sending an auth session state AVP
-            authState = AAA_SESSION_NO_STATE_MAINTAINED;
+            authState = DIAMETER_SESSION_NO_STATE_MAINTAINED;
         }
         virtual void SetSessionTimeout
         (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
@@ -110,11 +110,11 @@ class AAA_SampleServer : public AAA_ServerAuthSession {
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(AAA_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(AAA_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
@@ -191,8 +191,8 @@ class AAA_SampleServer : public AAA_ServerAuthSession {
 
             DiameterMsgWidget msg(300, false, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
@@ -214,7 +214,7 @@ class AAA_SampleServer : public AAA_ServerAuthSession {
 // sessions need to be created on demand. This factory
 // is responsible for creating new server sessions
 // based on incomming new request.
-typedef AAA_ServerSessionAllocator<AAA_SampleServer> 
+typedef DiameterServerSessionAllocator<AAA_SampleServer> 
         SampleServerAllocator;
 
 int main(int argc, char *argv[])
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   AAA_Application appCore(task, "config/isp.local.xml");
+   DiameterApplication appCore(task, "config/isp.local.xml");
    SampleServerAllocator allocator(task, 10000);
    appCore.RegisterServerSessionFactory(allocator);
 

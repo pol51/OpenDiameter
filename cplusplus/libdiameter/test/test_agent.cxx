@@ -70,11 +70,11 @@ class AAA_SampleProxy : public AAA_ProxyHandler
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(AAA_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(AAA_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
@@ -111,11 +111,11 @@ class AAA_SampleProxy : public AAA_ProxyHandler
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(AAA_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(AAA_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
@@ -160,7 +160,7 @@ class AAA_SampleProxyWithMux : public AAA_ProxyHandler
 {
     public:
          class AAA_ProxyMuxHandler : 
-             public AAA_SessionMsgMuxHandler<AAA_SampleProxyWithMux>
+             public DiameterSessionMsgMuxHandler<AAA_SampleProxyWithMux>
          {
              public:
 
@@ -223,11 +223,11 @@ class AAA_SampleProxyWithMux : public AAA_ProxyHandler
 
    private:
         AAA_ProxyMuxHandler m_Action;
-        AAA_SessionMsgMux<AAA_SampleProxyWithMux> m_Mux;
+        DiameterSessionMsgMux<AAA_SampleProxyWithMux> m_Mux;
 };
 
 class PeerEventHandler : 
-   public AAA_PeerFsmUserEventInterface
+   public DiamterPeerFsmUserEventInterface
 {
    public:
       virtual void PeerFsmConnected() {
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   AAA_Application appCore(task, "config/agent.local.xml");
+   DiameterApplication appCore(task, "config/agent.local.xml");
    AAA_SampleProxy myProxy;
    AAA_SampleProxyWithMux myProxyWithMux;
 
@@ -267,9 +267,9 @@ int main(int argc, char *argv[])
    //  handler can be registered to any peer
    //  wether static or dynamic
    PeerEventHandler peerhandler;
-   AAA_Peer *dyncPeer = NULL;
+   DiameterPeer *dyncPeer = NULL;
    std::string peername("dynamic.peer.com");
-   AAA_PeerManager peerMngr(task);
+   DiameterPeerManager peerMngr(task);
    if (peerMngr.Add(peername, // hostname of peer to connect to
                     1812,     // port number of host
                     false,    // tls support

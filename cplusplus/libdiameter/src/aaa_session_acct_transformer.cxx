@@ -276,7 +276,7 @@ AAAReturnCode AAAXwriter::Walk(AAAAvpContainerList &avplist,
  *     </avp>
  *  </Message>
  */
-AAAReturnCode AAAAccountingXMLRecTransformer::Convert(DiameterMsg *msg)
+AAAReturnCode DiameterAccountingXMLRecTransformer::Convert(DiameterMsg *msg)
 {
    AAAXwriter writer;
 
@@ -295,7 +295,7 @@ AAAReturnCode AAAAccountingXMLRecTransformer::Convert(DiameterMsg *msg)
    return (AAA_ERR_SUCCESS);
 }
 
-AAAReturnCode AAAAccountingXMLRecTransformer::OutputRecord(DiameterMsg *originalMessage)
+AAAReturnCode DiameterAccountingXMLRecTransformer::OutputRecord(DiameterMsg *originalMessage)
 {
    AAA_LOG(LM_DEBUG, "(%P|%t) Server: Default output record handler\n");
 

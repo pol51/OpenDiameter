@@ -37,21 +37,21 @@
 #include "aaa_session_db.h"
 
 template <class REC_STORAGE>
-AAA_ServerAcctSession<REC_STORAGE>::AAA_ServerAcctSession
+DiameterServerAcctSession<REC_STORAGE>::DiameterServerAcctSession
 (AAA_Task &task, diameter_unsigned32_t id, bool stateful) :
-    AAA_AcctSession(id),
+    DiameterAcctSession(id),
     m_Stateful(stateful),
     m_Fsm(task, *this, m_RecStorage) 
 {
     if (m_Stateful) {
        Attributes().RealtimeRequired().Set
-             (AAA_ACCT_REALTIME_DELIVER_AND_GRANT);
+             (DIAMETER_ACCT_REALTIME_DELIVER_AND_GRANT);
        m_Fsm.Start();
     }
 }
 
 template <class REC_STORAGE>
-AAAReturnCode AAA_ServerAcctSession<REC_STORAGE>::Send
+AAAReturnCode DiameterServerAcctSession<REC_STORAGE>::Send
 (std::auto_ptr<DiameterMsg> msg) 
 {
     ////        !!!! WARNING !!!!
@@ -63,11 +63,11 @@ AAAReturnCode AAA_ServerAcctSession<REC_STORAGE>::Send
 }
 
 template <class REC_STORAGE>
-void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
+void DiameterServerAcctSession<REC_STORAGE>::RxRequest
 (std::auto_ptr<DiameterMsg> msg) 
 {
     // validate messge
-    if (msg->hdr.code != AAA_MSGCODE_ACCOUNTING) {
+    if (msg->hdr.code != DIAMETER_MSGCODE_ACCOUNTING) {
         AAA_LOG(LM_INFO, "(%P|%t) Non-accounting request message received, discarding\n");
         DiameterMsgHeaderDump::Dump(*msg);
         return;
@@ -75,7 +75,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
 
     // filter session id
     if (Attributes().SessionId().IsEmpty()) {
-        AAA_SessionId sid;
+        DiameterSessionId sid;
         if (sid.Get(*msg)) {
             AAA_LOG(LM_DEBUG,"(%P|%t) ERROR: Fatal, failed session id\n");
             return;
@@ -88,7 +88,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     // filter sub-session id
     DiameterUInt64AvpContainerWidget subSessionIdAvp(msg->acl);
     diameter_unsigned64_t *subSid = subSessionIdAvp.GetAvp
-                 (AAA_AVPNAME_ACCTSUBSID);
+                 (DIAMETER_AVPNAME_ACCTSUBSID);
     if (subSid) {
         Attributes().SubSessionId() = *subSid;
     }
@@ -96,7 +96,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     // filter record number
     DiameterUInt32AvpContainerWidget recNumAvp(msg->acl);
     diameter_unsigned32_t *recNum = recNumAvp.GetAvp
-                 (AAA_AVPNAME_ACCTREC_NUM);
+                 (DIAMETER_AVPNAME_ACCTREC_NUM);
     if (recNum) {
         Attributes().RecordNumber() = *recNum;
     }
@@ -104,7 +104,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     // filter record-type
     DiameterEnumAvpContainerWidget recTypeAvp(msg->acl);
     diameter_enumerated_t *recType = recTypeAvp.GetAvp
-                 (AAA_AVPNAME_ACCTREC_TYPE);
+                 (DIAMETER_AVPNAME_ACCTREC_TYPE);
     if (recType) {
         Attributes().RecordType() = *recType;
     }
@@ -112,7 +112,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     // filter RADIUS accounting id    
     DiameterStringAvpContainerWidget radiusIdAvp(msg->acl);
     diameter_octetstring_t *radius = radiusIdAvp.GetAvp
-             (AAA_AVPNAME_ACCTSID);
+             (DIAMETER_AVPNAME_ACCTSID);
     if (radius) {
         Attributes().RadiusAcctSessionId() = *radius;
     }
@@ -120,7 +120,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     // filter multi-session id
     DiameterUtf8AvpContainerWidget multiSidAvp(msg->acl);
     diameter_utf8string_t *multi = multiSidAvp.GetAvp
-             (AAA_AVPNAME_ACCTMULTISID);
+             (DIAMETER_AVPNAME_ACCTMULTISID);
     if (multi) {
         Attributes().MultiSessionId() = *multi;
     }
@@ -154,21 +154,21 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
     // formulate proper event
     if (m_Stateful) {
         if (! RecStorage().IsSpaceAvailableOnDevice()) {
-            m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACR_NO_BUF);
+            m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACR_NO_BUF);
             return;
         }
 	switch (Attributes().RecordType()()) {
-           case AAA_ACCT_RECTYPE_EVENT:
-              m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACR_EV_OK, msg);
+           case DIAMETER_ACCT_RECTYPE_EVENT:
+              m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACR_EV_OK, msg);
               break;
-           case AAA_ACCT_RECTYPE_START:
-              m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACR_START_OK, msg);
+           case DIAMETER_ACCT_RECTYPE_START:
+              m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACR_START_OK, msg);
               break;
-           case AAA_ACCT_RECTYPE_INTERIM:
-              m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACR_INT_OK, msg);
+           case DIAMETER_ACCT_RECTYPE_INTERIM:
+              m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACR_INT_OK, msg);
               break;
-           case AAA_ACCT_RECTYPE_STOP:
-              m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACR_STOP_OK, msg);
+           case DIAMETER_ACCT_RECTYPE_STOP:
+              m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACR_STOP_OK, msg);
               break;
 	}
     }
@@ -187,7 +187,7 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxRequest
 }
 
 template <class REC_STORAGE>
-void AAA_ServerAcctSession<REC_STORAGE>::RxAnswer
+void DiameterServerAcctSession<REC_STORAGE>::RxAnswer
 (std::auto_ptr<DiameterMsg> msg) 
 {
     AAA_LOG(LM_INFO, "(%P|%t) Service specific answer msg received in server, discarding\n");
@@ -195,21 +195,21 @@ void AAA_ServerAcctSession<REC_STORAGE>::RxAnswer
 }
 
 template <class REC_STORAGE>
-void AAA_ServerAcctSession<REC_STORAGE>::RxError
+void DiameterServerAcctSession<REC_STORAGE>::RxError
 (std::auto_ptr<DiameterMsg> msg) 
 {
     ErrorMsg(*msg);
 }
 
 template <class REC_STORAGE>
-AAAReturnCode AAA_ServerAcctSession<REC_STORAGE>::Reset()
+AAAReturnCode DiameterServerAcctSession<REC_STORAGE>::Reset()
 {
-    AAA_AcctSession::Reset();
-    AAA_SESSION_DB().Remove(Attributes().SessionId());
+    DiameterAcctSession::Reset();
+    DIAMETER_SESSION_DB().Remove(Attributes().SessionId());
     m_Fsm.Stop();
 
     // WARNING!!!: schedule this object for destruction
-    AAA_ACCT_SESSION_GC().ScheduleForDeletion(*this);
+    DIAMETER_ACCT_SESSION_GC().ScheduleForDeletion(*this);
     return (AAA_ERR_SUCCESS);
 }
 

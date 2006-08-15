@@ -40,29 +40,29 @@
 #include "aaa_route_framework.h"
 
 typedef enum {
-   AAA_ROUTER_RETX_DIVISOR = 2,
-   AAA_ROUTER_MIN_RETX_INTERVAL = 8,
-   AAA_ROUTER_MAX_RETX_COUNT    = 10
+   DIAMETER_ROUTER_RETX_DIVISOR = 2,
+   DIAMETER_ROUTER_MIN_RETX_INTERVAL = 8,
+   DIAMETER_ROUTER_MAX_RETX_COUNT    = 10
 };
 
-class AAA_MsgRouterHandler
+class DiameterMsgRouterHandler
 {
    public:
        virtual int Request(std::auto_ptr<DiameterMsg> &msg,
-                           AAA_PeerEntry *source,
-                           AAA_PeerEntry *dest) = 0;
+                           DiameterPeerEntry *source,
+                           DiameterPeerEntry *dest) = 0;
        virtual int Answer(std::auto_ptr<DiameterMsg> &msg,
-                          AAA_PeerEntry *source,
-                          AAA_PeerEntry *dest) = 0;
+                          DiameterPeerEntry *source,
+                          DiameterPeerEntry *dest) = 0;
 
    protected:
-      virtual ~AAA_MsgRouterHandler() { }
+      virtual ~DiameterMsgRouterHandler() { }
 };
 
-class AAA_MsgRouterHandlerTable
+class DiameterMsgRouterHandlerTable
 {
    /*
-      Notes on the use of AAA_MsgRouterHandler. 
+      Notes on the use of DiameterMsgRouterHandler. 
       In all cases, once the router has invoked
       the handler, the msg is consumed by the handler.
       The only exception is when you use H_PROXY.
@@ -80,137 +80,137 @@ class AAA_MsgRouterHandlerTable
        } H_TYPE;
     
        void RegisterHandler(H_TYPE type,
-                            AAA_MsgRouterHandler *h) {
+                            DiameterMsgRouterHandler *h) {
            m_Handlers[type] = h;
        }
        void RemoveHandler(H_TYPE type) {
            m_Handlers[type] = NULL;
        }
-       AAA_MsgRouterHandler *operator[](H_TYPE type) {
+       DiameterMsgRouterHandler *operator[](H_TYPE type) {
            return m_Handlers[type];
        }
 
    protected:
-       AAA_MsgRouterHandlerTable() {
+       DiameterMsgRouterHandlerTable() {
            for (int i=0; i<H_MAX; i++) {
                m_Handlers[i] = NULL;
            }
        }
-       AAA_MsgRouterHandler *m_Handlers[H_MAX];
+       DiameterMsgRouterHandler *m_Handlers[H_MAX];
 };
 
-class AAA_MsgRouter : public AAA_RouterFramework,
-                      public AAA_MsgRouterHandlerTable 
+class DiameterMsgRouter : public DiameterRouterFramework,
+                          public DiameterMsgRouterHandlerTable 
 {
    public:
-       class DcLocal : public AAA_DeliveryRoutingNode<AAA_MsgRouter> {
+       class DcLocal : public DiameterDeliveryRoutingNode<DiameterMsgRouter> {
            public:
-               DcLocal(AAA_MsgRouter &r) :
-                   AAA_DeliveryRoutingNode<AAA_MsgRouter>(r, 0, "dcLocal") {
+               DcLocal(DiameterMsgRouter &r) :
+                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, "dcLocal") {
                }
                AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
-                                        AAA_PeerEntry *source,
-                                        AAA_PeerEntry *dest);
+                                        DiameterPeerEntry *source,
+                                        DiameterPeerEntry *dest);
                int RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                              AAA_PeerEntry *source,
-                              AAA_PeerEntry *dest);
+                              DiameterPeerEntry *source,
+                              DiameterPeerEntry *dest);
                AAA_ROUTE_RESULT ErrorHandling(std::auto_ptr<DiameterMsg> msg,
-                                              AAA_PeerEntry *source,
-                                              AAA_PeerEntry *dest);
+                                              DiameterPeerEntry *source,
+                                              DiameterPeerEntry *dest);
        };
     
-       class DcForward : public AAA_DeliveryRoutingNode<AAA_MsgRouter> {
+       class DcForward : public DiameterDeliveryRoutingNode<DiameterMsgRouter> {
            public:
-               DcForward(AAA_MsgRouter &r) :
-                   AAA_DeliveryRoutingNode<AAA_MsgRouter>(r, 0, "dcForward") {
+               DcForward(DiameterMsgRouter &r) :
+                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, "dcForward") {
                }
                AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
-                                        AAA_PeerEntry *source,
-                                        AAA_PeerEntry *dest);
+                                        DiameterPeerEntry *source,
+                                        DiameterPeerEntry *dest);
                int RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                              AAA_PeerEntry *source,
-                              AAA_PeerEntry *dest);
+                              DiameterPeerEntry *source,
+                              DiameterPeerEntry *dest);
                int LoopDetection(std::auto_ptr<DiameterMsg> &msg);
        };
 
-       class DcRouted : public AAA_DeliveryRoutingNode<AAA_MsgRouter> {
+       class DcRouted : public DiameterDeliveryRoutingNode<DiameterMsgRouter> {
            public:
-               DcRouted(AAA_MsgRouter &r) :
-                   AAA_DeliveryRoutingNode<AAA_MsgRouter>(r, 0, "dcRouted") {
+               DcRouted(DiameterMsgRouter &r) :
+                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, "dcRouted") {
                }
                AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
-                                        AAA_PeerEntry *source,
-                                        AAA_PeerEntry *dest);
+                                        DiameterPeerEntry *source,
+                                        DiameterPeerEntry *dest);
                int RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                              AAA_PeerEntry *source,
-                              AAA_PeerEntry *dest);
+                              DiameterPeerEntry *source,
+                              DiameterPeerEntry *dest);
        };
     
-       class DcReject : public AAA_DeliveryRoutingNode<AAA_MsgRouter> {
+       class DcReject : public DiameterDeliveryRoutingNode<DiameterMsgRouter> {
            public:
-               DcReject(AAA_MsgRouter &r) :
-                   AAA_DeliveryRoutingNode<AAA_MsgRouter>(r, 0, "dcReject") {
+               DcReject(DiameterMsgRouter &r) :
+                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, "dcReject") {
                }
                AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
-                                        AAA_PeerEntry *source,
-                                        AAA_PeerEntry *dest);
+                                        DiameterPeerEntry *source,
+                                        DiameterPeerEntry *dest);
                int RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                              AAA_PeerEntry *source,
-                              AAA_PeerEntry *dest);
+                              DiameterPeerEntry *source,
+                              DiameterPeerEntry *dest);
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                       AAA_PeerEntry *&dest);
+                                       DiameterPeerEntry *&dest);
        };
 
-       class RcLocal : public AAA_RequestRoutingNode<DcLocal,
-                       AAA_MsgRouter> {
+       class RcLocal : public DiameterRequestRoutingNode<DcLocal,
+                       DiameterMsgRouter> {
            public:
-               RcLocal(AAA_MsgRouter &r) :
-                  AAA_RequestRoutingNode<DcLocal,
-                                         AAA_MsgRouter>(r, 0, "rcLocal") { }
+               RcLocal(DiameterMsgRouter &r) :
+                  DiameterRequestRoutingNode<DcLocal,
+                                         DiameterMsgRouter>(r, 0, "rcLocal") { }
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                       AAA_PeerEntry *&dest);
+                                       DiameterPeerEntry *&dest);
        };
 
-       class RcForwarded : public AAA_RequestRoutingNode<DcForward,
-                           AAA_MsgRouter> {
+       class RcForwarded : public DiameterRequestRoutingNode<DcForward,
+                           DiameterMsgRouter> {
            public:
-               RcForwarded(AAA_MsgRouter &r) :
-                   AAA_RequestRoutingNode<DcForward,
-                                          AAA_MsgRouter>(r, 0, "rcForward") {
+               RcForwarded(DiameterMsgRouter &r) :
+                   DiameterRequestRoutingNode<DcForward,
+                                          DiameterMsgRouter>(r, 0, "rcForward") {
                }
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                       AAA_PeerEntry *&dest);
+                                       DiameterPeerEntry *&dest);
            };
 
-       class RcRouted : public AAA_RequestRoutingNode<DcRouted,
-                        AAA_MsgRouter> {
+       class RcRouted : public DiameterRequestRoutingNode<DcRouted,
+                        DiameterMsgRouter> {
            public:
-               RcRouted(AAA_MsgRouter &r) :
-                   AAA_RequestRoutingNode<DcRouted,
-                                          AAA_MsgRouter>(r, 0, "rcRouted") {
+               RcRouted(DiameterMsgRouter &r) :
+                   DiameterRequestRoutingNode<DcRouted,
+                                          DiameterMsgRouter>(r, 0, "rcRouted") {
                }
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                       AAA_PeerEntry *&dest);
+                                       DiameterPeerEntry *&dest);
        };
 
-       class RcRejected : public AAA_RequestRoutingNode<DcReject,
-                          AAA_MsgRouter> {
+       class RcRejected : public DiameterRequestRoutingNode<DcReject,
+                          DiameterMsgRouter> {
            public:
-               RcRejected(AAA_MsgRouter &r) :
-                   AAA_RequestRoutingNode<DcReject,
-                                          AAA_MsgRouter>(r, 0, "rcReject") {
+               RcRejected(DiameterMsgRouter &r) :
+                   DiameterRequestRoutingNode<DcReject,
+                                          DiameterMsgRouter>(r, 0, "rcReject") {
                }
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                       AAA_PeerEntry *&dest);
+                                       DiameterPeerEntry *&dest);
        };
 
    protected:
-       class DcRequestReTransmission : public AAA_Action<AAA_RouterPendingReqPtr> {
+       class DcRequestReTransmission : public AAA_Action<DiameterRouterPendingReqPtr> {
        	  public:
-       	      DcRequestReTransmission(AAA_MsgRouter &r) : 
+       	      DcRequestReTransmission(DiameterMsgRouter &r) : 
        	           m_Router(r) {
        	      }
-              virtual void operator()(AAA_RouterPendingReqPtr &pReq) {
+              virtual void operator()(DiameterRouterPendingReqPtr &pReq) {
               	   /* 
                      The T flag is used as an indication of an application layer
                      retransmission event, e.g., due to failover to an alternate server.
@@ -233,18 +233,18 @@ class AAA_MsgRouter : public AAA_RouterFramework,
                   AAA_LOG(LM_INFO, "(%P|%t) **** Request message re-transmission ****\n");
                   DiameterMsgHeaderDump::Dump(*(pReq->m_ReqMessage));
                   
-                  ACE_Time_Value expire(AAA_CFG_TRANSPORT()->retx_interval, 0);
+                  ACE_Time_Value expire(DIAMETER_CFG_TRANSPORT()->retx_interval, 0);
                   pReq->m_ReTxExpireTime = ACE_OS::gettimeofday() + expire;
 
               	  m_Router.RequestMsg(pReq->m_ReqMessage, pReq->m_Source);
               }
           private:
-              AAA_MsgRouter &m_Router;
+              DiameterMsgRouter &m_Router;
        };
        
    public:
    
-       AAA_MsgRouter() : m_rcLocal(*this),
+       DiameterMsgRouter() : m_rcLocal(*this),
                          m_rcForward(*this), 
                          m_rcRouted(*this),
                          m_rcRejected(*this) {
@@ -259,7 +259,7 @@ class AAA_MsgRouter : public AAA_RouterFramework,
            m_DeliveryChain.Add(&m_rcRouted.Delivery());
            m_DeliveryChain.Add(&m_rcRejected.Delivery());
        }
-       void ReTransmitEvent(AAA_PeerEntry *peer = 0) {
+       void ReTransmitEvent(DiameterPeerEntry *peer = 0) {
            DcRequestReTransmission reTx(*this);
            if (peer) {
                m_rcForward.Delivery().ReTransmitCheck(peer, reTx);
@@ -278,14 +278,14 @@ class AAA_MsgRouter : public AAA_RouterFramework,
        friend class DcForward;
        friend class DcRouted;
 
-       class RedirectAgent : public AAA_MsgRouterHandler {
+       class RedirectAgent : public DiameterMsgRouterHandler {
            public:
                int Request(std::auto_ptr<DiameterMsg> &msg,
-                           AAA_PeerEntry *source,
-                           AAA_PeerEntry *dest);
+                           DiameterPeerEntry *source,
+                           DiameterPeerEntry *dest);
                int Answer(std::auto_ptr<DiameterMsg> &msg,
-                          AAA_PeerEntry *source,
-                          AAA_PeerEntry *dest);
+                          DiameterPeerEntry *source,
+                          DiameterPeerEntry *dest);
                bool IsRedirected(std::auto_ptr<DiameterMsg> &msg);
        };
     
@@ -297,8 +297,8 @@ class AAA_MsgRouter : public AAA_RouterFramework,
        RedirectAgent         m_RedirectAgent;
 };
 
-typedef ACE_Singleton<AAA_MsgRouter, ACE_Recursive_Thread_Mutex> AAA_MsgRouter_S;
-#define AAA_MSG_ROUTER() AAA_MsgRouter_S::instance()
+typedef ACE_Singleton<DiameterMsgRouter, ACE_Recursive_Thread_Mutex> DiameterMsgRouter_S;
+#define DIAMETER_MSG_ROUTER() DiameterMsgRouter_S::instance()
 
 #endif /* __ROUTE_MSG_ROUTER_H__ */
 

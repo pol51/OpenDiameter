@@ -46,16 +46,16 @@
 /// or derived from this object to create a diameter
 /// client session.
 ///
-class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAuthSession : 
-    public AAA_AuthSession 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterClientAuthSession :
+    public DiameterAuthSession 
 {
     public:
-        AAA_ClientAuthSession(AAA_Task &task,
-                              diameter_unsigned32_t id) :
-           AAA_AuthSession(id),
+        DiameterClientAuthSession(AAA_Task &task,
+                                  diameter_unsigned32_t id) :
+           DiameterAuthSession(id),
            m_Fsm(task, *this) {
         }
-        virtual ~AAA_ClientAuthSession(); 
+        virtual ~DiameterClientAuthSession(); 
 
         // This function initializes an AAA client session
         AAAReturnCode Begin(char *optionValue = 0);
@@ -83,7 +83,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAuthSession :
         virtual AAAReturnCode Reset();
 
     private:
-        AAA_AuthSessionClientStateMachine m_Fsm;
+        DiameterAuthSessionClientStateMachine m_Fsm;
 };
 
 ///
@@ -96,17 +96,17 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAuthSession :
 /// also responsible for creating instance of 
 /// these classes.
 ///
-class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAcctSession :
-    public AAA_SessionIO
+class DIAMETERBASEPROTOCOL_EXPORT DiameterClientAcctSession :
+    public DiameterSessionIO
 {
     public:
-	typedef std::map<diameter_unsigned64_t, AAA_AcctSession*> 
+	typedef std::map<diameter_unsigned64_t, DiameterAcctSession*> 
                    AAA_SubSessionMap;
     public:
-        AAA_ClientAcctSession(AAA_Task &task,
+        DiameterClientAcctSession(AAA_Task &task,
                               diameter_unsigned32_t id,
                               char *optionalValue = 0);
-        virtual ~AAA_ClientAcctSession();
+        virtual ~DiameterClientAcctSession();
         AAA_Task &Task() {
            return m_Task;
 	}
@@ -115,7 +115,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAcctSession :
 	}
 
         /// Registers an instance of a sub session
-        AAAReturnCode RegisterSubSession(AAA_AcctSession &s);
+        AAAReturnCode RegisterSubSession(DiameterAcctSession &s);
 
         /// De-registers a sub session
         AAAReturnCode RemoveSubSession(diameter_unsigned64_t &id);
@@ -135,7 +135,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAcctSession :
 
     private:
         AAA_Task &m_Task;
-        AAA_SessionId m_SessionId;
+        DiameterSessionId m_SessionId;
         diameter_unsigned32_t m_ApplicationId;
         diameter_unsigned64_t m_SubSessionId;
 	AAA_SubSessionMap m_SubSessionMap;
@@ -147,18 +147,18 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAcctSession :
 /// exits.
 ///
 template<class REC_COLLECTOR>
-class AAA_ClientAcctSubSession :
-    public AAA_AcctSession
+class DiameterClientAcctSubSession :
+    public DiameterAcctSession
 {
     public:
-        AAA_ClientAcctSubSession(AAA_ClientAcctSession &parent) :
-	   AAA_AcctSession(parent.ApplicationId()),
+        DiameterClientAcctSubSession(DiameterClientAcctSession &parent) :
+	   DiameterAcctSession(parent.ApplicationId()),
            m_ParentSession(parent),
            m_Fsm(m_ParentSession.Task(), *this, m_RecCollector) {
            m_ParentSession.RegisterSubSession(*this);
            m_Fsm.Start();
         }
-        virtual ~AAA_ClientAcctSubSession() {
+        virtual ~DiameterClientAcctSubSession() {
            m_ParentSession.RemoveSubSession
                   (Attributes().SubSessionId()());
            m_Fsm.Stop();
@@ -176,7 +176,7 @@ class AAA_ClientAcctSubSession :
 	}
 
         /// Access function to the parent session
-        AAA_ClientAcctSession &Parent() {
+        DiameterClientAcctSession &Parent() {
 	   return m_ParentSession;
 	}
 
@@ -194,9 +194,9 @@ class AAA_ClientAcctSubSession :
         virtual void RxError(std::auto_ptr<DiameterMsg> msg);
 
     private:
-        AAA_ClientAcctSession &m_ParentSession;
+        DiameterClientAcctSession &m_ParentSession;
         REC_COLLECTOR m_RecCollector;
-        AAA_AcctSessionClientStateMachine m_Fsm;
+        DiameterAcctSessionClientStateMachine m_Fsm;
 };
 
 #include "aaa_session_client.inl"

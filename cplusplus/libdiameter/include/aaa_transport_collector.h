@@ -37,7 +37,7 @@
 #include "diameter_parser.h"
 #include "aaa_transport_interface.h"
 
-class AAA_MsgCollectorHandler 
+class DiameterMsgCollectorHandler 
 {
     public:
         typedef enum {
@@ -50,10 +50,10 @@ class AAA_MsgCollectorHandler
         virtual void Message(std::auto_ptr<DiameterMsg> msg) = 0;
         virtual void Error(COLLECTOR_ERROR error, 
             std::string &io_name) = 0;
-        virtual ~AAA_MsgCollectorHandler() { }
+        virtual ~DiameterMsgCollectorHandler() { }
 };
 
-class AAA_MsgCollector : public AAA_IO_RxHandler
+class DiameterMsgCollector : public Diameter_IO_RxHandler
 {
     public:
         typedef enum {
@@ -62,20 +62,20 @@ class AAA_MsgCollector : public AAA_IO_RxHandler
         };
     
     public:
-        void RegisterHandler(AAA_MsgCollectorHandler &h) {
+        void RegisterHandler(DiameterMsgCollectorHandler &h) {
             m_Handler = &h;
         }
         void RemoveHandler() {
             m_Handler = NULL;
         }
 
-        AAA_MsgCollector();
-        virtual ~AAA_MsgCollector();
+        DiameterMsgCollector();
+        virtual ~DiameterMsgCollector();
 
         void Message(void *data, size_t length);
-        void Error(int error, const AAA_IO_Base *io) {
-            m_Handler->Error(AAA_MsgCollectorHandler::TRANSPORT_ERROR,
-                    const_cast<AAA_IO_Base*>(io)->Name());
+        void Error(int error, const Diameter_IO_Base *io) {
+            m_Handler->Error(DiameterMsgCollectorHandler::TRANSPORT_ERROR,
+                    const_cast<Diameter_IO_Base*>(io)->Name());
         }
 
     private:
@@ -83,8 +83,8 @@ class AAA_MsgCollector : public AAA_IO_RxHandler
         int m_Offset; // current read offset from buffer
         int m_BufSize; // allocated size of rdBuffer
         int m_MsgLength; // current message length
-        AAA_MsgCollectorHandler *m_Handler;
-        AAA_RangedValue m_PersistentError;
+        DiameterMsgCollectorHandler *m_Handler;
+        DiameterRangedValue m_PersistentError;
 };
 
 #endif

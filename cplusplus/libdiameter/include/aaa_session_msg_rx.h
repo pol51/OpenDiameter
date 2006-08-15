@@ -71,18 +71,18 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ProxyHandler
 };
 
 class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionFactoryMap : 
-    private std::map<diameter_unsigned32_t, AAA_ServerSessionFactory*>
+    private std::map<diameter_unsigned32_t, DiameterServerSessionFactory*>
 {
     private:
-        typedef std::map<diameter_unsigned32_t, AAA_ServerSessionFactory*>::iterator 
+        typedef std::map<diameter_unsigned32_t, DiameterServerSessionFactory*>::iterator 
             MapIterator;
     public:
-        bool Add(AAA_ServerSessionFactory &factory) {
-           insert(std::pair<diameter_unsigned32_t, AAA_ServerSessionFactory*>
+        bool Add(DiameterServerSessionFactory &factory) {
+           insert(std::pair<diameter_unsigned32_t, DiameterServerSessionFactory*>
                 (factory.GetApplicationId(), &factory));
            return (true);
         }
-        AAA_ServerSessionFactory *Lookup(diameter_unsigned32_t appId) {
+        DiameterServerSessionFactory *Lookup(diameter_unsigned32_t appId) {
            MapIterator i = find(appId);
            return (i == end()) ? NULL : i->second;
         }
@@ -96,7 +96,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionFactoryMap :
         }
         bool Empty() {
             return std::map<diameter_unsigned32_t, 
-                AAA_ServerSessionFactory*>::empty();
+                DiameterServerSessionFactory*>::empty();
         }
 };
 
@@ -133,17 +133,17 @@ class AAA_SessionMsgRx
            m_LocalHandler(*this),
            m_ProxyHandler(*this),
            m_ErrorHandler(*this) {
-           AAA_MSG_ROUTER()->RegisterHandler
-               (AAA_MsgRouterHandlerTable::H_LOCAL, &m_LocalHandler);
-           AAA_MSG_ROUTER()->RegisterHandler
-               (AAA_MsgRouterHandlerTable::H_PROXY, &m_ProxyHandler);
-           AAA_MSG_ROUTER()->RegisterHandler
-               (AAA_MsgRouterHandlerTable::H_ERROR, &m_ErrorHandler);
+           DIAMETER_MSG_ROUTER()->RegisterHandler
+               (DiameterMsgRouterHandlerTable::H_LOCAL, &m_LocalHandler);
+           DIAMETER_MSG_ROUTER()->RegisterHandler
+               (DiameterMsgRouterHandlerTable::H_PROXY, &m_ProxyHandler);
+           DIAMETER_MSG_ROUTER()->RegisterHandler
+               (DiameterMsgRouterHandlerTable::H_ERROR, &m_ErrorHandler);
        }
        virtual ~AAA_SessionMsgRx() {
-           AAA_MSG_ROUTER()->RemoveHandler(AAA_MsgRouterHandlerTable::H_LOCAL);
-           AAA_MSG_ROUTER()->RemoveHandler(AAA_MsgRouterHandlerTable::H_PROXY);
-           AAA_MSG_ROUTER()->RemoveHandler(AAA_MsgRouterHandlerTable::H_ERROR);
+           DIAMETER_MSG_ROUTER()->RemoveHandler(DiameterMsgRouterHandlerTable::H_LOCAL);
+           DIAMETER_MSG_ROUTER()->RemoveHandler(DiameterMsgRouterHandlerTable::H_PROXY);
+           DIAMETER_MSG_ROUTER()->RemoveHandler(DiameterMsgRouterHandlerTable::H_ERROR);
        }
        AAA_SessionFactoryMap &SessionFactoryMap() {
            return m_SessionFactoryMap;
@@ -156,56 +156,56 @@ class AAA_SessionMsgRx
        virtual AAAReturnCode RxUnknownSession(std::auto_ptr<DiameterMsg> msg);
 
     protected:
-       class RxLocalMsgHandler : public AAA_MsgRouterHandler {
+       class RxLocalMsgHandler : public DiameterMsgRouterHandler {
            public:
               RxLocalMsgHandler(AAA_SessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
               int Request(std::auto_ptr<DiameterMsg> &msg,
-                          AAA_PeerEntry *source,
-                          AAA_PeerEntry *dest);
+                          DiameterPeerEntry *source,
+                          DiameterPeerEntry *dest);
               int Answer(std::auto_ptr<DiameterMsg> &msg,
-                         AAA_PeerEntry *source,
-                         AAA_PeerEntry *dest);
+                         DiameterPeerEntry *source,
+                         DiameterPeerEntry *dest);
            private:
               AAA_SessionMsgRx &m_SessionRx;
        };
-       class RxProxyMsgHandler : public AAA_MsgRouterHandler {
+       class RxProxyMsgHandler : public DiameterMsgRouterHandler {
            public:
               RxProxyMsgHandler(AAA_SessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
               int Request(std::auto_ptr<DiameterMsg> &msg,
-                          AAA_PeerEntry *source,
-                          AAA_PeerEntry *dest);
+                          DiameterPeerEntry *source,
+                          DiameterPeerEntry *dest);
               int Answer(std::auto_ptr<DiameterMsg> &msg,
-                          AAA_PeerEntry *source,
-                         AAA_PeerEntry *dest);
+                          DiameterPeerEntry *source,
+                         DiameterPeerEntry *dest);
            private:
               AAA_SessionMsgRx &m_SessionRx;
        };
-       class RxErrorMsgHandler : public AAA_MsgRouterHandler {
+       class RxErrorMsgHandler : public DiameterMsgRouterHandler {
            public:
               RxErrorMsgHandler(AAA_SessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
               int Request(std::auto_ptr<DiameterMsg> &msg,
-                          AAA_PeerEntry *source,
-                          AAA_PeerEntry *dest) {
+                          DiameterPeerEntry *source,
+                          DiameterPeerEntry *dest) {
                   AAA_LOG(LM_DEBUG, "(%P|%t) **** Request Message Error ****\n");
                   DiameterMsgHeaderDump::Dump(*msg);
                   return LocalErrorHandling(msg, source, dest);
               }
               int Answer(std::auto_ptr<DiameterMsg> &msg,
-                         AAA_PeerEntry *source,
-                         AAA_PeerEntry *dest) {
+                         DiameterPeerEntry *source,
+                         DiameterPeerEntry *dest) {
                   AAA_LOG(LM_DEBUG, "(%P|%t) **** Answer Message Error ****\n");
                   DiameterMsgHeaderDump::Dump(*msg);
                   return LocalErrorHandling(msg, source, dest);
               }
               int LocalErrorHandling(std::auto_ptr<DiameterMsg> &msg,
-                                     AAA_PeerEntry *source,
-                                     AAA_PeerEntry *dest);
+                                     DiameterPeerEntry *source,
+                                     DiameterPeerEntry *dest);
            private:
               AAA_SessionMsgRx &m_SessionRx;
        };

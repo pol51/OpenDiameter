@@ -44,7 +44,6 @@
 //
 // Definition of default values
 //
-//#define AAA_CFG_FILENAME                  "diameter.conf"
 #define EAPTLS_CFG_XML_ROOT_SERVER                  "configuration_server"
 #define EAPTLS_CFG_XML_ROOT_CLIENT                  "configuration_client"
 

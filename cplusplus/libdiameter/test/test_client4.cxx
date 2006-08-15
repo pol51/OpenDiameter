@@ -36,7 +36,7 @@
 #include "diameter_api.h"
 
 class AAA_SampleClientAcctRecCollector : 
-    public AAA_ClientAcctRecCollector
+    public DiameterClientAcctRecCollector
 {
     public:
         virtual void GenerateRecord(AAAAvpContainerList &avpList,
@@ -88,8 +88,8 @@ class AAA_SampleClientAcctRecCollector :
 };
 
 class AAA_SampleClientAcctSubSession : 
-    public AAA_ClientAcctSubSession<AAA_SampleClientAcctRecCollector> {
-        // AAA client session derived from AAA_ClientAcctSession.
+    public DiameterClientAcctSubSession<AAA_SampleClientAcctRecCollector> {
+        // AAA client session derived from DiameterClientAcctSession.
         // It provides for all the functionality of a diameter 
         // client accounting session. The ClientAcctSubSession
         // class is a template function that requires a proper
@@ -97,8 +97,8 @@ class AAA_SampleClientAcctSubSession :
         // that the application is responsible for instantiating 
         // this object
     public:
-        AAA_SampleClientAcctSubSession(AAA_ClientAcctSession &parent) :
-            AAA_ClientAcctSubSession<AAA_SampleClientAcctRecCollector>(parent),
+        AAA_SampleClientAcctSubSession(DiameterClientAcctSession &parent) :
+            DiameterClientAcctSubSession<AAA_SampleClientAcctRecCollector>(parent),
             m_IsComplete(false) {
         }
         virtual void SetDestinationHost
@@ -163,9 +163,9 @@ class AAA_SampleClientAcctSubSession :
         bool m_IsComplete;
 };
 
-class AAA_SampleAcctClient : public AAA_ClientAcctSession
+class AAA_SampleAcctClient : public DiameterClientAcctSession
 {
-        // AAA client session derived from AAA_ClientAcctSession.
+        // AAA client session derived from DiameterClientAcctSession.
         // It provides for all the functionality of a diameter 
         // client accounting session. The ClientAcctSubSession
         // class is a template function that requires a proper
@@ -175,7 +175,7 @@ class AAA_SampleAcctClient : public AAA_ClientAcctSession
     public:
         AAA_SampleAcctClient(AAA_Task &task,
 			     diameter_unsigned32_t id) :
-            AAA_ClientAcctSession(task, id),
+            DiameterClientAcctSession(task, id),
             m_AcctSubSession(*this) { // sub-session uses parent
 	}
 
@@ -192,14 +192,14 @@ class AAA_SampleAcctClient : public AAA_ClientAcctSession
         AAA_SampleClientAcctSubSession m_AcctSubSession;
 };
 
-class AAA_SampleAuthClient : public AAA_ClientAuthSession
+class AAA_SampleAuthClient : public DiameterClientAuthSession
 {
     public:
         AAA_SampleAuthClient(AAA_Task &task,
 			     diameter_unsigned32_t authId,
 			     diameter_unsigned32_t acctId,
                              int howManyMsg = 1) :
-            AAA_ClientAuthSession(task, authId),
+            DiameterClientAuthSession(task, authId),
             m_AcctSession(task, acctId),
             m_HowManyMsg(howManyMsg),
             m_Success(false),
@@ -212,7 +212,7 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             // the auth state. Note that this overrides the 
             // settings in the configuration file or applications 
             // sending an auth session state AVP
-            authState = AAA_SESSION_STATE_MAINTAINED;
+            authState = DIAMETER_SESSION_STATE_MAINTAINED;
         }
         virtual void SetDestinationHost
         (DiameterScholarAttribute<diameter_identity_t> &dHost)
@@ -292,10 +292,10 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
             DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(AAA_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(AAA_AVPNAME_AUTHAPPID);
+            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
 
             if (host) {
                 AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
@@ -362,9 +362,9 @@ class AAA_SampleAuthClient : public AAA_ClientAuthSession
 
             DiameterMsgWidget msg(300, true, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
-            DiameterEnumAvpWidget reAuthAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+            DiameterEnumAvpWidget reAuthAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   AAA_Application appCore(task);
+   DiameterApplication appCore(task);
    if (appCore.Open(cfgFile) == AAA_ERR_SUCCESS) {
 
        /// Wait for connectivity

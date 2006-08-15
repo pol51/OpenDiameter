@@ -38,17 +38,17 @@
 #include <stdlib.h>
 #include "ace/Singleton.h"
 
-class AAA_IdGenerator {
+class DiameterIdGenerator {
     public:
        virtual int Get() = 0;
 
     protected:
-       AAA_IdGenerator() : m_Id(0) { }
-       virtual ~AAA_IdGenerator() { }
+       DiameterIdGenerator() : m_Id(0) { }
+       virtual ~DiameterIdGenerator() { }
        int m_Id;
 };
 
-class AAA_HopByHopGenerator : public AAA_IdGenerator {
+class DiameterHopByHopGenerator : public DiameterIdGenerator {
     public:
        int Get() {
            if (m_Id == 0) {
@@ -65,7 +65,7 @@ class AAA_HopByHopGenerator : public AAA_IdGenerator {
        }
 };
 
-class AAA_EndToEndGenerator : public AAA_IdGenerator {
+class DiameterEndToEndGenerator : public DiameterIdGenerator {
     public:
        int Get() {
            if (m_Id == 0) {
@@ -85,13 +85,13 @@ class AAA_EndToEndGenerator : public AAA_IdGenerator {
        }
 };
 
-typedef ACE_Singleton<AAA_HopByHopGenerator, ACE_Recursive_Thread_Mutex>
-                      AAA_HopByHopGenerator_S;
-#define AAA_HOPBYHOP_GEN() AAA_HopByHopGenerator_S::instance()
+typedef ACE_Singleton<DiameterHopByHopGenerator, ACE_Recursive_Thread_Mutex>
+                      DiameterHopByHopGenerator_S;
+#define DIAMETER_HOPBYHOP_GEN() DiameterHopByHopGenerator_S::instance()
 
-typedef ACE_Singleton<AAA_EndToEndGenerator, ACE_Recursive_Thread_Mutex>
-                      AAA_EndToEndGenerator_S;
-#define AAA_ENDTOEND_GEN() AAA_EndToEndGenerator_S::instance()
+typedef ACE_Singleton<DiameterEndToEndGenerator, ACE_Recursive_Thread_Mutex>
+                      DiameterEndToEndGenerator_S;
+#define DIAMETER_ENDTOEND_GEN() DiameterEndToEndGenerator_S::instance()
 
 #endif
 

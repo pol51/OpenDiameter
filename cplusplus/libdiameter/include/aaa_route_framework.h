@@ -47,12 +47,12 @@ typedef enum {
 } AAA_ROUTE_RESULT;
 
 // abstract class for a routing node
-class AAA_RoutingNode
+class DiameterRoutingNode
 {
    public:
        AAA_ROUTE_RESULT Route(std::auto_ptr<DiameterMsg> msg,
-                              AAA_PeerEntry *source) {
-           AAA_PeerEntry *dest = NULL;
+                              DiameterPeerEntry *source) {
+           DiameterPeerEntry *dest = NULL;
            AAA_ROUTE_RESULT r = Lookup(msg, dest);
            Dump(r);
            switch (r) {
@@ -70,25 +70,25 @@ class AAA_RoutingNode
            }
            return (r);
        }
-       AAA_RoutingNode *Next() {
+       DiameterRoutingNode *Next() {
            return m_Next;
        }
-       void Next(AAA_RoutingNode *next) {
+       void Next(DiameterRoutingNode *next) {
            m_Next = next;
        }
        std::string &Name() {
            return m_Name;
        }
        virtual AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &m,
-                                       AAA_PeerEntry *&dest) = 0;
+                                       DiameterPeerEntry *&dest) = 0;
        virtual AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> m,
-                                        AAA_PeerEntry *source,
-                                        AAA_PeerEntry *dest) = 0;
+                                        DiameterPeerEntry *source,
+                                        DiameterPeerEntry *dest) = 0;
     
-       virtual ~AAA_RoutingNode() {
+       virtual ~DiameterRoutingNode() {
        }
    protected:
-       AAA_RoutingNode(AAA_RoutingNode *next = NULL,
+       DiameterRoutingNode(DiameterRoutingNode *next = NULL,
                        char *name = "") :
            m_Next(next), m_Name(name) {
        }
@@ -112,45 +112,45 @@ class AAA_RoutingNode
        }
           
    private:       
-       AAA_RoutingNode *m_Next;
+       DiameterRoutingNode *m_Next;
        std::string m_Name;
 };
 
 typedef struct {
    int m_OrigHH;
-   AAA_PeerEntry *m_Source;
-   AAA_PeerEntry *m_Dest;
+   DiameterPeerEntry *m_Source;
+   DiameterPeerEntry *m_Dest;
    ACE_Time_Value m_ReTxExpireTime;
    unsigned int m_ReTxCount;
    std::auto_ptr<DiameterMsg> m_ReqMessage;
-} AAA_RouterPendingReq;
+} DiameterRouterPendingReq;
 
-typedef AAA_RouterPendingReq* AAA_RouterPendingReqPtr;
+typedef DiameterRouterPendingReq* DiameterRouterPendingReqPtr;
 
 template<class ARG>
-class AAA_DeliveryRoutingNode : public AAA_RoutingNode
+class DiameterDeliveryRoutingNode : public DiameterRoutingNode
 {
    private:
        
-       class PendingReqCleanup : public AAA_IterAction<AAA_RouterPendingReqPtr> {
+       class PendingReqCleanup : public DiameterIterAction<DiameterRouterPendingReqPtr> {
           public:
-             virtual bool operator()(AAA_RouterPendingReqPtr &r) {
+             virtual bool operator()(DiameterRouterPendingReqPtr &r) {
                 delete r;
                 return true;
              }
        };
 
        template<class THRESHOLD>
-       class PendingReqReTxCheck : public AAA_IterAction<AAA_RouterPendingReqPtr> {
+       class PendingReqReTxCheck : public DiameterIterAction<DiameterRouterPendingReqPtr> {
           public:
              PendingReqReTxCheck(THRESHOLD thold,
-                AAA_Action<AAA_RouterPendingReqPtr> &act) :
+                AAA_Action<DiameterRouterPendingReqPtr> &act) :
                 m_Threshold(thold),
                 m_Action(act) {
              }
-             virtual bool operator()(AAA_RouterPendingReqPtr &r) {
+             virtual bool operator()(DiameterRouterPendingReqPtr &r) {
                 if (match(r)) {
-                    if (r->m_ReTxCount < AAA_CFG_TRANSPORT()->retx_max_count) {
+                    if (r->m_ReTxCount < DIAMETER_CFG_TRANSPORT()->retx_max_count) {
                         r->m_ReTxCount++;
                         m_Action(r);
                     }
@@ -163,75 +163,75 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
                 }
                 return (false);
              }
-             virtual bool match(AAA_RouterPendingReqPtr &r) = 0;
+             virtual bool match(DiameterRouterPendingReqPtr &r) = 0;
           protected:
              THRESHOLD m_Threshold;
-             AAA_Action<AAA_RouterPendingReqPtr> &m_Action;
+             AAA_Action<DiameterRouterPendingReqPtr> &m_Action;
        };
 
        class PendingReqAgeCheck : public PendingReqReTxCheck<ACE_Time_Value> {
           public:
              PendingReqAgeCheck(ACE_Time_Value thold,
-                AAA_Action<AAA_RouterPendingReqPtr> &act) :
+                AAA_Action<DiameterRouterPendingReqPtr> &act) :
                 PendingReqReTxCheck<ACE_Time_Value>(thold, act) {
              }
-             virtual bool match(AAA_RouterPendingReqPtr &r) {
+             virtual bool match(DiameterRouterPendingReqPtr &r) {
                 return (r->m_ReTxExpireTime < 
                         PendingReqReTxCheck<ACE_Time_Value>::m_Threshold);
              }
        };
        
-       class PendingReqPeerCheck : public PendingReqReTxCheck<AAA_PeerEntry*> {
+       class PendingReqPeerCheck : public PendingReqReTxCheck<DiameterPeerEntry*> {
           public:
-             PendingReqPeerCheck(AAA_PeerEntry *peer,
-                AAA_Action<AAA_RouterPendingReqPtr> &act) :
-                PendingReqReTxCheck<AAA_PeerEntry*>(peer, act) {
+             PendingReqPeerCheck(DiameterPeerEntry *peer,
+                AAA_Action<DiameterRouterPendingReqPtr> &act) :
+                PendingReqReTxCheck<DiameterPeerEntry*>(peer, act) {
              }
-             virtual bool match(AAA_RouterPendingReqPtr &r) {
+             virtual bool match(DiameterRouterPendingReqPtr &r) {
                 return (r->m_Dest ==
-                        PendingReqReTxCheck<AAA_PeerEntry*>::m_Threshold);
+                        PendingReqReTxCheck<DiameterPeerEntry*>::m_Threshold);
              }
        };
        
    public:       
        virtual int RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                              AAA_PeerEntry *source,
-                              AAA_PeerEntry *dest) = 0;
-       int AnswerMsg(std::auto_ptr<DiameterMsg> msg, AAA_PeerEntry *source) {
+                              DiameterPeerEntry *source,
+                              DiameterPeerEntry *dest) = 0;
+       int AnswerMsg(std::auto_ptr<DiameterMsg> msg, DiameterPeerEntry *source) {
            return (Route(msg, source) == AAA_ROUTE_RESULT_SUCCESS) ?
                0 : (-1);
        }
        ARG &Arg() { 
            return m_Arg; 
        }       
-       void ReTransmitCheck(AAA_PeerEntry *peer, 
-                            AAA_Action<AAA_RouterPendingReqPtr> &act) {
+       void ReTransmitCheck(DiameterPeerEntry *peer, 
+                            AAA_Action<DiameterRouterPendingReqPtr> &act) {
            PendingReqPeerCheck peerCheck(peer, act);
            m_ReqMap.Iterate(peerCheck);
        }
        void ReTransmitCheck(ACE_Time_Value &current,
-                            AAA_Action<AAA_RouterPendingReqPtr> &act) {
+                            AAA_Action<DiameterRouterPendingReqPtr> &act) {
            PendingReqAgeCheck ageCheck(current, act);
            m_ReqMap.Iterate(ageCheck);
        }
    protected:
-       AAA_DeliveryRoutingNode(ARG &a,
-                               AAA_RoutingNode *next = NULL,
+       DiameterDeliveryRoutingNode(ARG &a,
+                               DiameterRoutingNode *next = NULL,
                                char *name = "") :
-           AAA_RoutingNode(next, name),
+           DiameterRoutingNode(next, name),
            m_Arg(a) {
        }
-       virtual ~AAA_DeliveryRoutingNode() {
+       virtual ~DiameterDeliveryRoutingNode() {
            Clear();
        }
        
        int Add(int localh2h,
                std::auto_ptr<DiameterMsg> &msg,
-               AAA_PeerEntry *source,
-               AAA_PeerEntry *dest) {
-           AAA_RouterPendingReqPtr r = new AAA_RouterPendingReq;
+               DiameterPeerEntry *source,
+               DiameterPeerEntry *dest) {
+           DiameterRouterPendingReqPtr r = new DiameterRouterPendingReq;
            if (r) {
-               ACE_Time_Value expire(AAA_CFG_TRANSPORT()->retx_interval, 0);
+               ACE_Time_Value expire(DIAMETER_CFG_TRANSPORT()->retx_interval, 0);
                r->m_ReTxExpireTime = ACE_OS::gettimeofday() + expire;
                r->m_OrigHH = msg->hdr.hh;
                r->m_Source = source;
@@ -242,8 +242,8 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
            }
            return (-1);
        }
-       AAA_RouterPendingReqPtr Lookup(int h2hId) {
-           AAA_RouterPendingReqPtr r = NULL;
+       DiameterRouterPendingReqPtr Lookup(int h2hId) {
+           DiameterRouterPendingReqPtr r = NULL;
            m_ReqMap.Lookup(h2hId, r);
            return r;
        }
@@ -257,7 +257,7 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
        }
        int StoreRequestMessage(int h2hId,
                                std::auto_ptr<DiameterMsg> &msg) {
-           AAA_RouterPendingReqPtr r = NULL;
+           DiameterRouterPendingReqPtr r = NULL;
            if (m_ReqMap.Lookup(h2hId, r)) {
                r->m_ReqMessage = msg;              
                return (0);
@@ -265,7 +265,7 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
            return (-1);
        }
        virtual AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &m,
-                                       AAA_PeerEntry *&dest) {
+                                       DiameterPeerEntry *&dest) {
            /*    
               6.2.1.  Processing received Answers
 
@@ -282,7 +282,7 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
               value of the Diameter header's Hop-by-Hop Identifier
               field.
            */
-           AAA_RouterPendingReqPtr r = NULL;
+           DiameterRouterPendingReqPtr r = NULL;
            if (m_ReqMap.Lookup(m->hdr.hh, r)) {
                int localhh = m->hdr.hh;
                dest = r->m_Source;
@@ -297,27 +297,27 @@ class AAA_DeliveryRoutingNode : public AAA_RoutingNode
        ARG &m_Arg;
     
    private:
-       AAA_ProtectedMap<int, AAA_RouterPendingReqPtr> m_ReqMap;
+       DiameterProtectedMap<int, DiameterRouterPendingReqPtr> m_ReqMap;
 };
 
 template<class DELIVERY_NODE, class ARG>
-class AAA_RequestRoutingNode : public AAA_RoutingNode
+class DiameterRequestRoutingNode : public DiameterRoutingNode
 {
    public:
        DELIVERY_NODE &Delivery() {
            return m_DeliveryNode;
        }
    protected:
-       AAA_RequestRoutingNode(ARG &a,
-                              AAA_RoutingNode *next = NULL,
+       DiameterRequestRoutingNode(ARG &a,
+                              DiameterRoutingNode *next = NULL,
                               char *name = "") :
-           AAA_RoutingNode(next, name),
+           DiameterRoutingNode(next, name),
            m_DeliveryNode(a) { }
-       virtual ~AAA_RequestRoutingNode() {
+       virtual ~DiameterRequestRoutingNode() {
        }
        AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
-                                AAA_PeerEntry *source,
-                                AAA_PeerEntry *dest) {
+                                DiameterPeerEntry *source,
+                                DiameterPeerEntry *dest) {
            return (m_DeliveryNode.RequestMsg(msg, source, dest) == 0) ?
                AAA_ROUTE_RESULT_SUCCESS : AAA_ROUTE_RESULT_FAILED;
        }
@@ -325,25 +325,25 @@ class AAA_RequestRoutingNode : public AAA_RoutingNode
        DELIVERY_NODE m_DeliveryNode;
 };
 
-class AAA_RoutingChain
+class DiameterRoutingChain
 {
    public:
-       AAA_RoutingChain() : m_Head(NULL) {
+       DiameterRoutingChain() : m_Head(NULL) {
        }
-       virtual ~AAA_RoutingChain() {
+       virtual ~DiameterRoutingChain() {
        }
        AAA_ROUTE_RESULT Route(std::auto_ptr<DiameterMsg> msg,
-                              AAA_PeerEntry *source) {
+                              DiameterPeerEntry *source) {
            return (m_Head) ? m_Head->Route(msg, source) :
                AAA_ROUTE_RESULT_FAILED;
        }
-       int Add(AAA_RoutingNode *n) {
+       int Add(DiameterRoutingNode *n) {
            if (m_Head == NULL) {
                m_Head = n;
                return (0);
            }
-           AAA_RoutingNode *next = m_Head;
-           AAA_RoutingNode *prev = NULL;
+           DiameterRoutingNode *next = m_Head;
+           DiameterRoutingNode *prev = NULL;
            while (next) {
                prev = next;
                next = next->Next();
@@ -351,8 +351,8 @@ class AAA_RoutingChain
            prev->Next(n);
            return (0);
        }
-       bool Lookup(AAA_RoutingNode *n) {
-           AAA_RoutingNode *next = m_Head;
+       bool Lookup(DiameterRoutingNode *n) {
+           DiameterRoutingNode *next = m_Head;
            while (next) {
                if (next == n) {
                    return (true);
@@ -361,9 +361,9 @@ class AAA_RoutingChain
            }
            return (false);
        }
-       int Remove(AAA_RoutingNode *n) {
-           AAA_RoutingNode *next = m_Head;
-           AAA_RoutingNode *prev = NULL;
+       int Remove(DiameterRoutingNode *n) {
+           DiameterRoutingNode *next = m_Head;
+           DiameterRoutingNode *prev = NULL;
            while (next) {
                if (next == n) {
                    if (prev) {
@@ -385,30 +385,30 @@ class AAA_RoutingChain
        }
 
     private:
-       AAA_RoutingNode *m_Head;
+       DiameterRoutingNode *m_Head;
 };
 
-class AAA_RouterFramework
+class DiameterRouterFramework
 {
     public:
        AAA_ROUTE_RESULT RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                   AAA_PeerEntry *source) {
+                                   DiameterPeerEntry *source) {
            return m_RequestChain.Route(msg, source);
        }
        AAA_ROUTE_RESULT AnswerMsg(std::auto_ptr<DiameterMsg> msg,
-                                  AAA_PeerEntry *source) {
+                                  DiameterPeerEntry *source) {
            return m_DeliveryChain.Route(msg, source);
        }
-       AAA_RoutingChain &Delvery() {
+       DiameterRoutingChain &Delvery() {
            return m_DeliveryChain;
        }
-       AAA_RoutingChain &Request() {
+       DiameterRoutingChain &Request() {
            return m_RequestChain;
        }
     
     protected:
-       AAA_RoutingChain m_DeliveryChain;
-       AAA_RoutingChain m_RequestChain;
+       DiameterRoutingChain m_DeliveryChain;
+       DiameterRoutingChain m_RequestChain;
 };
 
 #endif /* __ROUTE_FRAMEWORK_H__ */

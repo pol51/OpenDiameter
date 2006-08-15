@@ -39,18 +39,18 @@
 static int gReqMsgCount = 0;
 static int gSessionCount = 0;
 
-class AAA_SampleServer : public AAA_ServerAuthSession,
-                         public AAA_SessionMsgMux<AAA_SampleServer>
+class AAA_SampleServer : public DiameterServerAuthSession,
+                         public DiameterSessionMsgMux<AAA_SampleServer>
 {
-        // AAA server session derived from AAA_ServerAuthSession
-        // and an AAA_SessionMsgMux<>. The message mux allows 
+        // AAA server session derived from DiameterServerAuthSession
+        // and an DiameterSessionMsgMux<>. The message mux allows 
         // message delegation to registered message handlers.
         // The server session is the same as in sample_server2.cxx.
     public:
         AAA_SampleServer(AAA_Task &task,
                          diameter_unsigned32_t id) :
-           AAA_ServerAuthSession(task, id),
-           AAA_SessionMsgMux<AAA_SampleServer>(*this) {
+           DiameterServerAuthSession(task, id),
+           DiameterSessionMsgMux<AAA_SampleServer>(*this) {
         }
         virtual void SetAuthSessionState
         (DiameterScholarAttribute<diameter_unsigned32_t> &authState)
@@ -59,7 +59,7 @@ class AAA_SampleServer : public AAA_ServerAuthSession,
             // the auth state. Note that this overrides the 
             // settings in the configuration file or applications 
             // sending an auth session state AVP
-            authState = AAA_SESSION_STATE_MAINTAINED;
+            authState = DIAMETER_SESSION_STATE_MAINTAINED;
         }
         virtual void SetSessionTimeout
         (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
@@ -153,12 +153,12 @@ class AAA_SampleServer : public AAA_ServerAuthSession,
 };
 
 class AAA_SampleServerAction : 
-    public AAA_SessionMsgMuxHandler<AAA_SampleServer>
+    public DiameterSessionMsgMuxHandler<AAA_SampleServer>
 {
         // AAA message multiplex handler. This is a
         // handler class for a specific AAA message.
         // and instance of this class is registered
-        // with an AAA_SessionMsgMux<> object
+        // with an DiameterSessionMsgMux<> object
     public:
         virtual AAAReturnCode AnswerMsg(AAA_SampleServer &server, DiameterMsg &msg) {
             // all answer messages are handled by this function.
@@ -188,11 +188,11 @@ class AAA_SampleServerAction :
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
             DiameterGroupedAvpContainerWidget tunneling(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(AAA_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(AAA_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
@@ -250,8 +250,8 @@ class AAA_SampleServerAction :
 
             DiameterMsgWidget msg(300, false, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
+            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
             DiameterGroupedAvpWidget tunneling("Tunneling");
             DiameterEnumAvpWidget ttype("Tunnel-Type");
             DiameterEnumAvpWidget tmedium("Tunnel-Medium-Type");
@@ -285,7 +285,7 @@ class AAA_SampleServerAction :
 };
 
 class AAA_SampleServerSessionAllocator : 
-    public AAA_ServerSessionFactory
+    public DiameterServerSessionFactory
 {
 	// Server session factory. Unlike AAA clients, server
         // sessions need to be created on demand. This factory
@@ -297,7 +297,7 @@ class AAA_SampleServerSessionAllocator :
     public:
        AAA_SampleServerSessionAllocator(AAA_Task &task,
                                         diameter_unsigned32_t appId) : 
-            AAA_ServerSessionFactory(task, appId) { 
+            DiameterServerSessionFactory(task, appId) { 
        }
        AAA_SampleServer *CreateInstance() {
             // This method is called by the library to ask
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   AAA_Application appCore(task, "config/isp.local.xml");
+   DiameterApplication appCore(task, "config/isp.local.xml");
    AAA_SampleServerSessionAllocator allocator(task, 10000);
    appCore.RegisterServerSessionFactory(allocator);
 

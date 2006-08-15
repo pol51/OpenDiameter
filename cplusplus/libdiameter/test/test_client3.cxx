@@ -39,7 +39,7 @@ static int msgCountPerSession = 5;
 static char *cfgFile = "config/nas1.local.xml";
 
 class AAA_SampleClientAcctRecCollector : 
-    public AAA_ClientAcctRecCollector
+    public DiameterClientAcctRecCollector
 {
     public:
         virtual void GenerateRecord(AAAAvpContainerList &avpList,
@@ -91,8 +91,8 @@ class AAA_SampleClientAcctRecCollector :
 };
 
 class AAA_SampleClientSubSession : 
-    public AAA_ClientAcctSubSession<AAA_SampleClientAcctRecCollector> {
-        // AAA client session derived from AAA_ClientAcctSession.
+    public DiameterClientAcctSubSession<AAA_SampleClientAcctRecCollector> {
+        // AAA client session derived from DiameterClientAcctSession.
         // It provides for all the functionality of a diameter 
         // client accounting session. The ClientAcctSubSession
         // class is a template function that requires a proper
@@ -100,8 +100,8 @@ class AAA_SampleClientSubSession :
         // that the application is responsible for instantiating 
         // this object
     public:
-        AAA_SampleClientSubSession(AAA_ClientAcctSession &parent) :
-            AAA_ClientAcctSubSession<AAA_SampleClientAcctRecCollector>(parent),
+        AAA_SampleClientSubSession(DiameterClientAcctSession &parent) :
+            DiameterClientAcctSubSession<AAA_SampleClientAcctRecCollector>(parent),
             m_HowManyRecProcessed(0) {
         }
         virtual void SetDestinationHost
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   AAA_Application appCore(task);
+   DiameterApplication appCore(task);
    if (appCore.Open(cfgFile) == AAA_ERR_SUCCESS) {
 
        /// Wait for connectivity
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
        /// sub-sessions. The main/parent session has
        /// the Session-Id and each sub session has
        /// an Accounting-Sub-Session-Id
-       AAA_ClientAcctSession parent(task, 20000);
+       DiameterClientAcctSession parent(task, 20000);
        for (int x = 0; x < 5; x ++) {
            // A new sub session id is created for each new sub session
            AAA_SampleClientSubSession subSession(parent);

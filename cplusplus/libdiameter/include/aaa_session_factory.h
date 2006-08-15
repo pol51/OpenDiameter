@@ -37,7 +37,7 @@
 #include "aaa_data_defs.h"
 #include "diameter_api.h"
 
-class AAA_ServerSessionFactoryList
+class DiameterServerSessionFactoryList
 {
     private:
         typedef enum {

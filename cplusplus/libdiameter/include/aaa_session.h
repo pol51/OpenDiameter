@@ -41,7 +41,7 @@
 #include "aaa_session_attributes.h"
 #include "aaa_route_msg_router.h"
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionIO :
+class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionIO :
     public AAA_JobData
 {
     public:
@@ -57,16 +57,16 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionIO :
         /// This fucntion is called by the internal message rx
         virtual void RxError(std::auto_ptr<DiameterMsg> msg) = 0;
 
-        virtual ~AAA_SessionIO() {
+        virtual ~DiameterSessionIO() {
 	}
 };
 
 template<class ATTRIBUTE>
-class AAA_Session : 
-    public AAA_SessionIO
+class DiameterSession : 
+    public DiameterSessionIO
 {
     public:
-        virtual ~AAA_Session() {
+        virtual ~DiameterSession() {
         }
 
         /// This function is used for setting Auth-Session-State 
@@ -155,7 +155,7 @@ class AAA_Session :
         }
 
     protected:
-        AAA_Session(diameter_unsigned32_t appId) {
+        DiameterSession(diameter_unsigned32_t appId) {
            Reset();
            m_Attributes.ApplicationId() = appId;
 	}
@@ -164,11 +164,11 @@ class AAA_Session :
         ATTRIBUTE m_Attributes;
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_AuthSession :
-    public AAA_Session<AAA_AuthSessionAttributes>
+class DIAMETERBASEPROTOCOL_EXPORT DiameterAuthSession :
+    public DiameterSession<DiameterAuthSessionAttributes>
 {
     public:
-        virtual ~AAA_AuthSession() {
+        virtual ~DiameterAuthSession() {
         }
 
         /// This function is used for setting Auth-Session-State 
@@ -218,24 +218,24 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AuthSession :
 
         virtual AAAReturnCode Reset() {
            m_Attributes.AuthSessionState().IsNegotiated() = false;
-           return AAA_Session<AAA_AuthSessionAttributes>::Reset();
+           return DiameterSession<DiameterAuthSessionAttributes>::Reset();
 	}
 
     protected:
-        AAA_AuthSession(diameter_unsigned32_t appId) : 
-		AAA_Session<AAA_AuthSessionAttributes>(appId) {
-           m_Attributes.SessionTimeout() = AAA_CFG_AUTH_SESSION()->sessionTm;
-           m_Attributes.AuthLifetime() = AAA_CFG_AUTH_SESSION()->lifetimeTm;
-           m_Attributes.AuthGrace() = AAA_CFG_AUTH_SESSION()->graceTm;
-           m_Attributes.AuthSessionState() = AAA_CFG_AUTH_SESSION()->stateful;
+        DiameterAuthSession(diameter_unsigned32_t appId) : 
+		DiameterSession<DiameterAuthSessionAttributes>(appId) {
+           m_Attributes.SessionTimeout() = DIAMETER_CFG_AUTH_SESSION()->sessionTm;
+           m_Attributes.AuthLifetime() = DIAMETER_CFG_AUTH_SESSION()->lifetimeTm;
+           m_Attributes.AuthGrace() = DIAMETER_CFG_AUTH_SESSION()->graceTm;
+           m_Attributes.AuthSessionState() = DIAMETER_CFG_AUTH_SESSION()->stateful;
 	}
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSession :
-    public AAA_Session<AAA_AcctSessionAttributes>
+class DIAMETERBASEPROTOCOL_EXPORT DiameterAcctSession :
+    public DiameterSession<DiameterAcctSessionAttributes>
 {
     public:
-        virtual ~AAA_AcctSession() {
+        virtual ~DiameterAcctSession() {
         }
 
         /// This function is used for setting realtime required AVP
@@ -268,12 +268,12 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSession :
         }
 
     protected:
-        AAA_AcctSession(diameter_unsigned32_t appId) :
-		AAA_Session<AAA_AcctSessionAttributes>(appId) {
-           m_Attributes.SessionTimeout() = AAA_CFG_ACCT_SESSION()->sessionTm;
-           m_Attributes.InterimInterval() = AAA_CFG_ACCT_SESSION()->recIntervalTm;
-           m_Attributes.RealtimeRequired() = AAA_CFG_ACCT_SESSION()->realtime;
-           m_Attributes.RecordType() = AAA_ACCT_RECTYPE_EVENT;
+        DiameterAcctSession(diameter_unsigned32_t appId) :
+		DiameterSession<DiameterAcctSessionAttributes>(appId) {
+           m_Attributes.SessionTimeout() = DIAMETER_CFG_ACCT_SESSION()->sessionTm;
+           m_Attributes.InterimInterval() = DIAMETER_CFG_ACCT_SESSION()->recIntervalTm;
+           m_Attributes.RealtimeRequired() = DIAMETER_CFG_ACCT_SESSION()->realtime;
+           m_Attributes.RecordType() = DIAMETER_ACCT_RECTYPE_EVENT;
            m_Attributes.RecordNumber() = 0;
            m_Attributes.BackwardCompatibility() = false;
 	}

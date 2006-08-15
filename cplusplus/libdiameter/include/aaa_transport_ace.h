@@ -47,14 +47,14 @@
 template<class ACE_ACCEPTOR,
          class ACE_CONNECTOR,
          class ACE_STREAM>
-class AAA_ACE_Transport : public AAA_TransportInterface
+class Diameter_ACE_Transport : public DiameterTransportInterface
 {
    public:
-      AAA_ACE_Transport() : m_PendingStream(0) { 
+      Diameter_ACE_Transport() : m_PendingStream(0) { 
       }
-      virtual ~AAA_ACE_Transport() {
+      virtual ~Diameter_ACE_Transport() {
          if (m_PendingStream) {
-             ResetStream((AAA_TransportInterface*&)m_PendingStream);
+             ResetStream((DiameterTransportInterface*&)m_PendingStream);
          }
       }
       int Open() {
@@ -62,7 +62,7 @@ class AAA_ACE_Transport : public AAA_TransportInterface
       }
       int Connect(std::string &hostname, int port) {
          if (! m_PendingStream) {
-             m_PendingStream = new AAA_ACE_Transport
+             m_PendingStream = new Diameter_ACE_Transport
                  <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>;
              ACE_Time_Value tm(0, 0);
              ACE_INET_Addr dest(port, hostname.data());
@@ -72,17 +72,17 @@ class AAA_ACE_Transport : public AAA_TransportInterface
          }
          return (-1);
       }    
-      int Complete(AAA_TransportInterface *&iface) {
+      int Complete(DiameterTransportInterface *&iface) {
          iface = 0; 
          if (m_PendingStream) {
             int rc = m_Connector.complete(m_PendingStream->Stream());
             if (rc == 0) {
                 return HandOverStream(iface, 
-                                (AAA_TransportInterface*&)m_PendingStream);
+                                (DiameterTransportInterface*&)m_PendingStream);
             }
             else {
                 return ((AceAsynchResults(rc) == 0) && (errno != ETIMEDOUT)) ? 0 :
-                        ResetStream((AAA_TransportInterface*&)
+                        ResetStream((DiameterTransportInterface*&)
                                     m_PendingStream);
             }
          }
@@ -90,7 +90,7 @@ class AAA_ACE_Transport : public AAA_TransportInterface
       }
       int Listen(int port) {
          if (! m_PendingStream) {
-             m_PendingStream = new AAA_ACE_Transport
+             m_PendingStream = new Diameter_ACE_Transport
                  <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>;
 #ifdef ACE_HAS_IPV6
              ACE_INET_Addr localAddr(port, "::", AF_INET6); 
@@ -101,18 +101,18 @@ class AAA_ACE_Transport : public AAA_TransportInterface
          }
          return (-1);
       }
-      virtual int Accept(AAA_TransportInterface *&iface) {
+      virtual int Accept(DiameterTransportInterface *&iface) {
          iface = 0;
          if (m_PendingStream) {
             int rc = m_Acceptor.accept(m_PendingStream->Stream());
             if (rc == 0) {
-                HandOverStream(iface, (AAA_TransportInterface*&)
+                HandOverStream(iface, (DiameterTransportInterface*&)
                                     m_PendingStream);
-                m_PendingStream = new AAA_ACE_Transport
+                m_PendingStream = new Diameter_ACE_Transport
                      <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>;
             }
             else if (AceAsynchResults(rc) < 0) {
-                return ResetStream((AAA_TransportInterface*&)
+                return ResetStream((DiameterTransportInterface*&)
                                     m_PendingStream);
             }
             return AceAsynchResults((rc == 0) ? 1 : rc);
@@ -148,7 +148,7 @@ class AAA_ACE_Transport : public AAA_TransportInterface
       ACE_CONNECTOR  m_Connector;
       
       // pending stream
-      AAA_ACE_Transport<ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>*
+      Diameter_ACE_Transport<ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>*
                      m_PendingStream;
 
       // mutext protection for sender
@@ -183,21 +183,21 @@ class AAA_ACE_Transport : public AAA_TransportInterface
          }
          return (rc);
       }
-      int inline ResetStream(AAA_TransportInterface *&stream) {
+      int inline ResetStream(DiameterTransportInterface *&stream) {
          delete stream;
          stream = NULL;
          return (-1);
       }
-      int inline HandOverStream(AAA_TransportInterface *&dest,
-                                AAA_TransportInterface *&src) {
+      int inline HandOverStream(DiameterTransportInterface *&dest,
+                                DiameterTransportInterface *&src) {
          dest = src;
          src = NULL;
          return (1);
       }
 };
 
-class AAA_ACE_TransportAddress :
-    public AAA_TransportAddress<ACE_INET_Addr>
+class Diameter_ACE_TransportAddress :
+    public DiameterTransportAddress<ACE_INET_Addr>
 {
    public:
       virtual int GetLocalAddresses(size_t &count,
@@ -235,10 +235,10 @@ class AAA_ACE_TransportAddress :
       }
 };
 
-class AAA_IO_SigMask : public ACE_Event_Handler
+class Diameter_IO_SigMask : public ACE_Event_Handler
 {
     public:
-       AAA_IO_SigMask() {
+       Diameter_IO_SigMask() {
           m_SigRegistrar.register_handler(SIGPIPE, this);
        }
        virtual int handle_signal(int signo,

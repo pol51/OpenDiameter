@@ -112,8 +112,8 @@
     7 for more detail on error handling.
 */
 
-AAA_ROUTE_RESULT AAA_MsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                AAA_PeerEntry *&dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &msg,
+                                                DiameterPeerEntry *&dest)
 {
     /*
        6.1.4.  Processing Local Requests
@@ -136,11 +136,11 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &msg,
     DiameterIdentityAvpContainerWidget destHost(msg->acl);
     DiameterIdentityAvpContainerWidget destRealm(msg->acl);
 
-    diameter_identity_t *DestHost = destHost.GetAvp(AAA_AVPNAME_DESTHOST);
-    diameter_identity_t *DestRealm = destRealm.GetAvp(AAA_AVPNAME_DESTREALM);
+    diameter_identity_t *DestHost = destHost.GetAvp(DIAMETER_AVPNAME_DESTHOST);
+    diameter_identity_t *DestRealm = destRealm.GetAvp(DIAMETER_AVPNAME_DESTREALM);
 
     if (DestHost) {
-        if (*DestHost == AAA_CFG_TRANSPORT()->identity) {
+        if (*DestHost == DIAMETER_CFG_TRANSPORT()->identity) {
             return (AAA_ROUTE_RESULT_SUCCESS);
         }
 
@@ -149,25 +149,25 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &msg,
         // next chain
     }
     else if (DestRealm) {
-        if (*DestRealm == AAA_CFG_TRANSPORT()->realm) {
-            AAA_ApplicationIdLst *idList[] = {
-                &AAA_CFG_GENERAL()->supportedVendorIdLst,
-                &AAA_CFG_GENERAL()->authAppIdLst,
-                &AAA_CFG_GENERAL()->acctAppIdLst
+        if (*DestRealm == DIAMETER_CFG_TRANSPORT()->realm) {
+            DiameterApplicationIdLst *idList[] = {
+                &DIAMETER_CFG_GENERAL()->supportedVendorIdLst,
+                &DIAMETER_CFG_GENERAL()->authAppIdLst,
+                &DIAMETER_CFG_GENERAL()->acctAppIdLst
             };
             for (unsigned int i=0;
-                 i<sizeof(idList)/sizeof(AAA_ApplicationIdLst*);
+                 i<sizeof(idList)/sizeof(DiameterApplicationIdLst*);
                  i++) {
-                AAA_ApplicationIdLst::iterator x = idList[i]->begin();
+                DiameterApplicationIdLst::iterator x = idList[i]->begin();
                 for (; x != idList[i]->end(); x++) {
                     if (*x == msg->hdr.appId) {
                         return (AAA_ROUTE_RESULT_SUCCESS);
                     }
                 }
             }
-            AAA_VendorSpecificIdLst::iterator y =
-                AAA_CFG_GENERAL()->vendorSpecificId.begin();
-            for (; y != AAA_CFG_GENERAL()->vendorSpecificId.end();
+            DiameterVendorSpecificIdLst::iterator y =
+                DIAMETER_CFG_GENERAL()->vendorSpecificId.begin();
+            for (; y != DIAMETER_CFG_GENERAL()->vendorSpecificId.end();
                  y++) {
                 if (((*y).authAppId == msg->hdr.appId) ||
                     ((*y).acctAppId == msg->hdr.appId)) {
@@ -186,8 +186,8 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &msg,
     return (AAA_ROUTE_RESULT_NEXT_CHAIN);
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                    AAA_PeerEntry *&dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMsg> &msg,
+                                                    DiameterPeerEntry *&dest)
 {
     /*
        6.1.5.  Request Forwarding
@@ -201,10 +201,10 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMsg> &
         be forwarded to the peer.
     */
     DiameterIdentityAvpContainerWidget destHost(msg->acl);
-    diameter_identity_t *DestHost = destHost.GetAvp(AAA_AVPNAME_DESTHOST);
+    diameter_identity_t *DestHost = destHost.GetAvp(DIAMETER_AVPNAME_DESTHOST);
     
     if (DestHost) {
-        AAA_PeerEntry *peer = AAA_PEER_TABLE()->Lookup(*DestHost);
+        DiameterPeerEntry *peer = DIAMETER_PEER_TABLE()->Lookup(*DestHost);
         if (peer) {
             if (peer->IsOpen()) {
                 dest = peer;
@@ -219,8 +219,8 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMsg> &
     return (AAA_ROUTE_RESULT_NEXT_CHAIN);
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                 AAA_PeerEntry *&dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg,
+                                                 DiameterPeerEntry *&dest)
 {
     /*
        6.1.6.  Request Routing
@@ -244,11 +244,11 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg
     try {
         diameter_identity_t DestRealm;
         DiameterIdentityAvpContainerWidget destRealm(msg->acl);
-        diameter_identity_t *LookupRealm = destRealm.GetAvp(AAA_AVPNAME_DESTREALM);
+        diameter_identity_t *LookupRealm = destRealm.GetAvp(DIAMETER_AVPNAME_DESTREALM);
         
         if (! LookupRealm) {
             DiameterUtf8AvpContainerWidget username(msg->acl);
-            diameter_utf8string_t *UserName = username.GetAvp(AAA_AVPNAME_USERNAME);
+            diameter_utf8string_t *UserName = username.GetAvp(DIAMETER_AVPNAME_USERNAME);
             if (! UserName) {
                 AAA_LOG(LM_INFO, "(%P|%t) Can't determin DestRealm during realm routing\n");
                 throw (0);
@@ -259,7 +259,7 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg
             DestRealm.assign(LookupRealm->data(), LookupRealm->length());
         }
         
-        AAA_RouteEntry *route = AAA_ROUTE_TABLE()->Lookup(DestRealm);
+        DiameterRouteEntry *route = DIAMETER_ROUTE_TABLE()->Lookup(DestRealm);
         if (route == NULL) {
             AAA_LOG(LM_INFO, "(%P|%t) DestRealm(%s) not in routing table\n",
                     DestRealm.data());
@@ -267,12 +267,12 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg
         }
 
         // look in the header first, base protocol only
-        AAA_RouteApplication *app = route->Lookup(msg->hdr.appId, 0);
+        DiameterRouteApplication *app = route->Lookup(msg->hdr.appId, 0);
         if (app == NULL) {
 
             diameter_unsigned32_t *idPtr = NULL;
-            char *avpNames[] = { AAA_AVPNAME_AUTHAPPID,
-                                 AAA_AVPNAME_ACCTAPPID };
+            char *avpNames[] = { DIAMETER_AVPNAME_AUTHAPPID,
+                                 DIAMETER_AVPNAME_ACCTAPPID };
             DiameterUInt32AvpContainerWidget id(msg->acl);
             for (unsigned int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
                 if ((idPtr = id.GetAvp(avpNames[i]))) {
@@ -286,18 +286,18 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg
             else {
                 DiameterGroupedAvpContainerWidget vendorSpecificId(msg->acl);
                 diameter_grouped_t *grouped = vendorSpecificId.GetAvp
-                    (AAA_AVPNAME_VENDORAPPID);
+                    (DIAMETER_AVPNAME_VENDORAPPID);
                 if (grouped) {
-                    AAA_ApplicationIdLst vendorIdLst;
+                    DiameterApplicationIdLst vendorIdLst;
                     DiameterUInt32AvpContainerWidget gVendorId(*grouped);
-                    diameter_unsigned32_t *value = gVendorId.GetAvp(AAA_AVPNAME_VENDORID);
+                    diameter_unsigned32_t *value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
                     for (int p=1; value; p++) {
                         vendorIdLst.push_back(*value);
-                        value = gVendorId.GetAvp(AAA_AVPNAME_VENDORID, p);
+                        value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID, p);
                     }
           
-                    char *avpNames[] = { AAA_AVPNAME_AUTHAPPID,
-                                         AAA_AVPNAME_ACCTAPPID };
+                    char *avpNames[] = { DIAMETER_AVPNAME_AUTHAPPID,
+                                         DIAMETER_AVPNAME_ACCTAPPID };
                     DiameterUInt32AvpContainerWidget gId(*grouped);
                     for (unsigned int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
                         if ((value = gId.GetAvp(avpNames[i]))) {
@@ -306,7 +306,7 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg
                     }
 
                     if (value) {
-                        AAA_ApplicationIdLst::iterator i = vendorIdLst.begin();
+                        DiameterApplicationIdLst::iterator i = vendorIdLst.begin();
                         for (; (app == NULL) && (i != vendorIdLst.end()); i++) {
                             if ((app = route->Lookup(*value, *i))) {
                                 break;
@@ -319,10 +319,10 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg
         
         if (app) {
             // get the first available/open peer
-            AAA_PeerEntry *peer = NULL;
-            AAA_RouteServerEntry *server = app->Servers().First();
+            DiameterPeerEntry *peer = NULL;
+            DiameterRouteServerEntry *server = app->Servers().First();
             while (server) {
-                peer = AAA_PEER_TABLE()->Lookup(server->Server());
+                peer = DIAMETER_PEER_TABLE()->Lookup(server->Server());
                 if (peer && peer->IsOpen()) {
                     dest = peer;
                     return (AAA_ROUTE_RESULT_SUCCESS);
@@ -343,8 +343,8 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg
     return (AAA_ROUTE_RESULT_NEXT_CHAIN);
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::RcRejected::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                   AAA_PeerEntry *&dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::RcRejected::Lookup(std::auto_ptr<DiameterMsg> &msg,
+                                                   DiameterPeerEntry *&dest)
 {
     /*
        6.1.  Diameter Request Routing Overview
@@ -359,9 +359,9 @@ AAA_ROUTE_RESULT AAA_MsgRouter::RcRejected::Lookup(std::auto_ptr<DiameterMsg> &m
     return (AAA_ROUTE_RESULT_SUCCESS);
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::DcLocal::Process(std::auto_ptr<DiameterMsg> msg,
-                                                 AAA_PeerEntry *source,
-                                                 AAA_PeerEntry *dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::DcLocal::Process(std::auto_ptr<DiameterMsg> msg,
+                                                 DiameterPeerEntry *source,
+                                                 DiameterPeerEntry *dest)
 {
     if (m_Arg.m_RedirectAgent.IsRedirected(msg)) {
         return (m_Arg.m_RedirectAgent.Answer(msg, source, dest) == 0) ?
@@ -377,15 +377,15 @@ AAA_ROUTE_RESULT AAA_MsgRouter::DcLocal::Process(std::auto_ptr<DiameterMsg> msg,
     }
     else {
         // original request must have been locally generated
-        m_Arg[AAA_MsgRouterHandlerTable::H_LOCAL]->
+        m_Arg[DiameterMsgRouterHandlerTable::H_LOCAL]->
             Answer(msg, source, dest);
     }
     return (AAA_ROUTE_RESULT_SUCCESS);
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::DcLocal::ErrorHandling(std::auto_ptr<DiameterMsg> msg,
-                                                      AAA_PeerEntry *source,
-                                                      AAA_PeerEntry *dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::DcLocal::ErrorHandling(std::auto_ptr<DiameterMsg> msg,
+                                                      DiameterPeerEntry *source,
+                                                      DiameterPeerEntry *dest)
 {
     /*
       Result-Code AVP values that are used to report protocol errors MUST
@@ -428,7 +428,7 @@ AAA_ROUTE_RESULT AAA_MsgRouter::DcLocal::ErrorHandling(std::auto_ptr<DiameterMsg
            }
            else {
                // original request must have been locally generated
-               m_Arg[AAA_MsgRouterHandlerTable::H_ERROR]->
+               m_Arg[DiameterMsgRouterHandlerTable::H_ERROR]->
                   Answer(msg, source, dest);
           }
           break;
@@ -436,13 +436,13 @@ AAA_ROUTE_RESULT AAA_MsgRouter::DcLocal::ErrorHandling(std::auto_ptr<DiameterMsg
     return (AAA_ROUTE_RESULT_SUCCESS);
 }
 
-int AAA_MsgRouter::DcLocal::RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                       AAA_PeerEntry *source,
-                                       AAA_PeerEntry *dest)
+int DiameterMsgRouter::DcLocal::RequestMsg(std::auto_ptr<DiameterMsg> msg,
+                                       DiameterPeerEntry *source,
+                                       DiameterPeerEntry *dest)
 {
     if (source) {
         Add(msg->hdr.hh, msg, source, dest);
-        m_Arg[AAA_MsgRouterHandlerTable::H_LOCAL]->
+        m_Arg[DiameterMsgRouterHandlerTable::H_LOCAL]->
             Request(msg, source, dest);
     }
     else {
@@ -452,14 +452,14 @@ int AAA_MsgRouter::DcLocal::RequestMsg(std::auto_ptr<DiameterMsg> msg,
     return (0);
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::DcForward::Process(std::auto_ptr<DiameterMsg> msg,
-                                                   AAA_PeerEntry *source,
-                                                   AAA_PeerEntry *dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::DcForward::Process(std::auto_ptr<DiameterMsg> msg,
+                                                   DiameterPeerEntry *source,
+                                                   DiameterPeerEntry *dest)
 {
     return m_Arg.m_rcLocal.Delivery().Process(msg, source, dest);
 }
 
-int AAA_MsgRouter::DcForward::LoopDetection(std::auto_ptr<DiameterMsg> &msg)
+int DiameterMsgRouter::DcForward::LoopDetection(std::auto_ptr<DiameterMsg> &msg)
 {
     /*
       A relay or proxy agent MUST check for forwarding loops when receiving
@@ -468,9 +468,9 @@ int AAA_MsgRouter::DcForward::LoopDetection(std::auto_ptr<DiameterMsg> &msg)
       with the Result-Code AVP set to AAA_LOOP_DETECTED.
     */
     DiameterIdentityAvpContainerWidget rrecord(msg->acl);
-    diameter_identity_t *rteRec = rrecord.GetAvp(AAA_AVPNAME_ROUTERECORD);
+    diameter_identity_t *rteRec = rrecord.GetAvp(DIAMETER_AVPNAME_ROUTERECORD);
     for (int p=1; rteRec; p++) {
-        if (*rteRec == (AAA_CFG_TRANSPORT()->identity)) {
+        if (*rteRec == (DIAMETER_CFG_TRANSPORT()->identity)) {
             // send back answer
             msg->hdr.flags.r = 0;
             DiameterMsgResultCode rcode(*msg);
@@ -478,14 +478,14 @@ int AAA_MsgRouter::DcForward::LoopDetection(std::auto_ptr<DiameterMsg> &msg)
             AAA_LOG(LM_INFO, "(%P|%t) !!! WARNING !!!: Route record shows a loop in the message, sending back with error\n");
             return (0);
         }
-        rteRec = rrecord.GetAvp(AAA_AVPNAME_ROUTERECORD, p);
+        rteRec = rrecord.GetAvp(DIAMETER_AVPNAME_ROUTERECORD, p);
     }
     return (-1);
 }
 
-int AAA_MsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                         AAA_PeerEntry *source,
-                                         AAA_PeerEntry *dest)
+int DiameterMsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
+                                         DiameterPeerEntry *source,
+                                         DiameterPeerEntry *dest)
 {
     if (LoopDetection(msg) == 0) {
         if (source) {
@@ -493,7 +493,7 @@ int AAA_MsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
         }
         else {
             // request must have been locally generated
-            m_Arg[AAA_MsgRouterHandlerTable::H_ERROR]->
+            m_Arg[DiameterMsgRouterHandlerTable::H_ERROR]->
                 Request(msg, source, dest);
             return (-1);
         }
@@ -512,17 +512,17 @@ int AAA_MsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
      */
     int h2hIndex, rcode;
     if (source) {
-        int localHH = AAA_HOPBYHOP_GEN()->Get();
+        int localHH = DIAMETER_HOPBYHOP_GEN()->Get();
         h2hIndex = Add(localHH, msg, source, dest);
         msg->hdr.hh = localHH;
     }
     else {
         // locally generated
         if (msg->hdr.hh == 0) {
-            msg->hdr.hh = AAA_HOPBYHOP_GEN()->Get();
+            msg->hdr.hh = DIAMETER_HOPBYHOP_GEN()->Get();
         }
         if (msg->hdr.ee == 0){
-            msg->hdr.ee = AAA_ENDTOEND_GEN()->Get();
+            msg->hdr.ee = DIAMETER_ENDTOEND_GEN()->Get();
         }
         h2hIndex = Add(msg->hdr.hh, msg, source, dest);
     }
@@ -534,9 +534,9 @@ int AAA_MsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
     return rcode;
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::DcRouted::Process(std::auto_ptr<DiameterMsg> msg,
-                                                  AAA_PeerEntry *source,
-                                                  AAA_PeerEntry *dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::DcRouted::Process(std::auto_ptr<DiameterMsg> msg,
+                                                  DiameterPeerEntry *source,
+                                                  DiameterPeerEntry *dest)
 {
     /*
       6.2.2.  Relaying and Proxying Answers
@@ -570,13 +570,13 @@ AAA_ROUTE_RESULT AAA_MsgRouter::DcRouted::Process(std::auto_ptr<DiameterMsg> msg
     AAA_ROUTE_RESULT result = AAA_ROUTE_RESULT_SUCCESS;
     if (! dest) {
         // original request must have been locally generated
-        AAA_MsgRouterHandlerTable::H_TYPE type = (msg->hdr.flags.e) ? 
-             AAA_MsgRouterHandlerTable::H_ERROR : AAA_MsgRouterHandlerTable::H_LOCAL;
+        DiameterMsgRouterHandlerTable::H_TYPE type = (msg->hdr.flags.e) ? 
+             DiameterMsgRouterHandlerTable::H_ERROR : DiameterMsgRouterHandlerTable::H_LOCAL;
         m_Arg[type]->Answer(msg, source, dest);
     }
     else {
-        AAA_MsgRouterHandlerTable::H_TYPE type = (msg->hdr.flags.e) ? 
-             AAA_MsgRouterHandlerTable::H_ERROR : AAA_MsgRouterHandlerTable::H_PROXY;
+        DiameterMsgRouterHandlerTable::H_TYPE type = (msg->hdr.flags.e) ? 
+             DiameterMsgRouterHandlerTable::H_ERROR : DiameterMsgRouterHandlerTable::H_PROXY;
         m_Arg[type]->Answer(msg, source, dest);
         result = (dest->Send(msg) >= 0) ? AAA_ROUTE_RESULT_SUCCESS :
                AAA_ROUTE_RESULT_FAILED;
@@ -584,26 +584,26 @@ AAA_ROUTE_RESULT AAA_MsgRouter::DcRouted::Process(std::auto_ptr<DiameterMsg> msg
     return result;
 }
 
-int AAA_MsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                        AAA_PeerEntry *source,
-                                        AAA_PeerEntry *dest)
+int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
+                                        DiameterPeerEntry *source,
+                                        DiameterPeerEntry *dest)
 {
     DiameterIdentityAvpContainerWidget originHost(msg->acl);
     DiameterIdentityAvpContainerWidget destRealm(msg->acl);
-    diameter_identity_t *DestRealm = destRealm.GetAvp(AAA_AVPNAME_DESTREALM);
+    diameter_identity_t *DestRealm = destRealm.GetAvp(DIAMETER_AVPNAME_DESTREALM);
     if (! DestRealm) {
         throw (0);
     }
     
-    AAA_RouteEntry *route = AAA_ROUTE_TABLE()->Lookup(*DestRealm);
+    DiameterRouteEntry *route = DIAMETER_ROUTE_TABLE()->Lookup(*DestRealm);
     if (route == NULL) {
         throw (0);
     }
 
-    if (route->Action() == AAA_ROUTE_ACTION_LOCAL) {
+    if (route->Action() == DIAMETER_ROUTE_ACTION_LOCAL) {
         return m_Arg.m_rcLocal.Delivery().RequestMsg(msg, source, dest);
     }
-    else if (route->Action() == AAA_ROUTE_ACTION_REDIRECT) {
+    else if (route->Action() == DIAMETER_ROUTE_ACTION_REDIRECT) {
         return m_Arg.m_RedirectAgent.Request(msg, source, dest);
     }
     else {
@@ -647,20 +647,20 @@ int AAA_MsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 
                         Figure 6: Routing of Diameter messages
         */
-        diameter_identity_t *oHost = originHost.GetAvp(AAA_AVPNAME_ORIGINHOST);
-        if (! oHost || ((*oHost) != AAA_CFG_TRANSPORT()->identity)) {
+        diameter_identity_t *oHost = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+        if (! oHost || ((*oHost) != DIAMETER_CFG_TRANSPORT()->identity)) {
 
             if (m_Arg.m_rcForward.Delivery().LoopDetection(msg) == 0) {
                 return (source->Send(msg) >= 0) ? 0 : (-1);
             }
 
-            DiameterIdentityAvpWidget rrecord(AAA_AVPNAME_ROUTERECORD);
-            rrecord.Get() = AAA_CFG_TRANSPORT()->identity;
+            DiameterIdentityAvpWidget rrecord(DIAMETER_AVPNAME_ROUTERECORD);
+            rrecord.Get() = DIAMETER_CFG_TRANSPORT()->identity;
             msg->acl.add(rrecord());
         }
 
-        if (route->Action() == AAA_ROUTE_ACTION_PROXY) {
-            if (m_Arg[AAA_MsgRouterHandlerTable::H_PROXY]->
+        if (route->Action() == DIAMETER_ROUTE_ACTION_PROXY) {
+            if (m_Arg[DiameterMsgRouterHandlerTable::H_PROXY]->
                     Request(msg, source, dest) != 0) {
                 // Proxy has enforced a policy. 
                 // Message will not be sent.
@@ -681,17 +681,17 @@ int AAA_MsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
          */
         int h2hIndex, rcode;
         if (source) {
-            int localHH = AAA_HOPBYHOP_GEN()->Get();
+            int localHH = DIAMETER_HOPBYHOP_GEN()->Get();
             h2hIndex = Add(localHH, msg, source, dest);
             msg->hdr.hh = localHH;
         }
         else {
             // locally generated
             if (msg->hdr.hh == 0) {
-                msg->hdr.hh = AAA_HOPBYHOP_GEN()->Get();
+                msg->hdr.hh = DIAMETER_HOPBYHOP_GEN()->Get();
             }
             if (msg->hdr.ee == 0) {
-                msg->hdr.ee = AAA_ENDTOEND_GEN()->Get();
+                msg->hdr.ee = DIAMETER_ENDTOEND_GEN()->Get();
             }
             h2hIndex = Add(msg->hdr.hh, msg, source, dest);
         }
@@ -705,9 +705,9 @@ int AAA_MsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
     return (0);
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::DcReject::Process(std::auto_ptr<DiameterMsg> msg,
-                                                  AAA_PeerEntry *source,
-                                                  AAA_PeerEntry *dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::DcReject::Process(std::auto_ptr<DiameterMsg> msg,
+                                                  DiameterPeerEntry *source,
+                                                  DiameterPeerEntry *dest)
 {
     /*
        6.2.1.  Processing received Answers
@@ -723,9 +723,9 @@ AAA_ROUTE_RESULT AAA_MsgRouter::DcReject::Process(std::auto_ptr<DiameterMsg> msg
     return (AAA_ROUTE_RESULT_SUCCESS);
 }
 
-int AAA_MsgRouter::DcReject::RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                        AAA_PeerEntry *source,
-                                        AAA_PeerEntry *dest)
+int DiameterMsgRouter::DcReject::RequestMsg(std::auto_ptr<DiameterMsg> msg,
+                                        DiameterPeerEntry *source,
+                                        DiameterPeerEntry *dest)
 {
     /*
        6.1.  Diameter Request Routing Overview
@@ -745,7 +745,7 @@ int AAA_MsgRouter::DcReject::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 
     if (! source) {
         // request must have been locally generated
-        m_Arg[AAA_MsgRouterHandlerTable::H_ERROR]->
+        m_Arg[DiameterMsgRouterHandlerTable::H_ERROR]->
                 Request(msg, source, dest);
         return (0);
     }
@@ -754,8 +754,8 @@ int AAA_MsgRouter::DcReject::RequestMsg(std::auto_ptr<DiameterMsg> msg,
     }
 }
 
-AAA_ROUTE_RESULT AAA_MsgRouter::DcReject::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                 AAA_PeerEntry *&dest)
+AAA_ROUTE_RESULT DiameterMsgRouter::DcReject::Lookup(std::auto_ptr<DiameterMsg> &msg,
+                                                 DiameterPeerEntry *&dest)
 {
     /*
        6.2.1.  Processing received Answers
@@ -769,9 +769,9 @@ AAA_ROUTE_RESULT AAA_MsgRouter::DcReject::Lookup(std::auto_ptr<DiameterMsg> &msg
     return (AAA_ROUTE_RESULT_SUCCESS);
 }
 
-int AAA_MsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
-                                          AAA_PeerEntry *source,
-                                          AAA_PeerEntry *dest)
+int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
+                                          DiameterPeerEntry *source,
+                                          DiameterPeerEntry *dest)
 {
     /*
       6.1.7.  Redirecting requests
@@ -812,13 +812,13 @@ int AAA_MsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
        the destination of the redirected message.
     */
     DiameterIdentityAvpContainerWidget destRealm(msg->acl);
-    diameter_identity_t *DestRealm = destRealm.GetAvp(AAA_AVPNAME_DESTREALM);
-    AAA_RouteEntry *route = AAA_ROUTE_TABLE()->Lookup(*DestRealm);
+    diameter_identity_t *DestRealm = destRealm.GetAvp(DIAMETER_AVPNAME_DESTREALM);
+    DiameterRouteEntry *route = DIAMETER_ROUTE_TABLE()->Lookup(*DestRealm);
 
     try {
         diameter_unsigned32_t *idPtr;
-        char *avpNames[] = { AAA_AVPNAME_AUTHAPPID,
-                             AAA_AVPNAME_ACCTAPPID };
+        char *avpNames[] = { DIAMETER_AVPNAME_AUTHAPPID,
+                             DIAMETER_AVPNAME_ACCTAPPID };
         DiameterUInt32AvpContainerWidget id(msg->acl);
         for (unsigned int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
             if ((idPtr = id.GetAvp(avpNames[i]))) {
@@ -826,25 +826,25 @@ int AAA_MsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
             }
         }
 
-        AAA_RouteApplication *app = NULL;
+        DiameterRouteApplication *app = NULL;
         if (idPtr) {
             app = route->Lookup(*idPtr, 0); // base protocol only
         }
         else {
             DiameterGroupedAvpContainerWidget vendorSpecificId(msg->acl);
             diameter_grouped_t *grouped = vendorSpecificId.GetAvp
-                (AAA_AVPNAME_VENDORAPPID);
+                (DIAMETER_AVPNAME_VENDORAPPID);
             if (grouped) {
-                AAA_ApplicationIdLst vendorIdLst;
+                DiameterApplicationIdLst vendorIdLst;
                 DiameterUInt32AvpContainerWidget gVendorId(*grouped);
-                diameter_unsigned32_t *value = gVendorId.GetAvp(AAA_AVPNAME_VENDORID);
+                diameter_unsigned32_t *value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
                 for (int p=1; value; p++) {
                     vendorIdLst.push_back(*value);
-                    value = gVendorId.GetAvp(AAA_AVPNAME_VENDORID, p);
+                    value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID, p);
                 }
           
-                char *avpNames[] = { AAA_AVPNAME_AUTHAPPID,
-                                     AAA_AVPNAME_ACCTAPPID };
+                char *avpNames[] = { DIAMETER_AVPNAME_AUTHAPPID,
+                                     DIAMETER_AVPNAME_ACCTAPPID };
                 DiameterUInt32AvpContainerWidget gId(*grouped);
                 for (unsigned int i=0; i<sizeof(avpNames)/sizeof(char*); i++) {
                     if ((value = gId.GetAvp(avpNames[i]))) {
@@ -853,7 +853,7 @@ int AAA_MsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
                 }
 
                 if (value) {
-                    AAA_ApplicationIdLst::iterator i = vendorIdLst.begin();
+                    DiameterApplicationIdLst::iterator i = vendorIdLst.begin();
                     for (; (app == NULL) && (i != vendorIdLst.end()); i++) {
                         if ((app = route->Lookup(*value, *i))) {
                             break;
@@ -864,14 +864,14 @@ int AAA_MsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
         }
         
         if (app) {
-            DiameterDiamUriAvpWidget redirect(AAA_AVPNAME_REDIRECTHOST);
-            AAA_RouteServerEntry *server = app->Servers().First();
+            DiameterDiamUriAvpWidget redirect(DIAMETER_AVPNAME_REDIRECTHOST);
+            DiameterRouteServerEntry *server = app->Servers().First();
             while (server) {
                 redirect.Get().fqdn = server->Server();
                 server = app->Servers().Next(*server);
             }
             if (! redirect.empty()) {
-                DiameterEnumAvpWidget redirectUsage(AAA_AVPNAME_REDIRECTHOSTUSAGE);
+                DiameterEnumAvpWidget redirectUsage(DIAMETER_AVPNAME_REDIRECTHOSTUSAGE);
                 redirectUsage.Get() = route->RedirectUsage();
                 msg->acl.add(redirect());
                 msg->acl.add(redirectUsage());
@@ -889,9 +889,9 @@ int AAA_MsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
     return (source->Send(msg) >= 0) ? 0 : (-1);
 }
 
-int AAA_MsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
-                                         AAA_PeerEntry *source,
-                                         AAA_PeerEntry *dest)
+int DiameterMsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
+                                         DiameterPeerEntry *source,
+                                         DiameterPeerEntry *dest)
 {
     /*
       2.8.3.  Redirect Agents
@@ -949,19 +949,19 @@ int AAA_MsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
     msg->hdr.flags.e = 0;
 
     DiameterUInt32AvpContainerWidget resultCode(msg->acl);
-    resultCode.DelAvp(AAA_AVPNAME_RESULTCODE);
+    resultCode.DelAvp(DIAMETER_AVPNAME_RESULTCODE);
 
     DiameterUriAvpContainerWidget redirect(msg->acl);
-    diameter_uri_t *RedirectHost = redirect.GetAvp(AAA_AVPNAME_REDIRECTHOST);
+    diameter_uri_t *RedirectHost = redirect.GetAvp(DIAMETER_AVPNAME_REDIRECTHOST);
 
     for (int p=1; RedirectHost; p++) {
-        AAA_PeerEntry *peer = AAA_PEER_TABLE()->Lookup(RedirectHost->fqdn);
+        DiameterPeerEntry *peer = DIAMETER_PEER_TABLE()->Lookup(RedirectHost->fqdn);
         if (peer) {
             if (peer->IsOpen()) {
-                DiameterIdentityAvpWidget destHost(AAA_AVPNAME_DESTHOST);        
+                DiameterIdentityAvpWidget destHost(DIAMETER_AVPNAME_DESTHOST);        
                 destHost.Get() = RedirectHost->fqdn;
                 msg->acl.add(destHost());
-                redirect.DelAvp(AAA_AVPNAME_REDIRECTHOST);
+                redirect.DelAvp(DIAMETER_AVPNAME_REDIRECTHOST);
                 return (peer->Send(msg) >= 0) ? 0 : (-1);
             }
             else {
@@ -972,12 +972,12 @@ int AAA_MsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
             // try to make connection to it [TBD]
         }
         
-        RedirectHost = redirect.GetAvp(AAA_AVPNAME_REDIRECTHOST, p);
+        RedirectHost = redirect.GetAvp(DIAMETER_AVPNAME_REDIRECTHOST, p);
     }
     return (0);
 }
 
-bool AAA_MsgRouter::RedirectAgent::IsRedirected(std::auto_ptr<DiameterMsg> &msg)
+bool DiameterMsgRouter::RedirectAgent::IsRedirected(std::auto_ptr<DiameterMsg> &msg)
 {
     /*
        The receiver of the answer message with the 'E' bit set, and the

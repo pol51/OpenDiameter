@@ -36,9 +36,9 @@
 #include "diameter_api.h"
 
 class AAA_SampleRecStorage : 
-    public AAA_ServerAcctRecStorage
+    public DiameterServerAcctRecStorage
 {
-        // see definition of AAA_ServerAcctRecStorage
+        // see definition of DiameterServerAcctRecStorage
         // in aaa_session_acct_server_fsm.h
     public:
         virtual bool IsSpaceAvailableOnDevice() {
@@ -84,19 +84,19 @@ class AAA_SampleRecStorage :
 };
 
 class AAA_SampleServer : 
-    public AAA_ServerAcctSession<AAA_SampleRecStorage>
+    public DiameterServerAcctSession<AAA_SampleRecStorage>
 {
-        // AAA serve session derived from AAA_ServerAcctSession.
+        // AAA serve session derived from DiameterServerAcctSession.
         // It provides for all the functionality of a diameter 
         // accounting server session. Note that the server 
         // session factory is responsible for instantiating 
-        // this object. AAA_ServerAcctSession is also a template
-        // class that requires an AAA_ServerAcctRecStorage derived
+        // this object. DiameterServerAcctSession is also a template
+        // class that requires an DiameterServerAcctRecStorage derived
         // class as a parameter.
     public:
         AAA_SampleServer(AAA_Task &task,
                          diameter_unsigned32_t id) :
-            AAA_ServerAcctSession<AAA_SampleRecStorage>
+            DiameterServerAcctSession<AAA_SampleRecStorage>
                    (task, 
                     id, 
                     true) // dictates whether this session is stateful 
@@ -108,10 +108,10 @@ class AAA_SampleServer :
         (DiameterScholarAttribute<diameter_enumerated_t> &rt)
         {
             /// The following are possible values:
-            ///   AAA_ACCT_REALTIME_DELIVER_AND_GRANT
+            ///   DIAMETER_ACCT_REALTIME_DELIVER_AND_GRANT
             ///   ACCT_REALTIME_GRANT_AND_STORE
             ///   ACCT_REALTIME_GRANT_AND_LOSE
-            rt = AAA_ACCT_REALTIME_DELIVER_AND_GRANT;
+            rt = DIAMETER_ACCT_REALTIME_DELIVER_AND_GRANT;
         }
         /// This function is used for setting acct interim 
         /// interval AVP dictated by the server to client
@@ -142,7 +142,7 @@ class AAA_SampleServer :
 // sessions need to be created on demand. This factory
 // is responsible for creating new server sessions
 // based on incomming new request.
-typedef AAA_ServerSessionAllocator<AAA_SampleServer> 
+typedef DiameterServerSessionAllocator<AAA_SampleServer> 
         SampleServerAllocator;
 
 int main(int argc, char *argv[])
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   AAA_Application appCore(task, "config/isp.local.xml");
+   DiameterApplication appCore(task, "config/isp.local.xml");
    SampleServerAllocator allocator(task, 20000);
    appCore.RegisterServerSessionFactory(allocator);
 

@@ -38,10 +38,10 @@
 #include "diameter_parser.h"
 
 template<class ARG, class DEBUG>
-class AAA_SessionStateMachine : public AAA_StateMachineWithTimer<ARG>
+class DiameterSessionStateMachine : public AAA_StateMachineWithTimer<ARG>
 {
    public:
-      virtual ~AAA_SessionStateMachine() {
+      virtual ~DiameterSessionStateMachine() {
           AAA_StateMachineWithTimer<ARG>::Stop();
       }    
       AAA_State State() {
@@ -70,7 +70,7 @@ class AAA_SessionStateMachine : public AAA_StateMachineWithTimer<ARG>
          Process(event);
       }
    protected:
-      AAA_SessionStateMachine(AAA_Task &t,
+      DiameterSessionStateMachine(AAA_Task &t,
                               AAA_StateTable<ARG> &table,
                               ARG &arg) :
           AAA_StateMachineWithTimer<ARG>(arg, table, *t.reactor()) {
@@ -87,7 +87,7 @@ class AAA_SessionStateMachine : public AAA_StateMachineWithTimer<ARG>
          try {
              AAA_StateMachineWithTimer<ARG>::Event(ev);
          }
-         catch (AAA_BaseException &err) {
+         catch (DiameterBaseException &err) {
              AAA_LOG(LM_ERROR, "(%P|%t) FSM error[%d]: %s\n",
                         err.Code(), err.Description().data());
          }

@@ -36,12 +36,12 @@
 #include "aaa_session_db.h"
 #include "aaa_log_facility.h"
 
-bool AAA_SessionEntryList::Add(AAA_SessionId &id, 
+bool DiameterSessionEntryList::Add(DiameterSessionId &id, 
                                AAA_JobData &data)
 {
-    AAA_SessionEntry *newEntry = new AAA_SessionEntry(data);
+    DiameterSessionEntry *newEntry = new DiameterSessionEntry(data);
     if (newEntry) {   
-        AAA_SessionCounter nullCounter, *idCounter = &id;
+        DiameterSessionCounter nullCounter, *idCounter = &id;
         if (*idCounter == nullCounter) {
             if (empty()) {
 	        ACE_Time_Value tm = ACE_OS::gettimeofday();
@@ -49,9 +49,9 @@ bool AAA_SessionEntryList::Add(AAA_SessionId &id,
                 newEntry->Low() = tm.usec();
             }
             else {
-                AAA_SessionEntry *lastEntry = front();
+                DiameterSessionEntry *lastEntry = front();
                 *newEntry = *lastEntry;
-                ++ (*((AAA_SessionCounter*)newEntry));
+                ++ (*((DiameterSessionCounter*)newEntry));
             }
             id.High() = newEntry->High();
             id.Low() = newEntry->Low();
@@ -67,23 +67,23 @@ bool AAA_SessionEntryList::Add(AAA_SessionId &id,
     return false;
 }
 
-bool AAA_SessionEntryList::Lookup(AAA_SessionId &id,
+bool DiameterSessionEntryList::Lookup(DiameterSessionId &id,
                                   AAA_JobData *&data)
 {
     for (EntryIterator i = begin(); i != end(); i ++) {
-        AAA_SessionCounter *c = *i;
+        DiameterSessionCounter *c = *i;
         if (*c == id) {
-            data = &(((AAA_SessionEntry*)c)->Data());
+            data = &(((DiameterSessionEntry*)c)->Data());
             return true;
         }
     }
     return false;
 }
 
-bool AAA_SessionEntryList::Remove(AAA_SessionId &id)
+bool DiameterSessionEntryList::Remove(DiameterSessionId &id)
 {
     for (EntryIterator i = begin(); i != end(); i ++) {
-        AAA_SessionCounter *c = *i;
+        DiameterSessionCounter *c = *i;
         if (*c == id) {
             erase(i);
             delete c;
@@ -93,23 +93,23 @@ bool AAA_SessionEntryList::Remove(AAA_SessionId &id)
     return false;
 }
 
-void AAA_SessionEntryList::Flush()
+void DiameterSessionEntryList::Flush()
 {
     while (! empty()) {
-        AAA_SessionEntry *e = front();
+        DiameterSessionEntry *e = front();
         pop_front();
         delete e;
     }
 }
 
-bool AAA_SessionDb::Add(AAA_SessionId &id, AAA_JobData &data)
+bool DiameterSessionDb::Add(DiameterSessionId &id, AAA_JobData &data)
 {
     ACE_Write_Guard<ACE_RW_Mutex> guard(m_rwMutex);
-    AAA_SessionEntryNode searchNode
+    DiameterSessionEntryNode searchNode
         (id.DiameterId(), id.OptionalValue());
     OD_Utl_RbTreeData *node = Find(&searchNode);
     if (node) {
-        AAA_SessionEntryNode *prevNode = (AAA_SessionEntryNode*)node;
+        DiameterSessionEntryNode *prevNode = (DiameterSessionEntryNode*)node;
         AAA_JobData *search;
         if (prevNode->EntryList().Lookup(id, search)) {
             return false;
@@ -117,7 +117,7 @@ bool AAA_SessionDb::Add(AAA_SessionId &id, AAA_JobData &data)
         return prevNode->EntryList().Add(id, data);
     }
     else {
-        AAA_SessionEntryNode *newNode = new AAA_SessionEntryNode
+        DiameterSessionEntryNode *newNode = new DiameterSessionEntryNode
             (id.DiameterId(), id.OptionalValue());
         if (newNode) {
             newNode->EntryList().Add(id, data);
@@ -128,27 +128,27 @@ bool AAA_SessionDb::Add(AAA_SessionId &id, AAA_JobData &data)
     return false;
 }
 
-bool AAA_SessionDb::Lookup(AAA_SessionId &id, AAA_JobData *&data)
+bool DiameterSessionDb::Lookup(DiameterSessionId &id, AAA_JobData *&data)
 {
     ACE_Read_Guard<ACE_RW_Mutex> guard(m_rwMutex);
-    AAA_SessionEntryNode searchNode
+    DiameterSessionEntryNode searchNode
         (id.DiameterId(), id.OptionalValue());
     OD_Utl_RbTreeData *node = Find(&searchNode);
     if (node) {
-        AAA_SessionEntryNode *prevNode = (AAA_SessionEntryNode*)node;
+        DiameterSessionEntryNode *prevNode = (DiameterSessionEntryNode*)node;
         return prevNode->EntryList().Lookup(id, data);
     }
     return false;
 }
 
-bool AAA_SessionDb::Remove(AAA_SessionId &id)
+bool DiameterSessionDb::Remove(DiameterSessionId &id)
 {
     ACE_Write_Guard<ACE_RW_Mutex> guard(m_rwMutex);
-    AAA_SessionEntryNode searchNode
+    DiameterSessionEntryNode searchNode
         (id.DiameterId(), id.OptionalValue());
     OD_Utl_RbTreeData *node = Find(&searchNode);
     if (node) {
-        AAA_SessionEntryNode *prevNode = (AAA_SessionEntryNode*)node;
+        DiameterSessionEntryNode *prevNode = (DiameterSessionEntryNode*)node;
         if (prevNode->EntryList().Remove(id)) {
             if (prevNode->EntryList().empty()) {
                 node = OD_Utl_RbTreeTree::Remove(&searchNode);

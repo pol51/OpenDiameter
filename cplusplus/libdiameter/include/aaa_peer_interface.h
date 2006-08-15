@@ -49,28 +49,28 @@ typedef enum {
 //
 // For backward compatability only
 //
-class AAA_PeerFsmUserEventInterface
+class DiamterPeerFsmUserEventInterface
 {
    public:
       virtual void PeerFsmConnected() = 0;
       virtual void PeerFsmDisconnected(int cause) = 0;
       virtual void PeerFsmError(PFSM_EV_ERR err) = 0;
-      virtual ~AAA_PeerFsmUserEventInterface() { }
+      virtual ~DiamterPeerFsmUserEventInterface() { }
       
       // TBD: Can add more events here when needed
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_Peer : 
-   public AAA_PeerEntry
+class DIAMETERBASEPROTOCOL_EXPORT DiameterPeer :
+   public DiameterPeerEntry
 {
    public:
-      AAA_Peer(AAA_Task &task,
+      DiameterPeer(AAA_Task &task,
                std::string &peername,
                int peerport,
                int tls_enabled,
                int etime,
                bool is_static) :
-          AAA_PeerEntry(task, 
+          DiameterPeerEntry(task, 
                         peername, 
                         peerport,
                         tls_enabled,
@@ -79,7 +79,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_Peer :
           m_EventInterface(NULL) {
       }            
       virtual void RegisterUserEventHandler
-         (AAA_PeerFsmUserEventInterface &handler) {
+         (DiamterPeerFsmUserEventInterface &handler) {
          //
          // For backward compatability only
          //
@@ -118,8 +118,8 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_Peer :
       }
       virtual void PeerFsmDisconnected(int cause) {
 
-         AAA_MSG_ROUTER()->ReTransmitEvent
-            (static_cast<AAA_PeerEntry*>(this));
+         DIAMETER_MSG_ROUTER()->ReTransmitEvent
+            (static_cast<DiameterPeerEntry*>(this));
          
          //
          // For backward compatability only
@@ -132,13 +132,13 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_Peer :
       
    private:
       ACE_Mutex m_EventMtx;
-      AAA_PeerFsmUserEventInterface *m_EventInterface;
+      DiamterPeerFsmUserEventInterface *m_EventInterface;
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerManager
+class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerManager
 {
    public:
-      AAA_PeerManager(AAA_Task &t) :
+      DiameterPeerManager(AAA_Task &t) :
          m_Task(t) {
       }
       bool Add(std::string &peername,
@@ -147,22 +147,22 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerManager
                int etime,
                bool is_static) {
          if (!is_static && (etime == 0)) {
-             etime = AAA_PEER_TABLE()->ExpirationTime();
+             etime = DIAMETER_PEER_TABLE()->ExpirationTime();
          }
-         AAA_Peer *p = new AAA_Peer(m_Task,
+         DiameterPeer *p = new DiameterPeer(m_Task,
                                     peername,
                                     peerport,
                                     tls_enabled,
                                     etime,
                                     is_static);
          if (p) {
-             AAA_PEER_TABLE()->Add(p);
+             DIAMETER_PEER_TABLE()->Add(p);
              return true;
          }
          return false;
       }
       bool Delete(std::string &peername) {
-          AAA_PeerEntry *e = AAA_PEER_TABLE()->Remove(peername);
+          DiameterPeerEntry *e = DIAMETER_PEER_TABLE()->Remove(peername);
           if (e) {
               e->Stop(AAA_DISCONNECT_DONTWANTTOTALK);
               delete e;
@@ -170,57 +170,57 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerManager
           }
           return false;
       }
-      AAA_Peer *Lookup(std::string &peername) {
-          return static_cast<AAA_Peer*>(AAA_PEER_TABLE()->Lookup(peername));
+      DiameterPeer *Lookup(std::string &peername) {
+          return static_cast<DiameterPeer*>(DIAMETER_PEER_TABLE()->Lookup(peername));
       }
 
    private:
       AAA_Task &m_Task;
 };
 
-class AAA_PeerConnector
+class DiameterPeerConnector
 {
    public:
       static inline void Start() {
-          AAA_PeerEntry *e = AAA_PEER_TABLE()->First();
+          DiameterPeerEntry *e = DIAMETER_PEER_TABLE()->First();
           while (e) {
               e->Start();
-              e = AAA_PEER_TABLE()->Next(e);
+              e = DIAMETER_PEER_TABLE()->Next(e);
           }
       }
       static inline int GetNumOpenPeers() {
           int count = 0;
-          AAA_PeerEntry *e = AAA_PEER_TABLE()->First();
+          DiameterPeerEntry *e = DIAMETER_PEER_TABLE()->First();
           while (e) {
               count += (e->IsOpen()) ? 1 : 0;
-              e = AAA_PEER_TABLE()->Next(e);
+              e = DIAMETER_PEER_TABLE()->Next(e);
           }
           return count;
       }
-      static inline void Stop(AAA_DISCONNECT_CAUSE cause) {
-          AAA_PeerEntry *e = AAA_PEER_TABLE()->First();
+      static inline void Stop(DIAMETER_DISCONNECT_CAUSE cause) {
+          DiameterPeerEntry *e = DIAMETER_PEER_TABLE()->First();
           while (e) {
               e->Stop(cause);
-              e = AAA_PEER_TABLE()->Next(e);
+              e = DIAMETER_PEER_TABLE()->Next(e);
           }
       }
 };
 
-class AAA_PeerAcceptor : public AAA_TcpAcceptor,
-                                AAA_TlsAcceptor
+class DiameterPeerAcceptor : public DiameterTcpAcceptor,
+                                DiameterTlsAcceptor
 {
    public:
-      void Start(int ports[AAA_PEER_TTYPE_MAX]) {
-          if (ports[AAA_PEER_TTYPE_TCP] > 0) {
-              AAA_TcpAcceptor::Open(ports[AAA_PEER_TTYPE_TCP]);
+      void Start(int ports[DIAMETER_PEER_TTYPE_MAX]) {
+          if (ports[DIAMETER_PEER_TTYPE_TCP] > 0) {
+              DiameterTcpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_TCP]);
           }
-          if (ports[AAA_PEER_TTYPE_TLS] > 0) {
-              AAA_TlsAcceptor::Open(ports[AAA_PEER_TTYPE_TLS]);
+          if (ports[DIAMETER_PEER_TTYPE_TLS] > 0) {
+              DiameterTlsAcceptor::Open(ports[DIAMETER_PEER_TTYPE_TLS]);
           }
       }
       void Stop() {
-          AAA_TcpAcceptor::Close();
-          AAA_TlsAcceptor::Close();
+          DiameterTcpAcceptor::Close();
+          DiameterTlsAcceptor::Close();
       }
 
    protected:
@@ -253,25 +253,25 @@ class AAA_PeerAcceptor : public AAA_TcpAcceptor,
     */
 
       class PendingResponder :
-         public AAA_MsgCollectorHandler {
+         public DiameterMsgCollectorHandler {
             public:
-               PendingResponder(AAA_PeerAcceptor &a,
-                                std::auto_ptr<AAA_IO_Base> io) :
+               PendingResponder(DiameterPeerAcceptor &a,
+                                std::auto_ptr<Diameter_IO_Base> io) :
                    m_IO(io), m_Acceptor(a) {
-                   AAA_MsgCollector *h = reinterpret_cast<AAA_MsgCollector*>
+                   DiameterMsgCollector *h = reinterpret_cast<DiameterMsgCollector*>
                        (m_IO->Handler());
                    h->RegisterHandler(*this);                   
                }
                virtual ~PendingResponder() {
                }
                void Message(std::auto_ptr<DiameterMsg> msg) {
-                   AAA_MsgQuery query(*msg);
+                   DiameterMsgQuery query(*msg);
                    if (query.IsCapabilities() && query.IsRequest()) {
                        DiameterIdentityAvpContainerWidget c_orhost(msg->acl);
                        diameter_identity_t *ohost = c_orhost.GetAvp
-                           (AAA_AVPNAME_ORIGINHOST);
+                           (DIAMETER_AVPNAME_ORIGINHOST);
                        if (ohost) {
-                         AAA_PeerEntry *e = AAA_PEER_TABLE()->Lookup(*ohost);
+                         DiameterPeerEntry *e = DIAMETER_PEER_TABLE()->Lookup(*ohost);
                          if (e) {
                             std::auto_ptr<PendingResponder> guard(this);
                             m_Acceptor.RemoveFromPendingList(*this);
@@ -292,11 +292,11 @@ class AAA_PeerAcceptor : public AAA_TcpAcceptor,
                          destined to the unknown peer can be discarded.
                       */
                    }
-                   Error(AAA_MsgCollectorHandler::INVALID_MSG,
+                   Error(DiameterMsgCollectorHandler::INVALID_MSG,
                          m_IO->Name());
                }
                void Error(COLLECTOR_ERROR error, std::string &io_name) {
-                   if (error == AAA_MsgCollectorHandler::PARSING_ERROR) {
+                   if (error == DiameterMsgCollectorHandler::PARSING_ERROR) {
                        return; // not considered fatal for now
                    }
                    AAA_LOG(LM_ERROR,
@@ -308,14 +308,14 @@ class AAA_PeerAcceptor : public AAA_TcpAcceptor,
                }
 
             private:
-               std::auto_ptr<AAA_IO_Base> m_IO;
-               AAA_PeerAcceptor &m_Acceptor;
+               std::auto_ptr<Diameter_IO_Base> m_IO;
+               DiameterPeerAcceptor &m_Acceptor;
       };
     
       friend class PendingResponder;
     
-      int Success(AAA_IO_Base *io) {
-          std::auto_ptr<AAA_IO_Base> newIO(io);
+      int Success(Diameter_IO_Base *io) {
+          std::auto_ptr<Diameter_IO_Base> newIO(io);
           PendingResponder *r = new PendingResponder(*this, newIO);
           if (r) {
               AAA_TokenScopeLock guard(m_ResponderToken);

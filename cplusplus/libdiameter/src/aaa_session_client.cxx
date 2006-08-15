@@ -34,14 +34,14 @@
 #include "aaa_session_db.h"
 #include "aaa_session_client.h"
 
-AAA_ClientAuthSession::~AAA_ClientAuthSession()
+DiameterClientAuthSession::~DiameterClientAuthSession()
 {
     if (m_Fsm.IsRunning()) {
        Reset();
     } 
 }
 
-AAAReturnCode AAA_ClientAuthSession::Begin(char *optionValue)
+AAAReturnCode DiameterClientAuthSession::Begin(char *optionValue)
 {
     // re-negotiate the following values
     Attributes().SessionTimeout().IsNegotiated() = false;
@@ -50,7 +50,7 @@ AAAReturnCode AAA_ClientAuthSession::Begin(char *optionValue)
 
     // session lifetime values
     DiameterScholarAttribute<diameter_unsigned32_t> sessTout;
-    sessTout() = AAA_CFG_AUTH_SESSION()->sessionTm;
+    sessTout() = DIAMETER_CFG_AUTH_SESSION()->sessionTm;
     SetSessionTimeout(sessTout);
     if (sessTout.IsSet()) {
         Attributes().SessionTimeout() = sessTout();
@@ -58,7 +58,7 @@ AAAReturnCode AAA_ClientAuthSession::Begin(char *optionValue)
 
     // auth lifetime values
     DiameterScholarAttribute<diameter_unsigned32_t> authLifetime;
-    authLifetime() = AAA_CFG_AUTH_SESSION()->lifetimeTm;
+    authLifetime() = DIAMETER_CFG_AUTH_SESSION()->lifetimeTm;
     SetAuthLifetimeTimeout(authLifetime);
     if (authLifetime.IsSet()) {
         Attributes().AuthLifetime() = authLifetime();
@@ -77,7 +77,7 @@ AAAReturnCode AAA_ClientAuthSession::Begin(char *optionValue)
 
     // grace period values
     DiameterScholarAttribute<diameter_unsigned32_t> gracePeriod;
-    gracePeriod() = AAA_CFG_AUTH_SESSION()->graceTm;
+    gracePeriod() = DIAMETER_CFG_AUTH_SESSION()->graceTm;
     SetAuthGracePeriodTimeout(gracePeriod);
     if (gracePeriod.IsSet()) {
         Attributes().AuthGrace() = gracePeriod();
@@ -87,7 +87,7 @@ AAAReturnCode AAA_ClientAuthSession::Begin(char *optionValue)
     if (! m_Fsm.IsRunning()) {
         // session state values
         DiameterScholarAttribute<diameter_unsigned32_t> authState;
-        authState() = AAA_CFG_AUTH_SESSION()->stateful;
+        authState() = DIAMETER_CFG_AUTH_SESSION()->stateful;
         SetAuthSessionState(authState);
         if (authState.IsSet()) {
             Attributes().AuthSessionState() = authState();
@@ -95,14 +95,14 @@ AAAReturnCode AAA_ClientAuthSession::Begin(char *optionValue)
 
         // assign diameter id
         std::string &id = Attributes().SessionId().DiameterId();
-        id = AAA_CFG_TRANSPORT()->identity + ".";
-        id += AAA_CFG_TRANSPORT()->realm;
+        id = DIAMETER_CFG_TRANSPORT()->identity + ".";
+        id += DIAMETER_CFG_TRANSPORT()->realm;
         if (optionValue) {
             Attributes().SessionId().OptionalValue() = optionValue;
         }
 
         // add to session database
-        AAA_SESSION_DB().Add(Attributes().SessionId(), *this);
+        DIAMETER_SESSION_DB().Add(Attributes().SessionId(), *this);
         Attributes().SessionId().Dump();
 
         // run the fsm
@@ -110,7 +110,7 @@ AAAReturnCode AAA_ClientAuthSession::Begin(char *optionValue)
     }
 
     if (ReStart() == AAA_ERR_SUCCESS) {
-        m_Fsm.Notify(AAA_SESSION_AUTH_EV_REQUEST_ACCESS);
+        m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_REQUEST_ACCESS);
     }
     else {
         m_Fsm.Stop();
@@ -118,30 +118,30 @@ AAAReturnCode AAA_ClientAuthSession::Begin(char *optionValue)
     return (AAA_ERR_SUCCESS);
 }
 
-void AAA_ClientAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg) 
+void DiameterClientAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg) 
 {
     // base protocol request message filters
-    if ((msg->hdr.code == AAA_MSGCODE_ABORTSESSION) &&
-        (Attributes().AuthSessionState() == AAA_SESSION_STATE_MAINTAINED)) {
+    if ((msg->hdr.code == DIAMETER_MSGCODE_ABORTSESSION) &&
+        (Attributes().AuthSessionState() == DIAMETER_SESSION_STATE_MAINTAINED)) {
         m_Fsm.RxASR(*msg);
         if (AbortSession() == AAA_ERR_SUCCESS) {
-            m_Fsm.Notify(AAA_SESSION_AUTH_EV_RX_ASR_OK);
+            m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_RX_ASR_OK);
         }
         else {
-            m_Fsm.Notify(AAA_SESSION_AUTH_EV_RX_ASR_RETRY);
+            m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_RX_ASR_RETRY);
         }
     }
-    else if (msg->hdr.code == AAA_MSGCODE_SESSIONTERMINATION) {
+    else if (msg->hdr.code == DIAMETER_MSGCODE_SESSIONTERMINATION) {
         AAA_LOG(LM_DEBUG,"(%P|%t) *** STR received in client session, discarding\n");
     }
-    else if (msg->hdr.code == AAA_MSGCODE_REAUTH) {
+    else if (msg->hdr.code == DIAMETER_MSGCODE_REAUTH) {
         m_Fsm.RxRAR(*msg);
         DiameterUInt32AvpContainerWidget reAuthTypeAvp(msg->acl);
-        diameter_unsigned32_t *reAuthType = reAuthTypeAvp.GetAvp(AAA_AVPNAME_REAUTHREQTYPE);
+        diameter_unsigned32_t *reAuthType = reAuthTypeAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
         if (reAuthType) {
-           AAA_ReAuthValue value = { 0, *reAuthType };
+           DiameterReAuthValue value = { 0, *reAuthType };
            Attributes().ReAuthRequestValue() = value;
-           m_Fsm.Notify(AAA_SESSION_AUTH_EV_RX_RAR);
+           m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_RX_RAR);
         }
         else {
            AAA_LOG(LM_INFO, "(%P|%t) Re-Auth request received with no re-auth-type\n");
@@ -149,22 +149,22 @@ void AAA_ClientAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
 	}
     }
     else {
-        m_Fsm.Notify(AAA_SESSION_AUTH_EV_RX_SSAR, msg);
+        m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_RX_SSAR, msg);
     }
 }
 
-void AAA_ClientAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg) 
+void DiameterClientAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg) 
 {
     // base protocol answer message filters
-    if (msg->hdr.code == AAA_MSGCODE_SESSIONTERMINATION) {
+    if (msg->hdr.code == DIAMETER_MSGCODE_SESSIONTERMINATION) {
         if (Attributes().AuthSessionState() == 
-            AAA_SESSION_STATE_MAINTAINED) {
+            DIAMETER_SESSION_STATE_MAINTAINED) {
             m_Fsm.RxSTA(*msg);
-            m_Fsm.Notify(AAA_SESSION_AUTH_EV_RX_STA);
+            m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_RX_STA);
         }
         return;
     }
-    else if (msg->hdr.code == AAA_MSGCODE_ABORTSESSION) {
+    else if (msg->hdr.code == DIAMETER_MSGCODE_ABORTSESSION) {
         AAA_LOG(LM_DEBUG,"(%P|%t) *** ASA received in client session, discarding\n");
         return;
     }
@@ -172,7 +172,7 @@ void AAA_ClientAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg)
     if (! Attributes().AuthSessionState().IsNegotiated()) {
         DiameterEnumAvpContainerWidget sessionStateAvp(msg->acl);
         diameter_enumerated_t *state = sessionStateAvp.GetAvp
-            (AAA_AVPNAME_AUTHSESSIONSTATE);
+            (DIAMETER_AVPNAME_AUTHSESSIONSTATE);
         if (state) {
             Attributes().AuthSessionState().Set(*state);
             AAA_LOG(LM_INFO, "(%P|%t) Server dictated session state: %d\n", 
@@ -183,7 +183,7 @@ void AAA_ClientAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg)
     if (! Attributes().SessionTimeout().IsNegotiated()) {
         DiameterUInt32AvpContainerWidget timeoutAvp(msg->acl);
         diameter_unsigned32_t *tout = timeoutAvp.GetAvp
-            (AAA_AVPNAME_SESSIONTIMEOUT);
+            (DIAMETER_AVPNAME_SESSIONTIMEOUT);
         if (tout) {
             Attributes().SessionTimeout().Set(*tout + 10);
             AAA_LOG(LM_INFO, "(%P|%t) Server dictated session timeout: %d\n", 
@@ -194,7 +194,7 @@ void AAA_ClientAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg)
     if (! Attributes().AuthLifetime().IsNegotiated()) {
         DiameterUInt32AvpContainerWidget lifetimeAvp(msg->acl);
         diameter_unsigned32_t *tout = lifetimeAvp.GetAvp
-            (AAA_AVPNAME_AUTHLIFETIME);
+            (DIAMETER_AVPNAME_AUTHLIFETIME);
         if (tout) {
             Attributes().AuthLifetime().Set(*tout);
             AAA_LOG(LM_INFO, "(%P|%t) Server dictated auth lifetime: %d\n", 
@@ -205,7 +205,7 @@ void AAA_ClientAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg)
     if (! Attributes().AuthGrace().IsNegotiated()) {
         DiameterUInt32AvpContainerWidget graceAvp(msg->acl);
         diameter_unsigned32_t *tout = graceAvp.GetAvp
-            (AAA_AVPNAME_AUTHGRACE);
+            (DIAMETER_AVPNAME_AUTHGRACE);
         if (tout) {
             Attributes().AuthGrace().Set(*tout);
             AAA_LOG(LM_INFO, "(%P|%t) Server dictated grace period: %d\n", 
@@ -213,15 +213,15 @@ void AAA_ClientAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg)
         }
     }
 
-    m_Fsm.Notify(AAA_SESSION_AUTH_EV_RX_SSAA, msg);
+    m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_RX_SSAA, msg);
 }
 
-void AAA_ClientAuthSession::RxError(std::auto_ptr<DiameterMsg> msg) 
+void DiameterClientAuthSession::RxError(std::auto_ptr<DiameterMsg> msg) 
 {
     ErrorMsg(*msg);
 }
 
-AAAReturnCode AAA_ClientAuthSession::RxDelivery(std::auto_ptr<DiameterMsg> msg)
+AAAReturnCode DiameterClientAuthSession::RxDelivery(std::auto_ptr<DiameterMsg> msg)
 {
     typedef struct {
         AAAReturnCode m_Rc;
@@ -233,14 +233,14 @@ AAAReturnCode AAA_ClientAuthSession::RxDelivery(std::auto_ptr<DiameterMsg> msg)
     static RxHandler RxHandlerAry[] = {
         { AAA_ERR_INCOMPLETE, 0, 
           0, false, false },
-        { AAA_ERR_SUCCESS, AAA_SESSION_AUTH_EV_SSAA_OK, 
-          AAA_SESSION_AUTH_EV_SSAR_OK, false, true },
-        { AAA_ERR_NOSERVICE, AAA_SESSION_AUTH_EV_SSAA_NOSVC, 
+        { AAA_ERR_SUCCESS, DIAMETER_SESSION_AUTH_EV_SSAA_OK, 
+          DIAMETER_SESSION_AUTH_EV_SSAR_OK, false, true },
+        { AAA_ERR_NOSERVICE, DIAMETER_SESSION_AUTH_EV_SSAA_NOSVC, 
           0, true, false },
-        { AAA_ERR_MSG_UNPROCESSED, AAA_SESSION_AUTH_EV_SSAA_ERROR, 
+        { AAA_ERR_MSG_UNPROCESSED, DIAMETER_SESSION_AUTH_EV_SSAA_ERROR, 
           0, true, false },
-        { AAA_ERR_FAILURE, AAA_SESSION_AUTH_EV_SSAA_FAIL, 
-          AAA_SESSION_AUTH_EV_SSAR_FAIL, false, true }
+        { AAA_ERR_FAILURE, DIAMETER_SESSION_AUTH_EV_SSAA_FAIL, 
+          DIAMETER_SESSION_AUTH_EV_SSAR_FAIL, false, true }
     };
     Attributes().MsgIdRxMessage(*msg);
     AAAReturnCode rc = (msg->hdr.flags.r) ? RequestMsg(*msg) : AnswerMsg(*msg);
@@ -258,7 +258,7 @@ AAAReturnCode AAA_ClientAuthSession::RxDelivery(std::auto_ptr<DiameterMsg> msg)
             else {
                if ((RxHandlerAry[i].m_StatefulOnly) &&
                     (Attributes().AuthSessionState()() !=
-                     AAA_SESSION_STATE_MAINTAINED)) {
+                     DIAMETER_SESSION_STATE_MAINTAINED)) {
                    AAA_LOG(LM_INFO, "(%P|%t) Invalid return value (NOSERVICE or UNPROCESSED) in stateless session\n");
                    break;
                }
@@ -272,17 +272,17 @@ AAAReturnCode AAA_ClientAuthSession::RxDelivery(std::auto_ptr<DiameterMsg> msg)
     return (AAA_ERR_FAILURE);
 }
 
-AAAReturnCode AAA_ClientAuthSession::Send(std::auto_ptr<DiameterMsg> msg) 
+AAAReturnCode DiameterClientAuthSession::Send(std::auto_ptr<DiameterMsg> msg) 
 {
     if (! m_Fsm.IsRunning()) {
         return (AAA_ERR_FAILURE);
     }
-    if ((m_Fsm.State() == AAA_SESSION_AUTH_ST_IDLE) &&
+    if ((m_Fsm.State() == DIAMETER_SESSION_AUTH_ST_IDLE) &&
         (! Attributes().AuthSessionState().IsNegotiated())) {
          // send the session state hint
          DiameterEnumAvpContainerWidget sessionStateAvp(msg->acl);
          sessionStateAvp.AddAvp
-             (AAA_AVPNAME_AUTHSESSIONSTATE) =
+             (DIAMETER_AVPNAME_AUTHSESSIONSTATE) =
          Attributes().AuthSessionState()();
     }
 
@@ -290,9 +290,9 @@ AAAReturnCode AAA_ClientAuthSession::Send(std::auto_ptr<DiameterMsg> msg)
     if (! Attributes().SessionTimeout().IsNegotiated()) {
         DiameterUInt32AvpContainerWidget sessToutAvp(msg->acl);
         diameter_unsigned32_t *tout = sessToutAvp.GetAvp
-                (AAA_AVPNAME_SESSIONTIMEOUT);
+                (DIAMETER_AVPNAME_SESSIONTIMEOUT);
         if (! tout) {
-            sessToutAvp.AddAvp(AAA_AVPNAME_SESSIONTIMEOUT) =
+            sessToutAvp.AddAvp(DIAMETER_AVPNAME_SESSIONTIMEOUT) =
                     Attributes().SessionTimeout()();
         }
         else if (Attributes().SessionTimeout()() < *tout) {
@@ -310,9 +310,9 @@ AAAReturnCode AAA_ClientAuthSession::Send(std::auto_ptr<DiameterMsg> msg)
     if (! Attributes().AuthLifetime().IsNegotiated()) {
         DiameterUInt32AvpContainerWidget authLifetimeAvp(msg->acl);
         diameter_unsigned32_t *tout = authLifetimeAvp.GetAvp
-                (AAA_AVPNAME_AUTHLIFETIME);
+                (DIAMETER_AVPNAME_AUTHLIFETIME);
         if (! tout) {
-           authLifetimeAvp.AddAvp(AAA_AVPNAME_AUTHLIFETIME) =
+           authLifetimeAvp.AddAvp(DIAMETER_AVPNAME_AUTHLIFETIME) =
                     Attributes().AuthLifetime()();
         }
         else if (Attributes().AuthLifetime()() < *tout) {
@@ -326,31 +326,31 @@ AAAReturnCode AAA_ClientAuthSession::Send(std::auto_ptr<DiameterMsg> msg)
 	}
     }
 
-    m_Fsm.Notify(AAA_SESSION_AUTH_EV_TX_SSAR, msg);
+    m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_TX_SSAR, msg);
     return (AAA_ERR_SUCCESS);
 }
 
-AAAReturnCode AAA_ClientAuthSession::End()
+AAAReturnCode DiameterClientAuthSession::End()
 {
     if (m_Fsm.IsRunning()) {
         AAA_SESSION_EV_AUTH ev = (Attributes().AuthSessionState()() == 
-                                  AAA_SESSION_STATE_MAINTAINED) ? 
-                                  AAA_SESSION_AUTH_EV_ABORT :
-                                  AAA_SESSION_AUTH_EV_STOP;
+                                  DIAMETER_SESSION_STATE_MAINTAINED) ? 
+                                  DIAMETER_SESSION_AUTH_EV_ABORT :
+                                  DIAMETER_SESSION_AUTH_EV_STOP;
         m_Fsm.Notify(ev);
     }
     return (AAA_ERR_SUCCESS);
 }
 
-AAAReturnCode AAA_ClientAuthSession::Reset()
+AAAReturnCode DiameterClientAuthSession::Reset()
 {
     m_Fsm.Stop();
-    AAA_AuthSession::Reset();
-    AAA_SESSION_DB().Remove(Attributes().SessionId());
+    DiameterAuthSession::Reset();
+    DIAMETER_SESSION_DB().Remove(Attributes().SessionId());
     return (AAA_ERR_SUCCESS);
 }
 
-AAA_ClientAcctSession::AAA_ClientAcctSession
+DiameterClientAcctSession::DiameterClientAcctSession
 (AAA_Task &task, diameter_unsigned32_t id, 
  char *optionalValue) :
     m_Task(task),
@@ -359,39 +359,39 @@ AAA_ClientAcctSession::AAA_ClientAcctSession
 {
     // assign diameter id
     std::string &sid = m_SessionId.DiameterId();
-    sid = AAA_CFG_TRANSPORT()->identity + ".";
-    sid += AAA_CFG_TRANSPORT()->realm;
+    sid = DIAMETER_CFG_TRANSPORT()->identity + ".";
+    sid += DIAMETER_CFG_TRANSPORT()->realm;
     if (optionalValue) {
         m_SessionId.OptionalValue() = optionalValue;
     }
 
     // add to session database
-    AAA_SESSION_DB().Add(m_SessionId, *this);
+    DIAMETER_SESSION_DB().Add(m_SessionId, *this);
     m_SessionId.Dump();
 }
 
-AAA_ClientAcctSession::~AAA_ClientAcctSession() 
+DiameterClientAcctSession::~DiameterClientAcctSession() 
 {
     // remove from session id
-    AAA_SESSION_DB().Remove(m_SessionId);
+    DIAMETER_SESSION_DB().Remove(m_SessionId);
 }
         
-AAAReturnCode AAA_ClientAcctSession::RegisterSubSession
-(AAA_AcctSession &s)
+AAAReturnCode DiameterClientAcctSession::RegisterSubSession
+(DiameterAcctSession &s)
 {
     if (m_SubSessionMap.find(s.Attributes().SubSessionId()()) ==
         m_SubSessionMap.end()) {
         s.Attributes().SessionId() = m_SessionId;
         s.Attributes().SubSessionId() = ++ m_SubSessionId;
         m_SubSessionMap.insert
-	    (std::pair<diameter_unsigned64_t, AAA_AcctSession*>
+	    (std::pair<diameter_unsigned64_t, DiameterAcctSession*>
 	     (m_SubSessionId, &s));
         return (AAA_ERR_SUCCESS);
     }
     return (AAA_ERR_FAILURE);
 }
 
-AAAReturnCode AAA_ClientAcctSession::RemoveSubSession
+AAAReturnCode DiameterClientAcctSession::RemoveSubSession
 (diameter_unsigned64_t &id)
 {
     AAA_SubSessionMap::iterator i = m_SubSessionMap.find(id);
@@ -402,19 +402,19 @@ AAAReturnCode AAA_ClientAcctSession::RemoveSubSession
     return (AAA_ERR_FAILURE);
 }
 
-AAAReturnCode AAA_ClientAcctSession::Send
+AAAReturnCode DiameterClientAcctSession::Send
 (std::auto_ptr<DiameterMsg> msg)
 {
     // stub, should not be used
     return (AAA_ERR_FAILURE);
 }
 
-void AAA_ClientAcctSession::RxRequest
+void DiameterClientAcctSession::RxRequest
 (std::auto_ptr<DiameterMsg> msg)
 {  
     DiameterUInt64AvpContainerWidget subSessionIdAvp(msg->acl);
     diameter_unsigned64_t *subSid = subSessionIdAvp.GetAvp
-                 (AAA_AVPNAME_ACCTSUBSID);
+                 (DIAMETER_AVPNAME_ACCTSUBSID);
     if (subSid) {
         AAA_SubSessionMap::iterator i = m_SubSessionMap.find(*subSid);
         if (i != m_SubSessionMap.end()) {
@@ -425,12 +425,12 @@ void AAA_ClientAcctSession::RxRequest
     AAA_LOG(LM_INFO, "(%P|%t) WARNING: Sub session id not found\n");
 }
 
-void AAA_ClientAcctSession::RxAnswer
+void DiameterClientAcctSession::RxAnswer
 (std::auto_ptr<DiameterMsg> msg)
 {
     DiameterUInt64AvpContainerWidget subSessionIdAvp(msg->acl);
     diameter_unsigned64_t *subSid = subSessionIdAvp.GetAvp
-                 (AAA_AVPNAME_ACCTSUBSID);
+                 (DIAMETER_AVPNAME_ACCTSUBSID);
     if (subSid) {
         AAA_SubSessionMap::iterator i = m_SubSessionMap.find(*subSid);
         if (i != m_SubSessionMap.end()) {
@@ -441,12 +441,12 @@ void AAA_ClientAcctSession::RxAnswer
     AAA_LOG(LM_INFO, "(%P|%t) WARNING: Sub session id not found\n");
 }
 
-void AAA_ClientAcctSession::RxError
+void DiameterClientAcctSession::RxError
 (std::auto_ptr<DiameterMsg> msg)
 {
     DiameterUInt64AvpContainerWidget subSessionIdAvp(msg->acl);
     diameter_unsigned64_t *subSid = subSessionIdAvp.GetAvp
-                 (AAA_AVPNAME_ACCTSUBSID);
+                 (DIAMETER_AVPNAME_ACCTSUBSID);
     if (subSid) {
         AAA_SubSessionMap::iterator i = m_SubSessionMap.find(*subSid);
         if (i != m_SubSessionMap.end()) {

@@ -42,7 +42,7 @@
 // An application identifies itself to the diameter class library by
 // an instance of the application core. All other classes are services
 // that operates using an instance of the core. 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_Application :
+class DIAMETERBASEPROTOCOL_EXPORT DiameterApplication :
     public AAA_JobData
 {
     private: // General Timer hanlders
@@ -50,7 +50,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_Application :
             public:
                int handle_timeout(const ACE_Time_Value &tv, 
                                   const void *arg) {
-                   AAA_MSG_ROUTER()->ReTransmitEvent();
+                   DIAMETER_MSG_ROUTER()->ReTransmitEvent();
                    return (0);
                }
                long &Handle() {
@@ -61,14 +61,14 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_Application :
         };
         
     public:
-        AAA_Application(AAA_Task &task,
+        DiameterApplication(AAA_Task &task,
                         char *cfgfile = NULL) :
             m_Task(task) {
             if (cfgfile) {
                 Open(cfgfile);
             }
         }
-        ~AAA_Application() {
+        ~DiameterApplication() {
             Close();
         }
 
@@ -78,12 +78,12 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_Application :
 
         // Check for active peers
         int NumActivePeers() {
-            return AAA_PeerConnector::GetNumOpenPeers();
+            return DiameterPeerConnector::GetNumOpenPeers();
         }
 
         // Factory Registration
         AAAReturnCode RegisterServerSessionFactory
-            (AAA_ServerSessionFactory &factory) {
+            (DiameterServerSessionFactory &factory) {
             return m_SessionMsgRx.SessionFactoryMap().Add(factory) ? 
                  AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
         }
@@ -116,9 +116,9 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_Application :
 
     private: // Global Classes
         AAA_Task &m_Task;
-        AAA_PeerAcceptor m_PeerAcceptor;
+        DiameterPeerAcceptor m_PeerAcceptor;
         AAA_SessionMsgRx m_SessionMsgRx;
-        AAA_IO_SigMask m_IOSigMask;
+        Diameter_IO_SigMask m_IOSigMask;
         ReTransmissionTimerHandler m_ReTxHandler;
 };
 

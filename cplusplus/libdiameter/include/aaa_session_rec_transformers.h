@@ -34,28 +34,28 @@
 #ifndef __AAA_SESSION_REC_TRANSFORMER_H__
 #define __AAA_SESSION_REC_TRANSFORMER_H__
 
-class DIAMETERBASEPROTOCOL_EXPORT AAAAccountingRecTransformer
+class DIAMETERBASEPROTOCOL_EXPORT DiameterAccountingRecTransformer
 {
     public:
-        virtual ~AAAAccountingRecTransformer() {
+        virtual ~DiameterAccountingRecTransformer() {
         }
         virtual AAAReturnCode Convert(DiameterMsg *msg) = 0;
         virtual AAAReturnCode OutputRecord(DiameterMsg *originalMsg) = 0;
 
     protected:
-        AAAAccountingRecTransformer() {
+        DiameterAccountingRecTransformer() {
         }
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAAAccountingXMLRecTransformer : 
-    public AAAAccountingRecTransformer
+class DIAMETERBASEPROTOCOL_EXPORT DiameterAccountingXMLRecTransformer : 
+    public DiameterAccountingRecTransformer
 {
     public:
-        AAAAccountingXMLRecTransformer() :
+        DiameterAccountingXMLRecTransformer() :
             m_Record(0),
             m_RecordSize(0) {
         }
-        virtual ~AAAAccountingXMLRecTransformer() {
+        virtual ~DiameterAccountingXMLRecTransformer() {
         }
 
         virtual AAAReturnCode Convert(DiameterMsg *msg);

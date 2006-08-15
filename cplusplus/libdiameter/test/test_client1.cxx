@@ -35,8 +35,8 @@
 
 #include "diameter_api.h"
 
-class AAA_SampleClient : public AAA_ClientAuthSession {
-        // AAA client session derived from AAA_ClientAuthSession.
+class AAA_SampleClient : public DiameterClientAuthSession {
+        // AAA client session derived from DiameterClientAuthSession.
         // It provides for all the functionality of a diameter 
         // client session. Note that the application is responsible
         // for instantiating this object
@@ -44,7 +44,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession {
         AAA_SampleClient(AAA_Task &task,
                          diameter_unsigned32_t id,
                          int howManyMsg = 1) :
-            AAA_ClientAuthSession(task, id),
+            DiameterClientAuthSession(task, id),
             m_HowManyMsg(howManyMsg),
             m_Success(false),
             m_Disconnected(false) {
@@ -56,7 +56,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession {
             // the auth state. Note that this overrides the 
             // settings in the configuration file or applications 
             // sending an auth session state AVP
-            authState = AAA_SESSION_NO_STATE_MAINTAINED;
+            authState = DIAMETER_SESSION_NO_STATE_MAINTAINED;
         }
         virtual void SetDestinationHost
         (DiameterScholarAttribute<diameter_identity_t> &dHost)
@@ -136,10 +136,10 @@ class AAA_SampleClient : public AAA_ClientAuthSession {
             DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(AAA_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(AAA_AVPNAME_AUTHAPPID);
+            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
 
             if (host) {
                 AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
@@ -202,9 +202,9 @@ class AAA_SampleClient : public AAA_ClientAuthSession {
 
             DiameterMsgWidget msg(300, true, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
-            DiameterEnumAvpWidget reAuthAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+            DiameterEnumAvpWidget reAuthAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
@@ -230,7 +230,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession {
 };
 
 class PeerEventHandler : 
-   public AAA_PeerFsmUserEventInterface
+   public DiamterPeerFsmUserEventInterface
 {
    public:
       virtual void PeerFsmConnected() {
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   AAA_Application appCore(task);
+   DiameterApplication appCore(task);
    if (appCore.Open(cfgFile) == AAA_ERR_SUCCESS) {
 
        /// Example of connecting dynamically 
@@ -286,9 +286,9 @@ int main(int argc, char *argv[])
        //  handler can be registered to any peer
        //  wether static or dynamic
        PeerEventHandler peerhandler;
-       AAA_Peer *dyncPeer = NULL;
+       DiameterPeer *dyncPeer = NULL;
        std::string peername("dynamic.peer.com");
-       AAA_PeerManager peerMngr(task);
+       DiameterPeerManager peerMngr(task);
        if (peerMngr.Add(peername, // hostname of peer to connect to
                         1812,     // port number of host
                         false,    // tls support

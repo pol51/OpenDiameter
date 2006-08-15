@@ -36,15 +36,15 @@
 
 #include "aaa_data_defs.h"
 
-class AAA_LogFacility 
+class DiameterLogFacility 
 {
    public:
-      AAA_LogFacility() {
+      DiameterLogFacility() {
       }
-      AAA_LogFacility(AAA_DataLog &data) {
+      DiameterLogFacility(DiameterDataLog &data) {
           Open(data);
       }
-      static inline void Open(AAA_DataLog &data) {
+      static inline void Open(DiameterDataLog &data) {
           ACE_TCHAR pname[32];
           AAALogMsg *logger = AAALogMsg_S::instance();
 

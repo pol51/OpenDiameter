@@ -46,7 +46,6 @@ SRC = src/aaa_application.cxx \
       src/aaa_route_table.cxx \
       src/aaa_session_acct_client_fsm.cxx \
       src/aaa_session_acct_server_fsm.cxx \
-      src/aaa_session_acct_transformer.cxx \
       src/aaa_session_attributes.cxx \
       src/aaa_session_auth_client_fsm.cxx \
       src/aaa_session_auth_server_fsm.cxx \
@@ -54,6 +53,7 @@ SRC = src/aaa_application.cxx \
       src/aaa_session_db.cxx \
       src/aaa_session_msg_rx.cxx \
       src/aaa_session_server.cxx \
+      src/aaa_session_acct_transformer.cxx \
       src/aaa_transport_collector.cxx \
       src/aaa_xml_data.cxx
 

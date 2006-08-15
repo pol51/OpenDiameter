@@ -170,7 +170,7 @@ class Mip4AaaSServer {
 #ifdef OPTION_2
     // assume HA is running on the AAAS host - 
     // taken from config file
-    hostname.Set( AAA_CFG_TRANSPORT()->host);
+    hostname.Set( DIAMETER_CFG_TRANSPORT()->host);
 
 #endif
     hostname.Set( "has.homedomain.com");

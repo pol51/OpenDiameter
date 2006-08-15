@@ -37,16 +37,16 @@
 #include "framework.h"
 
 template <class T>
-class AAA_SessionGarbageCollector :
+class DiameterSessionGarbageCollector :
     public AAA_Job
 {
     public:
-        AAA_SessionGarbageCollector(AAA_Task &t) :
+        DiameterSessionGarbageCollector(AAA_Task &t) :
             m_GroupedJob(AAA_GroupedJob::Create(t.Job(),
 	                 (AAA_JobData*)this)), 
             m_Enabled(true) {
 	}
-        virtual ~AAA_SessionGarbageCollector() {
+        virtual ~DiameterSessionGarbageCollector() {
             m_Enabled = false;
             while (! m_DeleteQueue.IsEmpty()) {
                ACE_Time_Value tv(0, 100000);
@@ -73,27 +73,27 @@ class AAA_SessionGarbageCollector :
 
     private:
         AAA_JobHandle<AAA_GroupedJob> m_GroupedJob;
-        AAA_ProtectedQueue<T*> m_DeleteQueue;
+        DiameterProtectedQueue<T*> m_DeleteQueue;
         bool m_Enabled;
 };
 
 template <class T>
-class AAA_SessionGarbageCollectorSingleton
+class DiameterSessionGarbageCollectorSingleton
 {
     public:
-        virtual ~AAA_SessionGarbageCollectorSingleton() {
+        virtual ~DiameterSessionGarbageCollectorSingleton() {
 	}
         void Initialize(AAA_Task &t) {
-            m_Instance = std::auto_ptr< AAA_SessionGarbageCollector<T> > 
-		    (new AAA_SessionGarbageCollector<T>(t));
+            m_Instance = std::auto_ptr< DiameterSessionGarbageCollector<T> > 
+		    (new DiameterSessionGarbageCollector<T>(t));
 	}
-        AAA_SessionGarbageCollector<T> &Instance() {
+        DiameterSessionGarbageCollector<T> &Instance() {
             // this will throw when used improperly
             return (*m_Instance);
 	}
 
     private:
-        std::auto_ptr< AAA_SessionGarbageCollector<T> > 
+        std::auto_ptr< DiameterSessionGarbageCollector<T> > 
               m_Instance;
 };
 

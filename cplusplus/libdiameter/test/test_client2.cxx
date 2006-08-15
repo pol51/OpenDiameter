@@ -36,19 +36,19 @@
 #include "diameter_api.h"
 #include "aaa_session_msg_mux.h"
 
-class AAA_SampleClient : public AAA_ClientAuthSession,
-                         public AAA_SessionMsgMux<AAA_SampleClient>
+class AAA_SampleClient : public DiameterClientAuthSession,
+                         public DiameterSessionMsgMux<AAA_SampleClient>
 {
-        // AAA client session derived from AAA_ClientAuthSession
-        // and an AAA_SessionMsgMux<>. The message mux allows 
+        // AAA client session derived from DiameterClientAuthSession
+        // and an DiameterSessionMsgMux<>. The message mux allows 
         // message delegation to registered message handlers.
         // The client session is the same as in sample_client2.cxx.
     public:
         AAA_SampleClient(AAA_Task &task,
                          diameter_unsigned32_t id,
                          int number) :
-            AAA_ClientAuthSession(task, id),
-            AAA_SessionMsgMux<AAA_SampleClient>(*this),
+            DiameterClientAuthSession(task, id),
+            DiameterSessionMsgMux<AAA_SampleClient>(*this),
             m_SessionNum(number),
             m_Success(false),
             m_Disconnected(false) {
@@ -60,7 +60,7 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
             // the auth state. Note that this overrides the 
             // settings in the configuration file or applications 
             // sending an auth session state AVP
-            authState = AAA_SESSION_STATE_MAINTAINED;
+            authState = DIAMETER_SESSION_STATE_MAINTAINED;
         }
         virtual void SetDestinationHost
         (DiameterScholarAttribute<diameter_identity_t> &dHost)
@@ -178,12 +178,12 @@ class AAA_SampleClient : public AAA_ClientAuthSession,
 };
 
 class AAA_SampleClientAction : 
-    public AAA_SessionMsgMuxHandler<AAA_SampleClient>
+    public DiameterSessionMsgMuxHandler<AAA_SampleClient>
 {
         // AAA message multiplex handler. This is a
         // handler class for a specific AAA message.
         // and instance of this class is registered
-        // with an AAA_SessionMsgMux<> object
+        // with an DiameterSessionMsgMux<> object
     public:
         AAA_SampleClientAction(int howManyMsg = 1) :
             m_HowManyMsg(howManyMsg) {
@@ -208,10 +208,10 @@ class AAA_SampleClientAction :
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterGroupedAvpContainerWidget tunneling(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(AAA_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(AAA_AVPNAME_AUTHAPPID);
+            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
 
             if (host) {
                 AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
@@ -277,9 +277,9 @@ class AAA_SampleClientAction :
 
             DiameterMsgWidget msg(300, true, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(AAA_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(AAA_AVPNAME_USERNAME);
-            DiameterEnumAvpWidget reAuthAvp(AAA_AVPNAME_REAUTHREQTYPE);
+            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+            DiameterEnumAvpWidget reAuthAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
             DiameterGroupedAvpWidget tunneling("Tunneling");
 
             authIdAvp.Get() = 10000; // my application id
@@ -357,7 +357,7 @@ class Client
 // to a static peer entry to notify
 // us of peer fsm events.
 class PeerEventHandler : 
-   public AAA_PeerFsmUserEventInterface
+   public DiamterPeerFsmUserEventInterface
 {
    public:
       virtual void PeerFsmConnected() {
@@ -407,14 +407,14 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   AAA_Application appCore(task);
+   DiameterApplication appCore(task);
    if (appCore.Open(cfgFile) == AAA_ERR_SUCCESS) {
 
        /// We can get notified of events for "server.isp.net" peer
        PeerEventHandler handler;
-       AAA_PeerManager peerMngr(task);
+       DiameterPeerManager peerMngr(task);
        std::string peerName("server.isp.net");
-       AAA_Peer *dyncPeer = peerMngr.Lookup(peerName);
+       DiameterPeer *dyncPeer = peerMngr.Lookup(peerName);
        dyncPeer->RegisterUserEventHandler(handler);
           
        /// Wait for connectivity

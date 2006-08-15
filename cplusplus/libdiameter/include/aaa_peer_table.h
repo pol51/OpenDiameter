@@ -37,18 +37,18 @@
 
 #include "aaa_peer_fsm.h"
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerEntry : 
-	public AAA_PeerStateMachine,
-          AAA_MsgCollectorHandler
+class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
+	public DiameterPeerStateMachine,
+          DiameterMsgCollectorHandler
 {
    public:
-      AAA_PeerEntry(AAA_Task &task,
+      DiameterPeerEntry(AAA_Task &task,
                     std::string &peername,
                     int peerport,
                     int tls_enabled,
                     int etime,
                     bool is_static) :
-          AAA_PeerStateMachine(task),
+          DiameterPeerStateMachine(task),
           m_PeerInitiator(*this) {
           PeerData().m_Identity = peername;
           PeerData().m_Port = peerport;
@@ -56,18 +56,18 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerEntry :
           PeerData().m_Expiration = etime;
           PeerData().m_TLS = tls_enabled ? true : false;
           PeerData().m_DisconnectCause = AAA_DISCONNECT_DONTWANTTOTALK;
-          AAA_StateMachineWithTimer<AAA_PeerStateMachine>::Start();
+          AAA_StateMachineWithTimer<DiameterPeerStateMachine>::Start();
       }
-      virtual ~AAA_PeerEntry() {
-          AAA_PeerStateMachine::Stop();
+      virtual ~DiameterPeerEntry() {
+          DiameterPeerStateMachine::Stop();
       }
     
       void Start() throw (AAA_Error);
-      void Stop(AAA_DISCONNECT_CAUSE cause);
+      void Stop(DIAMETER_DISCONNECT_CAUSE cause);
     
       bool IsOpen() {
-          return ((state == AAA_PEER_ST_I_OPEN) ||
-                  (state == AAA_PEER_ST_R_OPEN)) ?
+          return ((state == DIAMETER_PEER_ST_I_OPEN) ||
+                  (state == DIAMETER_PEER_ST_R_OPEN)) ?
               true : false;
       }
       bool IsStatic() {
@@ -75,9 +75,9 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerEntry :
       }
 
       // Internal use only    
-      void IncommingConnectionRequest(std::auto_ptr<AAA_IO_Base> io,
+      void IncommingConnectionRequest(std::auto_ptr<Diameter_IO_Base> io,
                                       std::auto_ptr<DiameterMsg> cer);
-      void ConnectionRequestAccepted(std::auto_ptr<AAA_IO_Base> io);
+      void ConnectionRequestAccepted(std::auto_ptr<Diameter_IO_Base> io);
       void ConnectionRequestFailed();
       void Dump() {
           AAA_LOG(LM_INFO, "(%P|%t)                Peer : Host = %s, Port = %d, TLS = %d\n", 
@@ -90,29 +90,29 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerEntry :
       void Message(std::auto_ptr<DiameterMsg> msg);
       void Error(COLLECTOR_ERROR error, std::string &io_name);
 
-      class PeerInitiator : public AAA_TcpConnector,
-                                   AAA_TlsConnector
+      class PeerInitiator : public DiameterTcpConnector,
+                                   DiameterTlsConnector
       {
           public:
-             PeerInitiator(AAA_PeerEntry &e) :
+             PeerInitiator(DiameterPeerEntry &e) :
                  m_Entry(e) {
              }
              int Connect(std::string &host,
                          int port,
                          bool tls = false) {
                  return (tls) ?
-                     AAA_TlsConnector::Open(host, port) :
-                     AAA_TcpConnector::Open(host, port);
+                     DiameterTlsConnector::Open(host, port) :
+                     DiameterTcpConnector::Open(host, port);
              }
              int Stop() {
-                 AAA_TlsConnector::Close();
-                 AAA_TcpConnector::Close();
+                 DiameterTlsConnector::Close();
+                 DiameterTcpConnector::Close();
                  return (0);
              }
 
           protected:
-             int Success(AAA_IO_Base *io) {
-                 std::auto_ptr<AAA_IO_Base> newIO(io);
+             int Success(Diameter_IO_Base *io) {
+                 std::auto_ptr<Diameter_IO_Base> newIO(io);
                  m_Entry.ConnectionRequestAccepted(newIO);
                  return (0);
              }
@@ -122,7 +122,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerEntry :
              }
           
           private:
-             AAA_PeerEntry &m_Entry;
+             DiameterPeerEntry &m_Entry;
       };
 
       friend class PeerInitiator;
@@ -131,23 +131,23 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_PeerEntry :
       PeerInitiator m_PeerInitiator;
 };
 
-typedef std::list<AAA_PeerEntry*> AAA_PeerList;
+typedef std::list<DiameterPeerEntry*> DiameterPeerList;
 
-class AAA_PeerTable : private AAA_PeerList
+class DiameterPeerTable : private DiameterPeerList
 {
    public:
-      AAA_PeerTable() : m_ExpirationTime(0) {
+      DiameterPeerTable() : m_ExpirationTime(0) {
       }
-      virtual ~AAA_PeerTable() {
+      virtual ~DiameterPeerTable() {
       }
-      bool Add(AAA_PeerEntry *e) {
+      bool Add(DiameterPeerEntry *e) {
           ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
           push_back(e);
           return true;
       }
-      AAA_PeerEntry *Lookup(std::string &peername) {
+      DiameterPeerEntry *Lookup(std::string &peername) {
           ACE_Read_Guard<ACE_RW_Mutex> guard(m_Lock);
-          AAA_PeerList::iterator i;
+          DiameterPeerList::iterator i;
           for (i = begin(); i != end(); i++) {
               if ((*i)->Data().m_Identity == peername) {
                   return (*i);
@@ -155,9 +155,9 @@ class AAA_PeerTable : private AAA_PeerList
           }
           return (NULL);
       }
-      AAA_PeerEntry *Remove(std::string &peername) {
+      DiameterPeerEntry *Remove(std::string &peername) {
           ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
-          AAA_PeerList::iterator i;
+          DiameterPeerList::iterator i;
           for (i = begin(); i != end(); i++) {
               if ((*i)->Data().m_Identity == peername) {
                   erase(i);
@@ -166,13 +166,13 @@ class AAA_PeerTable : private AAA_PeerList
           }
           return (NULL);
       }
-      AAA_PeerEntry *First() {
+      DiameterPeerEntry *First() {
           ACE_Read_Guard<ACE_RW_Mutex> guard(m_Lock);
           return (! empty()) ? front() : NULL;
       }
-      AAA_PeerEntry *Next(AAA_PeerEntry *e) {
+      DiameterPeerEntry *Next(DiameterPeerEntry *e) {
           ACE_Read_Guard<ACE_RW_Mutex> guard(m_Lock);
-          AAA_PeerList::iterator i;
+          DiameterPeerList::iterator i;
           for (i = begin(); i != end(); i++) {
               if (e == (*i)) {
                   i ++;
@@ -187,7 +187,7 @@ class AAA_PeerTable : private AAA_PeerList
       void Clear() {
           ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
           while (! empty()) {
-              AAA_PeerEntry *e = front();
+              DiameterPeerEntry *e = front();
               pop_front();
               delete e;
           }
@@ -198,7 +198,7 @@ class AAA_PeerTable : private AAA_PeerList
       void Dump() {
           AAA_LOG(LM_INFO, "(%P|%t) Dumping Peer Table\n");
           AAA_LOG(LM_INFO, "(%P|%t)      Expire Time %d\n", m_ExpirationTime);
-          AAA_PeerList::iterator i;
+          DiameterPeerList::iterator i;
           for (i = begin(); i != end(); i++) {
               (*i)->Dump();
           }
@@ -209,8 +209,8 @@ class AAA_PeerTable : private AAA_PeerList
       int m_ExpirationTime;
 };
 
-typedef ACE_Singleton<AAA_PeerTable, ACE_Recursive_Thread_Mutex> AAA_PeerTable_S;
-#define AAA_PEER_TABLE() AAA_PeerTable_S::instance()
+typedef ACE_Singleton<DiameterPeerTable, ACE_Recursive_Thread_Mutex> DiameterPeerTable_S;
+#define DIAMETER_PEER_TABLE() DiameterPeerTable_S::instance()
 
 #endif /* __AAA_PEER_TABLE_H__ */
 

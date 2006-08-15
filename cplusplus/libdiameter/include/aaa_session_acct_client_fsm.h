@@ -43,7 +43,7 @@
 /// to applications with regards to record
 /// collection.
 ///
-class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAcctRecCollector
+class DIAMETERBASEPROTOCOL_EXPORT DiameterClientAcctRecCollector
 {
     public:
         /// Asks the client app if append record and other
@@ -66,19 +66,19 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ClientAcctRecCollector
         /// last stored record if any
         virtual AAAReturnCode DeleteLastRecord(int recordType) = 0;
 
-        virtual ~AAA_ClientAcctRecCollector() { }
+        virtual ~DiameterClientAcctRecCollector() { }
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSessionClientStateMachine :
-   public AAA_AcctSessionStateMachine<AAA_AcctSessionClientStateMachine>
+class DIAMETERBASEPROTOCOL_EXPORT DiameterAcctSessionClientStateMachine :
+   public DiameterAcctSessionStateMachine<DiameterAcctSessionClientStateMachine>
 {  
    public:
-      AAA_AcctSessionClientStateMachine(AAA_Task &t,
-                                        AAA_AcctSession &a,
-                                        AAA_ClientAcctRecCollector &c);
-      virtual ~AAA_AcctSessionClientStateMachine() {
+      DiameterAcctSessionClientStateMachine(AAA_Task &t,
+                                        DiameterAcctSession &a,
+                                        DiameterClientAcctRecCollector &c);
+      virtual ~DiameterAcctSessionClientStateMachine() {
       }    
-      AAA_ClientAcctRecCollector &RecCollector() {
+      DiameterClientAcctRecCollector &RecCollector() {
  	 return m_RecCollector;
       }
 
@@ -86,113 +86,113 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AcctSessionClientStateMachine :
       void RxACA(DiameterMsg &msg);
 
    private:
-      AAA_ClientAcctRecCollector &m_RecCollector;
+      DiameterClientAcctRecCollector &m_RecCollector;
 };
 
-class AAA_SessAcctClient_TxACR : 
-   public AAA_Action<AAA_AcctSessionClientStateMachine> 
+class DiameterSessAcctClient_TxACR : 
+   public AAA_Action<DiameterAcctSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
           fsm.TxACR();
       }
 };
 
-class AAA_SessAcctClient_InterimTimout : 
-   public AAA_Action<AAA_AcctSessionClientStateMachine> 
+class DiameterSessAcctClient_InterimTimout : 
+   public AAA_Action<DiameterAcctSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
-          fsm.Attributes().RecordType() = AAA_ACCT_RECTYPE_INTERIM;
+          fsm.Attributes().RecordType() = DIAMETER_ACCT_RECTYPE_INTERIM;
           fsm.TxACR();
       }
 };
 
-class AAA_SessAcctClient_RxACA_Success : 
-   public AAA_Action<AAA_AcctSessionClientStateMachine> 
+class DiameterSessAcctClient_RxACA_Success : 
+   public AAA_Action<DiameterAcctSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionClientStateMachine &fsm) {
           if (fsm.RecCollector().IsLastRecordInStorage()) {
 	      fsm.RecCollector().DeleteLastRecord
                   (fsm.Attributes().RecordType()());
 	  }
-          else if ((fsm.Attributes().RecordType()() == AAA_ACCT_RECTYPE_START) || 
-                   (fsm.Attributes().RecordType()() == AAA_ACCT_RECTYPE_INTERIM)) {
+          else if ((fsm.Attributes().RecordType()() == DIAMETER_ACCT_RECTYPE_START) || 
+                   (fsm.Attributes().RecordType()() == DIAMETER_ACCT_RECTYPE_INTERIM)) {
                fsm.CancelAllTimer();
-               fsm.ScheduleTimer(AAA_SESSION_ACCT_EV_INT_EXPIRE,
+               fsm.ScheduleTimer(DIAMETER_SESSION_ACCT_EV_INT_EXPIRE,
                       fsm.Attributes().InterimInterval()(),
-                      0, AAA_TIMER_TYPE_INTERVAL);
+                      0, DIAMETER_TIMER_TYPE_INTERVAL);
 	  }
           fsm.Session().Success();
       }
 };
 
-class AAA_SessAcctClient_StartIntTimer : 
-   public AAA_Action<AAA_AcctSessionClientStateMachine> 
+class DiameterSessAcctClient_StartIntTimer : 
+   public AAA_Action<DiameterAcctSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
-          fsm.ScheduleTimer(AAA_SESSION_ACCT_EV_SESSION_TOUT,
+          fsm.ScheduleTimer(DIAMETER_SESSION_ACCT_EV_SESSION_TOUT,
                   fsm.Attributes().SessionTimeout()(),
-                  0, AAA_TIMER_TYPE_SESSION);
+                  0, DIAMETER_TIMER_TYPE_SESSION);
       }
 };
 
 template <int REC_TYPE>
-class AAA_SessAcctClient_StoreRecord : 
-   public AAA_Action<AAA_AcctSessionClientStateMachine> 
+class DiameterSessAcctClient_StoreRecord : 
+   public AAA_Action<DiameterAcctSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
 	  fsm.RecCollector().StoreLastRecord(REC_TYPE);
-          if ((REC_TYPE == AAA_ACCT_RECTYPE_START) || 
-              (REC_TYPE == AAA_ACCT_RECTYPE_INTERIM)) {
-              fsm.ScheduleTimer(AAA_SESSION_ACCT_EV_INT_EXPIRE,
+          if ((REC_TYPE == DIAMETER_ACCT_RECTYPE_START) || 
+              (REC_TYPE == DIAMETER_ACCT_RECTYPE_INTERIM)) {
+              fsm.ScheduleTimer(DIAMETER_SESSION_ACCT_EV_INT_EXPIRE,
                       fsm.Attributes().InterimInterval()(),
-                      0, AAA_TIMER_TYPE_INTERVAL);
+                      0, DIAMETER_TIMER_TYPE_INTERVAL);
 	  }
       }
 };
 
-typedef AAA_SessAcctClient_StoreRecord<AAA_ACCT_RECTYPE_START>
-             AAA_SessAcctClient_StoreStartRecord;
-typedef AAA_SessAcctClient_StoreRecord<AAA_ACCT_RECTYPE_STOP>
-             AAA_SessAcctClient_StoreStopRecord;
-typedef AAA_SessAcctClient_StoreRecord<AAA_ACCT_RECTYPE_INTERIM>
-             AAA_SessAcctClient_StoreInterimRecord;
-typedef AAA_SessAcctClient_StoreRecord<AAA_ACCT_RECTYPE_EVENT>
-             AAA_SessAcctClient_StoreEventRecord;
+typedef DiameterSessAcctClient_StoreRecord<DIAMETER_ACCT_RECTYPE_START>
+             DiameterSessAcctClient_StoreStartRecord;
+typedef DiameterSessAcctClient_StoreRecord<DIAMETER_ACCT_RECTYPE_STOP>
+             DiameterSessAcctClient_StoreStopRecord;
+typedef DiameterSessAcctClient_StoreRecord<DIAMETER_ACCT_RECTYPE_INTERIM>
+             DiameterSessAcctClient_StoreInterimRecord;
+typedef DiameterSessAcctClient_StoreRecord<DIAMETER_ACCT_RECTYPE_EVENT>
+             DiameterSessAcctClient_StoreEventRecord;
 
-class AAA_SessAcctClient_DeleteRecord : 
-   public AAA_Action<AAA_AcctSessionClientStateMachine> 
+class DiameterSessAcctClient_DeleteRecord : 
+   public AAA_Action<DiameterAcctSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionClientStateMachine &fsm) {
 	  fsm.RecCollector().DeleteLastRecord
              (fsm.Attributes().RecordType()());
       }
 };
 
-class AAA_SessAcctClient_Disconnect : 
-   public AAA_Action<AAA_AcctSessionClientStateMachine> 
+class DiameterSessAcctClient_Disconnect : 
+   public AAA_Action<DiameterAcctSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AcctSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAcctSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
           fsm.Session().Reset();
       }
 };
 
-class AAA_SessAcctClientStateTable : 
-   public AAA_StateTable<AAA_AcctSessionClientStateMachine>
+class DiameterSessAcctClientStateTable : 
+   public AAA_StateTable<DiameterAcctSessionClientStateMachine>
 {
    public:
-      AAA_SessAcctClientStateTable() {
+      DiameterSessAcctClientStateTable() {
         /*
            State     Event                          Action     New State
            -------------------------------------------------------------
@@ -200,9 +200,9 @@ class AAA_SessAcctClientStateTable :
                      access                         accounting
                                                     start req.
          */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_IDLE,
-                           AAA_SESSION_ACCT_EV_REQUEST_ACCESS,
-                           AAA_SESSION_ACCT_ST_PENDING_S,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_IDLE,
+                           DIAMETER_SESSION_ACCT_EV_REQUEST_ACCESS,
+                           DIAMETER_SESSION_ACCT_ST_PENDING_S,
                            m_acTxACR);
 
         /*
@@ -212,9 +212,9 @@ class AAA_SessAcctClientStateTable :
                      a one-time service             accounting
                                                     event req
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_IDLE,
-                           AAA_SESSION_ACCT_EV_REQUEST_ONETIME_ACCESS,
-                           AAA_SESSION_ACCT_ST_PENDING_E,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_IDLE,
+                           DIAMETER_SESSION_ACCT_EV_REQUEST_ONETIME_ACCESS,
+                           DIAMETER_SESSION_ACCT_ST_PENDING_E,
                            m_acTxACR);
 
         /*
@@ -223,9 +223,9 @@ class AAA_SessAcctClientStateTable :
            Idle      Records in storage             Send       PendingB
                                                     record
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_IDLE,
-                           AAA_SESSION_ACCT_EV_REC_IN_STORAGE,
-                           AAA_SESSION_ACCT_ST_PENDING_B,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_IDLE,
+                           DIAMETER_SESSION_ACCT_EV_REC_IN_STORAGE,
+                           DIAMETER_SESSION_ACCT_ST_PENDING_B,
                            m_acTxACR);
 
         /*
@@ -233,8 +233,8 @@ class AAA_SessAcctClientStateTable :
            -------------------------------------------------------------
             Idle     Any                            None       Idle
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_IDLE,
-                                   AAA_SESSION_ACCT_ST_IDLE);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_IDLE,
+                                   DIAMETER_SESSION_ACCT_ST_IDLE);
 
         /*
            State     Event                          Action     New State
@@ -242,9 +242,9 @@ class AAA_SessAcctClientStateTable :
            PendingS  Successful accounting                     Open
                      start answer received
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_S,
-                           AAA_SESSION_ACCT_EV_RX_ACA_OK,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_S,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_OK,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acRxACASuccess);
 
         /*
@@ -254,9 +254,9 @@ class AAA_SessAcctClientStateTable :
                      space available and realtime   Start
                      not equal to DELIVER_AND_GRANT Record
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_S,
-                           AAA_SESSION_ACCT_EV_FTS_NOT_DAG,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_S,
+                           DIAMETER_SESSION_ACCT_EV_FTS_NOT_DAG,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStoreStartRecord);
 
         /*
@@ -266,9 +266,9 @@ class AAA_SessAcctClientStateTable :
                      space available and realtime
                      equal to GRANT_AND_LOSE
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_S,
-                           AAA_SESSION_ACCT_EV_FTS_AND_GAL,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_S,
+                           DIAMETER_SESSION_ACCT_EV_FTS_AND_GAL,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStartIntTimer);
 
         /*
@@ -279,9 +279,9 @@ class AAA_SessAcctClientStateTable :
                      not equal to
                      GRANT_AND_LOSE
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_S,
-                           AAA_SESSION_ACCT_EV_FTS_NOT_GAL,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_S,
+                           DIAMETER_SESSION_ACCT_EV_FTS_NOT_GAL,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acDisconnect);
 
         /*
@@ -291,9 +291,9 @@ class AAA_SessAcctClientStateTable :
                      received and realtime equal
                      to GRANT_AND_LOSE
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_S,
-                           AAA_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_S,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStartIntTimer);
 
         /*
@@ -303,9 +303,9 @@ class AAA_SessAcctClientStateTable :
                      received and realtime not      user/dev
                      equal to GRANT_AND_LOSE
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_S,
-                           AAA_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_S,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acDisconnect);
 
         /*
@@ -315,9 +315,9 @@ class AAA_SessAcctClientStateTable :
                                                     stop
                                                     record
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_S,
-                           AAA_SESSION_ACCT_EV_STOP,
-                           AAA_SESSION_ACCT_ST_PENDING_S,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_S,
+                           DIAMETER_SESSION_ACCT_EV_STOP,
+                           DIAMETER_SESSION_ACCT_ST_PENDING_S,
                            m_acStoreStopRecord);
 
         /*
@@ -325,8 +325,8 @@ class AAA_SessAcctClientStateTable :
            -------------------------------------------------------------
             PendingS Any                            None       PendingS
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_S,
-                                   AAA_SESSION_ACCT_ST_PENDING_S);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_S,
+                                   DIAMETER_SESSION_ACCT_ST_PENDING_S);
 
         /*
            State     Event                          Action     New State
@@ -336,9 +336,9 @@ class AAA_SessAcctClientStateTable :
                                                     interim
                                                     record
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                           AAA_SESSION_ACCT_EV_INT_EXPIRE,
-                           AAA_SESSION_ACCT_ST_PENDING_I,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                           DIAMETER_SESSION_ACCT_EV_INT_EXPIRE,
+                           DIAMETER_SESSION_ACCT_ST_PENDING_I,
                            m_acInterimTimeout);
 
         /*
@@ -349,9 +349,9 @@ class AAA_SessAcctClientStateTable :
                                                     stop   
                                                     record
          */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                           AAA_SESSION_ACCT_EV_STOP,
-                           AAA_SESSION_ACCT_ST_PENDING_L,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                           DIAMETER_SESSION_ACCT_EV_STOP,
+                           DIAMETER_SESSION_ACCT_ST_PENDING_L,
                            m_acTxACR);
 
         /*
@@ -359,8 +359,8 @@ class AAA_SessAcctClientStateTable :
            -------------------------------------------------------------
            Open      Any                            None       Open
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_OPEN,
-                                   AAA_SESSION_ACCT_ST_OPEN);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_OPEN,
+                                   DIAMETER_SESSION_ACCT_ST_OPEN);
 
         /*
            State     Event                          Action     New State
@@ -368,9 +368,9 @@ class AAA_SessAcctClientStateTable :
            PendingI  Successful accounting                     Open
                      interim answer received
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_I,
-                           AAA_SESSION_ACCT_EV_RX_ACA_OK,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_I,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_OK,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acRxACASuccess);
 
         /*
@@ -380,9 +380,9 @@ class AAA_SessAcctClientStateTable :
                      space available and realtime   Interim
                      not equal to DELIVER_AND_GRANT Record
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_I,
-                           AAA_SESSION_ACCT_EV_FTS_NOT_DAG,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_I,
+                           DIAMETER_SESSION_ACCT_EV_FTS_NOT_DAG,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStoreInterimRecord);
 
         /*
@@ -392,9 +392,9 @@ class AAA_SessAcctClientStateTable :
                      space available and realtime
                      equal to GRANT_AND_LOSE
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_I,
-                           AAA_SESSION_ACCT_EV_FTS_AND_GAL,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_I,
+                           DIAMETER_SESSION_ACCT_EV_FTS_AND_GAL,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStartIntTimer);
 
         /*
@@ -405,9 +405,9 @@ class AAA_SessAcctClientStateTable :
                      not equal to
                      GRANT_AND_LOSE
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_I,
-                           AAA_SESSION_ACCT_EV_FTS_NOT_GAL,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_I,
+                           DIAMETER_SESSION_ACCT_EV_FTS_NOT_GAL,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acDisconnect);
 
         /*
@@ -417,9 +417,9 @@ class AAA_SessAcctClientStateTable :
                      received and realtime equal
                      to GRANT_AND_LOSE
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_I,
-                           AAA_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL,
-                           AAA_SESSION_ACCT_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_I,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL,
+                           DIAMETER_SESSION_ACCT_ST_OPEN,
                            m_acStartIntTimer);
 
         /*
@@ -429,9 +429,9 @@ class AAA_SessAcctClientStateTable :
                      received and realtime not        user/dev
                      equal to GRANT_AND_LOSE
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_I,
-                           AAA_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_I,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acDisconnect);
 
         /*
@@ -441,9 +441,9 @@ class AAA_SessAcctClientStateTable :
                                                     stop
                                                     record
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_I,
-                           AAA_SESSION_ACCT_EV_STOP,
-                           AAA_SESSION_ACCT_ST_PENDING_I,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_I,
+                           DIAMETER_SESSION_ACCT_EV_STOP,
+                           DIAMETER_SESSION_ACCT_ST_PENDING_I,
                            m_acStoreStopRecord);
 
         /*
@@ -451,8 +451,8 @@ class AAA_SessAcctClientStateTable :
            -------------------------------------------------------------
            PendingI  Any                            None       PendingI
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_I,
-                                   AAA_SESSION_ACCT_ST_PENDING_I);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_I,
+                                   DIAMETER_SESSION_ACCT_ST_PENDING_I);
 
 	/*
            State     Event                          Action     New State
@@ -460,9 +460,9 @@ class AAA_SessAcctClientStateTable :
            PendingE  Successful accounting                     Idle
                      event answer received
 	 */
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_E,
-                           AAA_SESSION_ACCT_EV_RX_ACA_OK,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_E,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_OK,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acRxACASuccess);
 
 	/*
@@ -472,9 +472,9 @@ class AAA_SessAcctClientStateTable :
                      space available                event
                                                     record
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_E,
-                           AAA_SESSION_ACCT_EV_FTS_BUF,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_E,
+                           DIAMETER_SESSION_ACCT_EV_FTS_BUF,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acStoreEventRecord);
 
 	/*
@@ -483,9 +483,9 @@ class AAA_SessAcctClientStateTable :
            PendingE  Failure to send and no buffer             Idle
                      space available
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_E,
-                           AAA_SESSION_ACCT_EV_FTS_NO_BUF,
-                           AAA_SESSION_ACCT_ST_IDLE);
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_E,
+                           DIAMETER_SESSION_ACCT_EV_FTS_NO_BUF,
+                           DIAMETER_SESSION_ACCT_ST_IDLE);
 
 	/*
            State     Event                          Action     New State
@@ -493,17 +493,17 @@ class AAA_SessAcctClientStateTable :
            PendingE  Failed accounting event answer            Idle
                      received
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_E,
-                           AAA_SESSION_ACCT_EV_RX_ACA_FAIL,
-                           AAA_SESSION_ACCT_ST_IDLE);
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_E,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL,
+                           DIAMETER_SESSION_ACCT_ST_IDLE);
 
         /*
            State     Event                          Action     New State
            -------------------------------------------------------------
            PendingE  Any                            None       PendingE
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_E,
-                                   AAA_SESSION_ACCT_ST_PENDING_E);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_E,
+                                   DIAMETER_SESSION_ACCT_ST_PENDING_E);
 
 	/*
            State     Event                          Action     New State
@@ -511,9 +511,9 @@ class AAA_SessAcctClientStateTable :
            PendingB  Successful accounting answer   Delete     Idle
                      received                       record
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_B,
-                           AAA_SESSION_ACCT_EV_RX_ACA_OK,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_B,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_OK,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acRxACASuccess);
 
 	/*
@@ -521,9 +521,9 @@ class AAA_SessAcctClientStateTable :
            -------------------------------------------------------------
            PendingB  Failure to send                           Idle
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_B,
-                           AAA_SESSION_ACCT_EV_FTS,
-                           AAA_SESSION_ACCT_ST_IDLE);
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_B,
+                           DIAMETER_SESSION_ACCT_EV_FTS,
+                           DIAMETER_SESSION_ACCT_ST_IDLE);
 
 	/*
            State     Event                          Action     New State
@@ -531,9 +531,9 @@ class AAA_SessAcctClientStateTable :
            PendingB  Failed accounting answer       Delete     Idle
                      received                       record
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_B,
-                           AAA_SESSION_ACCT_EV_RX_ACA_FAIL,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_B,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acDeleteRecord);
 
         /*
@@ -541,8 +541,8 @@ class AAA_SessAcctClientStateTable :
            -------------------------------------------------------------
            PendingB  Any                            None       PendingB
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_B,
-                                   AAA_SESSION_ACCT_ST_PENDING_B);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_B,
+                                   DIAMETER_SESSION_ACCT_ST_PENDING_B);
 
 	/*
            State     Event                          Action     New State
@@ -550,9 +550,9 @@ class AAA_SessAcctClientStateTable :
            PendingL  Successful accounting                     Idle
                      stop answer received
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_L,
-                           AAA_SESSION_ACCT_EV_RX_ACA_OK,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_L,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_OK,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acRxACASuccess);
 
 	/*
@@ -562,9 +562,9 @@ class AAA_SessAcctClientStateTable :
                      space available                stop
                                                     record
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_L,
-                           AAA_SESSION_ACCT_EV_FTS_BUF,
-                           AAA_SESSION_ACCT_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_L,
+                           DIAMETER_SESSION_ACCT_EV_FTS_BUF,
+                           DIAMETER_SESSION_ACCT_ST_IDLE,
                            m_acStoreStopRecord);
 
 	/*
@@ -573,9 +573,9 @@ class AAA_SessAcctClientStateTable :
            PendingL  Failure to send and no buffer             Idle
                      space available
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_L,
-                           AAA_SESSION_ACCT_EV_FTS_NO_BUF,
-                           AAA_SESSION_ACCT_ST_IDLE);
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_L,
+                           DIAMETER_SESSION_ACCT_EV_FTS_NO_BUF,
+                           DIAMETER_SESSION_ACCT_ST_IDLE);
 
 	/*
            State     Event                          Action     New State
@@ -583,39 +583,39 @@ class AAA_SessAcctClientStateTable :
            PendingL  Failed accounting stop answer             Idle
                      received
 	*/
-        AddStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_L,
-                           AAA_SESSION_ACCT_EV_RX_ACA_FAIL,
-                           AAA_SESSION_ACCT_ST_IDLE);
+        AddStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_L,
+                           DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL,
+                           DIAMETER_SESSION_ACCT_ST_IDLE);
 
         /*
            State     Event                          Action     New State
            -------------------------------------------------------------
            PendingL  Any                            None       PendingL
          */
-        AddWildcardStateTableEntry(AAA_SESSION_ACCT_ST_PENDING_L,
-                                   AAA_SESSION_ACCT_ST_PENDING_L);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_ACCT_ST_PENDING_L,
+                                   DIAMETER_SESSION_ACCT_ST_PENDING_L);
 
-        InitialState(AAA_SESSION_ACCT_ST_IDLE); 
+        InitialState(DIAMETER_SESSION_ACCT_ST_IDLE); 
       }
 
-      static AAA_SessAcctClientStateTable &Instance() {
+      static DiameterSessAcctClientStateTable &Instance() {
         return m_AcctClientStateTable;
       }
 
    private:
-      AAA_SessAcctClient_TxACR               m_acTxACR;
-      AAA_SessAcctClient_RxACA_Success       m_acRxACASuccess;
-      AAA_SessAcctClient_InterimTimout       m_acInterimTimeout;
-      AAA_SessAcctClient_StoreStartRecord    m_acStoreStartRecord;
-      AAA_SessAcctClient_StoreStopRecord     m_acStoreStopRecord;
-      AAA_SessAcctClient_StoreInterimRecord  m_acStoreInterimRecord;
-      AAA_SessAcctClient_StoreEventRecord    m_acStoreEventRecord;
-      AAA_SessAcctClient_StartIntTimer       m_acStartIntTimer;
-      AAA_SessAcctClient_DeleteRecord        m_acDeleteRecord;
-      AAA_SessAcctClient_Disconnect          m_acDisconnect;
+      DiameterSessAcctClient_TxACR               m_acTxACR;
+      DiameterSessAcctClient_RxACA_Success       m_acRxACASuccess;
+      DiameterSessAcctClient_InterimTimout       m_acInterimTimeout;
+      DiameterSessAcctClient_StoreStartRecord    m_acStoreStartRecord;
+      DiameterSessAcctClient_StoreStopRecord     m_acStoreStopRecord;
+      DiameterSessAcctClient_StoreInterimRecord  m_acStoreInterimRecord;
+      DiameterSessAcctClient_StoreEventRecord    m_acStoreEventRecord;
+      DiameterSessAcctClient_StartIntTimer       m_acStartIntTimer;
+      DiameterSessAcctClient_DeleteRecord        m_acDeleteRecord;
+      DiameterSessAcctClient_Disconnect          m_acDisconnect;
 
    private:
-      static AAA_SessAcctClientStateTable m_AcctClientStateTable;
+      static DiameterSessAcctClientStateTable    m_AcctClientStateTable;
 };
 
 #endif /* __AAA_SESSION_ACCT_CLIENT_FSM_H__ */

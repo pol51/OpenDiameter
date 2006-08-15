@@ -42,29 +42,29 @@
 #include "od_utl_rbtree.h"
 
 typedef enum {
-   AAA_ROUTE_ACTION_LOCAL,
-   AAA_ROUTE_ACTION_RELAY,
-   AAA_ROUTE_ACTION_PROXY,
-   AAA_ROUTE_ACTION_REDIRECT
-} AAA_ROUTE_ACTION;
+   DIAMETER_ROUTE_ACTION_LOCAL,
+   DIAMETER_ROUTE_ACTION_RELAY,
+   DIAMETER_ROUTE_ACTION_PROXY,
+   DIAMETER_ROUTE_ACTION_REDIRECT
+} DIAMETER_ROUTE_ACTION;
 
 typedef enum {
-   AAA_REDIRECT_USAGE_DONT_CACHE,
-   AAA_REDIRECT_USAGE_ALL_SESSION,
-   AAA_REDIRECT_USAGE_ALL_REALM,
-   AAA_REDIRECT_USAGE_REALM_AND_APPLICATION,
-   AAA_REDIRECT_USAGE_ALL_APPLICATION,
-   AAA_REDIRECT_USAGE_ALL_HOST,
-   AAA_REDIRECT_USAGE_ALL_USER
-} AAA_REDIRECT_USAGE;
+   DIAMETER_REDIRECT_USAGE_DONT_CACHE,
+   DIAMETER_REDIRECT_USAGE_ALL_SESSION,
+   DIAMETER_REDIRECT_USAGE_ALL_REALM,
+   DIAMETER_REDIRECT_USAGE_REALM_AND_APPLICATION,
+   DIAMETER_REDIRECT_USAGE_ALL_APPLICATION,
+   DIAMETER_REDIRECT_USAGE_ALL_HOST,
+   DIAMETER_REDIRECT_USAGE_ALL_USER
+} DIAMETER_REDIRECT_USAGE;
 
-class AAA_RouteServerEntry
+class DiameterRouteServerEntry
 {
    public:
-      AAA_RouteServerEntry() :
+      DiameterRouteServerEntry() :
           m_Metric(0) {
       }    
-      AAA_RouteServerEntry(std::string &s,
+      DiameterRouteServerEntry(std::string &s,
                            int metric = 0) :
           m_Server(s), m_Metric(metric) {
       }    
@@ -79,24 +79,24 @@ class AAA_RouteServerEntry
       int m_Metric;
 };
 
-typedef std::list<AAA_RouteServerEntry*> AAA_RouteServerList;
+typedef std::list<DiameterRouteServerEntry*> DiameterRouteServerList;
 
-class AAA_RouteServers : private AAA_RouteServerList
+class DiameterRouteServers : private DiameterRouteServerList
 {
    public:
-      AAA_RouteServers() { }
-      virtual ~AAA_RouteServers();
-      int Add(AAA_RouteServerEntry &e);
-      AAA_RouteServerEntry *Lookup(std::string &server);
-      AAA_RouteServerEntry *First();
-      AAA_RouteServerEntry *Next(AAA_RouteServerEntry &prev);
+      DiameterRouteServers() { }
+      virtual ~DiameterRouteServers();
+      int Add(DiameterRouteServerEntry &e);
+      DiameterRouteServerEntry *Lookup(std::string &server);
+      DiameterRouteServerEntry *First();
+      DiameterRouteServerEntry *Next(DiameterRouteServerEntry &prev);
       int Remove(std::string &server);
 };
 
-class AAA_RouteApplication
+class DiameterRouteApplication
 {
    public:
-      AAA_RouteApplication(int appId = 0,
+      DiameterRouteApplication(int appId = 0,
                            int vendorId = 0) :
           m_ApplicationId(appId),
           m_VendorId(vendorId) {
@@ -107,72 +107,72 @@ class AAA_RouteApplication
       int &VendorId() {
           return m_VendorId;
       }
-      AAA_RouteServers &Servers() {
+      DiameterRouteServers &Servers() {
           return m_Servers;
       }
 
    private:
       int m_ApplicationId;
       int m_VendorId;
-      AAA_RouteServers m_Servers;
+      DiameterRouteServers m_Servers;
 };
 
-typedef std::map<int, AAA_RouteApplication*> AAA_RouteAppIdMap;
-typedef std::map<int, AAA_RouteAppIdMap*> AAA_RouteVendorIdMap;
+typedef std::map<int, DiameterRouteApplication*> DiameterRouteAppIdMap;
+typedef std::map<int, DiameterRouteAppIdMap*> DiameterRouteVendorIdMap;
 
-class AAA_RouteEntry : public OD_Utl_RbTreeData
+class DiameterRouteEntry : public OD_Utl_RbTreeData
 {
    public:
-      AAA_RouteEntry(std::string &realm,
-                     AAA_ROUTE_ACTION a = AAA_ROUTE_ACTION_LOCAL) :
+      DiameterRouteEntry(std::string &realm,
+                     DIAMETER_ROUTE_ACTION a = DIAMETER_ROUTE_ACTION_LOCAL) :
           m_Realm(realm), m_Action(a) {
       }
-      ~AAA_RouteEntry() {
+      ~DiameterRouteEntry() {
           clear();
       }
       std::string &Realm() {
           return m_Realm;
       }
-      AAA_ROUTE_ACTION &Action() {
+      DIAMETER_ROUTE_ACTION &Action() {
           return m_Action;
       }
-      AAA_REDIRECT_USAGE &RedirectUsage() {
+      DIAMETER_REDIRECT_USAGE &RedirectUsage() {
           return m_RedirectUsage;
       }
-      int Add(AAA_RouteApplication &a);
-      AAA_RouteApplication *Lookup(int appId,
+      int Add(DiameterRouteApplication &a);
+      DiameterRouteApplication *Lookup(int appId,
                                    int vendorId = 0);
-      AAA_RouteApplication *First();
-      AAA_RouteApplication *Next(AAA_RouteApplication &app);
+      DiameterRouteApplication *First();
+      DiameterRouteApplication *Next(DiameterRouteApplication &app);
       int Remove(int appId, int vendorId = 0);
       virtual void Dump(void *userData);
 
    protected:
       std::string m_Realm;
-      AAA_ROUTE_ACTION m_Action;
-      AAA_REDIRECT_USAGE m_RedirectUsage;
-      AAA_RouteVendorIdMap m_Identifiers; 
+      DIAMETER_ROUTE_ACTION m_Action;
+      DIAMETER_REDIRECT_USAGE m_RedirectUsage;
+      DiameterRouteVendorIdMap m_Identifiers; 
 
    private:
       int operator < (OD_Utl_RbTreeData &cmp) {
-          AAA_RouteEntry *e = reinterpret_cast<AAA_RouteEntry*>(&cmp);
+          DiameterRouteEntry *e = reinterpret_cast<DiameterRouteEntry*>(&cmp);
           return (m_Realm < e->Realm());
       }
       int operator == (OD_Utl_RbTreeData &cmp) {
-          AAA_RouteEntry *e = reinterpret_cast<AAA_RouteEntry*>(&cmp);
+          DiameterRouteEntry *e = reinterpret_cast<DiameterRouteEntry*>(&cmp);
           return (m_Realm == e->Realm());
       }
       void clear(void *userData = 0);
 };
 
-class AAA_RouteTable 
+class DiameterRouteTable 
 {
    public:
-      AAA_RouteTable(int expireTime = 0) :
+      DiameterRouteTable(int expireTime = 0) :
           m_ExpireTime(expireTime),
           m_DefaultRoute(NULL) {
       }
-      ~AAA_RouteTable() {
+      ~DiameterRouteTable() {
           if (m_DefaultRoute) {
               delete m_DefaultRoute;
           }
@@ -184,29 +184,29 @@ class AAA_RouteTable
       void ExpireTime(int expireTime) {
           m_ExpireTime = expireTime;
       }
-      AAA_RouteEntry *DefaultRoute() {
+      DiameterRouteEntry *DefaultRoute() {
           return m_DefaultRoute;
       }
-      void DefaultRoute(AAA_RouteEntry &e) {
+      void DefaultRoute(DiameterRouteEntry &e) {
           if (m_DefaultRoute) {
               delete m_DefaultRoute;
           }
           m_DefaultRoute = &e;
       }
-      int Add(AAA_RouteEntry &e) {
+      int Add(DiameterRouteEntry &e) {
           Remove(e.Realm());
           return m_Routes.Insert(&e) ? (0) : (-1);
       }
-      AAA_RouteEntry *Lookup(std::string &realm) {
-          AAA_RouteEntry search(realm);
-          AAA_RouteEntry *rte = reinterpret_cast
-               <AAA_RouteEntry*>(m_Routes.Find(&search));
+      DiameterRouteEntry *Lookup(std::string &realm) {
+          DiameterRouteEntry search(realm);
+          DiameterRouteEntry *rte = reinterpret_cast
+               <DiameterRouteEntry*>(m_Routes.Find(&search));
           return (rte == NULL) ? DefaultRoute() : rte;
       }
       int Remove(std::string &realm) {
-          AAA_RouteEntry search(realm);
-          AAA_RouteEntry *e = reinterpret_cast<
-              AAA_RouteEntry*>(m_Routes.Remove(&search));
+          DiameterRouteEntry search(realm);
+          DiameterRouteEntry *e = reinterpret_cast<
+              DiameterRouteEntry*>(m_Routes.Remove(&search));
           if (e) {
               delete e;
               return (0);
@@ -218,11 +218,11 @@ class AAA_RouteTable
    private:
       OD_Utl_RbTreeTree m_Routes;
       int m_ExpireTime;
-      AAA_RouteEntry *m_DefaultRoute;
+      DiameterRouteEntry *m_DefaultRoute;
 };
 
-typedef ACE_Singleton<AAA_RouteTable, ACE_Recursive_Thread_Mutex> AAA_RouteTable_S;
-#define AAA_ROUTE_TABLE() AAA_RouteTable_S::instance() 
+typedef ACE_Singleton<DiameterRouteTable, ACE_Recursive_Thread_Mutex> DiameterRouteTable_S;
+#define DIAMETER_ROUTE_TABLE() DiameterRouteTable_S::instance()
 
 #endif /* __ROUTE_TABLE_H__ */
 

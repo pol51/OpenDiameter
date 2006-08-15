@@ -35,18 +35,18 @@
 #include "aaa_route_id_generator.h"
 #include "aaa_session_attributes.h"
 
-void AAA_SessionAttributes::MsgIdTxMessage(DiameterMsg &msg)
+void DiameterSessionAttributes::MsgIdTxMessage(DiameterMsg &msg)
 {
    if (msg.hdr.flags.r) {
        if (msg.hdr.hh == 0) {
-           m_LastTxHopId = AAA_HOPBYHOP_GEN()->Get();
+           m_LastTxHopId = DIAMETER_HOPBYHOP_GEN()->Get();
            msg.hdr.hh = m_LastTxHopId;
        }
        else {
 	   m_LastTxHopId = msg.hdr.hh;
        }
        if (msg.hdr.ee == 0) {
-           m_LastTxEndId = AAA_ENDTOEND_GEN()->Get();
+           m_LastTxEndId = DIAMETER_ENDTOEND_GEN()->Get();
            msg.hdr.ee = m_LastTxEndId;
        }
        else {
@@ -59,7 +59,7 @@ void AAA_SessionAttributes::MsgIdTxMessage(DiameterMsg &msg)
    }
 }
 
-bool AAA_SessionAttributes::MsgIdRxMessage(DiameterMsg &msg)
+bool DiameterSessionAttributes::MsgIdRxMessage(DiameterMsg &msg)
 {
    if (msg.hdr.flags.r) {
        m_LastRxHopId = msg.hdr.hh;
@@ -70,10 +70,10 @@ bool AAA_SessionAttributes::MsgIdRxMessage(DiameterMsg &msg)
            (msg.hdr.ee == m_LastTxEndId));
 }
 
-AAAReturnCode AAA_SessionId::Get(DiameterMsg &msg)
+AAAReturnCode DiameterSessionId::Get(DiameterMsg &msg)
 {
    DiameterUtf8AvpContainerWidget sidAvp(msg.acl);
-   diameter_utf8string_t *sid = sidAvp.GetAvp(AAA_AVPNAME_SESSIONID);
+   diameter_utf8string_t *sid = sidAvp.GetAvp(DIAMETER_AVPNAME_SESSIONID);
    try {
       if (sid == NULL) {
          throw (AAA_ERR_PARSING_FAILED);
@@ -108,10 +108,10 @@ AAAReturnCode AAA_SessionId::Get(DiameterMsg &msg)
    }
 }
 
-AAAReturnCode AAA_SessionId::Set(DiameterMsg &msg)
+AAAReturnCode DiameterSessionId::Set(DiameterMsg &msg)
 {
    DiameterUtf8AvpContainerWidget sidAvp(msg.acl);
-   diameter_utf8string_t &sid = sidAvp.AddAvp(AAA_AVPNAME_SESSIONID);
+   diameter_utf8string_t &sid = sidAvp.AddAvp(DIAMETER_AVPNAME_SESSIONID);
 
    char nums[64];
    sprintf(nums, ";%d;%d", High(), Low());
@@ -124,14 +124,14 @@ AAAReturnCode AAA_SessionId::Set(DiameterMsg &msg)
    return (AAA_ERR_SUCCESS);
 }
 
-void AAA_SessionId::Dump()
+void DiameterSessionId::Dump()
 {
    std::string dump;
    Dump(dump);
    AAA_LOG(LM_INFO, "(%P|%t) Session id=%s\n", dump.data());
 }
 
-void AAA_SessionId::Dump(std::string &dump)
+void DiameterSessionId::Dump(std::string &dump)
 {
    dump = DiameterId().data();
    dump += ';';

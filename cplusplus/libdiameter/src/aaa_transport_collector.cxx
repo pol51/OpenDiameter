@@ -33,7 +33,7 @@
 
 #include "aaa_transport_collector.h"
 
-AAA_MsgCollector::AAA_MsgCollector() : 
+DiameterMsgCollector::DiameterMsgCollector() : 
     m_Buffer(NULL),
     m_Offset(0),
     m_BufSize(0),
@@ -50,14 +50,14 @@ AAA_MsgCollector::AAA_MsgCollector() :
    }   
 }
 
-AAA_MsgCollector::~AAA_MsgCollector()
+DiameterMsgCollector::~DiameterMsgCollector()
 {
    if (m_Buffer) {
       ACE_OS::free(m_Buffer); 
    }
 }
 
-void AAA_MsgCollector::Message(void *data, size_t length)
+void DiameterMsgCollector::Message(void *data, size_t length)
 {
    std::string emptyStr(""); 
    if (m_Buffer == NULL || m_Handler == NULL) {
@@ -98,7 +98,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
                std::string eDesc;
                st.get(eType, eCode, eDesc);
 
-               AAA_RangedValue lengthRange
+               DiameterRangedValue lengthRange
                   (hdr.length, DIAMETER_HEADER_SIZE, m_BufSize * MAX_MSG_BLOCK);
 
                if ((eCode == AAA_COMMAND_UNSUPPORTED) &&
@@ -109,7 +109,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
                    if (++m_PersistentError) {
                        eDesc = "To many persistent errors in data";
                        m_Handler->Error
-                          (AAA_MsgCollectorHandler::TRANSPORT_ERROR, eDesc);
+                          (DiameterMsgCollectorHandler::TRANSPORT_ERROR, eDesc);
                        return;
                    }
                    m_Offset -= sizeof(ACE_UINT32);
@@ -140,7 +140,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
                   m_Offset = 0;
                   m_MsgLength = 0;
                   m_Handler->Error
-                      (AAA_MsgCollectorHandler::ALLOC_ERROR, emptyStr);
+                      (DiameterMsgCollectorHandler::ALLOC_ERROR, emptyStr);
                   return; 
                }
             }
@@ -194,7 +194,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
                       m_Offset = 0;
                       m_MsgLength = 0;
                       m_Handler->Error
-                          (AAA_MsgCollectorHandler::ALLOC_ERROR, emptyStr);
+                          (DiameterMsgCollectorHandler::ALLOC_ERROR, emptyStr);
                       return; 
                    }
                    else {
@@ -203,7 +203,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
                       ACE_OS::memcpy(m_Buffer, m_Buffer + m_Offset, 
                                      m_MsgLength);
                       m_Handler->Error
-                          (AAA_MsgCollectorHandler::PARSING_ERROR, emptyStr);
+                          (DiameterMsgCollectorHandler::PARSING_ERROR, emptyStr);
                       continue;
                    }
                 }
@@ -215,7 +215,7 @@ void AAA_MsgCollector::Message(void *data, size_t length)
             }
             else { 
                 m_Handler->Error
-                    (AAA_MsgCollectorHandler::PARSING_ERROR, emptyStr);
+                    (DiameterMsgCollectorHandler::PARSING_ERROR, emptyStr);
             }
                
             if (m_MsgLength < m_Offset) {                     

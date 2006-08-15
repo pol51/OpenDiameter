@@ -34,19 +34,19 @@
 #include "aaa_route_table.h"
 #include "aaa_log_facility.h"
 
-AAA_RouteServers::~AAA_RouteServers()
+DiameterRouteServers::~DiameterRouteServers()
 {
     while (! empty()) {
-        AAA_RouteServerEntry *e = front();
+        DiameterRouteServerEntry *e = front();
         pop_front();
         delete e;
     }
 }
     
-int AAA_RouteServers::Add(AAA_RouteServerEntry &e)
+int DiameterRouteServers::Add(DiameterRouteServerEntry &e)
 {
     Remove(e.Server());
-    AAA_RouteServerList::iterator i;
+    DiameterRouteServerList::iterator i;
     for (i = begin(); i != end(); i++) {
         if ((*i)->Metric() >= e.Metric()) {
             insert(i, &e);
@@ -59,9 +59,9 @@ int AAA_RouteServers::Add(AAA_RouteServerEntry &e)
     return (0);
 }
 
-AAA_RouteServerEntry *AAA_RouteServers::Lookup(std::string &server)
+DiameterRouteServerEntry *DiameterRouteServers::Lookup(std::string &server)
 {
-    AAA_RouteServerList::iterator i;
+    DiameterRouteServerList::iterator i;
     for (i = begin(); i != end(); i ++) {
         if (server == (*i)->Server()) {
            return (*i);
@@ -70,16 +70,16 @@ AAA_RouteServerEntry *AAA_RouteServers::Lookup(std::string &server)
     return (NULL);
 }
 
-AAA_RouteServerEntry *AAA_RouteServers::First()
+DiameterRouteServerEntry *DiameterRouteServers::First()
 {
-    AAA_RouteServerEntry *e = front();
+    DiameterRouteServerEntry *e = front();
     return (e);
 }
 
-AAA_RouteServerEntry *AAA_RouteServers::Next(
-    AAA_RouteServerEntry &prev)
+DiameterRouteServerEntry *DiameterRouteServers::Next(
+    DiameterRouteServerEntry &prev)
 {
-    AAA_RouteServerList::iterator i;
+    DiameterRouteServerList::iterator i;
     for (i = begin(); i != end(); i ++) {
        if (&prev == (*i)) {
            i ++;
@@ -92,9 +92,9 @@ AAA_RouteServerEntry *AAA_RouteServers::Next(
     return (NULL);    
 }
 
-int AAA_RouteServers::Remove(std::string &server)
+int DiameterRouteServers::Remove(std::string &server)
 {
-    AAA_RouteServerList::iterator i;
+    DiameterRouteServerList::iterator i;
     for (i = begin(); i != end(); i ++) {
        if (server == (*i)->Server()) {
            delete (*i);
@@ -105,54 +105,54 @@ int AAA_RouteServers::Remove(std::string &server)
     return (0);
 }
 
-int AAA_RouteEntry::Add(AAA_RouteApplication &a)
+int DiameterRouteEntry::Add(DiameterRouteApplication &a)
 {
-    AAA_RouteAppIdMap *idMap;
+    DiameterRouteAppIdMap *idMap;
     Remove(a.VendorId(), a.ApplicationId());
-    AAA_RouteVendorIdMap::iterator x = m_Identifiers.find(a.VendorId());
+    DiameterRouteVendorIdMap::iterator x = m_Identifiers.find(a.VendorId());
     if (x == m_Identifiers.end()) {
-        idMap = new AAA_RouteAppIdMap;
-        m_Identifiers.insert(std::pair<int, AAA_RouteAppIdMap*>
+        idMap = new DiameterRouteAppIdMap;
+        m_Identifiers.insert(std::pair<int, DiameterRouteAppIdMap*>
              (a.VendorId(), idMap));
     }
     else {
         idMap = x->second;
     }
-    idMap->insert(std::pair<int, AAA_RouteApplication*>
+    idMap->insert(std::pair<int, DiameterRouteApplication*>
                   (a.ApplicationId(),
-                   static_cast<AAA_RouteApplication*>(&a)));
+                   static_cast<DiameterRouteApplication*>(&a)));
     return (0);
 }
 
-AAA_RouteApplication *AAA_RouteEntry::Lookup(int appId, int vendorId)
+DiameterRouteApplication *DiameterRouteEntry::Lookup(int appId, int vendorId)
 {
-    AAA_RouteVendorIdMap::iterator x = m_Identifiers.find(vendorId);
+    DiameterRouteVendorIdMap::iterator x = m_Identifiers.find(vendorId);
     if (x != m_Identifiers.end()) {
-        AAA_RouteAppIdMap *id = x->second;
-        AAA_RouteAppIdMap::iterator y = id->find(appId);
+        DiameterRouteAppIdMap *id = x->second;
+        DiameterRouteAppIdMap::iterator y = id->find(appId);
         return (y != id->end()) ? y->second : 0;
     }
     return (0);
 }
 
-AAA_RouteApplication *AAA_RouteEntry::First()
+DiameterRouteApplication *DiameterRouteEntry::First()
 {
-    AAA_RouteVendorIdMap::iterator x = m_Identifiers.begin();
+    DiameterRouteVendorIdMap::iterator x = m_Identifiers.begin();
     if (x != m_Identifiers.end()) {
-        AAA_RouteAppIdMap *id = x->second;
-        AAA_RouteAppIdMap::iterator y = id->begin();
+        DiameterRouteAppIdMap *id = x->second;
+        DiameterRouteAppIdMap::iterator y = id->begin();
         return (y != id->end()) ? y->second : 0;
     }
     return (0);
 }
 
-AAA_RouteApplication *AAA_RouteEntry::Next(AAA_RouteApplication &app)
+DiameterRouteApplication *DiameterRouteEntry::Next(DiameterRouteApplication &app)
 {
     bool lookup = true;
-    AAA_RouteVendorIdMap::iterator x = m_Identifiers.find(app.VendorId());
+    DiameterRouteVendorIdMap::iterator x = m_Identifiers.find(app.VendorId());
     for (; x != m_Identifiers.end(); x++) {
-        AAA_RouteAppIdMap *id = x->second;
-        AAA_RouteAppIdMap::iterator y = (lookup) ?
+        DiameterRouteAppIdMap *id = x->second;
+        DiameterRouteAppIdMap::iterator y = (lookup) ?
             id->find(app.ApplicationId()) : id->begin();
         for (y++; y != id->end(); y++) {
             return y->second;
@@ -162,12 +162,12 @@ AAA_RouteApplication *AAA_RouteEntry::Next(AAA_RouteApplication &app)
     return (0);
 }
 
-int AAA_RouteEntry::Remove(int appId, int vendorId)
+int DiameterRouteEntry::Remove(int appId, int vendorId)
 {
-    AAA_RouteVendorIdMap::iterator x = m_Identifiers.find(vendorId);
+    DiameterRouteVendorIdMap::iterator x = m_Identifiers.find(vendorId);
     if (x != m_Identifiers.end()) {
-       AAA_RouteAppIdMap *id = x->second;
-       AAA_RouteAppIdMap::iterator y = id->find(appId);
+       DiameterRouteAppIdMap *id = x->second;
+       DiameterRouteAppIdMap::iterator y = id->find(appId);
        if (y != id->end()) {
            delete y->second;
            id->erase(y);
@@ -181,14 +181,14 @@ int AAA_RouteEntry::Remove(int appId, int vendorId)
     return (-1);
 }
 
-void AAA_RouteEntry::clear(void *userData)
+void DiameterRouteEntry::clear(void *userData)
 {
     while (! m_Identifiers.empty()) {
-        AAA_RouteVendorIdMap::iterator x = m_Identifiers.begin();
-        AAA_RouteAppIdMap *id = x->second;
+        DiameterRouteVendorIdMap::iterator x = m_Identifiers.begin();
+        DiameterRouteAppIdMap *id = x->second;
         while (! id->empty()) {
-            AAA_RouteAppIdMap::iterator y = id->begin();
-            AAA_RouteApplication *app = y->second;
+            DiameterRouteAppIdMap::iterator y = id->begin();
+            DiameterRouteApplication *app = y->second;
             id->erase(y);
             delete app;
         }
@@ -197,20 +197,20 @@ void AAA_RouteEntry::clear(void *userData)
     }
 }
 
-void AAA_RouteEntry::Dump(void *userData)
+void DiameterRouteEntry::Dump(void *userData)
 {
     AAA_LOG(LM_INFO, "(%P|%t)              Route  : Realm = %s, Action = %d, Redirect-Usage = %d\n", 
             m_Realm.data(), m_Action, m_RedirectUsage);
 
-    AAA_RouteVendorIdMap::iterator x = m_Identifiers.begin();
+    DiameterRouteVendorIdMap::iterator x = m_Identifiers.begin();
     for (; x != m_Identifiers.end(); x++) {
-        AAA_RouteAppIdMap *id = x->second;
-        AAA_RouteAppIdMap::iterator y = id->begin();
+        DiameterRouteAppIdMap *id = x->second;
+        DiameterRouteAppIdMap::iterator y = id->begin();
         for (; y != id->end(); y++) {
-            AAA_RouteApplication *app = y->second;
+            DiameterRouteApplication *app = y->second;
             AAA_LOG(LM_INFO, "(%P|%t)                       Application Id=%d, Vendor=%d\n",
                  app->ApplicationId(), app->VendorId());
-            AAA_RouteServerEntry *server = app->Servers().First();
+            DiameterRouteServerEntry *server = app->Servers().First();
             while (server) {
                 AAA_LOG(LM_INFO, "(%P|%t)                          Server = %s, metric = %d\n", 
                      server->Server().data(), server->Metric());
@@ -220,7 +220,7 @@ void AAA_RouteEntry::Dump(void *userData)
     }
 }
 
-void AAA_RouteTable::Dump()
+void DiameterRouteTable::Dump()
 {
     AAA_LOG(LM_INFO, "(%P|%t)  Dumping Route Table\n");
     AAA_LOG(LM_INFO, "(%P|%t)            Exp Time : %d\n", m_ExpireTime);

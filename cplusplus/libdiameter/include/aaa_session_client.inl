@@ -35,7 +35,7 @@
 #define __AAA_SESSION_CLIENT_INL__
 
 template <class REC_COLLECTOR>
-AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Begin
+AAAReturnCode DiameterClientAcctSubSession<REC_COLLECTOR>::Begin
 (bool oneTime)
 {
     // check if RADIUS/DIAMETER translation
@@ -68,21 +68,21 @@ AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Begin
 
     // notification policy
     if (RecCollector().IsLastRecordInStorage()) {
-        m_Fsm.Notify(AAA_SESSION_ACCT_EV_REC_IN_STORAGE);
+        m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_REC_IN_STORAGE);
     }
     else if (oneTime) {
-        Attributes().RecordType() = AAA_ACCT_RECTYPE_EVENT;
-        m_Fsm.Notify(AAA_SESSION_ACCT_EV_REQUEST_ONETIME_ACCESS);
+        Attributes().RecordType() = DIAMETER_ACCT_RECTYPE_EVENT;
+        m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_REQUEST_ONETIME_ACCESS);
     }
     else {
-        Attributes().RecordType() = AAA_ACCT_RECTYPE_START;
-        m_Fsm.Notify(AAA_SESSION_ACCT_EV_REQUEST_ACCESS);
+        Attributes().RecordType() = DIAMETER_ACCT_RECTYPE_START;
+        m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_REQUEST_ACCESS);
     }    
     return (AAA_ERR_SUCCESS);
 }
 
 template <class REC_COLLECTOR>
-AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Send
+AAAReturnCode DiameterClientAcctSubSession<REC_COLLECTOR>::Send
 (std::auto_ptr<DiameterMsg> msg) 
 {
    ////        !!!! WARNING !!!!
@@ -91,28 +91,28 @@ AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Send
    ////
    if (TxDelivery(msg) != AAA_ERR_SUCCESS) {
        if (RecCollector().IsLastRecordInStorage()) {
-           m_Fsm.Notify(AAA_SESSION_ACCT_EV_FTS);
+           m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_FTS);
        }
-       else if ((Attributes().RecordType() == AAA_ACCT_RECTYPE_EVENT) ||
-                (Attributes().RecordType() == AAA_ACCT_RECTYPE_STOP)) {
+       else if ((Attributes().RecordType() == DIAMETER_ACCT_RECTYPE_EVENT) ||
+                (Attributes().RecordType() == DIAMETER_ACCT_RECTYPE_STOP)) {
            if (RecCollector().IsStorageSpaceAvailable()) {
-               m_Fsm.Notify(AAA_SESSION_ACCT_EV_FTS_BUF);
+               m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_FTS_BUF);
            }
            else {
-               m_Fsm.Notify(AAA_SESSION_ACCT_EV_FTS_NO_BUF);
+               m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_FTS_NO_BUF);
            }
        }
        else if (RecCollector().IsStorageSpaceAvailable() &&
                 (Attributes().RealtimeRequired()() != 
-                   AAA_ACCT_REALTIME_DELIVER_AND_GRANT)) {
-           m_Fsm.Notify(AAA_SESSION_ACCT_EV_FTS_NOT_DAG);
+                   DIAMETER_ACCT_REALTIME_DELIVER_AND_GRANT)) {
+           m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_FTS_NOT_DAG);
        }
        else if (Attributes().RealtimeRequired()() == 
-                AAA_ACCT_REALTIME_GRANT_AND_LOSE) {
-           m_Fsm.Notify(AAA_SESSION_ACCT_EV_FTS_AND_GAL);
+                DIAMETER_ACCT_REALTIME_GRANT_AND_LOSE) {
+           m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_FTS_AND_GAL);
        }
        else {
-           m_Fsm.Notify(AAA_SESSION_ACCT_EV_FTS_NOT_GAL);
+           m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_FTS_NOT_GAL);
        }
        this->Failed(Attributes().RecordNumber()());
    }
@@ -120,7 +120,7 @@ AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::Send
 }
 
 template <class REC_COLLECTOR>
-void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxRequest
+void DiameterClientAcctSubSession<REC_COLLECTOR>::RxRequest
 (std::auto_ptr<DiameterMsg> msg) 
 {
     AAA_LOG(LM_INFO, "(%P|%t) Service specific request msg received in client, no handlers so discarding\n");
@@ -128,11 +128,11 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxRequest
 }
 
 template <class REC_COLLECTOR>
-void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
+void DiameterClientAcctSubSession<REC_COLLECTOR>::RxAnswer
 (std::auto_ptr<DiameterMsg> msg) 
 {
     // validate messge
-    if (msg->hdr.code != AAA_MSGCODE_ACCOUNTING) {
+    if (msg->hdr.code != DIAMETER_MSGCODE_ACCOUNTING) {
         AAA_LOG(LM_INFO, "(%P|%t) Non-accounting answer message received, discarding\n");
         DiameterMsgHeaderDump::Dump(*msg);
         return;
@@ -144,7 +144,7 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     // filter record-type
     DiameterEnumAvpContainerWidget recTypeAvp(msg->acl);
     diameter_enumerated_t *recType = recTypeAvp.GetAvp
-                 (AAA_AVPNAME_ACCTREC_TYPE);
+                 (DIAMETER_AVPNAME_ACCTREC_TYPE);
     if (recType) {
         Attributes().RecordType() = *recType;
     }
@@ -152,7 +152,7 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     // filter realtime-required
     DiameterEnumAvpContainerWidget realTimeAvp(msg->acl);
     diameter_enumerated_t *realTime = realTimeAvp.GetAvp
-                 (AAA_AVPNAME_ACCTREALTIME);
+                 (DIAMETER_AVPNAME_ACCTREALTIME);
     if (realTime) {
         Attributes().RealtimeRequired() = *realTime;
     }
@@ -160,7 +160,7 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     // filter interval
     DiameterUInt32AvpContainerWidget intervalAvp(msg->acl);
     diameter_unsigned32_t *interval = intervalAvp.GetAvp
-                 (AAA_AVPNAME_ACCTINTERVAL);
+                 (DIAMETER_AVPNAME_ACCTINTERVAL);
     if (interval) {
         Attributes().InterimInterval() = *interval;
     }
@@ -169,39 +169,39 @@ void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     DiameterMsgResultCode rcode(*msg);
     if (rcode.InterpretedResultCode() == 
         DiameterMsgResultCode::RCODE_SUCCESS) {
-        m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACA_OK);
+        m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACA_OK);
     }
     else if (RecCollector().IsLastRecordInStorage() ||
-             (Attributes().RecordType() == AAA_ACCT_RECTYPE_STOP) ||
-             (Attributes().RecordType() == AAA_ACCT_RECTYPE_EVENT)) {
-        m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACA_FAIL);
+             (Attributes().RecordType() == DIAMETER_ACCT_RECTYPE_STOP) ||
+             (Attributes().RecordType() == DIAMETER_ACCT_RECTYPE_EVENT)) {
+        m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL);
         this->Failed(Attributes().RecordNumber()());
     }
     else {   
         if (Attributes().RealtimeRequired()() == 
-            AAA_ACCT_REALTIME_DELIVER_AND_GRANT) {
-            m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL);
+            DIAMETER_ACCT_REALTIME_DELIVER_AND_GRANT) {
+            m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL);
         }
         else {
-            m_Fsm.Notify(AAA_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL);
+            m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL);
         }
         this->Failed(Attributes().RecordNumber()());
     }
 }
 
 template <class REC_COLLECTOR>
-void AAA_ClientAcctSubSession<REC_COLLECTOR>::RxError
+void DiameterClientAcctSubSession<REC_COLLECTOR>::RxError
 (std::auto_ptr<DiameterMsg> msg) 
 {
     ErrorMsg(*msg);
 }
 
 template <class REC_COLLECTOR>
-AAAReturnCode AAA_ClientAcctSubSession<REC_COLLECTOR>::End()
+AAAReturnCode DiameterClientAcctSubSession<REC_COLLECTOR>::End()
 {
-    Attributes().RecordType() = AAA_ACCT_RECTYPE_STOP;
+    Attributes().RecordType() = DIAMETER_ACCT_RECTYPE_STOP;
     m_Fsm.CancelAllTimer();
-    m_Fsm.Notify(AAA_SESSION_ACCT_EV_STOP);
+    m_Fsm.Notify(DIAMETER_SESSION_ACCT_EV_STOP);
     return (AAA_ERR_SUCCESS);
 }
 

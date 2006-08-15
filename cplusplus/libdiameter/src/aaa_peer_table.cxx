@@ -33,83 +33,83 @@
 
 #include "aaa_peer_table.h"
 
-void AAA_PeerEntry::Start() throw (AAA_Error)
+void DiameterPeerEntry::Start() throw (AAA_Error)
 {
-   Notify(AAA_PEER_EV_START);
+   Notify(DIAMETER_PEER_EV_START);
    m_PeerInitiator.Connect(PeerData().m_Identity,
                            PeerData().m_Port,
                            PeerData().m_TLS);
 }
 
-void AAA_PeerEntry::Stop(AAA_DISCONNECT_CAUSE cause)
+void DiameterPeerEntry::Stop(DIAMETER_DISCONNECT_CAUSE cause)
 {
    PeerData().m_DisconnectCause = cause;
-   Notify(AAA_PEER_EV_STOP);
+   Notify(DIAMETER_PEER_EV_STOP);
    m_PeerInitiator.Stop();
-   AAA_PeerStateMachine::WaitOnCleanup();
+   DiameterPeerStateMachine::WaitOnCleanup();
 }
 
-void AAA_PeerEntry::IncommingConnectionRequest(std::auto_ptr<AAA_IO_Base> io,
+void DiameterPeerEntry::IncommingConnectionRequest(std::auto_ptr<Diameter_IO_Base> io,
                                                std::auto_ptr<DiameterMsg> cer)
 {
-   AAA_MsgCollector *h = reinterpret_cast<AAA_MsgCollector*>(io->Handler());
+   DiameterMsgCollector *h = reinterpret_cast<DiameterMsgCollector*>(io->Handler());
    h->RegisterHandler(*this);
    MsgIdRxMessage(*cer);
-   Notify(AAA_PEER_EV_R_CONN_CER, cer, io);
+   Notify(DIAMETER_PEER_EV_R_CONN_CER, cer, io);
 }
 
-void AAA_PeerEntry::ConnectionRequestAccepted(std::auto_ptr<AAA_IO_Base> io)
+void DiameterPeerEntry::ConnectionRequestAccepted(std::auto_ptr<Diameter_IO_Base> io)
 {
-   AAA_MsgCollector *h = reinterpret_cast<AAA_MsgCollector*>(io->Handler());
+   DiameterMsgCollector *h = reinterpret_cast<DiameterMsgCollector*>(io->Handler());
    h->RegisterHandler(*this);
-   Notify(AAA_PEER_EV_I_RCV_CONN_ACK, io);
+   Notify(DIAMETER_PEER_EV_I_RCV_CONN_ACK, io);
 }
 
-void AAA_PeerEntry::ConnectionRequestFailed()
+void DiameterPeerEntry::ConnectionRequestFailed()
 {
-   Notify(AAA_PEER_EV_I_RCV_CONN_NACK);
+   Notify(DIAMETER_PEER_EV_I_RCV_CONN_NACK);
 }
 
-void AAA_PeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
+void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
 {
 
    ////////////////////////////////////////////
    // inspect msg and send proper notification
    ////////////////////////////////////////////
 
-   AAA_MsgQuery query(*msg);
-   if (state == AAA_PEER_ST_WAIT_I_CEA) {
+   DiameterMsgQuery query(*msg);
+   if (state == DIAMETER_PEER_ST_WAIT_I_CEA) {
        if (! query.IsCapabilities() || query.IsRequest()) {
-           Notify(AAA_PEER_EV_I_RCV_NON_CEA);
+           Notify(DIAMETER_PEER_EV_I_RCV_NON_CEA);
            return;
        }
 
    }
 
    static diameter_unsigned32_t cmdCode[] = { 
-                              AAA_MSGCODE_CAPABILITIES_EXCHG,
-                              AAA_MSGCODE_WATCHDOG,
-                              AAA_MSGCODE_DISCONNECT_PEER 
+                              DIAMETER_MSGCODE_CAPABILITIES_EXCHG,
+                              DIAMETER_MSGCODE_WATCHDOG,
+                              DIAMETER_MSGCODE_DISCONNECT_PEER 
                             };
    static AAA_Event requestIEv[] = { 
-                              AAA_PEER_EV_I_RCV_CER,
-                              AAA_PEER_EV_I_RCV_DWR,
-                              AAA_PEER_EV_I_RCV_DPR 
+                              DIAMETER_PEER_EV_I_RCV_CER,
+                              DIAMETER_PEER_EV_I_RCV_DWR,
+                              DIAMETER_PEER_EV_I_RCV_DPR 
                             };
    static AAA_Event requestREv[] = { 
-                              AAA_PEER_EV_R_RCV_CER,
-                              AAA_PEER_EV_R_RCV_DWR,
-                              AAA_PEER_EV_R_RCV_DPR 
+                              DIAMETER_PEER_EV_R_RCV_CER,
+                              DIAMETER_PEER_EV_R_RCV_DWR,
+                              DIAMETER_PEER_EV_R_RCV_DPR 
                             };
    static AAA_Event answerIEv[]  = { 
-                              AAA_PEER_EV_I_RCV_CEA,
-                              AAA_PEER_EV_I_RCV_DWA,
-                              AAA_PEER_EV_I_RCV_DPA 
+                              DIAMETER_PEER_EV_I_RCV_CEA,
+                              DIAMETER_PEER_EV_I_RCV_DWA,
+                              DIAMETER_PEER_EV_I_RCV_DPA 
                             };
    static AAA_Event answerREv[]  = { 
-                              AAA_PEER_EV_R_RCV_CEA,
-                              AAA_PEER_EV_R_RCV_DWA,
-                              AAA_PEER_EV_R_RCV_DPA 
+                              DIAMETER_PEER_EV_R_RCV_CEA,
+                              DIAMETER_PEER_EV_R_RCV_DWA,
+                              DIAMETER_PEER_EV_R_RCV_DPA 
                             };
 
    for (unsigned int i=0;
@@ -123,17 +123,17 @@ void AAA_PeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
                return;
            }
            switch (state) {
-               case AAA_PEER_ST_I_OPEN:
+               case DIAMETER_PEER_ST_I_OPEN:
                    Notify(query.IsRequest() ?
                           requestIEv[i] : answerIEv[i],
                           msg);
                    break;
-               case AAA_PEER_ST_R_OPEN:
+               case DIAMETER_PEER_ST_R_OPEN:
                    Notify(query.IsRequest() ?
                           requestREv[i] : answerREv[i],
                           msg);
                    break;
-               case AAA_PEER_ST_CLOSING:                   
+               case DIAMETER_PEER_ST_CLOSING:                   
                    if (PeerData().m_IOInitiator.get()) {
                        Notify(query.IsRequest() ?
                               requestIEv[i] : answerIEv[i],
@@ -146,11 +146,11 @@ void AAA_PeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
                        msg);
                    }
                    break;
-               case AAA_PEER_ST_WAIT_RETURNS:
-               case AAA_PEER_ST_WAIT_I_CEA:
+               case DIAMETER_PEER_ST_WAIT_RETURNS:
+               case DIAMETER_PEER_ST_WAIT_I_CEA:
                    if (query.IsCapabilities() &&
                        (! query.IsRequest())) {
-                       Notify(AAA_PEER_EV_I_RCV_CEA, msg);
+                       Notify(DIAMETER_PEER_EV_I_RCV_CEA, msg);
                        break;
                    }
                    // fall through
@@ -164,11 +164,11 @@ void AAA_PeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
    }
 
    switch (state) {
-       case AAA_PEER_ST_I_OPEN:
-           Notify(AAA_PEER_EV_I_RCV_MESSAGE, msg);
+       case DIAMETER_PEER_ST_I_OPEN:
+           Notify(DIAMETER_PEER_EV_I_RCV_MESSAGE, msg);
            break;
-       case AAA_PEER_ST_R_OPEN:
-           Notify(AAA_PEER_EV_R_RCV_MESSAGE, msg);
+       case DIAMETER_PEER_ST_R_OPEN:
+           Notify(DIAMETER_PEER_EV_R_RCV_MESSAGE, msg);
            break;
        default:
            AAA_LOG(LM_INFO,
@@ -178,7 +178,7 @@ void AAA_PeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
    }
 }
 
-void AAA_PeerEntry::Error(COLLECTOR_ERROR error, 
+void DiameterPeerEntry::Error(COLLECTOR_ERROR error, 
                           std::string &io_name)
 {   
    static char *errMsg[] = { "Parsing error",
@@ -192,10 +192,10 @@ void AAA_PeerEntry::Error(COLLECTOR_ERROR error,
    switch (error) {
        case TRANSPORT_ERROR:
            if (io_name == std::string(AAA_IO_ACCEPTOR_NAME)) {
-               Notify(AAA_PEER_EV_R_PEER_DISC);
+               Notify(DIAMETER_PEER_EV_R_PEER_DISC);
            }
            else if (io_name == std::string(AAA_IO_CONNECTOR_NAME)) {
-               Notify(AAA_PEER_EV_I_PEER_DISC);
+               Notify(DIAMETER_PEER_EV_I_PEER_DISC);
            }
            else {
                Cleanup();

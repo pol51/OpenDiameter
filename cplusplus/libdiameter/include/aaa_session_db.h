@@ -40,46 +40,46 @@
 #include "aaa_session.h"
 #include "ace/RW_Mutex.h"
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionEntry : 
-     public AAA_SessionCounter 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionEntry : 
+     public DiameterSessionCounter 
 {
      public:
-        AAA_SessionEntry(AAA_JobData &data) :
+        DiameterSessionEntry(AAA_JobData &data) :
             m_Data(data) {
         }
         AAA_JobData &Data() {
             return m_Data;
         }
-        int operator=(AAA_SessionEntry &cntr) {
+        int operator=(DiameterSessionEntry &cntr) {
 	    m_Data = cntr.Data();
-            (AAA_SessionCounter&)(*this) = 
-                (AAA_SessionCounter&)cntr;
+            (DiameterSessionCounter&)(*this) = 
+                (DiameterSessionCounter&)cntr;
             return (true);
         }
      private:
         AAA_JobData &m_Data;
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionEntryList : 
-     public std::list<AAA_SessionEntry*>
+class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionEntryList : 
+     public std::list<DiameterSessionEntry*>
 {
      public:
-        bool Add(AAA_SessionId &id, 
+        bool Add(DiameterSessionId &id, 
                  AAA_JobData &data);
-        bool Lookup(AAA_SessionId &id,
+        bool Lookup(DiameterSessionId &id,
                     AAA_JobData *&data);
-        bool Remove(AAA_SessionId &id);
+        bool Remove(DiameterSessionId &id);
         void Flush();
      protected:
-        typedef std::list<AAA_SessionEntry*>::iterator 
+        typedef std::list<DiameterSessionEntry*>::iterator 
             EntryIterator;
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionEntryNode : 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionEntryNode : 
      public OD_Utl_RbTreeData 
 {
      public:
-        AAA_SessionEntryNode(std::string &id, std::string &opt) {
+        DiameterSessionEntryNode(std::string &id, std::string &opt) {
             m_DiameterId = id;
             m_OptionalVal = opt;
         }
@@ -89,12 +89,12 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionEntryNode :
         std::string &OptionalVal() {
             return m_OptionalVal;
         }
-        AAA_SessionEntryList &EntryList() {
+        DiameterSessionEntryList &EntryList() {
             return m_Entries;
         }
      protected:
         int operator==(OD_Utl_RbTreeData &cmp) {
-            AAA_SessionEntryNode *id = (AAA_SessionEntryNode*)cmp.payload;
+            DiameterSessionEntryNode *id = (DiameterSessionEntryNode*)cmp.payload;
             if (m_DiameterId == id->DiameterId()) {
                 if (m_OptionalVal.length() > 0) {
                     return (m_OptionalVal == id->OptionalVal()) ?
@@ -105,7 +105,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionEntryNode :
             return false;
         }
         int operator<(OD_Utl_RbTreeData &cmp) {
-            AAA_SessionEntryNode *id = (AAA_SessionEntryNode*)cmp.payload;
+            DiameterSessionEntryNode *id = (DiameterSessionEntryNode*)cmp.payload;
             if (m_DiameterId < id->DiameterId()) {
                 if (m_OptionalVal.length() > 0) {
                     return (m_OptionalVal < id->OptionalVal()) ?
@@ -121,25 +121,25 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionEntryNode :
      private:
         std::string m_DiameterId;
         std::string m_OptionalVal;
-        AAA_SessionEntryList m_Entries;
+        DiameterSessionEntryList m_Entries;
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionDb : 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionDb : 
     private OD_Utl_RbTreeTree
 {
     public:
-        bool Add(AAA_SessionId &id, AAA_JobData &data);
-        bool Lookup(AAA_SessionId &id, AAA_JobData *&data);
-        bool Remove(AAA_SessionId &id);
+        bool Add(DiameterSessionId &id, AAA_JobData &data);
+        bool Lookup(DiameterSessionId &id, AAA_JobData *&data);
+        bool Remove(DiameterSessionId &id);
 
     private:
         ACE_RW_Mutex m_rwMutex;
 };
 
-typedef ACE_Singleton<AAA_SessionDb, 
+typedef ACE_Singleton<DiameterSessionDb, 
                       ACE_Recursive_Thread_Mutex> 
-                      AAA_SessionDb_S;
-#define AAA_SESSION_DB() (*AAA_SessionDb_S::instance()) 
+                      DiameterSessionDb_S;
+#define DIAMETER_SESSION_DB() (*DiameterSessionDb_S::instance()) 
 
 #endif /* __AAA_SESSION_DB_H__ */
 

@@ -296,7 +296,7 @@ class AMR_Handler:public AAASessionMessageHandler
   {
 
     // get local realm from config file
-     if (realm == AAA_CFG_TRANSPORT()->realm)
+     if (realm == DIAMETER_CFG_TRANSPORT()->realm)
        return 1;
      else 
        return 0;

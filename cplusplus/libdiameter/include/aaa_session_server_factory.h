@@ -36,20 +36,20 @@
 
 #include "aaa_session.h"
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_ServerSessionFactory 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterServerSessionFactory
 {
     public:
-       virtual ~AAA_ServerSessionFactory() { 
+       virtual ~DiameterServerSessionFactory() { 
        }
        diameter_unsigned32_t GetApplicationId() { 
            return m_ApplicationId; 
        }
 
        // This function is implemented by derived class
-       virtual AAA_SessionIO *CreateInstance() = 0;
+       virtual DiameterSessionIO *CreateInstance() = 0;
 
     protected:
-       AAA_ServerSessionFactory(AAA_Task &task,
+       DiameterServerSessionFactory(AAA_Task &task,
                                 diameter_unsigned32_t appId) :
            m_Task(task),
            m_ApplicationId(appId) { 
@@ -61,15 +61,15 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ServerSessionFactory
 };
 
 template<class SESSION_SERVER>
-class AAA_ServerSessionAllocator : 
-    public AAA_ServerSessionFactory
+class DiameterServerSessionAllocator : 
+    public DiameterServerSessionFactory
 {
     public:
-       AAA_ServerSessionAllocator(AAA_Task &task,
+       DiameterServerSessionAllocator(AAA_Task &task,
                                   diameter_unsigned32_t appId) : 
-            AAA_ServerSessionFactory(task, appId) { 
+            DiameterServerSessionFactory(task, appId) { 
        }
-       AAA_SessionIO *CreateInstance() {
+       DiameterSessionIO *CreateInstance() {
             return new SESSION_SERVER(m_Task, m_ApplicationId);
        }
 };

@@ -40,73 +40,73 @@
 #define AAA_SESSION_ACCT_DEBUG 0
 
 typedef enum {
-    AAA_SESSION_ACCT_ST_IDLE,
-    AAA_SESSION_ACCT_ST_OPEN,
-    AAA_SESSION_ACCT_ST_PENDING_S,
-    AAA_SESSION_ACCT_ST_PENDING_I,
-    AAA_SESSION_ACCT_ST_PENDING_E,
-    AAA_SESSION_ACCT_ST_PENDING_B,
-    AAA_SESSION_ACCT_ST_PENDING_L,
-} AAA_SESSION_ACCT_ST;
+    DIAMETER_SESSION_ACCT_ST_IDLE,
+    DIAMETER_SESSION_ACCT_ST_OPEN,
+    DIAMETER_SESSION_ACCT_ST_PENDING_S,
+    DIAMETER_SESSION_ACCT_ST_PENDING_I,
+    DIAMETER_SESSION_ACCT_ST_PENDING_E,
+    DIAMETER_SESSION_ACCT_ST_PENDING_B,
+    DIAMETER_SESSION_ACCT_ST_PENDING_L,
+} DIAMETER_SESSION_ACCT_ST;
 
 typedef enum {
-    AAA_SESSION_ACCT_EV_REQUEST_ACCESS,
-    AAA_SESSION_ACCT_EV_REQUEST_ONETIME_ACCESS,
-    AAA_SESSION_ACCT_EV_REC_IN_STORAGE,
-    AAA_SESSION_ACCT_EV_RX_ACA_OK,
-    AAA_SESSION_ACCT_EV_FTS_NOT_DAG,
-    AAA_SESSION_ACCT_EV_FTS_AND_GAL,
-    AAA_SESSION_ACCT_EV_FTS_NOT_GAL,
-    AAA_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL,
-    AAA_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL,
-    AAA_SESSION_ACCT_EV_INT_EXPIRE,
-    AAA_SESSION_ACCT_EV_RX_ACA_FAIL,
-    AAA_SESSION_ACCT_EV_FTS,
-    AAA_SESSION_ACCT_EV_FTS_BUF,
-    AAA_SESSION_ACCT_EV_FTS_NO_BUF,
-    AAA_SESSION_ACCT_EV_RX_ACR_START_OK,
-    AAA_SESSION_ACCT_EV_RX_ACR_EV_OK,
-    AAA_SESSION_ACCT_EV_RX_ACR_INT_OK,
-    AAA_SESSION_ACCT_EV_RX_ACR_STOP_OK,
-    AAA_SESSION_ACCT_EV_RX_ACR_NO_BUF,
-    AAA_SESSION_ACCT_EV_SESSION_TOUT,
-    AAA_SESSION_ACCT_EV_STOP
+    DIAMETER_SESSION_ACCT_EV_REQUEST_ACCESS,
+    DIAMETER_SESSION_ACCT_EV_REQUEST_ONETIME_ACCESS,
+    DIAMETER_SESSION_ACCT_EV_REC_IN_STORAGE,
+    DIAMETER_SESSION_ACCT_EV_RX_ACA_OK,
+    DIAMETER_SESSION_ACCT_EV_FTS_NOT_DAG,
+    DIAMETER_SESSION_ACCT_EV_FTS_AND_GAL,
+    DIAMETER_SESSION_ACCT_EV_FTS_NOT_GAL,
+    DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL,
+    DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL,
+    DIAMETER_SESSION_ACCT_EV_INT_EXPIRE,
+    DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL,
+    DIAMETER_SESSION_ACCT_EV_FTS,
+    DIAMETER_SESSION_ACCT_EV_FTS_BUF,
+    DIAMETER_SESSION_ACCT_EV_FTS_NO_BUF,
+    DIAMETER_SESSION_ACCT_EV_RX_ACR_START_OK,
+    DIAMETER_SESSION_ACCT_EV_RX_ACR_EV_OK,
+    DIAMETER_SESSION_ACCT_EV_RX_ACR_INT_OK,
+    DIAMETER_SESSION_ACCT_EV_RX_ACR_STOP_OK,
+    DIAMETER_SESSION_ACCT_EV_RX_ACR_NO_BUF,
+    DIAMETER_SESSION_ACCT_EV_SESSION_TOUT,
+    DIAMETER_SESSION_ACCT_EV_STOP
 } AAA_SESSION_EV_ACCT;
 
-class AAA_SessionAcctFsmDebug
+class DiameterSessionAcctFsmDebug
 {
    public:
       void DumpEvent(AAA_State state, AAA_Event ev) {
 #if AAA_SESSION_ACCT_DEBUG 
-          static char *evStrTable[] = { "AAA_SESSION_ACCT_EV_REQUEST_ACCESS",
-                                        "AAA_SESSION_ACCT_EV_REQUEST_ONETIME_ACCESS",
-                                        "AAA_SESSION_ACCT_EV_REC_IN_STORAGE",
-                                        "AAA_SESSION_ACCT_EV_RX_ACA_OK",
-                                        "AAA_SESSION_ACCT_EV_FTS_NOT_DAG",
-                                        "AAA_SESSION_ACCT_EV_FTS_AND_GAL",
-                                        "AAA_SESSION_ACCT_EV_FTS_NOT_GAL",
-                                        "AAA_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL",
-                                        "AAA_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL",
-                                        "AAA_SESSION_ACCT_EV_INT_EXPIRE",
-                                        "AAA_SESSION_ACCT_EV_RX_ACA_FAIL",
-                                        "AAA_SESSION_ACCT_EV_FTS",
-                                        "AAA_SESSION_ACCT_EV_FTS_BUF",
-                                        "AAA_SESSION_ACCT_EV_FTS_NO_BUF",
-                                        "AAA_SESSION_ACCT_EV_RX_ACR_START_OK",
-                                        "AAA_SESSION_ACCT_EV_RX_ACR_EV_OK",
-                                        "AAA_SESSION_ACCT_EV_RX_ACR_INT_OK",
-                                        "AAA_SESSION_ACCT_EV_RX_ACR_STOP_OK",
-                                        "AAA_SESSION_ACCT_EV_RX_ACR_NO_BUF",
-                                        "AAA_SESSION_ACCT_EV_SESSION_TOUT",
-                                        "AAA_SESSION_ACCT_EV_STOP"
+          static char *evStrTable[] = { "DIAMETER_SESSION_ACCT_EV_REQUEST_ACCESS",
+                                        "DIAMETER_SESSION_ACCT_EV_REQUEST_ONETIME_ACCESS",
+                                        "DIAMETER_SESSION_ACCT_EV_REC_IN_STORAGE",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACA_OK",
+                                        "DIAMETER_SESSION_ACCT_EV_FTS_NOT_DAG",
+                                        "DIAMETER_SESSION_ACCT_EV_FTS_AND_GAL",
+                                        "DIAMETER_SESSION_ACCT_EV_FTS_NOT_GAL",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_AND_GAL",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL_NOT_GAL",
+                                        "DIAMETER_SESSION_ACCT_EV_INT_EXPIRE",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACA_FAIL",
+                                        "DIAMETER_SESSION_ACCT_EV_FTS",
+                                        "DIAMETER_SESSION_ACCT_EV_FTS_BUF",
+                                        "DIAMETER_SESSION_ACCT_EV_FTS_NO_BUF",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACR_START_OK",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACR_EV_OK",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACR_INT_OK",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACR_STOP_OK",
+                                        "DIAMETER_SESSION_ACCT_EV_RX_ACR_NO_BUF",
+                                        "DIAMETER_SESSION_ACCT_EV_SESSION_TOUT",
+                                        "DIAMETER_SESSION_ACCT_EV_STOP"
           };
-          static char *stStrTable[] = { "AAA_SESSION_ACCT_ST_IDLE",
-                                        "AAA_SESSION_ACCT_ST_OPEN",
-                                        "AAA_SESSION_ACCT_ST_PENDING_S",
-                                        "AAA_SESSION_ACCT_ST_PENDING_I",
-                                        "AAA_SESSION_ACCT_ST_PENDING_E",
-                                        "AAA_SESSION_ACCT_ST_PENDING_B",
-                                        "AAA_SESSION_ACCT_ST_PENDING_L"
+          static char *stStrTable[] = { "DIAMETER_SESSION_ACCT_ST_IDLE",
+                                        "DIAMETER_SESSION_ACCT_ST_OPEN",
+                                        "DIAMETER_SESSION_ACCT_ST_PENDING_S",
+                                        "DIAMETER_SESSION_ACCT_ST_PENDING_I",
+                                        "DIAMETER_SESSION_ACCT_ST_PENDING_E",
+                                        "DIAMETER_SESSION_ACCT_ST_PENDING_B",
+                                        "DIAMETER_SESSION_ACCT_ST_PENDING_L"
           };
           AAA_LOG(LM_INFO, "(%P|%t) Acct session event [state=%s, event=%s]\n",
                   stStrTable[state], evStrTable[ev]);
@@ -115,31 +115,31 @@ class AAA_SessionAcctFsmDebug
 };
 
 template<class ARG>
-class AAA_AcctSessionStateMachine :
-    public AAA_SessionStateMachine<ARG, AAA_SessionAcctFsmDebug>
+class DiameterAcctSessionStateMachine :
+    public DiameterSessionStateMachine<ARG, DiameterSessionAcctFsmDebug>
 {
    public:
-      virtual ~AAA_AcctSessionStateMachine() {
+      virtual ~DiameterAcctSessionStateMachine() {
       }    
-      AAA_AcctSession &Session() {
+      DiameterAcctSession &Session() {
           return m_Session;
       }
-      AAA_AcctSessionAttributes &Attributes() {
+      DiameterAcctSessionAttributes &Attributes() {
           return m_Session.Attributes();
       }
 
    protected:
-      AAA_AcctSessionStateMachine(AAA_Task &t,
+      DiameterAcctSessionStateMachine(AAA_Task &t,
                                   AAA_StateTable<ARG> &table,
                                   ARG &arg,
-                                  AAA_AcctSession &s) :
-          AAA_SessionStateMachine<ARG, AAA_SessionAcctFsmDebug>
+                                  DiameterAcctSession &s) :
+          DiameterSessionStateMachine<ARG, DiameterSessionAcctFsmDebug>
            (t, table, arg),
           m_Session(s) {
       }
 
    protected:
-      AAA_AcctSession &m_Session;
+      DiameterAcctSession &m_Session;
 };
 
 #endif /* __AAA_SESSION_ACCT_FSM_H__ */

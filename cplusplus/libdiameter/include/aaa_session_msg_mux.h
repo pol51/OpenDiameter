@@ -38,10 +38,10 @@
 #include "diameter_parser.h"
 
 template<class ARG>
-class AAA_SessionMsgMuxHandler
+class DiameterSessionMsgMuxHandler
 {
     public:
-        virtual ~AAA_SessionMsgMuxHandler() {
+        virtual ~DiameterSessionMsgMuxHandler() {
 	}
         /// This function is called when incomming request message is received
         virtual AAAReturnCode RequestMsg(ARG &arg, DiameterMsg &msg) = 0;
@@ -53,34 +53,34 @@ class AAA_SessionMsgMuxHandler
         virtual AAAReturnCode ErrorMsg(ARG &arg, DiameterMsg &msg) = 0;
 
     protected:
-        AAA_SessionMsgMuxHandler() {
+        DiameterSessionMsgMuxHandler() {
 	}
 };
 
 template<class ARG>
-class AAA_SessionMsgMux
+class DiameterSessionMsgMux
 {
     public:
-        AAA_SessionMsgMux(ARG &arg) :
+        DiameterSessionMsgMux(ARG &arg) :
             m_Arg(arg) {
 	}
-        virtual ~AAA_SessionMsgMux() {
+        virtual ~DiameterSessionMsgMux() {
 	}
-        void Register(AAACommandCode code, AAA_SessionMsgMuxHandler<ARG> &handler) {
+        void Register(AAACommandCode code, DiameterSessionMsgMuxHandler<ARG> &handler) {
 	    m_Map.insert(std::pair<AAACommandCode, 
-                         AAA_SessionMsgMuxHandler<ARG>* >
+                         DiameterSessionMsgMuxHandler<ARG>* >
                           (code, &handler));
 	}
         void Remove(AAACommandCode code) {
 	    typename std::map<AAACommandCode, 
-		    AAA_SessionMsgMuxHandler<ARG>* >::iterator i = m_Map.find(code);
+		    DiameterSessionMsgMuxHandler<ARG>* >::iterator i = m_Map.find(code);
             if (i != m_Map.end()) {
 		m_Map.erase(i);
 	    }
 	}
         AAAReturnCode Mux(DiameterMsg &msg) {
 	    typename std::map<AAACommandCode, 
-		    AAA_SessionMsgMuxHandler<ARG>* >::iterator i = m_Map.find(msg.hdr.code);
+		    DiameterSessionMsgMuxHandler<ARG>* >::iterator i = m_Map.find(msg.hdr.code);
             if (i != m_Map.end()) {
                 if (msg.hdr.flags.e) {
                     return i->second->ErrorMsg(m_Arg, msg);
@@ -97,7 +97,7 @@ class AAA_SessionMsgMux
     private:
         ARG &m_Arg;
 	std::map<AAACommandCode, 
-		 AAA_SessionMsgMuxHandler<ARG>* > m_Map;
+		 DiameterSessionMsgMuxHandler<ARG>* > m_Map;
 };
 
 #endif

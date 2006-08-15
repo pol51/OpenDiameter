@@ -46,27 +46,27 @@
 // interface implemented by transport
 // specific (lower layer) methods. Assumes
 // lower layer is connection oriented
-class AAA_TransportInterface
+class DiameterTransportInterface
 {
    public:
       virtual int Open() = 0;
       virtual int Close() = 0;
     
       virtual int Connect(std::string &hostname, int port) = 0;
-      virtual int Complete(AAA_TransportInterface *&iface) = 0;
+      virtual int Complete(DiameterTransportInterface *&iface) = 0;
     
       virtual int Listen(int port) = 0;
-      virtual int Accept(AAA_TransportInterface *&iface) = 0;
+      virtual int Accept(DiameterTransportInterface *&iface) = 0;
     
       virtual int Send(void *data, size_t length) = 0;
       virtual int Receive(void *data, size_t length,
                        int timeout = 0) = 0;
-      virtual ~AAA_TransportInterface() { }
+      virtual ~DiameterTransportInterface() { }
 };
 
 // Address Utility
 template<class ADDR_TYPE>
-class AAA_TransportAddress
+class DiameterTransportAddress
 {
    public:
       virtual int GetLocalAddresses(size_t &count,
@@ -75,39 +75,39 @@ class AAA_TransportAddress
       virtual int GetAddressSize(ADDR_TYPE &addr) = 0;
 
    protected:
-      virtual ~AAA_TransportAddress() { }
+      virtual ~DiameterTransportAddress() { }
 };
 
 // RX event handler
-class AAA_IO_Base;
-class AAA_IO_RxHandler 
+class Diameter_IO_Base;
+class Diameter_IO_RxHandler 
 {
    public:
       virtual void Message(void *data,
                            size_t length) = 0;
       virtual void Error(int error,
-                         const AAA_IO_Base *io) = 0;
+                         const Diameter_IO_Base *io) = 0;
     
    protected:
-      AAA_IO_RxHandler() { }
-      virtual ~AAA_IO_RxHandler() { }
+      Diameter_IO_RxHandler() { }
+      virtual ~Diameter_IO_RxHandler() { }
 };
 
 // Base class for IO object
-class AAA_IO_Base : public ACE_Task<ACE_MT_SYNCH>
+class Diameter_IO_Base : public ACE_Task<ACE_MT_SYNCH>
 {
    public:
       virtual int Open() = 0;
       virtual int Send(AAAMessageBlock *data) = 0;
       virtual int Close() = 0;
-      virtual AAA_IO_RxHandler *Handler() = 0;
+      virtual Diameter_IO_RxHandler *Handler() = 0;
       std::string &Name() {
           return m_Name;
       }
-      virtual ~AAA_IO_Base() { }
+      virtual ~Diameter_IO_Base() { }
 
    protected:
-      AAA_IO_Base(const char *name="") :
+      Diameter_IO_Base(const char *name="") :
           m_Name(name) {
       }
       std::string m_Name;
@@ -121,20 +121,20 @@ class AAA_IO_Base : public ACE_Task<ACE_MT_SYNCH>
 // it is usable and can be delete
 //
 template<class TX_IF, class RX_HANDLER>
-class AAA_IO : public AAA_IO_Base
+class Diameter_IO : public Diameter_IO_Base
 {
    public:
       typedef enum {
          MAX_PACKET_LENGTH = 1024,
          DEFAULT_TIMEOUT = 0, // msec
       };
-      AAA_IO(TX_IF &iface,
+      Diameter_IO(TX_IF &iface,
              const char *name = "") :
-         AAA_IO_Base(name),
+         Diameter_IO_Base(name),
          m_Transport(std::auto_ptr<TX_IF>(&iface)),
          m_Running(false) {
       }
-      virtual ~AAA_IO() {
+      virtual ~Diameter_IO() {
          Close();
          // wait for thread to exit
          while (thr_count() > 0) {
@@ -205,15 +205,15 @@ class AAA_IO : public AAA_IO_Base
 
 // base class for acceptor and connector classes
 template<class TX_IF, class RX_HANDLER>
-class AAA_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
+class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
 {
    public:
-      AAA_IO_Factory(char *name = "") :
+      Diameter_IO_Factory(char *name = "") :
           m_Perpetual(false),
           m_Running(false),
           m_Name(name) {
       }
-      ~AAA_IO_Factory() {
+      ~Diameter_IO_Factory() {
           Close();
          
           // wait for thread to exit
@@ -232,7 +232,7 @@ class AAA_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
       }
 
       // for the subscriber layer
-      virtual int Success(AAA_IO_Base *io) = 0;
+      virtual int Success(Diameter_IO_Base *io) = 0;
       virtual int Failed() = 0;
 
       // for the TX layer
@@ -263,8 +263,8 @@ class AAA_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
           TX_IF *newTransport;
           do {
               if ((rc = Create(newTransport)) > 0) {
-                  AAA_IO<TX_IF, RX_HANDLER> *io =
-                     new AAA_IO<TX_IF, RX_HANDLER>
+                  Diameter_IO<TX_IF, RX_HANDLER> *io =
+                     new Diameter_IO<TX_IF, RX_HANDLER>
                           (*newTransport, m_Name.data());
                   if (io) {
                       try {
@@ -305,20 +305,20 @@ class AAA_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
 
 // acceptor model for upper layer IO
 template<class TX_IF, class RX_HANDLER>
-class AAA_IO_Acceptor : public AAA_IO_Factory<TX_IF, RX_HANDLER>
+class AAA_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 {
    public:
       AAA_IO_Acceptor() :
-          AAA_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_ACCEPTOR_NAME) { 
-              AAA_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = true;
+          Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_ACCEPTOR_NAME) { 
+              Diameter_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = true;
       }
       int Open(int port) {
-          if (AAA_IO_Factory<TX_IF, RX_HANDLER>::Open() >= 0) {
-              if (AAA_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Listen
+          if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::Open() >= 0) {
+              if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Listen
                   (port) >= 0) {
                   AAA_LOG(LM_ERROR, "(%P|%t) Listening at %d\n",
                           port);
-                  return AAA_IO_Factory<TX_IF, RX_HANDLER>::Activate();
+                  return Diameter_IO_Factory<TX_IF, RX_HANDLER>::Activate();
               }
           }
           return (-1);
@@ -326,27 +326,27 @@ class AAA_IO_Acceptor : public AAA_IO_Factory<TX_IF, RX_HANDLER>
 
    protected:
       int Create(TX_IF *&newTransport) {
-          return AAA_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Accept
-              (reinterpret_cast<AAA_TransportInterface*&>(newTransport));
+          return Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Accept
+              (reinterpret_cast<DiameterTransportInterface*&>(newTransport));
       }
 };
 
 // connector model for upper layer IO
 template<class TX_IF, class RX_HANDLER>
-class AAA_IO_Connector : public AAA_IO_Factory<TX_IF, RX_HANDLER>
+class AAA_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 {
    public:
       AAA_IO_Connector() :
-          AAA_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_CONNECTOR_NAME) { 
-              AAA_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = false;
+          Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_CONNECTOR_NAME) { 
+              Diameter_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = false;
       }
       int Open(std::string &hostname, int port) {
-          if (AAA_IO_Factory<TX_IF, RX_HANDLER>::Open() >= 0) {
-             if (AAA_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Connect
+          if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::Open() >= 0) {
+             if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Connect
                  (hostname, port) >= 0) {
                  AAA_LOG(LM_ERROR, "(%P|%t) Connection attempt to %s:%d\n",
                             hostname.data(), port);
-                 return AAA_IO_Factory<TX_IF, RX_HANDLER>::Activate();
+                 return Diameter_IO_Factory<TX_IF, RX_HANDLER>::Activate();
              }
           }
           return (-1);
@@ -354,8 +354,8 @@ class AAA_IO_Connector : public AAA_IO_Factory<TX_IF, RX_HANDLER>
 
    protected:
       int Create(TX_IF *&newTransport) {
-          return AAA_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Complete
-                 ((AAA_TransportInterface*&)newTransport);
+          return Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Complete
+                 ((DiameterTransportInterface*&)newTransport);
       }
 };
 

@@ -36,13 +36,13 @@
 
 #include "aaa_session_auth_fsm.h"
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_AuthSessionClientStateMachine :
-   public AAA_AuthSessionStateMachine<AAA_AuthSessionClientStateMachine>
+class DIAMETERBASEPROTOCOL_EXPORT DiameterAuthSessionClientStateMachine :
+   public DiameterAuthSessionStateMachine<DiameterAuthSessionClientStateMachine>
 {  
    public:
-      AAA_AuthSessionClientStateMachine(AAA_Task &t,
-                                        AAA_AuthSession &a);
-      virtual ~AAA_AuthSessionClientStateMachine() {
+      DiameterAuthSessionClientStateMachine(AAA_Task &t,
+                                        DiameterAuthSession &a);
+      virtual ~DiameterAuthSessionClientStateMachine() {
       }    
 
       void TxSTR(diameter_unsigned32_t cause);
@@ -53,68 +53,68 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_AuthSessionClientStateMachine :
       void RxRAR(DiameterMsg &msg);
 };
 
-class AAA_SessAuthClient_TxSSAR : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_TxSSAR : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           fsm.Session().TxDelivery(msg);
       }
 };
 
-class AAA_SessAuthClient_TxSSAR_Discard : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_TxSSAR_Discard : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           AAA_LOG(LM_INFO, "(%P|%t) Message sent in invalid session state, discarding\n");
           DiameterMsgHeaderDump::Dump(*msg);
       }
 };
 
-class AAA_SessAuthClient_RxSSA : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_RxSSA : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           fsm.Session().RxDelivery(msg);
       }
 };
 
-class AAA_SessAuthClient_RxSSAA_Discard : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_RxSSAA_Discard : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           AAA_LOG(LM_INFO, "(%P|%t) Message received in invalid session state, discarding\n");
           DiameterMsgHeaderDump::Dump(*msg);
       }
 };
 
-class AAA_SessAuthClient_RxSSAA_GrantAccess : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_RxSSAA_GrantAccess : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
           if (fsm.Attributes().AuthSessionState()() == 
-              AAA_SESSION_STATE_MAINTAINED) {
-              fsm.ScheduleTimer(AAA_SESSION_AUTH_EV_SESSION_TOUT_ST,
+              DIAMETER_SESSION_STATE_MAINTAINED) {
+              fsm.ScheduleTimer(DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_ST,
                   fsm.Attributes().SessionTimeout()(),
-                  0, AAA_TIMER_TYPE_SESSION);
-              fsm.ScheduleTimer(AAA_SESSION_AUTH_EV_LIFETIME_TOUT,
+                  0, DIAMETER_TIMER_TYPE_SESSION);
+              fsm.ScheduleTimer(DIAMETER_SESSION_AUTH_EV_LIFETIME_TOUT,
                   fsm.Attributes().AuthLifetime()() +
                   fsm.Attributes().AuthGrace()(),
-                  0, AAA_TIMER_TYPE_AUTH);
+                  0, DIAMETER_TIMER_TYPE_AUTH);
           }
           else {
-              fsm.ScheduleTimer(AAA_SESSION_AUTH_EV_SESSION_TOUT_NOST,
+              fsm.ScheduleTimer(DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
                   fsm.Attributes().SessionTimeout()(),
-                  0, AAA_TIMER_TYPE_SESSION);
+                  0, DIAMETER_TIMER_TYPE_SESSION);
           }
           AAA_LOG(LM_INFO, "(%P|%t) Client session in open state\n");
           AAA_LOG(LM_INFO, "(%P|%t) Session Timeout: %d\n", 
@@ -127,11 +127,11 @@ class AAA_SessAuthClient_RxSSAA_GrantAccess :
       }
 };
 
-class AAA_SessAuthClient_RxRAR : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_RxRAR : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           diameter_unsigned32_t rcode = AAA_SUCCESS;
           if (fsm.Attributes().ReAuthRequestValue().IsSet()) {
               rcode = (diameter_unsigned32_t)fsm.Session().ReAuthenticate
@@ -141,120 +141,120 @@ class AAA_SessAuthClient_RxRAR :
       }
 };
 
-class AAA_SessAuthClient_TxSTR_NoSvc : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_TxSTR_NoSvc : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.TxSTR(AAA_REALM_NOT_SERVED);
       }
 };
 
-class AAA_SessAuthClient_TxSTR_ProcError : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_TxSTR_ProcError : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.TxSTR(AAA_AVP_UNSUPPORTED);
       }
 };
 
-class AAA_SessAuthClient_TxSTR_Fail : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_TxSTR_Fail : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.TxSTR(AAA_AUTHORIZATION_REJECTED);
       }
 };
 
-class AAA_SessAuthClient_SessionTimeout : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_SessionTimeout : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
           fsm.Session().SessionTimeout();
           fsm.Session().Reset();
       }
 };
 
-class AAA_SessAuthClient_SessionTimeoutState : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_SessionTimeoutState : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
           fsm.TxSTR(AAA_AUTHORIZATION_REJECTED);
           fsm.Session().SessionTimeout();
       }
 };
 
-class AAA_SessAuthClient_AuthTimeout : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_AuthTimeout : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
           fsm.TxSTR(AAA_AUTHORIZATION_REJECTED);
           fsm.Session().AuthorizationTimeout();
       }
 };
 
-class AAA_SessAuthClient_UserAbort : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_UserAbort : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
           fsm.TxSTR(AAA_AUTHORIZATION_REJECTED);
       }
 };
 
-class AAA_SessAuthClient_TxASA_Success : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_TxASA_Success : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.TxASA(AAA_SUCCESS);
       }
 };
 
-class AAA_SessAuthClient_TxASA_TxSTR_Success : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_TxASA_TxSTR_Success : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.TxASA(AAA_SUCCESS);
           fsm.TxSTR(AAA_SUCCESS);
       }
 };
 
-class AAA_SessAuthClient_TxASA_Fail : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_TxASA_Fail : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.TxASA(AAA_UNABLE_TO_COMPLY);
       }
 };
 
-class AAA_SessAuthClient_Disconnect : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_Disconnect : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.Session().Disconnect();
           fsm.CancelAllTimer();
           fsm.Session().Reset();
       }
 };
 
-class AAA_SessAuthClient_Cleanup : 
-   public AAA_Action<AAA_AuthSessionClientStateMachine> 
+class DiameterSessAuthClient_Cleanup : 
+   public AAA_Action<DiameterAuthSessionClientStateMachine> 
 {
    public:
-      virtual void operator()(AAA_AuthSessionClientStateMachine &fsm) {
+      virtual void operator()(DiameterAuthSessionClientStateMachine &fsm) {
           fsm.CancelAllTimer();
           fsm.Session().AbortSession();
           fsm.Session().Reset();
@@ -262,7 +262,7 @@ class AAA_SessAuthClient_Cleanup :
 };
 
 class AAA_SessAuthClientStateTable : 
-   public AAA_StateTable<AAA_AuthSessionClientStateMachine>
+   public AAA_StateTable<DiameterAuthSessionClientStateMachine>
 {
    public:
       AAA_SessAuthClientStateTable() {
@@ -275,9 +275,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth req
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_IDLE,
-                           AAA_SESSION_AUTH_EV_REQUEST_ACCESS,
-                           AAA_SESSION_AUTH_ST_PENDING);
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_IDLE,
+                           DIAMETER_SESSION_AUTH_EV_REQUEST_ACCESS,
+                           DIAMETER_SESSION_AUTH_ST_PENDING);
 
         /*
            State     Event                          Action     New State
@@ -288,9 +288,9 @@ class AAA_SessAuthClientStateTable :
                                                      = UNKNOWN_
                                                      SESSION_ID
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_IDLE,
-                           AAA_SESSION_AUTH_EV_RX_ASR_USID,
-                           AAA_SESSION_AUTH_ST_IDLE);
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_IDLE,
+                           DIAMETER_SESSION_AUTH_EV_RX_ASR_USID,
+                           DIAMETER_SESSION_AUTH_ST_IDLE);
 
         /*
            State     Event                          Action     New State
@@ -300,9 +300,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth req
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_IDLE,
-                           AAA_SESSION_AUTH_EV_TX_SSAR,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_IDLE,
+                           DIAMETER_SESSION_AUTH_EV_TX_SSAR,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acTxSSARDiscard);
 
         /*
@@ -313,9 +313,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth answer
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_IDLE,
-                           AAA_SESSION_AUTH_EV_RX_SSAA,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_IDLE,
+                           DIAMETER_SESSION_AUTH_EV_RX_SSAA,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acRxSSAADiscard);
 
         /*
@@ -323,8 +323,8 @@ class AAA_SessAuthClientStateTable :
            -------------------------------------------------------------
             Idle     Any                            None       Idle
          */
-        AddWildcardStateTableEntry(AAA_SESSION_AUTH_ST_IDLE,
-                                   AAA_SESSION_AUTH_ST_IDLE);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_AUTH_ST_IDLE,
+                                   DIAMETER_SESSION_AUTH_ST_IDLE);
 
         /*
            State     Event                          Action     New State
@@ -342,9 +342,9 @@ class AAA_SessAuthClientStateTable :
                       received with default
                       Auth-Session-State value
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_PENDING,
-                           AAA_SESSION_AUTH_EV_SSAA_OK,
-                           AAA_SESSION_AUTH_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_PENDING,
+                           DIAMETER_SESSION_AUTH_EV_SSAA_OK,
+                           DIAMETER_SESSION_AUTH_ST_OPEN,
                            m_acGrantAccess);         
 
         /*
@@ -354,9 +354,9 @@ class AAA_SessAuthClientStateTable :
                       authorization answer received
                       but service not provided
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_PENDING,
-                           AAA_SESSION_AUTH_EV_SSAA_NOSVC,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_PENDING,
+                           DIAMETER_SESSION_AUTH_EV_SSAA_NOSVC,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acTxSTRNoSvc);
 
         /*
@@ -366,9 +366,9 @@ class AAA_SessAuthClientStateTable :
                       Service-specific authorization
                       answer
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_PENDING,
-                           AAA_SESSION_AUTH_EV_SSAA_ERROR,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_PENDING,
+                           DIAMETER_SESSION_AUTH_EV_SSAA_ERROR,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acTxSTRProcError);         
 
         /*
@@ -377,9 +377,9 @@ class AAA_SessAuthClientStateTable :
             Pending   Failed Service-specific        Cleanup    Idle
                       authorization answer received
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_PENDING,
-                           AAA_SESSION_AUTH_EV_SSAA_FAIL,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_PENDING,
+                           DIAMETER_SESSION_AUTH_EV_SSAA_FAIL,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acCleanup);         
 
         /*
@@ -390,9 +390,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth req
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_PENDING,
-                           AAA_SESSION_AUTH_EV_TX_SSAR,
-                           AAA_SESSION_AUTH_ST_PENDING,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_PENDING,
+                           DIAMETER_SESSION_AUTH_EV_TX_SSAR,
+                           DIAMETER_SESSION_AUTH_ST_PENDING,
                            m_acTxSSAR);
 
         /*
@@ -403,9 +403,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth answer
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_PENDING,
-                           AAA_SESSION_AUTH_EV_RX_SSAA,
-                           AAA_SESSION_AUTH_ST_PENDING,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_PENDING,
+                           DIAMETER_SESSION_AUTH_EV_RX_SSAA,
+                           DIAMETER_SESSION_AUTH_ST_PENDING,
                            m_acRxSSA);
 
         /*
@@ -414,9 +414,9 @@ class AAA_SessAuthClientStateTable :
             Pending   Service to user is terminated  Discon.    Idle
                                                      user/device
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_PENDING,
-                           AAA_SESSION_AUTH_EV_STOP,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_PENDING,
+                           DIAMETER_SESSION_AUTH_EV_STOP,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acDisconnect);         
 
         /*
@@ -424,8 +424,8 @@ class AAA_SessAuthClientStateTable :
            -------------------------------------------------------------
             Pending  Any                            None       Pending
          */
-        AddWildcardStateTableEntry(AAA_SESSION_AUTH_ST_PENDING,
-                                   AAA_SESSION_AUTH_ST_PENDING);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_AUTH_ST_PENDING,
+                                   DIAMETER_SESSION_AUTH_ST_PENDING);
 
         /*
            State     Event                          Action     New State
@@ -435,9 +435,9 @@ class AAA_SessAuthClientStateTable :
                                                      specific
                                                      auth req
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_REQUEST_ACCESS,
-                           AAA_SESSION_AUTH_ST_OPEN);
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_REQUEST_ACCESS,
+                           DIAMETER_SESSION_AUTH_ST_OPEN);
 
         /*
            State     Event                          Action     New State
@@ -446,9 +446,9 @@ class AAA_SessAuthClientStateTable :
                                                      re-auth
                                                      answer  
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_RX_RAR,
-                           AAA_SESSION_AUTH_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_RX_RAR,
+                           DIAMETER_SESSION_AUTH_ST_OPEN,
                            m_acRxRAR);
 
         /*
@@ -457,9 +457,9 @@ class AAA_SessAuthClientStateTable :
             Open      Successful Service-specific    Provide    Open
                       authorization answer received  Service
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_SSAA_OK,
-                           AAA_SESSION_AUTH_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_SSAA_OK,
+                           DIAMETER_SESSION_AUTH_ST_OPEN,
                            m_acGrantAccess);         
 
         /*
@@ -470,9 +470,9 @@ class AAA_SessAuthClientStateTable :
                                                      specific
                                                                 
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_RX_SSAR,
-                           AAA_SESSION_AUTH_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_RX_SSAR,
+                           DIAMETER_SESSION_AUTH_ST_OPEN,
                            m_acRxSSA);
 
         /*
@@ -483,9 +483,9 @@ class AAA_SessAuthClientStateTable :
                       or client device can comply    specific
                                                      auth answer
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_SSAR_OK,
-                           AAA_SESSION_AUTH_ST_OPEN);
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_SSAR_OK,
+                           DIAMETER_SESSION_AUTH_ST_OPEN);
 
         /*
            State     Event                          Action     New State
@@ -496,9 +496,9 @@ class AAA_SessAuthClientStateTable :
                                                      answer,
                                                      Cleanup
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_SSAR_FAIL,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_SSAR_FAIL,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acDisconnect);
 
         /*
@@ -508,9 +508,9 @@ class AAA_SessAuthClientStateTable :
                       authorization answer           user/device
                       received.
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_SSAA_FAIL,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_SSAA_FAIL,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acDisconnect);         
 
         /*
@@ -519,9 +519,9 @@ class AAA_SessAuthClientStateTable :
             Open      Session-Timeout Expires on     Send STR   Discon
                       Access Device
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_SESSION_TOUT_ST,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_ST,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acSessionTimeoutState);         
 
         /*
@@ -530,9 +530,9 @@ class AAA_SessAuthClientStateTable :
             Open      Session-Timeout Expires on     Discon.    Idle
                       Access Device                  user/device
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_SESSION_TOUT_NOST,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acSessionTimeout);         
 
         /*
@@ -544,9 +544,9 @@ class AAA_SessAuthClientStateTable :
                                                       = SUCCESS,
                                                       Send STR.
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_RX_ASR_OK,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_RX_ASR_OK,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acTxASATxSTRSuccess);
 
         /*
@@ -557,9 +557,9 @@ class AAA_SessAuthClientStateTable :
                       request to end the session     Result-Code
                                                       != SUCCESS
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_RX_ASR_RETRY,
-                           AAA_SESSION_AUTH_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_RX_ASR_RETRY,
+                           DIAMETER_SESSION_AUTH_ST_OPEN,
                            m_acTxASAFail);
 
         /*
@@ -569,9 +569,9 @@ class AAA_SessAuthClientStateTable :
                       Auth-Grace-Period expires on
                       access device
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_LIFETIME_TOUT,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_LIFETIME_TOUT,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acAuthTimeout);         
 
         /*
@@ -580,9 +580,9 @@ class AAA_SessAuthClientStateTable :
             Open      Service to user is terminated  Discon.    Idle
                                                      user/device
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_STOP,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_STOP,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acDisconnect);         
 
         /*
@@ -591,9 +591,9 @@ class AAA_SessAuthClientStateTable :
  [un-offic] Open      Session being terminated by    Send STR   Discon
                       user                                       
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_ABORT,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_ABORT,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acUserAbort);         
 
         /*
@@ -604,9 +604,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth req
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_TX_SSAR,
-                           AAA_SESSION_AUTH_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_TX_SSAR,
+                           DIAMETER_SESSION_AUTH_ST_OPEN,
                            m_acTxSSAR);
 
         /*
@@ -617,9 +617,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth answer
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                           AAA_SESSION_AUTH_EV_RX_SSAA,
-                           AAA_SESSION_AUTH_ST_OPEN,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                           DIAMETER_SESSION_AUTH_EV_RX_SSAA,
+                           DIAMETER_SESSION_AUTH_ST_OPEN,
                            m_acRxSSA);
 
         /*
@@ -627,17 +627,17 @@ class AAA_SessAuthClientStateTable :
            -------------------------------------------------------------
             Open     Any                            None       Open
          */
-        AddWildcardStateTableEntry(AAA_SESSION_AUTH_ST_OPEN,
-                                   AAA_SESSION_AUTH_ST_OPEN);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_AUTH_ST_OPEN,
+                                   DIAMETER_SESSION_AUTH_ST_OPEN);
 
         /*
            State     Event                          Action     New State
            -------------------------------------------------------------
             Discon    ASR Received                   Send ASA   Discon
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_DISC,
-                           AAA_SESSION_AUTH_EV_RX_ASR,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_DISC,
+                           DIAMETER_SESSION_AUTH_EV_RX_ASR,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acTxASASuccess);         
 
         /*
@@ -646,9 +646,9 @@ class AAA_SessAuthClientStateTable :
             Discon    STA Received                   Discon.    Idle
                                                      user/device
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_DISC,
-                           AAA_SESSION_AUTH_EV_RX_STA,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_DISC,
+                           DIAMETER_SESSION_AUTH_EV_RX_STA,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acDisconnect);
 
         /*
@@ -657,9 +657,9 @@ class AAA_SessAuthClientStateTable :
             Discon    Session-Timeout Expires on     Cleanup    Idle
                       Access Device
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_DISC,
-                           AAA_SESSION_AUTH_EV_SESSION_TOUT_ST,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_DISC,
+                           DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_ST,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acDisconnect);         
 
         /*
@@ -669,9 +669,9 @@ class AAA_SessAuthClientStateTable :
                       Auth-Grace-Period expires on
                       access device
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_DISC,
-                           AAA_SESSION_AUTH_EV_LIFETIME_TOUT,
-                           AAA_SESSION_AUTH_ST_IDLE,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_DISC,
+                           DIAMETER_SESSION_AUTH_EV_LIFETIME_TOUT,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acDisconnect);         
 
         /*
@@ -682,9 +682,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth req
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_DISC,
-                           AAA_SESSION_AUTH_EV_TX_SSAR,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_DISC,
+                           DIAMETER_SESSION_AUTH_EV_TX_SSAR,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acTxSSARDiscard);
 
         /*
@@ -695,9 +695,9 @@ class AAA_SessAuthClientStateTable :
                                                     specific
                                                     auth req
          */
-        AddStateTableEntry(AAA_SESSION_AUTH_ST_DISC,
-                           AAA_SESSION_AUTH_EV_RX_SSAA,
-                           AAA_SESSION_AUTH_ST_DISC,
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_DISC,
+                           DIAMETER_SESSION_AUTH_EV_RX_SSAA,
+                           DIAMETER_SESSION_AUTH_ST_DISC,
                            m_acRxSSAADiscard);
 
         /*
@@ -705,31 +705,31 @@ class AAA_SessAuthClientStateTable :
            -------------------------------------------------------------
             Discon   Any                            None       Discon
          */
-        AddWildcardStateTableEntry(AAA_SESSION_AUTH_ST_DISC,
-                                   AAA_SESSION_AUTH_ST_DISC);
+        AddWildcardStateTableEntry(DIAMETER_SESSION_AUTH_ST_DISC,
+                                   DIAMETER_SESSION_AUTH_ST_DISC);
 
-        InitialState(AAA_SESSION_AUTH_ST_IDLE);
+        InitialState(DIAMETER_SESSION_AUTH_ST_IDLE);
       }
 
    private:
-      AAA_SessAuthClient_TxSSAR               m_acTxSSAR;
-      AAA_SessAuthClient_RxSSA                m_acRxSSA;
-      AAA_SessAuthClient_TxSSAR_Discard       m_acTxSSARDiscard;
-      AAA_SessAuthClient_RxSSAA_Discard       m_acRxSSAADiscard;
-      AAA_SessAuthClient_RxSSAA_GrantAccess   m_acGrantAccess;
-      AAA_SessAuthClient_RxRAR                m_acRxRAR;
-      AAA_SessAuthClient_TxSTR_NoSvc          m_acTxSTRNoSvc;
-      AAA_SessAuthClient_TxSTR_ProcError      m_acTxSTRProcError;
-      AAA_SessAuthClient_TxSTR_Fail           m_acTxSTRFail;
-      AAA_SessAuthClient_SessionTimeout       m_acSessionTimeout;
-      AAA_SessAuthClient_SessionTimeoutState  m_acSessionTimeoutState;
-      AAA_SessAuthClient_AuthTimeout          m_acAuthTimeout;
-      AAA_SessAuthClient_UserAbort            m_acUserAbort;
-      AAA_SessAuthClient_TxASA_Success        m_acTxASASuccess;
-      AAA_SessAuthClient_TxASA_TxSTR_Success  m_acTxASATxSTRSuccess;
-      AAA_SessAuthClient_TxASA_Fail           m_acTxASAFail;
-      AAA_SessAuthClient_Cleanup              m_acCleanup;
-      AAA_SessAuthClient_Disconnect           m_acDisconnect;
+      DiameterSessAuthClient_TxSSAR               m_acTxSSAR;
+      DiameterSessAuthClient_RxSSA                m_acRxSSA;
+      DiameterSessAuthClient_TxSSAR_Discard       m_acTxSSARDiscard;
+      DiameterSessAuthClient_RxSSAA_Discard       m_acRxSSAADiscard;
+      DiameterSessAuthClient_RxSSAA_GrantAccess   m_acGrantAccess;
+      DiameterSessAuthClient_RxRAR                m_acRxRAR;
+      DiameterSessAuthClient_TxSTR_NoSvc          m_acTxSTRNoSvc;
+      DiameterSessAuthClient_TxSTR_ProcError      m_acTxSTRProcError;
+      DiameterSessAuthClient_TxSTR_Fail           m_acTxSTRFail;
+      DiameterSessAuthClient_SessionTimeout       m_acSessionTimeout;
+      DiameterSessAuthClient_SessionTimeoutState  m_acSessionTimeoutState;
+      DiameterSessAuthClient_AuthTimeout          m_acAuthTimeout;
+      DiameterSessAuthClient_UserAbort            m_acUserAbort;
+      DiameterSessAuthClient_TxASA_Success        m_acTxASASuccess;
+      DiameterSessAuthClient_TxASA_TxSTR_Success  m_acTxASATxSTRSuccess;
+      DiameterSessAuthClient_TxASA_Fail           m_acTxASAFail;
+      DiameterSessAuthClient_Cleanup              m_acCleanup;
+      DiameterSessAuthClient_Disconnect           m_acDisconnect;
 };
 
 #endif /* __AAA_SESSION_AUTH_CLIENT_FSM_H__ */

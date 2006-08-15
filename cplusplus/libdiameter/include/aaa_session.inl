@@ -35,7 +35,7 @@
 #define __AAA_SESSION_INL__
 
 template <class ATTRIBUTE>
-AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
+AAAReturnCode DiameterSession<ATTRIBUTE>::TxDelivery
 (std::auto_ptr<DiameterMsg> msg) 
 {
    DiameterIdentityAvpContainerWidget dHostAvp(msg->acl);
@@ -46,18 +46,18 @@ AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
 
    // resolve the destination host
    diameter_identity_t *dHost = dHostAvp.GetAvp
-           (AAA_AVPNAME_DESTHOST);
+           (DIAMETER_AVPNAME_DESTHOST);
    if (dHost == NULL) {
        if (! m_Attributes.DestinationHost().IsSet()) {
            DiameterScholarAttribute<diameter_identity_t> dHostAttr;
            SetDestinationHost(dHostAttr);
            if (dHostAttr.IsSet()) {
-               dHostAvp.AddAvp(AAA_AVPNAME_DESTHOST) = dHostAttr();
+               dHostAvp.AddAvp(DIAMETER_AVPNAME_DESTHOST) = dHostAttr();
                m_Attributes.DestinationHost().Set(dHostAttr());
            }
        }
        else {
-           dHostAvp.AddAvp(AAA_AVPNAME_DESTHOST) = 
+           dHostAvp.AddAvp(DIAMETER_AVPNAME_DESTHOST) = 
                m_Attributes.DestinationHost()();
        }
    }
@@ -67,13 +67,13 @@ AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
 
    // resolve the destination realm
    diameter_identity_t *dRealm = dRealmAvp.GetAvp
-                   (AAA_AVPNAME_DESTREALM);
+                   (DIAMETER_AVPNAME_DESTREALM);
    if (dRealm == NULL) {
        if (! m_Attributes.DestinationRealm().IsSet()) {
            DiameterScholarAttribute<diameter_identity_t> dRealmAttr;
            SetDestinationRealm(dRealmAttr);
            if (dRealmAttr.IsSet()) {
-               dRealmAvp.AddAvp(AAA_AVPNAME_DESTREALM) = dRealmAttr();
+               dRealmAvp.AddAvp(DIAMETER_AVPNAME_DESTREALM) = dRealmAttr();
                m_Attributes.DestinationRealm().Set(dRealmAttr());
            }
            else if (msg->hdr.flags.r) {
@@ -83,7 +83,7 @@ AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
            }
        }
        else {
-           dRealmAvp.AddAvp(AAA_AVPNAME_DESTREALM) = 
+           dRealmAvp.AddAvp(DIAMETER_AVPNAME_DESTREALM) = 
                m_Attributes.DestinationRealm()();
        }
    }
@@ -94,12 +94,12 @@ AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
    // gather username if any
    if (! m_Attributes.Username().IsSet()) {
        diameter_utf8string_t *uname = unameAvp.GetAvp
-           (AAA_AVPNAME_USERNAME);
+           (DIAMETER_AVPNAME_USERNAME);
        if (uname == NULL) {
            DiameterScholarAttribute<diameter_utf8string_t> unameAttr;
            SetUsername(unameAttr);
            if (unameAttr.IsSet()) {
-               unameAvp.AddAvp(AAA_AVPNAME_USERNAME) = unameAttr();
+               unameAvp.AddAvp(DIAMETER_AVPNAME_USERNAME) = unameAttr();
                m_Attributes.Username() = unameAttr();
            }
        }
@@ -108,33 +108,33 @@ AAAReturnCode AAA_Session<ATTRIBUTE>::TxDelivery
        }
    }
 
-   if (orHostAvp.GetAvp(AAA_AVPNAME_ORIGINHOST) == 0) {
-       orHostAvp.AddAvp(AAA_AVPNAME_ORIGINHOST) = 
-           AAA_CFG_TRANSPORT()->identity;
+   if (orHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST) == 0) {
+       orHostAvp.AddAvp(DIAMETER_AVPNAME_ORIGINHOST) = 
+           DIAMETER_CFG_TRANSPORT()->identity;
    }
-   if (orRealmAvp.GetAvp(AAA_AVPNAME_ORIGINREALM) == 0) {
-       orRealmAvp.AddAvp(AAA_AVPNAME_ORIGINREALM) = 
-           AAA_CFG_TRANSPORT()->realm;
+   if (orRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM) == 0) {
+       orRealmAvp.AddAvp(DIAMETER_AVPNAME_ORIGINREALM) = 
+           DIAMETER_CFG_TRANSPORT()->realm;
    }
 
    m_Attributes.SessionId().Set(*msg);
    m_Attributes.MsgIdTxMessage(*msg);
 
-   AAA_MsgQuery query(*msg);
+   DiameterMsgQuery query(*msg);
    if (query.IsRequest()) {
-      return (AAA_MSG_ROUTER()->RequestMsg(msg, 0) ==
+      return (DIAMETER_MSG_ROUTER()->RequestMsg(msg, 0) ==
               AAA_ROUTE_RESULT_SUCCESS) ?
               AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
    }
    else {
-      return (AAA_MSG_ROUTER()->AnswerMsg(msg, 0) ==
+      return (DIAMETER_MSG_ROUTER()->AnswerMsg(msg, 0) ==
               AAA_ROUTE_RESULT_SUCCESS) ?
               AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
    }
 }
 
 template <class ATTRIBUTE>
-AAAReturnCode AAA_Session<ATTRIBUTE>::Reset() 
+AAAReturnCode DiameterSession<ATTRIBUTE>::Reset() 
 {
    return (AAA_ERR_SUCCESS);
 }
