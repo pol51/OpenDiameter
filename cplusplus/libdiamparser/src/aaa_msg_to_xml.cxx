@@ -34,6 +34,23 @@
 #include <iostream>
 #include "aaa_msg_to_xml.h"
 
+void AAAXmlElement::SetText(const char *text)
+{
+    m_value = text;
+}
+
+void AAAXmlElement::SetText(ACE_UINT32 num)
+{
+    char buf[32];
+    sprintf(buf, "%d", num);
+    m_value = num;
+}
+
+void AAAXmlElement::SetText(ACE_UINT64 num)
+{
+    m_value = "undefined";
+}
+
 void AAAXmlElement::SetText(diameter_uri_t &uri) {
 
     m_value += uri.fqdn;
@@ -68,9 +85,9 @@ void AAAXmlElement::SetAttribute(const char *name, const char *value)
 
 void AAAXmlElement::SetAttribute(const char *name, ACE_UINT32 num)
 {
-    std::string value;
-    value += num;
-    SetAttribute(name, value.data());
+    char buf[32];
+    sprintf(buf, "%d", num);
+    SetAttribute(name, buf);
 }
 
 void AAAXmlElement::SetAttribute(const char *name, ACE_UINT64 num)
@@ -89,7 +106,7 @@ std::string AAAXmlElement::Output()
     output += m_value;
     output += "</";
     output += m_name;
-    output += ">";
+    output += ">\n";
     return output;
 }
 

@@ -44,16 +44,9 @@ class AAA_PARSER_EXPORT_ONLY AAAXmlElement
       AAAXmlElement(char *name) :
           m_name(name) {
       }
-      void SetText(const char *text) {
-          m_value = text;
-      }
-      void SetText(ACE_UINT32 num) {
-          m_value = num;
-      }
-      void SetText(ACE_UINT64 num) {
-          m_value = "undefined";
-      }
-
+      void SetText(const char *text);
+      void SetText(ACE_UINT32 num);
+      void SetText(ACE_UINT64 num);
       void SetText(diameter_uri_t &uri);
       void SetAttribute(const char *name, const char *value);
       void SetAttribute(const char *name, ACE_UINT32 num);
