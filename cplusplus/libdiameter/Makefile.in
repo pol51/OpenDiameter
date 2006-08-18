@@ -41,7 +41,8 @@ noinst_PROGRAMS = aaa_test_client1$(EXEEXT) aaa_test_server1$(EXEEXT) \
 	aaa_test_client2$(EXEEXT) aaa_test_server2$(EXEEXT) \
 	aaa_test_client3$(EXEEXT) aaa_test_server3$(EXEEXT) \
 	aaa_test_client4$(EXEEXT) aaa_test_server4$(EXEEXT) \
-	aaa_test_client5$(EXEEXT) aaa_test_agent$(EXEEXT)
+	aaa_test_client5$(EXEEXT) aaa_test_server6$(EXEEXT) \
+	aaa_test_agent$(EXEEXT)
 subdir = libdiameter
 DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -137,6 +138,12 @@ aaa_test_server4_LDADD = $(LDADD)
 aaa_test_server4_DEPENDENCIES = libdiameter.la \
 	$(top_srcdir)/libdiamparser/libdiamparser.la \
 	$(top_srcdir)/libodutl/libodutl.la
+am_aaa_test_server6_OBJECTS = test/test_server6.$(OBJEXT)
+aaa_test_server6_OBJECTS = $(am_aaa_test_server6_OBJECTS)
+aaa_test_server6_LDADD = $(LDADD)
+aaa_test_server6_DEPENDENCIES = libdiameter.la \
+	$(top_srcdir)/libdiamparser/libdiamparser.la \
+	$(top_srcdir)/libodutl/libodutl.la
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -161,13 +168,13 @@ SOURCES = $(libdiameter_la_SOURCES) $(aaa_test_agent_SOURCES) \
 	$(aaa_test_client3_SOURCES) $(aaa_test_client4_SOURCES) \
 	$(aaa_test_client5_SOURCES) $(aaa_test_server1_SOURCES) \
 	$(aaa_test_server2_SOURCES) $(aaa_test_server3_SOURCES) \
-	$(aaa_test_server4_SOURCES)
+	$(aaa_test_server4_SOURCES) $(aaa_test_server6_SOURCES)
 DIST_SOURCES = $(libdiameter_la_SOURCES) $(aaa_test_agent_SOURCES) \
 	$(aaa_test_client1_SOURCES) $(aaa_test_client2_SOURCES) \
 	$(aaa_test_client3_SOURCES) $(aaa_test_client4_SOURCES) \
 	$(aaa_test_client5_SOURCES) $(aaa_test_server1_SOURCES) \
 	$(aaa_test_server2_SOURCES) $(aaa_test_server3_SOURCES) \
-	$(aaa_test_server4_SOURCES)
+	$(aaa_test_server4_SOURCES) $(aaa_test_server6_SOURCES)
 sysconfDATA_INSTALL = $(INSTALL_DATA)
 DATA = $(sysconf_DATA)
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
@@ -381,6 +388,7 @@ aaa_test_server3_SOURCES = test/test_server3.cxx
 aaa_test_client4_SOURCES = test/test_client4.cxx
 aaa_test_server4_SOURCES = test/test_server4.cxx
 aaa_test_client5_SOURCES = test/test_client5.cxx
+aaa_test_server6_SOURCES = test/test_server6.cxx
 aaa_test_agent_SOURCES = test/test_agent.cxx
 EXTRA_DIST = config
 all: all-am
@@ -546,6 +554,11 @@ test/test_server4.$(OBJEXT): test/$(am__dirstamp) \
 aaa_test_server4$(EXEEXT): $(aaa_test_server4_OBJECTS) $(aaa_test_server4_DEPENDENCIES) 
 	@rm -f aaa_test_server4$(EXEEXT)
 	$(CXXLINK) $(aaa_test_server4_LDFLAGS) $(aaa_test_server4_OBJECTS) $(aaa_test_server4_LDADD) $(LIBS)
+test/test_server6.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+aaa_test_server6$(EXEEXT): $(aaa_test_server6_OBJECTS) $(aaa_test_server6_DEPENDENCIES) 
+	@rm -f aaa_test_server6$(EXEEXT)
+	$(CXXLINK) $(aaa_test_server6_LDFLAGS) $(aaa_test_server6_OBJECTS) $(aaa_test_server6_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -593,6 +606,7 @@ mostlyclean-compile:
 	-rm -f test/test_server2.$(OBJEXT)
 	-rm -f test/test_server3.$(OBJEXT)
 	-rm -f test/test_server4.$(OBJEXT)
+	-rm -f test/test_server6.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -624,6 +638,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_server2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_server3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_server4.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_server6.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`; \

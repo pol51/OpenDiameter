@@ -77,7 +77,7 @@ class AAA_SampleServer : public DiameterServerAuthSession,
             // this server can dictate the auth lifetime
             // to the client. If not overridden, the value 
             // in the config file is used
-            timeout = 2;
+            timeout = 60;
         }
         virtual void SetAuthGracePeriodTimeout
         (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
@@ -86,7 +86,7 @@ class AAA_SampleServer : public DiameterServerAuthSession,
             // this server can dictate the auth grace period
             // to the client. If not overridden, the value 
             // in the config file is used
-            timeout = 2;
+            timeout = 60;
         }
         virtual AAAReturnCode ReAuthenticate(diameter_unsigned32_t rcode) {
             // optional override, called by the library so 
@@ -160,23 +160,85 @@ class AAA_SampleBackEndApplicationCall :
         // client. Note that it shows an example on how to use AAA_Job
         // and AAA_Task framework.
     public:
-        AAA_SampleBackEndApplicationCall(AAA_SampleServer &server) :
-            m_server(server) {
+        AAA_SampleBackEndApplicationCall(AAA_SampleServer &server,
+                                         std::string &uname) :
+            server(server),
+            username(uname) {
         }
         virtual int Serve() {
             // Let this thread sleep to simulate a really lengthy
             // backend call to some other application
+            std::cout <<  "Calling backend application for username " << username << std::endl;
             sleep(5);
+            std::cout <<  "Backend call completed" << std::endl;
 
             // once the call is done we can answer the client
-            // 
+            TxAuthenticationAnswer();
+
+            // if the processing is completed done then we can delete
+            // ourselves since there will be no more use for this
+            // instance.
+            Delete();
+
+            // make sure we return 0 here so that we don't get re-scheduled
+            // automatically by the AAA_GroupedJob in AAA_Task. Returning
+            // 0 is an indication to the grouped job that there are no
+            // more pending transaction in this AAA_Job
+            return (0);
+        }
+        void TxAuthenticationAnswer() {
+
+            // sample of how to compose a message using parser widgets
+
+            std::cout << "Sending answer message" << std::endl;
+
+            DiameterMsgWidget msg(300, false, 10000);
+
+            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+            DiameterGroupedAvpWidget tunneling("Tunneling");
+            DiameterEnumAvpWidget ttype("Tunnel-Type");
+            DiameterEnumAvpWidget tmedium("Tunnel-Medium-Type");
+            DiameterUtf8AvpWidget cep("Tunnel-Client-Endpoint");
+            DiameterUtf8AvpWidget sep("Tunnel-Server-Endpoint");
+
+            ttype.Get() = 100;
+            tmedium.Get() = 200;
+            cep.Get() = "ClientEnd";
+            sep.Get() = "ServerEnd";
+
+            diameter_grouped_t &grp = tunneling.Get();
+            grp.add(ttype());
+            grp.add(tmedium());
+            grp.add(cep());
+            grp.add(sep());
+
+            authIdAvp.Get() = 10000; // my application id
+            unameAvp.Get() = "username@domain.com";
+
+            msg()->acl.add(authIdAvp());
+            msg()->acl.add(unameAvp());
+            msg()->acl.add(tunneling());
+
+            DiameterMsgResultCode rcode(*msg());
+            rcode.ResultCode(AAA_SUCCESS);
+
+            server.Send(msg());
+        }
+
+    protected:
+        virtual int Schedule(AAA_Job*, size_t backlogSize=1) {
+            // This is simply a stub function to make sure
+            // compiler does not complain on pure virtual methods
+            return (0);
         }
 
     private:
-        AAA_SampleServer &m_server;
+        AAA_SampleServer &server;
+        std::string username;
 };
 
-class AAA_SampleServerAction : 
+class AAA_SampleServerAction :
     public DiameterSessionMsgMuxHandler<AAA_SampleServer>
 {
         // AAA message multiplex handler. This is a
@@ -184,6 +246,15 @@ class AAA_SampleServerAction :
         // and instance of this class is registered
         // with an DiameterSessionMsgMux<> object
     public:
+        AAA_SampleServerAction() {
+            // We start the local task here and
+            // dedicate 5 threads to handle all
+            // lengthly backend calls
+            localTask.Start(10);
+        }
+        virtual ~AAA_SampleServerAction() {
+            localTask.Stop();
+        }
         virtual AAAReturnCode AnswerMsg(AAA_SampleServer &server, DiameterMsg &msg) {
             // all answer messages are handled by this function.
             // AAA servers normally should not receive
@@ -259,56 +330,22 @@ class AAA_SampleServerAction :
             }
 
             AAA_LOG(LM_INFO, "(%P|%t) Request Message Count: %d\n", ++gReqMsgCount);
-            return TxAuthenticationAnswer(server);
+
+            // call backend application and send an answer
+            AAA_SampleBackEndApplicationCall *backEnd(new AAA_SampleBackEndApplicationCall(server, *uname));
+            return (localTask.Job().Schedule(backEnd) == 0) ? AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
         }
         virtual AAAReturnCode ErrorMsg(AAA_SampleServer &server, DiameterMsg &msg) {
             // same as ErrorMsg of server session
             AAA_LOG(LM_INFO, "(%P|%t) **** Received message with error bit set ****\n");
             return (AAA_ERR_SUCCESS);
         }
-        AAAReturnCode TxAuthenticationAnswer(AAA_SampleServer &server) {
 
-            // sample of how to compose a message using parser widgets
-
-            std::cout << "Sending answer message" << std::endl;
-
-            DiameterMsgWidget msg(300, false, 10000);
-
-            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
-            DiameterGroupedAvpWidget tunneling("Tunneling");
-            DiameterEnumAvpWidget ttype("Tunnel-Type");
-            DiameterEnumAvpWidget tmedium("Tunnel-Medium-Type");
-            DiameterUtf8AvpWidget cep("Tunnel-Client-Endpoint");
-            DiameterUtf8AvpWidget sep("Tunnel-Server-Endpoint");
-       
-            ttype.Get() = 100;
-            tmedium.Get() = 200;
-            cep.Get() = "ClientEnd";
-            sep.Get() = "ServerEnd";
-       
-            diameter_grouped_t &grp = tunneling.Get();
-            grp.add(ttype());
-            grp.add(tmedium());
-            grp.add(cep());
-            grp.add(sep());
-
-            authIdAvp.Get() = 10000; // my application id
-            unameAvp.Get() = "username@domain.com";
-
-            msg()->acl.add(authIdAvp());
-            msg()->acl.add(unameAvp());
-            msg()->acl.add(tunneling());
-
-            DiameterMsgResultCode rcode(*msg());
-            rcode.ResultCode(AAA_SUCCESS);
-
-            server.Send(msg());
-            return (AAA_ERR_SUCCESS);
-        }
+    protected:
+        AAA_Task localTask;
 };
 
-class AAA_SampleServerSessionAllocator : 
+class AAA_SampleServerSessionAllocator :
     public DiameterServerSessionFactory
 {
 	// Server session factory. Unlike AAA clients, server
@@ -320,7 +357,7 @@ class AAA_SampleServerSessionAllocator :
         // application.
     public:
        AAA_SampleServerSessionAllocator(AAA_Task &task,
-                                        diameter_unsigned32_t appId) : 
+                                        diameter_unsigned32_t appId) :
             DiameterServerSessionFactory(task, appId) { 
        }
        AAA_SampleServer *CreateInstance() {

@@ -93,6 +93,7 @@ noinst_PROGRAMS = aaa_test_client1 aaa_test_server1 \
                   aaa_test_client3 aaa_test_server3 \
                   aaa_test_client4 aaa_test_server4 \
                   aaa_test_client5 \
+                  aaa_test_server6 \
                   aaa_test_agent
 
 aaa_test_client1_SOURCES = test/test_client1.cxx test/test_client1.h
@@ -104,6 +105,7 @@ aaa_test_server3_SOURCES = test/test_server3.cxx
 aaa_test_client4_SOURCES = test/test_client4.cxx
 aaa_test_server4_SOURCES = test/test_server4.cxx
 aaa_test_client5_SOURCES = test/test_client5.cxx
+aaa_test_server6_SOURCES = test/test_server6.cxx
 aaa_test_agent_SOURCES = test/test_agent.cxx
 
 EXTRA_DIST = config

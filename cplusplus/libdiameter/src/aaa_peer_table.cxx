@@ -136,9 +136,7 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
                case DIAMETER_PEER_ST_CLOSING:                   
                    if (PeerData().m_IOInitiator.get()) {
                        Notify(query.IsRequest() ?
-                              requestIEv[i] : answerIEv[i],
-                       msg);
-                       
+                              requestIEv[i] : answerIEv[i], msg);
                    }
                    else {
                        Notify(query.IsRequest() ?

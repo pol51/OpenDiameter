@@ -88,7 +88,7 @@ class AAA_SampleClient : public DiameterClientAuthSession,
             // about the session timeout it prefers. If not
             // overridden, the value in the config file
             // is used
-            timeout = 5;
+            timeout = 60;
         }
         virtual AAAReturnCode ReAuthenticate(diameter_unsigned32_t type) {
             // optional override, called by the library so 
@@ -199,7 +199,7 @@ class AAA_SampleClientAction :
             // c. AAA_ERR_FAILURE - client authentication failed
 
             AAA_LOG(LM_INFO, "(%P|%t) Answer message received\n");
-#if 0
+
             DiameterMsgHeaderDump::Dump(msg);
 
             DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
@@ -250,7 +250,6 @@ class AAA_SampleClientAction :
                 AAA_LOG(LM_INFO, "(%P|%t) Client EP: %s\n", cep->data());
             }
 
-#endif
             if ((-- m_HowManyMsg) > 0) {
                 TxAuthenticationRequest(client);
                 return (AAA_ERR_INCOMPLETE);
@@ -388,7 +387,7 @@ int main(int argc, char *argv[])
    start = time(0);
 
    int msgCountPerSession = 10;
-   int sessionCount = 100;
+   int sessionCount = 10;
    char *cfgFile = "config/nas2.local.xml";
 
    if (argc == 2) {
