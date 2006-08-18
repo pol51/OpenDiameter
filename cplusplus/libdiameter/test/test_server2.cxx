@@ -152,30 +152,6 @@ class AAA_SampleServer : public DiameterServerAuthSession,
         }
 };
 
-class AAA_SampleBackEndApplicationCall :
-    public AAA_Job
-{
-        // This class simulates a very lengthly backend processing that
-        // the AAA server needs to do before it sends an answer to the
-        // client. Note that it shows an example on how to use AAA_Job
-        // and AAA_Task framework.
-    public:
-        AAA_SampleBackEndApplicationCall(AAA_SampleServer &server) :
-            m_server(server) {
-        }
-        virtual int Serve() {
-            // Let this thread sleep to simulate a really lengthy
-            // backend call to some other application
-            sleep(5);
-
-            // once the call is done we can answer the client
-            // 
-        }
-
-    private:
-        AAA_SampleServer &m_server;
-};
-
 class AAA_SampleServerAction : 
     public DiameterSessionMsgMuxHandler<AAA_SampleServer>
 {
