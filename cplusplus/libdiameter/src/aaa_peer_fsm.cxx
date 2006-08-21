@@ -191,6 +191,7 @@ void DiameterPeer_ProcessCEA::operator()(DiameterPeerStateMachine &fsm)
         DiameterMsgResultCode::RCODE_SUCCESS) {
         fsm.DisassembleCE(*cea);
         fsm.CancelTimer(DIAMETER_PEER_EV_TIMEOUT);
+        fsm.CancelTimer(DIAMETER_PEER_EV_CONN_RETRY);
         fsm.ScheduleTimer(DIAMETER_PEER_EV_WATCHDOG,
                           DIAMETER_CFG_TRANSPORT()->watchdog_timeout,
                           0,
