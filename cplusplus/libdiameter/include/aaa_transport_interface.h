@@ -136,6 +136,11 @@ class Diameter_IO : public Diameter_IO_Base
       }
       virtual ~Diameter_IO() {
          Close();
+         // wait for thread to exit
+         while (thr_count() > 0) {
+             ACE_Time_Value tm(0, 100000);
+             ACE_OS::sleep(tm);
+         }
          m_Transport.release();
       }
       int Open() {
@@ -152,35 +157,25 @@ class Diameter_IO : public Diameter_IO_Base
          return bytes;
       }
       int Close() {
-         if (m_Running) {
-             // close the transport
-             m_Transport->Close();
+         m_Running = false;
+         return m_Transport->Close();
+      }
+      RX_HANDLER *Handler() {
+         return &m_RxHandler;
+      }
 
-             // wait for thread to exit
-             m_Running = false;
-             while (thr_count() > 0) {
-                 ACE_Time_Value tm(0, 100000);
-                 ACE_OS::sleep(tm);
-             }
-         }
-         return (0);
-      }
-      RX_HANDLER *Handler() { 
-         return &m_RxHandler; 
-      }
-    
    protected:
       // transport
       std::auto_ptr<TX_IF> m_Transport;
-      
+
       // reader handler
       RX_HANDLER m_RxHandler;
       char m_ReadBuffer[MAX_PACKET_LENGTH];
-    
+
       // thread signal
       bool m_Running;
-      
-   private:    
+
+   private:
       int svc() {
          int bytes;
          do {

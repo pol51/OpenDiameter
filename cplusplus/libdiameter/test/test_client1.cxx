@@ -306,7 +306,6 @@ int main(int argc, char *argv[])
                   peername.data());
        }
 
-
        /// Wait for connectivity
        do {
            std::cout << "Waiting till this AAA has connectivity" << std::endl;

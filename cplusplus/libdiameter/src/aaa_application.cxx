@@ -99,8 +99,8 @@ AAAReturnCode DiameterApplication::Close()
     m_Task.CancelTimer(m_ReTxHandler.Handle(), 0);
 
     /// disconnect from peers
-    m_PeerAcceptor.Stop();
     DiameterPeerConnector::Stop(AAA_DISCONNECT_REBOOTING);
+    m_PeerAcceptor.Stop();
 
     /// close logging facility
     DiameterLogFacility::Close();

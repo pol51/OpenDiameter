@@ -37,7 +37,7 @@
       <tcp_port>1811</tcp_port>
       <tls_port>0</tls_port>
       <watchdog_timeout>3</watchdog_timeout>
-      <retry_interval>40</retry_interval>
+      <retry_interval>15</retry_interval>
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
       <advertised_host_ip>192.168.1.100</advertised_host_ip>
