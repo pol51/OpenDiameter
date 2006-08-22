@@ -178,7 +178,7 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
                  (errno == EAGAIN)) { 
                 return (0);
              }
-             AAA_LOG(LM_ERROR, "(%P|%t) ACE transport error: %s\n",
+             AAA_LOG(LM_ERROR, "(%P|%t) Async Transport Reports: %s\n",
                         strerror(errno));
          }
          return (rc);
@@ -190,7 +190,7 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
                  (errno == EAGAIN)) { 
                 return (0);
              }
-             AAA_LOG(LM_ERROR, "(%P|%t) ACE transport error: %s\n",
+             AAA_LOG(LM_ERROR, "(%P|%t) Async Transport Reports: %s\n",
                         strerror(errno));
              rc = (-1);
          }
