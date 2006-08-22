@@ -46,7 +46,9 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterApplication :
     public AAA_JobData
 {
     private: // General Timer hanlders
-        class ReTransmissionTimerHandler : public ACE_Event_Handler {
+        class ReTransmissionTimerHandler : 
+            public ACE_Event_Handler 
+        {
             public:
                int handle_timeout(const ACE_Time_Value &tv, 
                                   const void *arg) {
@@ -68,8 +70,8 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterApplication :
                 Open(cfgfile);
             }
         }
-        ~DiameterApplication() {
-            Close();
+        virtual ~DiameterApplication() {
+            m_ReTxHandler.reactor(NULL);
         }
 
         // Config file loading/un-loading
