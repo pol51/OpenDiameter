@@ -39,6 +39,7 @@
 #include "ace/SSL/SSL_SOCK_Connector.h"
 #include "ace/SSL/SSL_SOCK_Acceptor.h"
 #include "ace/Signal.h"
+#include "ace/Handle_Set.h"
 #include "aaa_transport_interface.h"
 
 // interface implemented by transport
@@ -49,6 +50,11 @@ template<class ACE_ACCEPTOR,
          class ACE_STREAM>
 class Diameter_ACE_Transport : public DiameterTransportInterface
 {
+   public:
+      typedef enum {
+          ACCEPTOR_TIMEOUT = 4,  // accept blocking call timeout
+      };
+
    public:
       Diameter_ACE_Transport() : m_PendingStream(0) { 
       }
@@ -104,16 +110,22 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
       virtual int Accept(DiameterTransportInterface *&iface) {
          iface = 0;
          if (m_PendingStream) {
-            int rc = m_Acceptor.accept(m_PendingStream->Stream());
+            ACE_Time_Value tout(ACCEPTOR_TIMEOUT);
+            int rc = m_Acceptor.accept(m_PendingStream->Stream(),
+                                   NULL,
+                                   &tout,
+                                   0,
+                                   0);
             if (rc == 0) {
                 HandOverStream(iface, (DiameterTransportInterface*&)
-                                    m_PendingStream);
+                               m_PendingStream);
                 m_PendingStream = new Diameter_ACE_Transport
                      <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>;
             }
             else if (AceAsynchResults(rc) < 0) {
-                return ResetStream((DiameterTransportInterface*&)
-                                    m_PendingStream);
+                ResetStream((DiameterTransportInterface*&)
+                            m_PendingStream);
+                return (0);
             }
             return AceAsynchResults((rc == 0) ? 1 : rc);
          }
@@ -131,11 +143,15 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
          return AceIOResults(m_Stream.recv(data, length));
       }
       int Close() {
+         // close auxillary sockets
+         m_Acceptor.close();
+
+         // close data stream
          if (!AceAsynchResults(m_Stream.close_writer()) &&
              !AceAsynchResults(m_Stream.close_reader())) {
              return (0);
          }
-         return AceAsynchResults(m_Stream.close()); 
+         return AceAsynchResults(m_Stream.close());
       }
       ACE_STREAM &Stream() {
          return m_Stream;
@@ -254,5 +270,5 @@ class Diameter_IO_SigMask : public ACE_Event_Handler
    private:
        ACE_Sig_Handler m_SigRegistrar;
 };
-      
+
 #endif 

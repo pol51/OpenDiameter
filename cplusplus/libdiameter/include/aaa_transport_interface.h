@@ -136,11 +136,6 @@ class Diameter_IO : public Diameter_IO_Base
       }
       virtual ~Diameter_IO() {
          Close();
-         // wait for thread to exit
-         while (thr_count() > 0) {
-             ACE_Time_Value tm(0, 100000);
-             ACE_OS::sleep(tm);
-         }
          m_Transport.release();
       }
       int Open() {
@@ -151,15 +146,24 @@ class Diameter_IO : public Diameter_IO_Base
          return (-1);
       }
       int Send(AAAMessageBlock *data) {
-         int bytes = m_Transport->Send(data->base(), 
+         int bytes = m_Transport->Send(data->base(),
                                        data->length());
          data->Release();
          return bytes;
       }
       int Close() {
-         // close the transport
-         m_Running = false;
-         return m_Transport->Close();
+         if (m_Running) {
+             // close the transport
+             m_Transport->Close();
+
+             // wait for thread to exit
+             m_Running = false;
+             while (thr_count() > 0) {
+                 ACE_Time_Value tm(0, 100000);
+                 ACE_OS::sleep(tm);
+             }
+         }
+         return (0);
       }
       RX_HANDLER *Handler() { 
          return &m_RxHandler; 
@@ -200,7 +204,7 @@ class Diameter_IO : public Diameter_IO_Base
              }
          } while (m_Running);
          return (0);
-      }      
+      }
 };
 
 // base class for acceptor and connector classes
@@ -210,24 +214,15 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
    public:
       Diameter_IO_Factory(char *name = "") :
           m_Perpetual(false),
-          m_Running(false),
+          m_Active(false),
           m_Name(name) {
       }
-      ~Diameter_IO_Factory() {
-          Close();
-         
-          // wait for thread to exit
-          while (thr_count() > 0) {
-              ACE_Time_Value tm(0, 100000);
-              ACE_OS::sleep(tm);
-          }
+      virtual ~Diameter_IO_Factory() {
       }
       virtual int Open() {
           return m_Transport.Open();
       }
       virtual int Close() {
-          // close the transport
-          m_Running = false;
           return m_Transport.Close();
       }
 
@@ -242,21 +237,31 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
       bool &Perpetual() {
           return m_Perpetual;
       }
-    
+
    protected:
       bool m_Perpetual;
-      bool m_Running;
+      bool m_Active;
       std::string m_Name;
       TX_IF m_Transport;
 
    protected:
       bool Activate() {
-          if (! m_Running && (activate() == 0)) {
-              m_Running = true;
+          if (! m_Active && (activate() == 0)) {
+              m_Active = true;
           }
-          return m_Running;
+          return m_Active;
       }
-    
+      void Shutdown() {
+          if (m_Active) {
+              m_Active = false;
+              // wait for thread to exit
+              while (thr_count() > 0) {
+                  ACE_Time_Value tm(0, 100000);
+                  ACE_OS::sleep(tm);
+              }
+          }
+      }
+
    private:
       int svc() {
           int rc = 0;
@@ -289,26 +294,26 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
                               m_Name.data());
                   }
                   Failed();
-                  m_Running = false;
+                  m_Active = false;
               }
               else if (rc < 0) {
-                  AAA_LOG(LM_ERROR, "(%P|%t) Transport interface error: %s [%d=%s]\n",
+                  AAA_LOG(LM_ERROR, "(%P|%t) IO Factory error: %s [%d=%s]\n",
                           m_Name.data(), errno, strerror(errno));
                   Failed();
-                  m_Running = false;
+                  m_Active = false;
               }
               // timeout, re-run
-          } while (m_Running);
+          } while (m_Active);
           return (0);
       }
 };
 
 // acceptor model for upper layer IO
 template<class TX_IF, class RX_HANDLER>
-class AAA_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
+class Diameter_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 {
    public:
-      AAA_IO_Acceptor() :
+      Diameter_IO_Acceptor() :
           Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_ACCEPTOR_NAME) { 
               Diameter_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = true;
       }
@@ -323,6 +328,11 @@ class AAA_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
           }
           return (-1);
       }
+      int Close() {
+          Diameter_IO_Factory<TX_IF, RX_HANDLER>::Close();
+          Diameter_IO_Factory<TX_IF, RX_HANDLER>::Shutdown();
+          return (0);
+      }
 
    protected:
       int Create(TX_IF *&newTransport) {
@@ -333,10 +343,10 @@ class AAA_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 
 // connector model for upper layer IO
 template<class TX_IF, class RX_HANDLER>
-class AAA_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
+class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 {
    public:
-      AAA_IO_Connector() :
+      Diameter_IO_Connector() :
           Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_CONNECTOR_NAME) { 
               Diameter_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = false;
       }

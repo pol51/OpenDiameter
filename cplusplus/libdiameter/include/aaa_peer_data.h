@@ -39,17 +39,17 @@
 #include "aaa_data_defs.h"
 
 typedef Diameter_ACE_Transport<ACE_SOCK_Acceptor,
-                          ACE_SOCK_Connector,
-                          ACE_SOCK_Stream> DiameterTransportTCP;
+                               ACE_SOCK_Connector,
+                               ACE_SOCK_Stream> DiameterTransportTCP;
 typedef Diameter_ACE_Transport<ACE_SSL_SOCK_Acceptor,
-                          ACE_SSL_SOCK_Connector,
-                          ACE_SSL_SOCK_Stream> DiameterTransportTLS;
+                               ACE_SSL_SOCK_Connector,
+                               ACE_SSL_SOCK_Stream> DiameterTransportTLS;
 
-typedef AAA_IO_Connector<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpConnector;
-typedef AAA_IO_Connector<DiameterTransportTLS, DiameterMsgCollector> DiameterTlsConnector;
+typedef Diameter_IO_Connector<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpConnector;
+typedef Diameter_IO_Connector<DiameterTransportTLS, DiameterMsgCollector> DiameterTlsConnector;
 
-typedef AAA_IO_Acceptor<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpAcceptor;
-typedef AAA_IO_Acceptor<DiameterTransportTLS, DiameterMsgCollector> DiameterTlsAcceptor;
+typedef Diameter_IO_Acceptor<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpAcceptor;
+typedef Diameter_IO_Acceptor<DiameterTransportTLS, DiameterMsgCollector> DiameterTlsAcceptor;
 
 typedef Diameter_ACE_TransportAddress DiameterIpAddress;
 
