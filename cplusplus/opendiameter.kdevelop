@@ -25,6 +25,26 @@
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
+      <runarguments>
+        <aaa_test_client1></aaa_test_client1>
+        <aaa_test_agent></aaa_test_agent>
+        <aaa_test_client2></aaa_test_client2>
+        <aaa_test_client3></aaa_test_client3>
+        <aaa_test_client4></aaa_test_client4>
+        <aaa_test_client5></aaa_test_client5>
+        <aaa_test_server1></aaa_test_server1>
+        <aaa_test_server2></aaa_test_server2>
+        <aaa_test_server3></aaa_test_server3>
+        <aaa_test_server4></aaa_test_server4>
+        <aaa_test_server6></aaa_test_server6>
+        <aaas_server_test></aaas_server_test>
+        <fac_test></fac_test>
+        <hac_test></hac_test>
+        <has_test></has_test>
+        <client_test></client_test>
+        <server_test></server_test>
+        <aaad></aaad>
+      </runarguments>
     </run>
     <configurations>
       <optimized>
@@ -37,14 +57,22 @@
       <debug>
         <configargs>--enable-debug=full</configargs>
         <builddir>debug</builddir>
-        <ccompiler>GccOptions</ccompiler>
-        <cxxcompiler>GppOptions</cxxcompiler>
-        <f77compiler>G77Options</f77compiler>
+        <ccompiler>kdevgccoptions</ccompiler>
+        <cxxcompiler>kdevgppoptions</cxxcompiler>
+        <f77compiler>kdevpgf77options</f77compiler>
         <cxxflags>-O0 -g3</cxxflags>
         <envvars>
           <envvar value="/usr/include" name="ACE_ROOT" />
           <envvar value="/usr/include" name="BOOST_ROOT" />
         </envvars>
+        <topsourcedir></topsourcedir>
+        <cppflags></cppflags>
+        <ldflags></ldflags>
+        <ccompilerbinary></ccompilerbinary>
+        <cxxcompilerbinary></cxxcompilerbinary>
+        <f77compilerbinary></f77compilerbinary>
+        <cflags></cflags>
+        <f77flags></f77flags>
       </debug>
     </configurations>
     <make>

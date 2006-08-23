@@ -38,13 +38,10 @@ nobase_sysconf_DATA = config/aaad.xml \
                       config/aaad_user_db.xsd
 
 aaad_SOURCES = $(SRC) $(HDR) 
-aaad_LDADD = @L_LIBS@ \
-             $(top_srcdir)/libeap/libeap.la \
-             $(top_srcdir)/libeap/libeaparchie.la \
-             $(top_srcdir)/libdiametereap/libdiametereap.la \
-             $(top_srcdir)/libdiameter/libdiameter.la \
-             $(top_srcdir)/libdiamparser/libdiamparser.la \
-             $(top_srcdir)/libodutl/libodutl.la
+aaad_LDADD = $(top_builddir)/libeap/libeap.la \
+	$(top_builddir)/libeap/libeaparchie.la $(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la $(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE -lACE_SSL -lssl
 
 EXTRA_DIST = config
 

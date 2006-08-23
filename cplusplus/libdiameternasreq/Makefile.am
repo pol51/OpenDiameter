@@ -8,7 +8,7 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
               -I@top_srcdir@/libodutl/include \
               -I@top_srcdir@/libdiamparser/include \
               -I@top_srcdir@/libdiameter/include \
-              -I./include \
+              -I@top_srcdir@/libdiameternasreq/include \
               -D@HOST_OS@
 
 AM_LDFLAGS = @L_LDFLAGS@
@@ -57,3 +57,13 @@ server_test_SOURCES = test/server_test.cxx
 
 EXTRA_DIST = config
 
+client_test_LDADD = $(top_builddir)/libdiameternasreq/libdiameternasreq.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+server_test_LDADD = $(top_builddir)/libdiameternasreq/libdiameternasreq.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl

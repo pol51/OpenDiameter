@@ -80,70 +80,70 @@ libdiameter_la_OBJECTS = $(am_libdiameter_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
 am_aaa_test_agent_OBJECTS = test/test_agent.$(OBJEXT)
 aaa_test_agent_OBJECTS = $(am_aaa_test_agent_OBJECTS)
-aaa_test_agent_LDADD = $(LDADD)
-aaa_test_agent_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_agent_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_client1_OBJECTS = test/test_client1.$(OBJEXT)
 aaa_test_client1_OBJECTS = $(am_aaa_test_client1_OBJECTS)
-aaa_test_client1_LDADD = $(LDADD)
-aaa_test_client1_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_client1_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_client2_OBJECTS = test/test_client2.$(OBJEXT)
 aaa_test_client2_OBJECTS = $(am_aaa_test_client2_OBJECTS)
-aaa_test_client2_LDADD = $(LDADD)
-aaa_test_client2_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_client2_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_client3_OBJECTS = test/test_client3.$(OBJEXT)
 aaa_test_client3_OBJECTS = $(am_aaa_test_client3_OBJECTS)
-aaa_test_client3_LDADD = $(LDADD)
-aaa_test_client3_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_client3_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_client4_OBJECTS = test/test_client4.$(OBJEXT)
 aaa_test_client4_OBJECTS = $(am_aaa_test_client4_OBJECTS)
-aaa_test_client4_LDADD = $(LDADD)
-aaa_test_client4_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_client4_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_client5_OBJECTS = test/test_client5.$(OBJEXT)
 aaa_test_client5_OBJECTS = $(am_aaa_test_client5_OBJECTS)
-aaa_test_client5_LDADD = $(LDADD)
-aaa_test_client5_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_client5_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_server1_OBJECTS = test/test_server1.$(OBJEXT)
 aaa_test_server1_OBJECTS = $(am_aaa_test_server1_OBJECTS)
-aaa_test_server1_LDADD = $(LDADD)
-aaa_test_server1_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_server1_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_server2_OBJECTS = test/test_server2.$(OBJEXT)
 aaa_test_server2_OBJECTS = $(am_aaa_test_server2_OBJECTS)
-aaa_test_server2_LDADD = $(LDADD)
-aaa_test_server2_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_server2_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_server3_OBJECTS = test/test_server3.$(OBJEXT)
 aaa_test_server3_OBJECTS = $(am_aaa_test_server3_OBJECTS)
-aaa_test_server3_LDADD = $(LDADD)
-aaa_test_server3_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_server3_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_server4_OBJECTS = test/test_server4.$(OBJEXT)
 aaa_test_server4_OBJECTS = $(am_aaa_test_server4_OBJECTS)
-aaa_test_server4_LDADD = $(LDADD)
-aaa_test_server4_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_server4_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_aaa_test_server6_OBJECTS = test/test_server6.$(OBJEXT)
 aaa_test_server6_OBJECTS = $(am_aaa_test_server6_OBJECTS)
-aaa_test_server6_LDADD = $(LDADD)
-aaa_test_server6_DEPENDENCIES = libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaa_test_server6_DEPENDENCIES =  \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -391,6 +391,57 @@ aaa_test_client5_SOURCES = test/test_client5.cxx
 aaa_test_server6_SOURCES = test/test_server6.cxx
 aaa_test_agent_SOURCES = test/test_agent.cxx
 EXTRA_DIST = config
+INCLUDES = -I$(top_srcdir)/libdiamparser
+aaa_test_client1_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lssl -lACEXML_Parser -lACEXML \
+	-lACE_SSL -lACE
+
+aaa_test_agent_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE_SSL \
+	-lACE -lssl
+
+aaa_test_client2_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+aaa_test_client3_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE \
+	-lACE_SSL -lssl
+
+aaa_test_client4_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE \
+	-lACE_SSL -lssl
+
+aaa_test_client5_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+aaa_test_server1_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE \
+	-lACE_SSL -lssl
+
+aaa_test_server2_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+aaa_test_server3_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+aaa_test_server4_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+aaa_test_server6_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
 all: all-am
 
 .SUFFIXES:

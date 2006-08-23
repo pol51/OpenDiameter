@@ -71,18 +71,18 @@ libdiameternasreq_la_OBJECTS = $(am_libdiameternasreq_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
 am_client_test_OBJECTS = test/client_test.$(OBJEXT)
 client_test_OBJECTS = $(am_client_test_OBJECTS)
-client_test_LDADD = $(LDADD)
-client_test_DEPENDENCIES = libdiameternasreq.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+client_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiameternasreq/libdiameternasreq.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_server_test_OBJECTS = test/server_test.$(OBJEXT)
 server_test_OBJECTS = $(am_server_test_OBJECTS)
-server_test_LDADD = $(LDADD)
-server_test_DEPENDENCIES = libdiameternasreq.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+server_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiameternasreq/libdiameternasreq.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -233,7 +233,7 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
               -I@top_srcdir@/libodutl/include \
               -I@top_srcdir@/libdiamparser/include \
               -I@top_srcdir@/libdiameter/include \
-              -I./include \
+              -I@top_srcdir@/libdiameternasreq/include \
               -D@HOST_OS@
 
 AM_LDFLAGS = @L_LDFLAGS@
@@ -272,6 +272,18 @@ LDADD = @L_LIBS@ \
 client_test_SOURCES = test/client_test.cxx
 server_test_SOURCES = test/server_test.cxx
 EXTRA_DIST = config
+client_test_LDADD = $(top_builddir)/libdiameternasreq/libdiameternasreq.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+server_test_LDADD = $(top_builddir)/libdiameternasreq/libdiameternasreq.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
 all: all-am
 
 .SUFFIXES:

@@ -9,8 +9,8 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
               -I@top_srcdir@/libdiamparser/include \
               -I@top_srcdir@/libdiameter/include \
               -I@top_srcdir@/libdiameternasreq/include \
+              -I@top_srcdir@/libdiametereap/include \
               -I@top_srcdir@/libeap/include \
-              -I./include \
               -D@HOST_OS@
 
 AM_LDFLAGS = @L_LDFLAGS@
@@ -80,3 +80,12 @@ client_test_SOURCES = test/client_test.cxx
 server_test_SOURCES = test/server_test.cxx
 
 EXTRA_DIST = config
+INCLUDES = -I$(top_srcdir)/libdiametereap
+client_test_LDADD = $(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la $(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la $(top_builddir)/libeap/libeap.la $(top_builddir)/libeap/libeaparchie.la \
+	-lACEXML_Parser -lACEXML -lACE -lACE_SSL -lssl
+server_test_LDADD = $(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la $(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la $(top_builddir)/libeap/libeap.la $(top_builddir)/libeap/libeaparchie.la \
+	-lACEXML_Parser -lACEXML -lACE -lACE_SSL -lssl

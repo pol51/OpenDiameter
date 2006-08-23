@@ -75,32 +75,32 @@ libdiametermip4_la_OBJECTS = $(am_libdiametermip4_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
 am_aaas_server_test_OBJECTS = test/aaas_server_test.$(OBJEXT)
 aaas_server_test_OBJECTS = $(am_aaas_server_test_OBJECTS)
-aaas_server_test_LDADD = $(LDADD)
-aaas_server_test_DEPENDENCIES = libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaas_server_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_fac_test_OBJECTS = test/fac_test.$(OBJEXT)
 fac_test_OBJECTS = $(am_fac_test_OBJECTS)
-fac_test_LDADD = $(LDADD)
-fac_test_DEPENDENCIES = libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+fac_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_hac_test_OBJECTS = test/hac_test.$(OBJEXT)
 hac_test_OBJECTS = $(am_hac_test_OBJECTS)
-hac_test_LDADD = $(LDADD)
-hac_test_DEPENDENCIES = libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+hac_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_has_test_OBJECTS = test/has_test.$(OBJEXT)
 has_test_OBJECTS = $(am_has_test_OBJECTS)
-has_test_LDADD = $(LDADD)
-has_test_DEPENDENCIES = libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+has_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -325,6 +325,30 @@ fac_test_SOURCES = test/fac_test.cxx \
 
 # Distribution
 EXTRA_DIST = config
+aaas_server_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+fac_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+hac_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+has_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
 all: all-am
 
 .SUFFIXES:

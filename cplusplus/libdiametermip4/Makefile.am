@@ -89,3 +89,23 @@ fac_test_SOURCES = test/fac_test.cxx \
 # Distribution
 
 EXTRA_DIST = config
+aaas_server_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+fac_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+hac_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+has_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl

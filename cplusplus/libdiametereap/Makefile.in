@@ -75,18 +75,13 @@ libdiametereap_la_OBJECTS = $(am_libdiametereap_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
 am_client_test_OBJECTS = test/client_test.$(OBJEXT)
 client_test_OBJECTS = $(am_client_test_OBJECTS)
-client_test_LDADD = $(LDADD)
-@compile_EAPTLS_FALSE@client_test_DEPENDENCIES = libdiametereap.la \
-@compile_EAPTLS_FALSE@	$(top_srcdir)/libdiameter/libdiameter.la \
-@compile_EAPTLS_FALSE@	$(top_srcdir)/libdiamparser/libdiamparser.la \
-@compile_EAPTLS_FALSE@	$(top_srcdir)/libeap/libeap.la \
-@compile_EAPTLS_FALSE@	$(top_srcdir)/libodutl/libodutl.la
-@compile_EAPTLS_TRUE@client_test_DEPENDENCIES = libdiametereap.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libdiameter/libdiameter.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libdiamparser/libdiamparser.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libeap/libeap.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libeap/libeaptls.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libodutl/libodutl.la
+client_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la \
+	$(top_builddir)/libeap/libeap.la \
+	$(top_builddir)/libeap/libeaparchie.la
 am__client_test_tls_SOURCES_DIST = test/client_test_tls.cxx
 @compile_EAPTLS_TRUE@am_client_test_tls_OBJECTS =  \
 @compile_EAPTLS_TRUE@	test/client_test_tls.$(OBJEXT)
@@ -106,18 +101,13 @@ client_test_tls_LDADD = $(LDADD)
 @compile_EAPTLS_TRUE@	$(top_srcdir)/libodutl/libodutl.la
 am_server_test_OBJECTS = test/server_test.$(OBJEXT)
 server_test_OBJECTS = $(am_server_test_OBJECTS)
-server_test_LDADD = $(LDADD)
-@compile_EAPTLS_FALSE@server_test_DEPENDENCIES = libdiametereap.la \
-@compile_EAPTLS_FALSE@	$(top_srcdir)/libdiameter/libdiameter.la \
-@compile_EAPTLS_FALSE@	$(top_srcdir)/libdiamparser/libdiamparser.la \
-@compile_EAPTLS_FALSE@	$(top_srcdir)/libeap/libeap.la \
-@compile_EAPTLS_FALSE@	$(top_srcdir)/libodutl/libodutl.la
-@compile_EAPTLS_TRUE@server_test_DEPENDENCIES = libdiametereap.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libdiameter/libdiameter.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libdiamparser/libdiamparser.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libeap/libeap.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libeap/libeaptls.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libodutl/libodutl.la
+server_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la \
+	$(top_builddir)/libeap/libeap.la \
+	$(top_builddir)/libeap/libeaparchie.la
 am__server_test_tls_SOURCES_DIST = test/server_test_tls.cxx
 @compile_EAPTLS_TRUE@am_server_test_tls_OBJECTS =  \
 @compile_EAPTLS_TRUE@	test/server_test_tls.$(OBJEXT)
@@ -288,8 +278,8 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
               -I@top_srcdir@/libdiamparser/include \
               -I@top_srcdir@/libdiameter/include \
               -I@top_srcdir@/libdiameternasreq/include \
+              -I@top_srcdir@/libdiametereap/include \
               -I@top_srcdir@/libeap/include \
-              -I./include \
               -D@HOST_OS@
 
 AM_LDFLAGS = @L_LDFLAGS@
@@ -341,6 +331,17 @@ sysconf_DATA = config/client.eap-tls.xml \
 client_test_SOURCES = test/client_test.cxx
 server_test_SOURCES = test/server_test.cxx
 EXTRA_DIST = config
+INCLUDES = -I$(top_srcdir)/libdiametereap
+client_test_LDADD = $(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la $(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la $(top_builddir)/libeap/libeap.la $(top_builddir)/libeap/libeaparchie.la \
+	-lACEXML_Parser -lACEXML -lACE -lACE_SSL -lssl
+
+server_test_LDADD = $(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la $(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la $(top_builddir)/libeap/libeap.la $(top_builddir)/libeap/libeaparchie.la \
+	-lACEXML_Parser -lACEXML -lACE -lACE_SSL -lssl
+
 all: all-am
 
 .SUFFIXES:
