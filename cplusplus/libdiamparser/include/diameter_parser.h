@@ -557,6 +557,29 @@ class AAA_PARSER_EXPORT_ONLY DiameterErrorCode :
           AAAErrorCode::set(t, c);
       }
 
+      /*!
+       * !!! Backward compatibility only !!!
+       *
+       * \param type Error type
+       * \param code Result or Bug code
+       * \param avp AVP that had the error
+       */
+      void get(int &type,
+               int &code,
+               std::string &avp) {
+          get((AAA_PARSE_ERROR_TYPE&)type, code, avp);
+      }
+
+      /*!
+       * !!! Backward compatibility only !!!
+       *
+       * \param type Error type
+       * \param code Result or Bug code
+       */
+      void get(int &t, int &c) {
+          get((AAA_PARSE_ERROR_TYPE&)t, c);
+      }
+
    private:
       std::string avp;   /**< errornous AVP */
 };
