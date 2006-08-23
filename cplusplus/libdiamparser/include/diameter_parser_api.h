@@ -34,129 +34,169 @@
 #ifndef __DIAMETER_PARSER_API_H__
 #define __DIAMETER_PARSER_API_H__
 
-/*!
- *=======================================================================
- *
- *                    !!! WARNING !!!
- *
- * THIS FILE IS MAINTAINED FOR BACKWARD COMPATIBILITY ONLY AND NOT
- * MEANT TO BE THE MAIN SOURCE OF API DEFINITIONS. PLS. USE 
- * diameter_parser_api.h INSTEAD.
- *
- *=======================================================================
- */
+///////////////////////////////////////////////////////////////////////////////////
+//
+//                    !!! WARNING !!!
+//
+// Backward compatibility Section
+//
+//   * Includes typedef's to previous class names in version 1.0.7-g and below
+//   * Misc backward compatibility definition
+//
+// THIS FILE IS MAINTAINED FOR BACKWARD COMPATIBILITY ONLY AND NOT
+// MEANT TO BE THE MAIN SOURCE OF API DEFINITIONS. PLS USE diameter_parser.h instead
+//
+///////////////////////////////////////////////////////////////////////////////////
 
-#include "aaa_parser_api.h"
+#include "diameter_parser.h"
 
-#define AAA_NO_VENDOR_ID           DIAMETER_NO_VENDOR_ID
+//
+// Old macros mapped to current macros
+//
+#define   AAA_PROTOCOL_VERSION           DIAMETER_PROTOCOL_VERSION
+#define   AAA_BASE_APPLICATION_ID        DIAMETER_BASE_APPLICATION_ID
+#define   AAA_NO_VENDOR_ID               DIAMETER_NO_VENDOR_ID
+#define   HEADER_SIZE                    DIAMETER_HEADER_SIZE
+#define   DIAMETER_FLG_SET               AAA_FLG_SET
+#define   DIAMETER_FLG_CLR               AAA_FLG_CLR
 
-#define AAA_BASE_APPLICATION_ID    DIAMETER_BASE_APPLICATION_ID
+//
+// Old enums mapped to current enums via macros
+//
+#define   PARSE_LOOSE                    DIAMETER_PARSE_LOOSE
+#define   PARSE_STRICT                   DIAMETER_PARSE_STRICT
 
-typedef     AAAInt8             AAA_INT8;
+//
+// Old template class names mapped to current class names
+// Note that macros are used for correctness since typedef
+// would require changes to exsiting code
+//
+#define   AAA_ScholarAttribute           AAAScholarAttribute
+#define   AAA_GroupedScholarAttribute    AAAGroupedScholarAttribute
+#define   AAA_VectorAttribute            AAAVectorAttribute
+#define   AAA_GroupedVectorAttribute     AAAGroupedVectorAttribute
+#define   AAA_AvpWidget                  AAAAvpWidget
+#define   AAA_AvpContainerWidget         DiameterAvpContainerWidget
 
-typedef     AAAUInt8            AAA_UINT8;
+//
+// Old basic data types mapped to current data types
+//
+typedef   AAAInt8                        AAA_INT8;
+typedef   AAAUInt8                       AAA_UINT8;
+typedef   AAAIpAddr                      IP_ADDR;
+typedef   AAAAvpDataType                 AAA_AVPDataType;
+typedef   diameter_avp_t                 avp_t;
 
-typedef     AAAIpAddr           IP_ADDR;
+//
+// Old utility classes operating on old types mapped to current classes
+//
+typedef   AAAUInt8Range                  AAA_UINT8_RANGE;
+typedef   AAAUInt16Range                 AAA_UINT16_RANGE;
+typedef   DiameterIPFilterRuleSrcDst     AAA_IPFILTER_RULE_SRCDST;
 
-typedef     AAAAvpDataType      AAA_AVPDataType;
+//
+// Old classes mapped to current classes
+//
+typedef   DiameterAVPCode                AAA_AVPCode;
+typedef   DiameterAvpType                AvpType;
+typedef   DiameterErrorCode              AAAErrorStatus;
+typedef   DiameterVendorId               AAAVendorId;
+typedef   DiameterAVPFlag                DiameterAVPFlag;
+typedef   DiameterApplicationId          AAAApplicationId;
+typedef   DiameterResultCode             AAAResultCode;
+typedef   DiameterAvpFlagEnum            AAA_AVPFlagEnum;
 
-typedef     AAAUInt8Range       AAAUInt8Range;
+//
+// Old data structure classes mapped to current classes
+//
+typedef   DiameterDictionaryEntry        AAADictionaryEntry;
+typedef   DiameterDictionaryManager      AAADictionaryManager;
+typedef   DiameterParseOption            ParseOption;
+typedef   DiameterAvpContainerEntryManager  AAAAvpContainerEntryManager;
+typedef   DiameterAvpContainerManager    AAAAvpContainerManager;
 
-typedef     AAAUInt16Range      AAA_UINT16_RANGE;
+//
+// Old utility classes operating as message parser to current classes
+//
+typedef   struct diameter_hdr_flag       hdr_flag;
+typedef   struct diameter_avp_flag       avp_flag;
+typedef   DiameterAvpHeader              AAAAvpHeader;
+typedef   DiameterMsgHeader              AAADiameterHeader;
+typedef   DiameterMsg                    AAAMessage;
+typedef   DiameterMsgHeaderParser        HeaderParser;
+typedef   DiameterMsgPayloadParser       PayloadParser;
 
-typedef     DiameterErrorCode   AAAErrorStatus;
+//
+// Old utility classes operating on message mapped to current classes
+//
+typedef   DiameterMsgWidget              AAA_MsgWidget;
+typedef   DiameterMsgResultCode          AAA_MsgResultCode;
+typedef   DiameterMsgHeaderDump          AAA_MsgDump;
+typedef   DiameterMsgParserWidget        AAA_DiameterMsgParserWidget;
+typedef   DiameterMsgParserWidgetChecked AAA_DiameterMsgParserWidgetChecked;
 
-typedef     DiameterAvpType     AvpType;
+//
+// Old wrapper classes for AVP widgets mapped to new classes
+//
+typedef   DiameterIdentityAvpWidget      AAA_IdentityAvpWidget;
+typedef   DiameterAddressAvpWidget       AAA_AddressAvpWidget;
+typedef   DiameterInt32AvpWidget         AAA_Int32AvpWidget;
+typedef   DiameterUInt32AvpWidget        AAA_UInt32AvpWidget;
+typedef   DiameterInt64AvpWidget         AAA_Int64AvpWidget;
+typedef   DiameterUInt64AvpWidget        AAA_UInt64AvpWidget;
+typedef   DiameterUtf8AvpWidget          AAA_Utf8AvpWidget;
+typedef   DiameterGroupedAvpWidget       AAA_GroupedAvpWidget;
+typedef   DiameterStringAvpWidget        AAA_StringAvpWidget;
+typedef   DiameterDiamUriAvpWidget       AAA_DiamUriAvpWidget;
+typedef   DiameterEnumAvpWidget          AAA_EnumAvpWidget;
+typedef   DiameterTimeAvpWidget          AAA_TimeAvpWidget;
 
-typedef     DiameterAVPCode     AAA_AVPCode;
+//
+// Old wrapper classes for AVP container widgets mapped to new classes
+//
+typedef   DiameterIdentityAvpContainerWidget  AAA_IdentityAvpContainerWidget;
+typedef   DiameterAddressAvpContainerWidget   AAA_AddressAvpContainerWidget;
+typedef   DiameterInt32AvpContainerWidget     AAA_Int32AvpContainerWidget;
+typedef   DiameterUInt32AvpContainerWidget    AAA_UInt32AvpContainerWidget;
+typedef   DiameterInt64AvpContainerWidget     AAA_Int64AvpContainerWidget;
+typedef   DiameterUInt64AvpContainerWidget    AAA_UInt64AvpContainerWidget;
+typedef   DiameterUtf8AvpContainerWidget      AAA_Utf8AvpContainerWidget;
+typedef   DiameterGroupedAvpContainerWidget   AAA_GroupedAvpContainerWidget;
+typedef   DiameterStringAvpContainerWidget    AAA_StringAvpContainerWidget;
+typedef   DiameterUriAvpContainerWidget       AAA_DiamUriAvpContainerWidget;
+typedef   DiameterEnumAvpContainerWidget      AAA_EnumAvpContainerWidget;
+typedef   DiameterTimeAvpContainerWidget      AAA_TimeAvpContainerWidget;
 
-typedef     DiameterDictionaryEntry AAADictionaryEntry;
-
-typedef     DiameterVendorId    AAAVendorId;
-
-typedef     DiameterAVPFlag     DiameterAVPFlag;
-
+//
+// Old enumerations mapped to current enums
+//
 enum  {
-    NORMAL = AAA_PARSE_ERROR_TYPE_NORMAL,
-    BUG    = AAA_PARSE_ERROR_TYPE_BUG
+    NORMAL                             = AAA_PARSE_ERROR_TYPE_NORMAL,
+    BUG                                = AAA_PARSE_ERROR_TYPE_BUG
 };
 
 enum {
-    MISSING_CONTAINER             = AAA_PARSE_ERROR_MISSING_CONTAINER,
-    TOO_MUCH_AVP_ENTRIES          = AAA_PARSE_ERROR_TOO_MUCH_AVP_ENTRIES,
-    TOO_LESS_AVP_ENTRIES          = AAA_PARSE_ERROR_TOO_LESS_AVP_ENTRIES,
-    PROHIBITED_CONTAINER          = AAA_PARSE_ERROR_PROHIBITED_CONTAINER,
-    INVALID_CONTAINER_PARAM       = AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM,
-    INVALID_CONTAINER_CONTENTS    = AAA_PARSE_ERROR_INVALID_CONTAINER_CONTENTS,
-    UNSUPPORTED_FUNCTIONALITY     = AAA_PARSE_ERROR_UNSUPPORTED_FUNCTIONALITY,
-    INVALID_PARSER_USAGE          = AAA_PARSE_ERROR_INVALID_PARSER_USAGE,
-    MISSING_AVP_DICTIONARY_ENTRY  = AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY,
-    MISSING_AVP_VALUE_PARSER      = AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER
+    MISSING_CONTAINER                  = AAA_PARSE_ERROR_MISSING_CONTAINER,
+    TOO_MUCH_AVP_ENTRIES               = AAA_PARSE_ERROR_TOO_MUCH_AVP_ENTRIES,
+    TOO_LESS_AVP_ENTRIES               = AAA_PARSE_ERROR_TOO_LESS_AVP_ENTRIES,
+    PROHIBITED_CONTAINER               = AAA_PARSE_ERROR_PROHIBITED_CONTAINER,
+    INVALID_CONTAINER_PARAM            = AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM,
+    INVALID_CONTAINER_CONTENTS         = AAA_PARSE_ERROR_INVALID_CONTAINER_CONTENTS,
+    UNSUPPORTED_FUNCTIONALITY          = AAA_PARSE_ERROR_UNSUPPORTED_FUNCTIONALITY,
+    INVALID_PARSER_USAGE               = AAA_PARSE_ERROR_INVALID_PARSER_USAGE,
+    MISSING_AVP_DICTIONARY_ENTRY       = AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY,
+    MISSING_AVP_VALUE_PARSER           = AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER
 };
-
-enum AAAAvpParseType {
-    PARSE_TYPE_FIXED_HEAD         = AAA_PARSE_TYPE_FIXED_HEAD,
-    PARSE_TYPE_REQUIRED           = AAA_PARSE_TYPE_REQUIRED,
-    PARSE_TYPE_OPTIONAL           = AAA_PARSE_TYPE_OPTIONAL
-};
-
-typedef AAAScholarAttribute          AAA_ScholarAttribute;
-
-typedef AAAGroupedScholarAttribute   AAA_GroupedScholarAttribute;
-
-typedef AAAVectorAttribute           AAA_VectorAttribute;
-
-typedef AAAGroupedVectorAttribute    AAA_GroupedVectorAttribute;
-
-typedef AAAAvpWidget                 AAA_AvpWidget;
-
-typedef AAAIdentityAvpWidget         AAA_IdentityAvpWidget;
-
-typedef AAAAddressAvpWidget          AAA_AddressAvpWidget;
-
-typedef AAAInt32AvpWidget            AAA_Int32AvpWidget;
-
-typedef AAAUInt32AvpWidget           AAA_UInt32AvpWidget;
-
-typedef AAAInt64AvpWidget            AAA_Int64AvpWidget;
-
-typedef AAAUInt64AvpWidget           AAA_UInt64AvpWidget;
-
-typedef AAAUtf8AvpWidget             AAA_Utf8AvpWidget;
-
-typedef AAAGroupedAvpWidget          AAA_GroupedAvpWidget;
-
-typedef AAAStringAvpWidget           AAA_StringAvpWidget;
-
-typedef AAADiamUriAvpWidget          AAA_DiamUriAvpWidget;
-
-typedef AAAEnumAvpWidget             AAA_EnumAvpWidget;
-
-typedef AAATimeAvpWidget             AAA_TimeAvpWidget;
-
-typedef AAAAvpContainerWidget        AAA_AvpContainerWidget;
-
-typedef DiameterApplicationId        AAAApplicationId;
-
-typedef DiameterResultCode           AAAResultCode;
-
-typedef DiameterAvpFlagEnum          AAA_AVPFlagEnum;
-
-typedef DiameterSessionType          AAASessionType;
-
-typedef diameter_avp_t               avp_t;
-
-typedef DiameterAcctMessageType      AAAAcctMessageType;
 
 typedef enum {
-    AAA_AVP_FLAG_NONE                 =   DIAMETER_AVP_FLAG_NONE,
-    AAA_AVP_FLAG_MANDATORY            =   DIAMETER_AVP_FLAG_MANDATORY,
-    AAA_AVP_FLAG_RESERVED             =   DIAMETER_AVP_FLAG_RESERVED,
-    AAA_AVP_FLAG_VENDOR_SPECIFIC      =   DIAMETER_AVP_FLAG_VENDOR_SPECIFIC,
-    AAA_AVP_FLAG_END_TO_END_ENCRYPT   =   DIAMETER_AVP_FLAG_END_TO_END_ENCRYPT,
-    AAA_AVP_FLAG_UNKNOWN              =   DIAMETER_AVP_FLAG_UNKNOWN,
-    AAA_AVP_FLAG_ENCRYPT              =   DIAMETER_AVP_FLAG_ENCRYPT,
-} DiameterAvpFlagEnum;
+    AAA_AVP_FLAG_NONE                  = DIAMETER_AVP_FLAG_NONE,
+    AAA_AVP_FLAG_MANDATORY             = DIAMETER_AVP_FLAG_MANDATORY,
+    AAA_AVP_FLAG_RESERVED              = DIAMETER_AVP_FLAG_RESERVED,
+    AAA_AVP_FLAG_VENDOR_SPECIFIC       = DIAMETER_AVP_FLAG_VENDOR_SPECIFIC,
+    AAA_AVP_FLAG_END_TO_END_ENCRYPT    = DIAMETER_AVP_FLAG_END_TO_END_ENCRYPT,
+    AAA_AVP_FLAG_UNKNOWN               = DIAMETER_AVP_FLAG_UNKNOWN,
+    AAA_AVP_FLAG_ENCRYPT               = DIAMETER_AVP_FLAG_ENCRYPT,
+} AAAAvpFlagEnum;
 
 enum {
     AAA_IPFILTER_RULE_SRCDST_EXACT             = DIAMETER_IPFILTER_RULE_SRCDST_EXACT,
@@ -165,174 +205,63 @@ enum {
     AAA_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED  = DIAMETER_IPFILTER_RULE_SRCDST_KEYWORD_ASSIGNED
 };
 
-typedef class DiameterIPFilterRuleSrcDst    AAA_IPFILTER_RULESRCDST;
 
 enum {
-    AAA_IPFILTER_RULEIP_OPTION_SSRR     = DIAMETER_IPFILTER_RULEIP_OPTION_SSRR,
-    AAA_IPFILTER_RULEIP_OPTION_LSRR     = DIAMETER_IPFILTER_RULEIP_OPTION_LSRR,
-    AAA_IPFILTER_RULEIP_OPTION_RR       = DIAMETER_IPFILTER_RULEIP_OPTION_RR,
-    AAA_IPFILTER_RULEIP_OPTION_TS       = DIAMETER_IPFILTER_RULEIP_OPTION_TS
+    AAA_IPFILTER_RULE_IP_OPTION_SSRR           = DIAMETER_IPFILTER_RULE_IP_OPTION_SSRR,
+    AAA_IPFILTER_RULE_IP_OPTION_LSRR           = DIAMETER_IPFILTER_RULE_IP_OPTION_LSRR,
+    AAA_IPFILTER_RULE_IP_OPTION_RR             = DIAMETER_IPFILTER_RULE_IP_OPTION_RR,
+    AAA_IPFILTER_RULE_IP_OPTION_TS             = DIAMETER_IPFILTER_RULE_IP_OPTION_TS
 };
 
 enum {
-    AAA_IPFILTER_RULETCP_OPTION_MSS     = DIAMETER_IPFILTER_RULETCP_OPTION_MSS,
-    AAA_IPFILTER_RULETCP_OPTION_WINDOW  = DIAMETER_IPFILTER_RULETCP_OPTION_WINDOW,
-    AAA_IPFILTER_RULETCP_OPTION_SACK    = DIAMETER_IPFILTER_RULETCP_OPTION_SACK,
-    AAA_IPFILTER_RULETCP_OPTION_TS      = DIAMETER_IPFILTER_RULETCP_OPTION_TS,
-    AAA_IPFILTER_RULETCP_OPTION_CC      = DIAMETER_IPFILTER_RULETCP_OPTION_CC
+    AAA_IPFILTER_RULE_TCP_OPTION_MSS           = DIAMETER_IPFILTER_RULE_TCP_OPTION_MSS,
+    AAA_IPFILTER_RULE_TCP_OPTION_WINDOW        = DIAMETER_IPFILTER_RULE_TCP_OPTION_WINDOW,
+    AAA_IPFILTER_RULE_TCP_OPTION_SACK          = DIAMETER_IPFILTER_RULE_TCP_OPTION_SACK,
+    AAA_IPFILTER_RULE_TCP_OPTION_TS            = DIAMETER_IPFILTER_RULE_TCP_OPTION_TS,
+    AAA_IPFILTER_RULE_TCP_OPTION_CC            = DIAMETER_IPFILTER_RULE_TCP_OPTION_CC
 };
 
 enum {
-    AAA_IPFILTER_RULETCP_FLAG_FIN       = DIAMETER_IPFILTER_RULETCP_FLAG_FIN,
-    AAA_IPFILTER_RULETCP_FLAG_SYN       = DIAMETER_IPFILTER_RULETCP_FLAG_SYN,
-    AAA_IPFILTER_RULETCP_FLAG_RST       = DIAMETER_IPFILTER_RULETCP_FLAG_RST,
-    AAA_IPFILTER_RULETCP_FLAG_PSH       = DIAMETER_IPFILTER_RULETCP_FLAG_PSH,
-    AAA_IPFILTER_RULETCP_FLAG_ACK       = DIAMETER_IPFILTER_RULETCP_FLAG_ACK,
-    AAA_IPFILTER_RULETCP_FLAG_URG       = DIAMETER_IPFILTER_RULETCP_FLAG_URG
+    AAA_IPFILTER_RULE_TCP_FLAG_FIN             = DIAMETER_IPFILTER_RULE_TCP_FLAG_FIN,
+    AAA_IPFILTER_RULE_TCP_FLAG_SYN             = DIAMETER_IPFILTER_RULE_TCP_FLAG_SYN,
+    AAA_IPFILTER_RULE_TCP_FLAG_RST             = DIAMETER_IPFILTER_RULE_TCP_FLAG_RST,
+    AAA_IPFILTER_RULE_TCP_FLAG_PSH             = DIAMETER_IPFILTER_RULE_TCP_FLAG_PSH,
+    AAA_IPFILTER_RULE_TCP_FLAG_ACK             = DIAMETER_IPFILTER_RULE_TCP_FLAG_ACK,
+    AAA_IPFILTER_RULE_TCP_FLAG_URG             = DIAMETER_IPFILTER_RULE_TCP_FLAG_URG
 };
 
 enum {
-    AAA_IPFILTER_RULEACTION_PERMIT      = DIAMETER_IPFILTER_RULEACTION_PERMIT,
-    AAA_IPFILTER_RULEACTION_DENY        = DIAMETER_IPFILTER_RULEACTION_DENY
+    AAA_IPFILTER_RULE_ACTION_PERMIT            = DIAMETER_IPFILTER_RULE_ACTION_PERMIT,
+    AAA_IPFILTER_RULE_ACTION_DENY              = DIAMETER_IPFILTER_RULE_ACTION_DENY
 };
 
 enum {
-    AAA_IPFILTER_RULEDIRECTION_IN       = DIAMETER_IPFILTER_RULEDIRECTION_IN,
-    AAA_IPFILTER_RULEDIRECTION_OUT      = DIAMETER_IPFILTER_RULEDIRECTION_OUT
+    AAA_IPFILTER_RULE_DIRECTION_IN             = DIAMETER_IPFILTER_RULE_DIRECTION_IN,
+    AAA_IPFILTER_RULE_DIRECTION_OUT            = DIAMETER_IPFILTER_RULE_DIRECTION_OUT
 };
 
 enum {
-    AAA_TRANSPORT_PROTO_TCP             = DIAMETER_TRANSPORT_PROTO_TCP,
-    AAA_TRANSPORT_PROTO_SCTP            = DIAMETER_TRANSPORT_PROTO_SCTP,
-    AAA_TRANSPORT_PROTO_UDP             = DIAMETER_TRANSPORT_PROTO_UDP,
+    TRANSPORT_PROTO_TCP                        = DIAMETER_TRANSPORT_PROTO_TCP,
+    TRANSPORT_PROTO_SCTP                       = DIAMETER_TRANSPORT_PROTO_SCTP,
+    TRANSPORT_PROTO_UDP                        = DIAMETER_TRANSPORT_PROTO_UDP,
 };
 
 enum {
-    AAA_PROTO_DIAMETER                  = DIAMETER_PROTO_DIAMETER,
-    AAA_PROTO_RADIUS                    = DIAMETER_PROTO_RADIUS,
-    AAA_PROTO_TACACSPLUS                = DIAMETER_PROTO_TACACSPLUS,
+    AAA_PROTO_DIAMETER                         = DIAMETER_PROTO_DIAMETER,
+    AAA_PROTO_RADIUS                           = DIAMETER_PROTO_RADIUS,
+    AAA_PROTO_TACACSPLUS                       = DIAMETER_PROTO_TACACSPLUS,
 };
 
 enum {
-    AAA_SCHEME_AAA                      = DIAMETER_SCHEME_AAA,
-    AAA_SCHEME_AAAS                     = DIAMETER_SCHEME_AAAS
-};
-
-typedef DiameterDictionaryManager       AAADictionaryManager;
-
-enum ParseOption {
-    AAA_PARSE_LOOSE                     = DIAMETER_PARSE_LOOSE,
-    AAA_PARSE_STRICT                    = DIAMETER_PARSE_STRICT,
+    AAA_SCHEME_AAA                             = DIAMETER_SCHEME_AAA,
+    AAA_SCHEME_AAAS                            = DIAMETER_SCHEME_AAAS
 };
 
 enum ParserError {
-    DictionaryError                     = DiameterDictionaryError,
-    HeaderError                         = DiameterHeaderError,
-    PayloadError                        = DiameterPayloadError
+    DictionaryError                            = DiameterDictionaryError,
+    HeaderError                                = DiameterHeaderError,
+    PayloadError                               = DiameterPayloadError
 };
-
-typedef struct diameter_hdr_flag       hdr_flag;
-
-#define HEADER_SIZE                    DIAMETER_HEADER_SIZE
-
-typedef class DiameterMsgHeader        AAADiameterHeader;
-
-typedef class DiameterMsg              AAAMessage;
-
-typedef class DiameterMsgHeaderParser  HeaderParser;
-
-typedef class DiameterMsgPayloadParser PayloadParser;
-
-typedef struct diameter_avp_flag       avp_flag;
-
-typedef class DiameterAvpHeader        AAAAvpHeader;
-
-typedef class DiameterMsgResultCode    AAA_MsgResultCode;
-
-typedef class DiameterMsgHeaderDump    AAA_MsgDump;
-
-#define DIAMETER_PROTOCOL_VERSION      AAA_PROTOCOL_VERSION
-
-#define DIAMETER_FLG_SET               AAA_FLG_SET
-
-#define DIAMETER_FLG_CLR               AAA_FLG_CLR
-
-typedef DiameterMsgWidget              AAA_MsgWidget;
-
-typedef DiameterAvpContainerEntryManager  AAAAvpContainerEntryManager;
-
-typedef DiameterAvpContainerManager    AAAAvpContainerManager;
-
-typedef DiameterScholarAttribute       AAA_ScholarAttribute;
-
-typedef DiameterGroupedScholarAttribute AAA_GroupedScholarAttribute;
-
-typedef DiameterVectorAttribute        AAA_VectorAttribute;
-
-typedef DiameterGroupedVectorAttribute  AAA_GroupedVectorAttribute;
-
-/*! \brief Type specific AVP widget classes
- *
- *  This template class is a wrapper class format
- *  the most common AVP operations. Users should
- *  use this class for manipulating AVP containers.
- */
-typedef DiameterIdentityAvpWidget      AAAIdentityAvpWidget;
-
-typedef DiameterAddressAvpWidget       AAAAddressAvpWidget;
-
-typedef DiameterInt32AvpWidget         AAAInt32AvpWidget;
-
-typedef DiameterUInt32AvpWidget        AAAUInt32AvpWidget;
-
-typedef DiameterInt64AvpWidget         AAAInt64AvpWidget;
-
-typedef DiameterUInt64AvpWidget        AAAUInt64AvpWidget;
-
-typedef DiameterUtf8AvpWidget          AAAUtf8AvpWidget;
-
-typedef DiameterGroupedAvpWidget       AAAGroupedAvpWidget;
-
-typedef DiameterStringAvpWidget        AAAStringAvpWidget;
-
-typedef DiameterDiamUriAvpWidget       AAADiamUriAvpWidget;
-
-typedef DiameterEnumAvpWidget          AAAEnumAvpWidget;
-
-typedef DiameterTimeAvpWidget          AAATimeAvpWidget;
-
-/*! \brief Type specific AVP widget lookup and parser
- *
- *  Assist in adding, deleting and modifying AVP's
- *  contained in a message list.
- *
- *  This template class is a wrapper class format
- *  the most common AVP operations. Users should
- *  use this class for manipulating AVP containers.
- */
-typedef DiameterIdentityAvpContainerWidget    AAAIdentityAvpContainerWidget;
-
-typedef DiameterAddressAvpContainerWidget     AAAAddressAvpContainerWidget;
-
-typedef DiameterInt32AvpContainerWidget       AAAInt32AvpContainerWidget;
-
-typedef DiameterUInt32AvpContainerWidget      AAAUInt32AvpContainerWidget;
-
-typedef DiameterInt64AvpContainerWidget       AAAInt64AvpContainerWidget;
-
-typedef DiameterUInt64AvpContainerWidget      AAAUInt64AvpContainerWidget;
-
-typedef DiameterUtf8AvpContainerWidget        AAAUtf8AvpContainerWidget;
-
-typedef DiameterGroupedAvpContainerWidget     AAAGroupedAvpContainerWidget;
-
-typedef DiameterStringAvpContainerWidget      AAAStringAvpContainerWidget;
-
-typedef DiameterUriAvpContainerWidget         AAADiamUriAvpContainerWidget;
-
-typedef DiameterEnumAvpContainerWidget        AAAEnumAvpContainerWidget;
-
-typedef DiameterTimeAvpContainerWidget        AAATimeAvpContainerWidget;
 
 #endif /* __DIAMETER_PARSER_API_H__ */
 
