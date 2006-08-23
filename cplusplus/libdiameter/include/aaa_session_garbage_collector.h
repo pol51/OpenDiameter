@@ -36,10 +36,34 @@
 
 #include "framework.h"
 
+class DiameterSessionGarbageCollectorAttribute
+{
+    public:
+        typedef enum {
+            DELETION_GRACEPERIOD = 100000, // usec
+        };
+
+   public:
+        DiameterSessionGarbageCollectorAttribute() :
+           m_GracePeriod(0, DELETION_GRACEPERIOD) {
+        }
+        ACE_Time_Value &GracePeriod() {
+           return m_GracePeriod;
+        }
+
+   protected:
+        ACE_Time_Value m_GracePeriod;
+};
+
 template <class T>
 class DiameterSessionGarbageCollector :
     public AAA_Job
 {
+    public:
+        typedef enum {
+            SHUTDOWN_GRACEPERIOD = 10000, // usec
+        };
+
     public:
         DiameterSessionGarbageCollector(AAA_Task &t) :
             m_GroupedJob(AAA_GroupedJob::Create(t.Job(),
@@ -49,7 +73,7 @@ class DiameterSessionGarbageCollector :
         virtual ~DiameterSessionGarbageCollector() {
             m_Enabled = false;
             while (! m_DeleteQueue.IsEmpty()) {
-               ACE_Time_Value tv(0, 100000);
+               ACE_Time_Value tv(0, SHUTDOWN_GRACEPERIOD);
                ACE_OS::sleep(tv);
 	    }
 	}
@@ -57,7 +81,7 @@ class DiameterSessionGarbageCollector :
             if (m_Enabled) {
                m_DeleteQueue.Enqueue(&obj);
                Schedule(this);
-	    }            
+	    }
 	}
 
     protected:
@@ -66,9 +90,12 @@ class DiameterSessionGarbageCollector :
         }
         int Serve() {
 	    T *obj = m_DeleteQueue.Dequeue();
+            if (obj->GracePeriod() > ACE_Time_Value::zero) {
+                ACE_OS::sleep(obj->GracePeriod());
+            }
             delete obj;
             AAA_LOG(LM_INFO, "(%P|%t) *** Garbage collection occuring ***\n");
-            return (0);           
+            return (0);
 	}
 
     private:

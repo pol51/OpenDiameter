@@ -175,7 +175,7 @@
          <info>enabled</info>
       </flags>
       <target>
-         <console>disabled</console>
+         <console>enabled</console>
          <syslog>enabled</syslog>
       </target>
    </log>

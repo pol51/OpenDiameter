@@ -37,7 +37,6 @@
 #include "aaa_session.h"
 #include "aaa_session_auth_server_fsm.h"
 #include "aaa_session_acct_server_fsm.h"
-#include "aaa_session_garbage_collector.h"
 
 ///
 /// This class provides all the functionality of
