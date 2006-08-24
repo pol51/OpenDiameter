@@ -1,0 +1,31 @@
+/* Default definitions for global macros */
+
+/* Diameter peer fsm debugging */
+#define AAA_FSM_EVENT_DEBUG  0
+
+/* Diameter generic session fsm debugging */
+#define AAA_SESSION_DEBUG  0
+
+/* Diameter auth session fsm debugging */
+#define AAA_SESSION_AUTH_DEBUG  0
+
+/* Diameter acct session fsm debugging */
+#define AAA_SESSION_ACCT_DEBUG 0
+
+/* Diameter router debugging */
+#define AAA_ROUTE_DEBUG 0
+
+/* Diameter XML config loader debugging */
+#define AAAXML_DEBUG 0
+
+/* PANA debugging flag */
+#define PANA_DEBUG 0
+
+/* PANA key generator debugging flag */
+#define PANA_SA_DEBUG 0
+
+/* PANA cookie debugging flag */
+#define PANA_COOKIE_DEBUG 0
+
+/* PANA dhcp key generator debugging flag */
+#define PANA_DHCP_DEBUG 0
