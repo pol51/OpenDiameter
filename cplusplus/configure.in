@@ -3,6 +3,9 @@
 AC_INIT(OpenDiameter, 1.0.7-h, yohba@tari.toshiba.com)
 AM_INIT_AUTOMAKE([subdir-objects])
 
+# Configuration headers
+AC_CONFIG_HEADERS([include/config.h])
+
 # Program Defaults
 AC_DISABLE_SHARED
 
