@@ -44,8 +44,6 @@
 #include "aaa_parser.h"
 #include "diameter_parser.h"
 
-// #define AAAXML_DEBUG
-
 class AAAXML_Element;
 typedef std::list<AAAXML_Element*> AAAXML_ElementStack;
 
