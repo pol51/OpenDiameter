@@ -18,6 +18,7 @@ INC = include/aaa_application.h \
       include/aaa_session_acct_client_fsm.h \
       include/aaa_session_acct_fsm.h \
       include/aaa_session_acct_server_fsm.h \
+      include/aaa_session_acct_rec_transformer.h \
       include/aaa_session_attributes.h \
       include/aaa_session_auth_client_fsm.h \
       include/aaa_session_auth_fsm.h \
@@ -53,7 +54,7 @@ SRC = src/aaa_application.cxx \
       src/aaa_session_db.cxx \
       src/aaa_session_msg_rx.cxx \
       src/aaa_session_server.cxx \
-      src/aaa_session_acct_transformer.cxx \
+      src/aaa_session_acct_rec_transformer.cxx \
       src/aaa_transport_collector.cxx \
       src/aaa_xml_data.cxx
 
