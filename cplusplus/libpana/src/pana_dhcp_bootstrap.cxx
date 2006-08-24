@@ -34,8 +34,6 @@
 #include "od_utl_md5.h"
 #include "pana_dhcp_bootstrap.h"
 
-#define PANA_DHCP_DEBUG   0
-
 void PANA_DhcpKey::Generate(diameter_octetstring_t &aaaKey,
                             ACE_UINT32 secretId,
                             diameter_octetstring_t &nonceClient,   

@@ -35,8 +35,6 @@
 #include "pana_cookie.h"
 #include "od_utl_sha1.h"
 
-#define PANA_COOKIE_DEBUG 0
-
 PANA_Cookie::PANA_Cookie()
 {
     char sbuf[32];

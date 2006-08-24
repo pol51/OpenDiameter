@@ -36,8 +36,6 @@
 #include "pana_exceptions.h"
 #include "pana_memory_manager.h"
 
-#define PANA_SA_DEBUG   0
-
 void PANA_AuthKey::Generate(PANA_Nonce &pac,
                             PANA_Nonce &paa,
                             diameter_octetstring_t &aaaKey,
