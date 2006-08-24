@@ -47,6 +47,7 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -75,33 +76,33 @@ libdiametermip4_la_OBJECTS = $(am_libdiametermip4_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
 am_aaas_server_test_OBJECTS = test/aaas_server_test.$(OBJEXT)
 aaas_server_test_OBJECTS = $(am_aaas_server_test_OBJECTS)
-aaas_server_test_LDADD = $(LDADD)
-aaas_server_test_DEPENDENCIES = libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+aaas_server_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_fac_test_OBJECTS = test/fac_test.$(OBJEXT)
 fac_test_OBJECTS = $(am_fac_test_OBJECTS)
-fac_test_LDADD = $(LDADD)
-fac_test_DEPENDENCIES = libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+fac_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_hac_test_OBJECTS = test/hac_test.$(OBJEXT)
 hac_test_OBJECTS = $(am_hac_test_OBJECTS)
-hac_test_LDADD = $(LDADD)
-hac_test_DEPENDENCIES = libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+hac_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 am_has_test_OBJECTS = test/has_test.$(OBJEXT)
 has_test_OBJECTS = $(am_has_test_OBJECTS)
-has_test_LDADD = $(LDADD)
-has_test_DEPENDENCIES = libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
-DEFAULT_INCLUDES = -I. -I$(srcdir)
+has_test_DEPENDENCIES =  \
+	$(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
+DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -134,26 +135,26 @@ CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 srcdir = .
 
-ACLOCAL = ${SHELL} /home/victorf/work/od/svn/diameter/cplusplus/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /home/victorf/work/sf/svn/diameter/cplusplus/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/victorf/work/od/svn/diameter/cplusplus/missing --run tar
+AMTAR = ${SHELL} /home/victorf/work/sf/svn/diameter/cplusplus/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/victorf/work/od/svn/diameter/cplusplus/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/victorf/work/od/svn/diameter/cplusplus/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/victorf/work/od/svn/diameter/cplusplus/missing --run automake-1.9
+AUTOCONF = ${SHELL} /home/victorf/work/sf/svn/diameter/cplusplus/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/victorf/work/sf/svn/diameter/cplusplus/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/victorf/work/sf/svn/diameter/cplusplus/missing --run automake-1.9
 AWK = gawk
-CC = gcc-4.1
+CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CPP = gcc-4.1 -E
+CPP = gcc -E
 CPPFLAGS = 
-CXX = g++-4.1
-CXXCPP = g++-4.1 -E
+CXX = g++
+CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -ggdb
+CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"OpenDiameter\" -DPACKAGE_TARNAME=\"opendiameter\" -DPACKAGE_VERSION=\"1.0.7-h\" -DPACKAGE_STRING=\"OpenDiameter\ 1.0.7-h\" -DPACKAGE_BUGREPORT=\"yohba@tari.toshiba.com\" -DPACKAGE=\"opendiameter\" -DVERSION=\"1.0.7-h\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DHAVE_IFADDRS_H=1 -DHAVE_SHADOW_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_GETIFADDRS=1
+DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO = echo
 ECHO_C = 
@@ -182,7 +183,7 @@ L_LDFLAGS = -L/usr/include/ace
 L_LIBS = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser
 L_MPAFLAGS = 
 L_ODBCFLAGS = 
-MAKEINFO = ${SHELL} /home/victorf/work/od/svn/diameter/cplusplus/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/victorf/work/sf/svn/diameter/cplusplus/missing --run makeinfo
 OBJEXT = o
 OPT_EAP_ARCHIE_FALSE = 
 OPT_EAP_ARCHIE_TRUE = #
@@ -198,8 +199,8 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = strip
 VERSION = 1.0.7-h
-ac_ct_CC = gcc-4.1
-ac_ct_CXX = 
+ac_ct_CC = gcc
+ac_ct_CXX = g++
 ac_ct_F77 = 
 am__fastdepCC_FALSE = #
 am__fastdepCC_TRUE = 
@@ -231,7 +232,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = $(prefix)/include/opendiameter/diametermip4
 infodir = ${datarootdir}/info
-install_sh = /home/victorf/work/od/svn/diameter/cplusplus/install-sh
+install_sh = /home/victorf/work/sf/svn/diameter/cplusplus/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -325,6 +326,30 @@ fac_test_SOURCES = test/fac_test.cxx \
 
 # Distribution
 EXTRA_DIST = config
+aaas_server_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+fac_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+hac_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
+has_test_LDADD = $(top_builddir)/libdiametermip4/libdiametermip4.la\
+	$(top_builddir)/libdiameter/libdiameter.la\
+	$(top_builddir)/libdiamparser/libdiamparser.la\
+	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
+	-lACE_SSL -lssl
+
 all: all-am
 
 .SUFFIXES:
