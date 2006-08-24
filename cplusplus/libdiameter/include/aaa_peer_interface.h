@@ -49,13 +49,13 @@ typedef enum {
 //
 // For backward compatability only
 //
-class DiamterPeerFsmUserEventInterface
+class DiameterPeerFsmUserEventInterface
 {
    public:
       virtual void PeerFsmConnected() = 0;
       virtual void PeerFsmDisconnected(int cause) = 0;
       virtual void PeerFsmError(PFSM_EV_ERR err) = 0;
-      virtual ~DiamterPeerFsmUserEventInterface() { }
+      virtual ~DiameterPeerFsmUserEventInterface() { }
       
       // TBD: Can add more events here when needed
 };
@@ -79,7 +79,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeer :
           m_EventInterface(NULL) {
       }            
       virtual void RegisterUserEventHandler
-         (DiamterPeerFsmUserEventInterface &handler) {
+         (DiameterPeerFsmUserEventInterface &handler) {
          //
          // For backward compatability only
          //
@@ -132,7 +132,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeer :
       
    private:
       ACE_Mutex m_EventMtx;
-      DiamterPeerFsmUserEventInterface *m_EventInterface;
+      DiameterPeerFsmUserEventInterface *m_EventInterface;
 };
 
 class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerManager

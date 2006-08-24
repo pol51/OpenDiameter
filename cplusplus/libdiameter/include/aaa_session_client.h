@@ -34,8 +34,6 @@
 #ifndef __AAA_SESSION_CLIENT_H__
 #define __AAA_SESSION_CLIENT_H__
 
-#define AAA_SESSION_DEBUG 0
-
 #include "aaa_session_auth_client_fsm.h"
 #include "aaa_session_acct_client_fsm.h"
 

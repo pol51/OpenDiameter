@@ -37,8 +37,6 @@
 #include "aaa_session.h"
 #include "aaa_session_fsm.h"
 
-#define AAA_SESSION_ACCT_DEBUG 0
-
 typedef enum {
     DIAMETER_SESSION_ACCT_ST_IDLE,
     DIAMETER_SESSION_ACCT_ST_OPEN,

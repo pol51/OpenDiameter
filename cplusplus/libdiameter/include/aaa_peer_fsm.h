@@ -36,8 +36,6 @@
 
 #include "aaa_peer_data.h"
 
-#define AAA_FSM_EVENT_DEBUG 0
-
 typedef enum {
   DIAMETER_PEER_ST_CLOSED,
   DIAMETER_PEER_ST_WAIT_CONN_ACK,

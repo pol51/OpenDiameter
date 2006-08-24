@@ -38,8 +38,6 @@
 #include "aaa_peer_table.h"
 #include "aaa_route_id_generator.h"
 
-#define AAA_ROUTE_DEBUG 0
-
 typedef enum {
    AAA_ROUTE_RESULT_SUCCESS,
    AAA_ROUTE_RESULT_FAILED,

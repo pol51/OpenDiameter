@@ -37,8 +37,6 @@
 #include "aaa_session.h"
 #include "aaa_session_fsm.h"
 
-#define AAA_SESSION_AUTH_DEBUG 0
-
 typedef enum {
     DIAMETER_SESSION_AUTH_ST_IDLE,
     DIAMETER_SESSION_AUTH_ST_PENDING,
@@ -75,7 +73,7 @@ typedef enum {
     DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
     DIAMETER_SESSION_AUTH_EV_ABORT,
     DIAMETER_SESSION_AUTH_EV_STOP,
-} AAA_SESSION_EV_AUTH;
+} DIAMETER_SESSION_EV_AUTH;
 
 class DiameterSessionAuthFsmDebug 
 {

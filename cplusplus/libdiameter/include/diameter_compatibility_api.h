@@ -142,32 +142,32 @@ typedef enum {
 //
 
 // Application API
-typedef class DiameterApplication                     AAA_Application;
+typedef DiameterApplication                     AAA_Application;
 
 // Peer management API
-typedef class DiameterPeer                            AAA_Peer;
-typedef class DiameterPeerEntry                       AAA_PeerEntry;
-typedef class DiameterPeerManager                     AAA_PeerManager;
-typedef class DiameterPeerFsmUserEventInterface       AAA_PeerFsmUserEventInterface;
+typedef DiameterPeer                            AAA_Peer;
+typedef DiameterPeerEntry                       AAA_PeerEntry;
+typedef DiameterPeerManager                     AAA_PeerManager;
+typedef DiameterPeerFsmUserEventInterface       AAA_PeerFsmUserEventInterface;
 
 // Accounting record collection API
-typedef class DiameterClientAcctRecCollector          AAA_ClientAcctRecCollector;
-typedef class DiameterServerAcctRecStorage            AAA_ServerAcctRecStorage;
-typedef class DiameterAccountingRecTransformer        AAAAccountingRecTransformer;
-typedef class DiameterAccountingXMLRecTransformer     AAAAccountingXMLRecTransformer;
+typedef DiameterClientAcctRecCollector          AAA_ClientAcctRecCollector;
+typedef DiameterServerAcctRecStorage            AAA_ServerAcctRecStorage;
+typedef DiameterAccountingRecTransformer        AAAAccountingRecTransformer;
+typedef DiameterAccountingXMLRecTransformer     AAAAccountingXMLRecTransformer;
 
 // Generic session level API
-typedef class DiameterSessionId                       AAA_SessionId;
-typedef class DiameterServerSessionFactory            AAA_ServerSessionFactory;
+typedef DiameterSessionId                       AAA_SessionId;
+typedef DiameterServerSessionFactory            AAA_ServerSessionFactory;
 
 // Accounting session API
-typedef class DiameterAcctSession                     AAA_AcctSession;
-typedef class DiameterClientAcctSession               AAA_ClientAcctSession;
+typedef DiameterAcctSession                     AAA_AcctSession;
+typedef DiameterClientAcctSession               AAA_ClientAcctSession;
 
 // Auth session API
-typedef class DiameterAuthSession                     AAA_AuthSession;
-typedef class DiameterClientAuthSession               AAA_ClientAuthSession;
-typedef class DiameterServerAuthSession               AAA_ServerAuthSession;
+typedef DiameterAuthSession                     AAA_AuthSession;
+typedef DiameterClientAuthSession               AAA_ClientAuthSession;
+typedef DiameterServerAuthSession               AAA_ServerAuthSession;
 
 #endif   // __DIAMETER_COMPATIBILITY_API_H__
 

@@ -34,8 +34,6 @@
 #ifndef __AAA_SESSION_ATTRIBUTES_H__
 #define __AAA_SESSION_ATTRIBUTES_H__
 
-#define AAA_SESSION_DEBUG 0
-
 #include "diameter_parser.h"
 
 template <typename T>

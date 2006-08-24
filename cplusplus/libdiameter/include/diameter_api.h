@@ -60,6 +60,8 @@
 #include "aaa_session_client.h"
 #include "aaa_session_server.h"
 #include "aaa_session_server_factory.h"
+#include "aaa_session_rec_transformers.h"
+#include "diameter_parser_api.h"
 #include "diameter_compatibility_api.h"
 
 ///////////////////////////////////////////////////////////////////////////////////

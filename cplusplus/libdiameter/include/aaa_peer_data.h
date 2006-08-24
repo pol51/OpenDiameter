@@ -74,7 +74,7 @@ typedef enum {
     AAA_DISCONNECT_TIMEOUT         = 10002,
 } DIAMETER_DISCONNECT_CAUSE;
 
-typedef std::list<diameter_address_t*> AAA_HostIpLst;
+typedef std::list<diameter_address_t*> DiameterHostIpLst;
 
 typedef struct
 {
@@ -82,23 +82,23 @@ typedef struct
    diameter_unsigned32_t m_LastTxEndId;
    diameter_unsigned32_t m_LastRxHopId;
    diameter_unsigned32_t m_LastRxEndId;
-} MsgId;
+} DiameterMsgId;
 
 typedef struct
 {
    diameter_octetstring_t m_Host;
    diameter_octetstring_t m_Realm;
-   AAA_HostIpLst m_HostIpLst;
-   diameter_unsigned32_t m_VendorId;
    diameter_utf8string_t m_ProductName; 
+   diameter_unsigned32_t m_VendorId;
+   diameter_unsigned32_t m_InbandSecurityId;
    diameter_unsigned32_t m_OriginStateId;
+   diameter_unsigned32_t m_FirmwareRevision;
    DiameterApplicationIdLst m_SupportedVendorIdLst;
    DiameterApplicationIdLst m_AuthAppIdLst;
-   diameter_unsigned32_t m_InbandSecurityId;
+   DiameterHostIpLst m_HostIpLst;
    DiameterApplicationIdLst m_AcctAppIdLst;
    DiameterVendorSpecificIdLst m_VendorSpecificId;
-   diameter_unsigned32_t m_FirmwareRevision;
-   MsgId m_MsgId;
+   DiameterMsgId m_MsgId;
 } DiameterPeerCapabilities;
 
 typedef struct

@@ -34,8 +34,6 @@
 #ifndef __AAA_SESSION_H__
 #define __AAA_SESSION_H__
 
-#define AAA_SESSION_DEBUG 0
-
 #include "framework.h"
 #include "aaa_data_defs.h"
 #include "aaa_session_attributes.h"
