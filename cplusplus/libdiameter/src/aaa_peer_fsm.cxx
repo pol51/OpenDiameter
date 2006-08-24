@@ -1299,7 +1299,7 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
    AAA_LOG(LM_INFO, "(%P|%t)             Hostname : %s\n", cap.m_Host.data());
    AAA_LOG(LM_INFO, "(%P|%t)                Realm : %s\n", cap.m_Realm.data());
 
-   AAA_HostIpLst::iterator x = cap.m_HostIpLst.begin();
+   DiameterHostIpLst::iterator x = cap.m_HostIpLst.begin();
    for (; x != cap.m_HostIpLst.end(); x++) {
        AAA_LOG(LM_INFO, "(%P|%t)              Host IP : type=%d, %s\n", (*x)->type,
                   inet_ntoa(*((struct in_addr*)(*x)->value.data())));

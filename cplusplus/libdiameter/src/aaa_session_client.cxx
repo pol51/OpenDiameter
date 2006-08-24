@@ -333,7 +333,7 @@ AAAReturnCode DiameterClientAuthSession::Send(std::auto_ptr<DiameterMsg> msg)
 AAAReturnCode DiameterClientAuthSession::End()
 {
     if (m_Fsm.IsRunning()) {
-        AAA_SESSION_EV_AUTH ev = (Attributes().AuthSessionState()() == 
+        DIAMETER_SESSION_EV_AUTH ev = (Attributes().AuthSessionState()() == 
                                   DIAMETER_SESSION_STATE_MAINTAINED) ? 
                                   DIAMETER_SESSION_AUTH_EV_ABORT :
                                   DIAMETER_SESSION_AUTH_EV_STOP;
