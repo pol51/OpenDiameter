@@ -51,6 +51,7 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -72,7 +73,8 @@ am__objects_1 = src/aaa_application.lo src/aaa_peer_fsm.lo \
 	src/aaa_session_auth_client_fsm.lo \
 	src/aaa_session_auth_server_fsm.lo src/aaa_session_client.lo \
 	src/aaa_session_db.lo src/aaa_session_msg_rx.lo \
-	src/aaa_session_server.lo src/aaa_session_acct_transformer.lo \
+	src/aaa_session_server.lo \
+	src/aaa_session_acct_rec_transformer.lo \
 	src/aaa_transport_collector.lo src/aaa_xml_data.lo
 am__objects_2 =
 am_libdiameter_la_OBJECTS = $(am__objects_1) $(am__objects_2)
@@ -144,7 +146,7 @@ aaa_test_server6_DEPENDENCIES =  \
 	$(top_builddir)/libdiameter/libdiameter.la \
 	$(top_builddir)/libdiamparser/libdiamparser.la \
 	$(top_builddir)/libodutl/libodutl.la
-DEFAULT_INCLUDES = -I. -I$(srcdir)
+DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -312,6 +314,7 @@ INC = include/aaa_application.h \
       include/aaa_session_acct_client_fsm.h \
       include/aaa_session_acct_fsm.h \
       include/aaa_session_acct_server_fsm.h \
+      include/aaa_session_acct_rec_transformer.h \
       include/aaa_session_attributes.h \
       include/aaa_session_auth_client_fsm.h \
       include/aaa_session_auth_fsm.h \
@@ -347,7 +350,7 @@ SRC = src/aaa_application.cxx \
       src/aaa_session_db.cxx \
       src/aaa_session_msg_rx.cxx \
       src/aaa_session_server.cxx \
-      src/aaa_session_acct_transformer.cxx \
+      src/aaa_session_acct_rec_transformer.cxx \
       src/aaa_transport_collector.cxx \
       src/aaa_xml_data.cxx
 
@@ -535,7 +538,7 @@ src/aaa_session_msg_rx.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/aaa_session_server.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/aaa_session_acct_transformer.lo: src/$(am__dirstamp) \
+src/aaa_session_acct_rec_transformer.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/aaa_transport_collector.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -625,10 +628,10 @@ mostlyclean-compile:
 	-rm -f src/aaa_route_table.lo
 	-rm -f src/aaa_session_acct_client_fsm.$(OBJEXT)
 	-rm -f src/aaa_session_acct_client_fsm.lo
+	-rm -f src/aaa_session_acct_rec_transformer.$(OBJEXT)
+	-rm -f src/aaa_session_acct_rec_transformer.lo
 	-rm -f src/aaa_session_acct_server_fsm.$(OBJEXT)
 	-rm -f src/aaa_session_acct_server_fsm.lo
-	-rm -f src/aaa_session_acct_transformer.$(OBJEXT)
-	-rm -f src/aaa_session_acct_transformer.lo
 	-rm -f src/aaa_session_attributes.$(OBJEXT)
 	-rm -f src/aaa_session_attributes.lo
 	-rm -f src/aaa_session_auth_client_fsm.$(OBJEXT)
@@ -668,8 +671,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_route_msg_router.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_route_table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_session_acct_client_fsm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_session_acct_rec_transformer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_session_acct_server_fsm.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_session_acct_transformer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_session_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_session_auth_client_fsm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/aaa_session_auth_server_fsm.Plo@am__quote@
