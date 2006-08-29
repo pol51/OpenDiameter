@@ -356,7 +356,7 @@ class Client
 // to a static peer entry to notify
 // us of peer fsm events.
 class PeerEventHandler : 
-   public DiamterPeerFsmUserEventInterface
+   public DiameterPeerFsmUserEventInterface
 {
    public:
       virtual void PeerFsmConnected() {
