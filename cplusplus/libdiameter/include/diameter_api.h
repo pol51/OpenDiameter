@@ -60,7 +60,7 @@
 #include "aaa_session_client.h"
 #include "aaa_session_server.h"
 #include "aaa_session_server_factory.h"
-#include "aaa_session_rec_transformers.h"
+#include "aaa_session_acct_rec_transformer.h"
 #include "diameter_parser_api.h"
 #include "diameter_compatibility_api.h"
 
@@ -75,7 +75,7 @@ typedef DiameterServerSessionFactory AAAServerSessionFactory;
 
 typedef std::auto_ptr<DiameterApplication> AAAApplicationHandle;
 
-typedef void* AAASessionPayload;
+typedef DiameterSessionPayload AAASessionPayload;
 
 class DIAMETERBASEPROTOCOL_EXPORT AAAApplicationCore 
 {
@@ -575,32 +575,9 @@ class DIAMETERBASEPROTOCOL_EXPORT AAAAccountingClientSession :
         AAASessionPayload m_LastPayload;
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT DiameterAccountingRecTransformer
-{
-    public:
-        DiameterAccountingRecTransformer() {
-        }
-        virtual ~DiameterAccountingRecTransformer() {
-	}
-        virtual AAAReturnCode Convert(DiameterMsg *msg) = 0;
-        virtual AAAReturnCode OutputRecord(DiameterMsg *originalMsg) = 0;
-};
+typedef DiameterAccountingRecTransformer AAAAccountingRecTransformer;
 
-class DIAMETERBASEPROTOCOL_EXPORT DiameterAccountingXMLRecTransformer : 
-    public DiameterAccountingRecTransformer
-{
-    public:
-        DiameterAccountingXMLRecTransformer() {
-        }
-        virtual ~DiameterAccountingXMLRecTransformer() {
-	}
-        virtual AAAReturnCode Convert(DiameterMsg *msg);
-        virtual AAAReturnCode OutputRecord(DiameterMsg *originalMsg);
-
-   protected:
-        AAASessionPayload record;
-        ACE_UINT32 record_size;
-};
+typedef DiameterAccountingXMLRecTransformer AAAAccountingXMLRecTransformer;
 
 class DIAMETERBASEPROTOCOL_EXPORT AAAAccountingServerSession : 
     public AAAAccountingSession
