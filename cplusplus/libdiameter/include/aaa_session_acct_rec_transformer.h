@@ -34,6 +34,8 @@
 #ifndef __AAA_SESSION_REC_TRANSFORMER_H__
 #define __AAA_SESSION_REC_TRANSFORMER_H__
 
+typedef void* DiameterSessionPayload;
+
 class DIAMETERBASEPROTOCOL_EXPORT DiameterAccountingRecTransformer
 {
     public:
@@ -62,7 +64,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterAccountingXMLRecTransformer :
         virtual AAAReturnCode OutputRecord(DiameterMsg *msg);
 
    protected:
-        AAASessionPayload m_Record;
+        DiameterSessionPayload m_Record;
         ACE_UINT32 m_RecordSize;
 };
 
