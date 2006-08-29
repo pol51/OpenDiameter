@@ -128,13 +128,15 @@ typedef enum {
 // about template namespacing.
 //
 
-// Accounting session level API
-#define AAA_ServerAcctSession             DiameterServerAcctSession
-#define AAA_ClientAcctSubSession          DiameterClientAcctSubSession
-
 // Generic session level API
 #define AAA_SessionMsgMuxHandler          DiameterSessionMsgMuxHandler
 #define AAA_SessionMsgMux                 DiameterSessionMsgMux
+#define AAA_ServerSessionAllocator        DiameterServerSessionAllocator
+
+// Accounting session level API
+#define AAA_ServerAcctSession                  DiameterServerAcctSession
+#define AAA_ClientAcctSubSession               DiameterClientAcctSubSession
+#define AAA_ServerAcctRecStorageWithConverter  DiameterServerAcctRecStorageWithConverter
 
 //
 // The following are typedefs are mappings between old classnames
