@@ -230,7 +230,7 @@ class AAA_SampleClient : public DiameterClientAuthSession {
 };
 
 class PeerEventHandler : 
-   public DiamterPeerFsmUserEventInterface
+   public DiameterPeerFsmUserEventInterface
 {
    public:
       virtual void PeerFsmConnected() {
