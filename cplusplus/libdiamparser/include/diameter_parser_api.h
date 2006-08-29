@@ -71,11 +71,11 @@
 // Note that macros are used for correctness since typedef
 // would require changes to exsiting code
 //
-#define   AAA_ScholarAttribute           AAAScholarAttribute
-#define   AAA_GroupedScholarAttribute    AAAGroupedScholarAttribute
-#define   AAA_VectorAttribute            AAAVectorAttribute
-#define   AAA_GroupedVectorAttribute     AAAGroupedVectorAttribute
-#define   AAA_AvpWidget                  AAAAvpWidget
+#define   AAA_ScholarAttribute           DiameterScholarAttribute
+#define   AAA_GroupedScholarAttribute    DiameterGroupedScholarAttribute
+#define   AAA_VectorAttribute            DiameterVectorAttribute
+#define   AAA_GroupedVectorAttribute     DiameterGroupedVectorAttribute
+#define   AAA_AvpWidget                  DiameterAvpWidget
 #define   AAA_AvpContainerWidget         DiameterAvpContainerWidget
 
 //
