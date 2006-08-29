@@ -227,7 +227,7 @@ class AAA_SampleProxyWithMux : public AAA_ProxyHandler
 };
 
 class PeerEventHandler : 
-   public DiamterPeerFsmUserEventInterface
+   public DiameterPeerFsmUserEventInterface
 {
    public:
       virtual void PeerFsmConnected() {
