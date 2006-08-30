@@ -47,7 +47,6 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -102,7 +101,7 @@ has_test_DEPENDENCIES =  \
 	$(top_builddir)/libdiameter/libdiameter.la \
 	$(top_builddir)/libdiamparser/libdiamparser.la \
 	$(top_builddir)/libodutl/libodutl.la
-DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include
+DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -154,7 +153,7 @@ CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DHAVE_CONFIG_H
+DEFS = -DPACKAGE_NAME=\"OpenDiameter\" -DPACKAGE_TARNAME=\"opendiameter\" -DPACKAGE_VERSION=\"1.0.7-h\" -DPACKAGE_STRING=\"OpenDiameter\ 1.0.7-h\" -DPACKAGE_BUGREPORT=\"yohba@tari.toshiba.com\" -DPACKAGE=\"opendiameter\" -DVERSION=\"1.0.7-h\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DHAVE_IFADDRS_H=1 -DHAVE_SHADOW_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_GETIFADDRS=1 -DPANA_COOKIE_DEBUG=0 -DPANA_DHCP_DEBUG=0
 DEPDIR = .deps
 ECHO = echo
 ECHO_C = 
