@@ -32,11 +32,6 @@ if test "$DIE" -eq 1; then
   exit 1
 fi
 
-if test -z "$*"; then
-  echo "I am going to run ./configure with no arguments - if you wish "
-  echo "to pass any to it, please specify them on the $0 command line."
-fi
-
 case $CC in
 *xlc | *xlc\ * | *lcc | *lcc\ *) am_opt=--include-deps;;
 esac
@@ -47,11 +42,9 @@ do
   (cd $dir; \
   aclocalinclude="$ACLOCAL_FLAGS"; \
   aclocal $aclocalinclude; \
-  autoheader; automake --add-missing --gnu $am_opt; autoconf)
+  automake --add-missing --gnu $am_opt; autoconf)
 done
 
-./configure "$@"
-
 echo 
-echo "Now type 'make' to compile $PROJECT."
+echo "You need to run 'configure' to generate proper makefiles for $PROJECT."
 
