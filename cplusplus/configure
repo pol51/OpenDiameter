@@ -22079,20 +22079,6 @@ echo "$as_me: error: Unsupported OS" >&2;}
    { (exit 1); exit 1; }; };
 esac
 
-# PANA cookie debugging flag
-
-cat >>confdefs.h <<_ACEOF
-#define PANA_COOKIE_DEBUG 0
-_ACEOF
-
-
-# PANA dhcp key generator debugging flag
-
-cat >>confdefs.h <<_ACEOF
-#define PANA_DHCP_DEBUG 0
-_ACEOF
-
-
 # Standard libraries for distribution
                                                                                                                                             ac_config_files="$ac_config_files Makefile libodutl/Makefile libdiameter/Makefile libdiamparser/Makefile libeap/Makefile libpana/Makefile libdiametereap/Makefile libdiametermip4/Makefile libdiameternasreq/Makefile libradius/Makefile applications/Makefile applications/nas/Makefile applications/aaa/Makefile applications/pana/Makefile"
 
