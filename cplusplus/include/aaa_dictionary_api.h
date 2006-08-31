@@ -182,6 +182,10 @@ class AAACommandList :
             push_back(com);
             mutex.release();
         }
+        virtual COMMAND* search(const char*name) {
+            // implemented by specific dictionary
+            return NULL;
+        }
 
     protected:
         AAACommandList() {
