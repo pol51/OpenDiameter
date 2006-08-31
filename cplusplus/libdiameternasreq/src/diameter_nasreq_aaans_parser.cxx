@@ -59,7 +59,7 @@ AA_AnswerParser::parseAppToRaw()
   if (!dm.getCommandCode("AA-Answer", &code, &appId))
     {
       AAA_LOG(LM_ERROR, "Cannot find Diameter message in dictionary\n.");
-      throw (DiameterDictionaryError);
+      throw (DIAMETER_DICTIONARY_ERROR);
       return;
     }
 
