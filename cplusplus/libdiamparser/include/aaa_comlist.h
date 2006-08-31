@@ -54,6 +54,7 @@ struct comflags
     AAAUInt8 r:1;
     AAAUInt8 p:1;
     AAAUInt8 e:1;
+    AAAUInt8 reseverd:5;
 };
 
 class DiameterCommand :
@@ -65,21 +66,17 @@ class DiameterCommand :
 };
 
 class DiameterCommandList_S :
-    public std::list<DiameterCommand*>
+    public AAACommandList<DiameterCommand>
 {
         friend class ACE_Singleton<DiameterCommandList_S, ACE_Recursive_Thread_Mutex>;
+
     public:
-        void add(DiameterCommand*);
-        DiameterCommand* search(const char*name);
         DiameterCommand* search(ACE_UINT32 code,
                                 ACE_UINT32 appId,
                                 int request);
 
     private:
-        DiameterCommandList_S() {
-        }
-        ~DiameterCommandList_S();
-        ACE_Thread_Mutex mutex;
+        virtual ~DiameterCommandList_S();
 };
 
 typedef ACE_Singleton<DiameterCommandList_S, ACE_Recursive_Thread_Mutex> DiameterCommandList;
