@@ -10,7 +10,6 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
 AM_LDFLAGS = @L_LDFLAGS@
 
 PARSER_SRC = src/aaa_avplist.cxx \
-             src/aaa_q_avplist.cxx \
 	     src/aaa_comlist.cxx \
 	     src/aaa_g_avplist.cxx \
              src/aaa_parser.cxx \
@@ -25,7 +24,6 @@ PARSER_SRC = src/aaa_avplist.cxx \
 
 PARSER_HDR = include/aaa_parser_avp.h \
              include/aaa_parser_avpvalue.h \
-	     include/aaa_parser.h \
              include/aaa_avp_header.h \
 	     include/aaa_comlist.h \
 	     include/aaa_error_status.h \
