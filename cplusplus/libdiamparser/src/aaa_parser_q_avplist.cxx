@@ -33,7 +33,6 @@
 /* $Id: parser_q_avplist.cxx,v 1.28 2006/03/16 17:01:50 vfajardo Exp $ */
 #include <sys/types.h>
 #include <list>
-#include "aaa_parser.h"
 #include "aaa_parser_avp.h"
 #include "aaa_parser_q_avplist.h"
 #include "aaa_q_avplist.h"
@@ -113,7 +112,7 @@ parseRawToAppWithoutDict(DiameterAvpHeaderList *ahl,
       cout << __FUNCTION__ << ": Container "<< name << "matches\n";
 #endif
 
-      DiameterDictionaryEntry* avp;
+      AAADictionaryEntry* avp;
       // use default dictionary only
       if ((avp = DiameterAvpList::instance()->search(name)) == NULL)
 	{
@@ -159,7 +158,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
                       AAAAvpContainerList *acl,
 		      DiameterDictionary *dict)
 {
-  DiameterQualifiedAVP *qavp;
+  AAAQualifiedAVP *qavp;
   AAAAvpContainer *c;
   DiameterErrorCode st;
   DiameterAvpContainerManager cm;
@@ -265,7 +264,7 @@ parseAppToRawWithoutDict(AAAMessageBlock *msg, AAAAvpContainerList *acl)
       c->ParseType() = AAA_PARSE_TYPE_OPTIONAL;
       name = c->getAvpName();
 
-      DiameterDictionaryEntry* avp;
+      AAADictionaryEntry* avp;
       // use default dictionary only
       if ((avp = DiameterAvpList::instance()->search(name)) == NULL)
 	{
@@ -303,7 +302,7 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
                       AAAAvpContainerList *acl,
    	              DiameterDictionary *dict)
 {
-  DiameterQualifiedAVP *qavp;
+  AAAQualifiedAVP *qavp;
   AAAAvpContainer *c;
   DiameterErrorCode st;
   unsigned int min, max;

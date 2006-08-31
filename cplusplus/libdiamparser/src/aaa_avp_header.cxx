@@ -33,7 +33,6 @@
 /* $Id: avp_header.cxx,v 1.22 2006/03/16 17:01:50 vfajardo Exp $ */
 
 #include "aaa_avp_header.h"
-#include "aaa_parser.h"
 
 /// Create a list of AVP headers.
 void

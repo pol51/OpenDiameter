@@ -126,13 +126,13 @@ DiameterDictionaryManager::init(char *dictFile)
   parseXMLDictionary(dictFile);
 }
 
-DiameterDictionaryHandle *DiameterDictionaryManager::getDictHandle
+AAADictionaryHandle *DiameterDictionaryManager::getDictHandle
 (AAACommandCode code, DiameterApplicationId id, int rflag)
 {
   return DiameterCommandList::instance()->search(code, id, rflag);
 }
 
-DiameterDictionaryHandle *DiameterDictionaryManager::getDictHandle(char *cmdName)
+AAADictionaryHandle *DiameterDictionaryManager::getDictHandle(char *cmdName)
 {
   return DiameterCommandList::instance()->search(cmdName);
 }

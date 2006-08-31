@@ -41,7 +41,6 @@
 #include "aaa_avplist.h"
 #include "aaa_q_avplist.h"
 #include "aaa_g_avplist.h"
-#include "aaa_parser.h"
 #include "diameter_parser.h"
 
 class AAAXML_Element;
@@ -472,7 +471,7 @@ class AAAXML_AvpElement :
                }
             }
 
-            m_avp = new DiameterDictionaryEntry(code,
+            m_avp = new AAADictionaryEntry(code,
                                            name.c_str(),
 			                   AAA_AVP_DATA_TYPE,
 			                   vendorId,
@@ -508,12 +507,12 @@ class AAAXML_AvpElement :
         m_avp = NULL;
         return AAAXML_Element::endElement();
      }
-     DiameterDictionaryEntry *Avp() {
+     AAADictionaryEntry *Avp() {
         return m_avp;
      }
 
   private:
-     DiameterDictionaryEntry *m_avp;
+     AAADictionaryEntry *m_avp;
 };
 
 class AAAXML_TypeElement : 
@@ -728,8 +727,8 @@ class AAAXML_AvpRuleElement :
             return true;
         }
 
-        DiameterQualifiedAVP *qavp;
-        DiameterDictionaryEntry *avp;
+        AAAQualifiedAVP *qavp;
+        AAADictionaryEntry *avp;
 
         std::string avpName, sMax = "", sMin = "";
         int vendorId = 0;
@@ -769,9 +768,9 @@ class AAAXML_AvpRuleElement :
                    ACE_OS::atoi(sMin.c_str()); 
         int max = ((sMax == std::string("none")) ||
                    (sMax == std::string(""))) ? 
-		   QUAL_INFINITY : ACE_OS::atoi(sMax.c_str());
+		   AAA_QUALIFIER_INFINITY : ACE_OS::atoi(sMax.c_str());
 
-        qavp = new DiameterQualifiedAVP;
+        qavp = new AAAQualifiedAVP;
         qavp->avp = avp; 
         qavp->qual.min = min; 
         qavp->qual.max = max; 

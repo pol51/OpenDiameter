@@ -36,7 +36,6 @@
 #include <ace/Log_Msg.h>
 #include <string>
 #include "resultcodes.h"
-#include "aaa_parser.h"
 #include "aaa_parser_avp.h"
 #include "aaa_parser_q_avplist.h"
 #include "aaa_parser_avpvalue.h"
@@ -72,7 +71,7 @@ createAvpValueParser(AAAAvpDataType type)// throw(DiameterErrorCode)
 }
 
 static int
-checkFlags(struct diameter_avp_flag flag, DiameterAVPFlag flags)
+checkFlags(struct diameter_avp_flag flag, AAAAVPFlag flags)
 {
   if (flag.m == 0 && (flags & DIAMETER_AVP_FLAG_MANDATORY))
     {
@@ -107,7 +106,7 @@ DiameterAvpHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
 {
   DiameterAvpRawData *rawData = getRawData();
   DiameterAvpHeader *h = getAppData();
-  DiameterDictionaryEntry *avp = getDictData();
+  AAADictionaryEntry *avp = getDictData();
 
   DiameterAvpHeaderList *ahl = rawData->ahl;
   DiameterAvpHeaderList::iterator i;
@@ -182,7 +181,7 @@ DiameterAvpHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
 {
   DiameterAvpRawData *rawData = getRawData();
   DiameterAvpHeader *h = getAppData();
-  DiameterDictionaryEntry *avp = getDictData();
+  AAADictionaryEntry *avp = getDictData();
 
   AAAMessageBlock *aBuffer = rawData->msg;
   char *p=aBuffer->wr_ptr();
@@ -230,7 +229,7 @@ DiameterAvpParser::parseRawToApp()// throw(DiameterErrorCode)
 {
   DiameterAvpRawData* rawData = getRawData();
   AAAAvpContainer *c = getAppData();
-  DiameterDictionaryEntry *avp = getDictData();
+  AAADictionaryEntry *avp = getDictData();
 
   DiameterErrorCode st;
   AAAMessageBlock *aBuffer;
@@ -302,7 +301,7 @@ DiameterAvpParser::parseAppToRaw()// throw(DiameterErrorCode)
 {
   DiameterAvpRawData* rawData = getRawData();
   AAAAvpContainer *c = getAppData();
-  DiameterDictionaryEntry *avp = getDictData();
+  AAADictionaryEntry *avp = getDictData();
 
   AAAMessageBlock *aBuffer = rawData->msg;
   DiameterAvpHeader h;

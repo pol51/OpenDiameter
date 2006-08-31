@@ -37,7 +37,6 @@
 #include "aaa_comlist.h"
 #include "aaa_avplist.h"
 #include "aaa_q_avplist.h"
-#include "aaa_parser.h"
 #include "aaa_parser_avp.h"
 #include "aaa_parser_q_avplist.h"
 #include "resultcodes.h"    /* file location will be changed */

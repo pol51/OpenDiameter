@@ -36,107 +36,53 @@
 #include "aaa_g_avplist.h"
 #include "diameter_parser.h"
 
-static DiameterDictionaryEntry Any(0, "AVP", AAA_AVP_DATA_TYPE, 0, 0);
+static AAADictionaryEntry Any(0, "AVP", AAA_AVP_DATA_TYPE, 0, 0);
 
 // calculate minimum AVP length
-ACE_UINT32
-getMinSize(DiameterDictionaryEntry *avp) throw (DiameterErrorCode)
+ACE_UINT32 getMinSize(AAADictionaryEntry *avp)
+    throw (DiameterErrorCode)
 {
-  int sum=0;
-  DiameterGroupedAVP *gavp;
-  DiameterAvpType *avpt;
-  DiameterErrorCode st;
+    int sum=0;
+    DiameterGroupedAVP *gavp;
+    DiameterAvpType *avpt;
+    DiameterErrorCode st;
 
-  if (!avp) {
-    AAA_LOG(LM_ERROR, "getMinSize(): AVP dictionary cannot be null.");
-    st.set(AAA_PARSE_ERROR_TYPE_BUG,
-           AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
-    throw st;
-  }
-
-  avpt = (DiameterAvpType*)DiameterAvpTypeList::instance()->search(avp->avpType);
-  if (!avpt) {
-    AAA_LOG(LM_ERROR, "getMinSize(): Cannot find AVP type.");
-    st.set(AAA_PARSE_ERROR_TYPE_BUG,
-           AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER);
-    throw st;
-  }
-
-  if (avp->avpType == AAA_AVP_GROUPED_TYPE) {
-      gavp = DiameterGroupedAvpList::instance()->search(avp->avpCode, avp->vendorId);
-      if (!gavp) {
-        AAA_LOG(LM_ERROR, "getMinSize(): Cannot grouped AVP dictionary.");
+    if (!avp) {
+        AAA_LOG(LM_ERROR, "getMinSize(): AVP dictionary cannot be null.");
         st.set(AAA_PARSE_ERROR_TYPE_BUG,
-               AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+            AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
         throw st;
-      }
-
-      /* Fixed AVPs */
-      sum = gavp->avp_f->getMinSize();
-      /* Required AVPs */
-      sum = gavp->avp_r->getMinSize();
-  }
-  sum += avpt->getMinSize() + 8 + (avp->vendorId ? 4 : 0);
-  // getMinSize() returns 0 for grouped AVP */
-  return sum;
-}
-
-DiameterAvpList_S::DiameterAvpList_S() { this->add(&Any); }
-
-DiameterAvpList_S::~DiameterAvpList_S()
-{
-  std::list<DiameterDictionaryEntry*>::iterator i;
-  pop_front();  // remove Any AVP
-  for (i=begin(); i!=end(); i++) { delete *i; }
-}
-
-void
-DiameterAvpList_S::add(DiameterDictionaryEntry *avp)
-{
-  if (this->search(avp->avpName) != NULL)
-    {
-      AAA_LOG(LM_ERROR, "duplicated AVP definition [%s].\n",
-		   avp->avpName.c_str());
-      exit(1);
     }
 
-  mutex.acquire();
-  push_back(avp);
-  mutex.release();
-}
-
-DiameterDictionaryEntry*
-DiameterAvpList_S::search(const std::string& avpName)
-{
-  mutex.acquire();
-  std::list<DiameterDictionaryEntry*>::iterator i;
-  for (i = begin(); i!=end(); i++)
-    {
-      if ((*i)->avpName == avpName)
-	{
-	  mutex.release();
-	  return *i;
-	}
+    avpt = (DiameterAvpType*)DiameterAvpTypeList::instance()->search(avp->avpType);
+    if (!avpt) {
+        AAA_LOG(LM_ERROR, "getMinSize(): Cannot find AVP type.");
+        st.set(AAA_PARSE_ERROR_TYPE_BUG,
+            AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER);
+        throw st;
     }
-  mutex.release();
-  return NULL;
-}
 
-DiameterDictionaryEntry*
-DiameterAvpList_S::search(DiameterAVPCode code, DiameterVendorId vendor)
-{
-  mutex.acquire();
-  std::list<DiameterDictionaryEntry*>::iterator i;
-  for (i = begin(); i!=end(); i++)
-    {
-        if (((*i)->avpCode == code) && ((*i)->vendorId == vendor))
-	{
-	  mutex.release();
-	  return *i;
-	}
+    if (avp->avpType == AAA_AVP_GROUPED_TYPE) {
+        gavp = DiameterGroupedAvpList::instance()->search(avp->avpCode, avp->vendorId);
+        if (!gavp) {
+            AAA_LOG(LM_ERROR, "getMinSize(): Cannot grouped AVP dictionary.");
+            st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+            throw st;
+        }
+
+        /* Fixed AVPs */
+        sum = gavp->avp_f->getMinSize();
+        /* Required AVPs */
+        sum = gavp->avp_r->getMinSize();
     }
-  mutex.release();
-  return NULL;
+    sum += avpt->getMinSize() + 8 + (avp->vendorId ? 4 : 0);
+    // getMinSize() returns 0 for grouped AVP */
+    return sum;
 }
 
+DiameterAvpList_S::DiameterAvpList_S()
+{
+    this->add(&Any);
+}
 

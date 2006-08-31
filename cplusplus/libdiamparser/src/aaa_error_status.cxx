@@ -36,10 +36,10 @@
 void
 DiameterErrorCode::set(AAA_PARSE_ERROR_TYPE type,
                        int code,
-                       DiameterDictionaryEntry* dict)
+                       AAADictionaryEntry* dict)
 {
     DiameterAvpHeader h;
-    DiameterDictionaryEntry *avp = (DiameterDictionaryEntry*)dict;
+    AAADictionaryEntry *avp = (AAADictionaryEntry*)dict;
     ACE_UINT32 avpSize = h.length = getMinSize(avp);
     char *buffer = new char[avpSize+sizeof(ACE_UINT32)];
     DiameterAvpHeaderParser ahp;
