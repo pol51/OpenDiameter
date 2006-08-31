@@ -14,7 +14,8 @@ MISC = $(top_srcdir)/docs/msvc-solution-usage.txt \
        $(top_srcdir)/tools/getopt1.patch \
        $(top_srcdir)/RELEASE \
        $(top_srcdir)/README 
-##      $(top_srcdir)/docs/libpana \
+
+##       $(top_srcdir)/docs/libpana \
 
 EXTRA_DIST = $(MISC)
 
