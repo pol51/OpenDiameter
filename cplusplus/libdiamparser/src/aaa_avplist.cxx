@@ -30,7 +30,7 @@
 /* changes to one unified version of this software.                       */
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
-/* $Id: avplist.cxx,v 1.24 2004/06/17 21:07:49 yohba Exp $ */
+
 #include <ace/OS.h>
 #include "aaa_avplist.h"
 #include "aaa_g_avplist.h"
