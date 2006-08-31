@@ -43,6 +43,7 @@ class DiameterAvpList_S :
 
     private:
         DiameterAvpList_S();
+        virtual ~DiameterAvpList_S();
 };
 
 typedef ACE_Singleton<DiameterAvpList_S, ACE_Recursive_Thread_Mutex> DiameterAvpList;
