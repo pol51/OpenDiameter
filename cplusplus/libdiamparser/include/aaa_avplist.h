@@ -30,14 +30,10 @@
 /* changes to one unified version of this software.                       */
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
-/* $Id: avplist.h,v 1.16 2004/06/17 21:07:49 yohba Exp $ */
+
 #ifndef __AVPLIST_H__
 #define __AVPLIST_H__
 
-#include <stdlib.h>
-#include <search.h>
-#include <list>
-#include <ace/Synch.h>
 #include "diameter_parser.h"
 
 class DiameterAvpList_S :
