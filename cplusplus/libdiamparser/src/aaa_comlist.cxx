@@ -39,100 +39,61 @@
 
 DiameterCommandList_S::~DiameterCommandList_S()
 {
-  for (iterator i=begin(); i!=end(); i++)
-    {
-      //      delete (*i)->name;
-      delete (*i)->avp_f;
-      delete (*i)->avp_r;
-      delete (*i)->avp_o;
-      delete *i;
+    for (iterator i=begin(); i!=end(); i++) {
+        //      delete (*i)->name;
+        delete (*i)->avp_f;
+        delete (*i)->avp_r;
+        delete (*i)->avp_o;
+        delete *i;
     }
 }
 
-void
-DiameterCommandList_S::add(DiameterCommand *com)
+DiameterCommand* DiameterCommandList_S::search(ACE_UINT32 code,
+                                               ACE_UINT32 appId,
+                                               int request)
 {
-  if (search(com->name.c_str()) != NULL)
-    {
-      AAA_LOG(LM_ERROR, "duplicated command definition.\n");
-      exit(1);
+    mutex.acquire();
+    for (iterator c=begin(); c!=end(); c++) {
+        if ((*c)->code == code && 
+            (*c)->appId == appId &&
+            (*c)->flags.r == request) {
+            mutex.release();
+            return *c;
+        }
     }
-
-  mutex.acquire();
-  push_back(com);
-  mutex.release();
-#ifdef DEBUG
-  cout << "Command name = " << com->name << "\n"; 
-#endif
+    mutex.release();
+    return NULL;
 }
 
-DiameterCommand*
-DiameterCommandList_S::search(const char *name)
+bool DiameterDictionaryManager::getCommandCode(char *commandName,
+                                               AAACommandCode *commandCode,
+                                               DiameterApplicationId *appId)
 {
-  mutex.acquire();
-  for (iterator c=begin(); c!=end(); c++)
-    {
-      if ((*c)->name == std::string(name))
-	{
-	  mutex.release();
-	  return *c;
-	}
+    DiameterCommand *com;
+    if ((com = DiameterCommandList::instance()->
+        search(commandName)) == NULL) {
+        return false;
     }
-  mutex.release();
-  return NULL;
+    *commandCode = com->code;
+    *appId = com->appId;
+    return true;
 }
 
-
-DiameterCommand*
-DiameterCommandList_S::search(ACE_UINT32 code, ACE_UINT32 appId,
-                              int request)
-  // search by code and applicationId
+void DiameterDictionaryManager::init(char *dictFile)
 {
-  mutex.acquire();
-  for (iterator c=begin(); c!=end(); c++)
-    {
-      if ((*c)->code == code && 
-	  (*c)->appId == appId &&
-	  (*c)->flags.r == request)
-	{
-	  mutex.release();
-	  return *c;
-	}
-    }
-  mutex.release();
-  return NULL;
-}
-
-bool 
-DiameterDictionaryManager::getCommandCode(char *commandName,
-				     AAACommandCode *commandCode,
-				     DiameterApplicationId *appId)
-{
-  DiameterCommand *com;
-  if ((com = DiameterCommandList::instance()->search
-       (commandName)) == NULL)
-    {
-      return false;
-    }
-  *commandCode = com->code;
-  *appId = com->appId;
-  return true;
-}
-
-void
-DiameterDictionaryManager::init(char *dictFile)
-{
-  // Parser the XML dictionary.
-  parseXMLDictionary(dictFile);
+    // Parser the XML dictionary.
+    parseXMLDictionary(dictFile);
 }
 
 AAADictionaryHandle *DiameterDictionaryManager::getDictHandle
-(AAACommandCode code, DiameterApplicationId id, int rflag)
+    (AAACommandCode code, 
+     DiameterApplicationId id, 
+     int rflag)
 {
-  return DiameterCommandList::instance()->search(code, id, rflag);
+    return DiameterCommandList::instance()->search(code, id, rflag);
 }
 
 AAADictionaryHandle *DiameterDictionaryManager::getDictHandle(char *cmdName)
 {
-  return DiameterCommandList::instance()->search(cmdName);
+    return DiameterCommandList::instance()->search(cmdName);
 }
