@@ -171,7 +171,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
   DiameterQualifiedAvpList *qavp_l[3] =
     {dict->avp_f, dict->avp_r, dict->avp_o};
 
-  for (int j=0; j<4; j++)
+  for (int j=0; j<3; j++)
     {
       for (i = qavp_l[j]->begin(); i != qavp_l[j]->end(); i++)
 	{
@@ -314,7 +314,7 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
   DiameterQualifiedAvpList *qavp_l[3] =
     {dict->avp_f, dict->avp_r, dict->avp_o};
 
-  for (int j=0; j<4; j++)
+  for (int j=0; j<3; j++)
     {
       for (i = qavp_l[j]->begin(); i != qavp_l[j]->end(); i++)
 	{
