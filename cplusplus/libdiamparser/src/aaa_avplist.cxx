@@ -86,3 +86,8 @@ DiameterAvpList_S::DiameterAvpList_S()
     this->add(&Any);
 }
 
+DiameterAvpList_S::~DiameterAvpList_S()
+{
+    pop_front(); // remove ANY AVP
+}
+
