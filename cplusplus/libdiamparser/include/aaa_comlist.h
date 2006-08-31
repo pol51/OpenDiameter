@@ -38,12 +38,12 @@
 #include "aaa_q_avplist.h"
 
 class DiameterDictionary :
-    public DiameterDictionaryHandle
+    public AAADictionaryHandle
 {
     public:
         AAACommandCode code;
         DiameterApplicationId appId;
-        DiameterVendorId vendorId;
+        AAAVendorId vendorId;
         DiameterQualifiedAvpList* avp_f;  /* fixed */
         DiameterQualifiedAvpList* avp_r;  /* required */
         DiameterQualifiedAvpList* avp_o;  /* optional */

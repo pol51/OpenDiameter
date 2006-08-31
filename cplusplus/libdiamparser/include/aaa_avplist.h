@@ -41,19 +41,12 @@
 #include "diameter_parser.h"
 
 class DiameterAvpList_S :
-    public std::list<DiameterDictionaryEntry*>
+    public AAAAvpList
 {
     friend class ACE_Singleton<DiameterAvpList_S, ACE_Recursive_Thread_Mutex>;
 
-    public:
-        void add(DiameterDictionaryEntry*);
-        DiameterDictionaryEntry* search(const std::string&);
-        DiameterDictionaryEntry* search(DiameterAVPCode, DiameterVendorId);
-
     private:
         DiameterAvpList_S();
-        ~DiameterAvpList_S();
-        ACE_Thread_Mutex mutex;
 };
 
 typedef ACE_Singleton<DiameterAvpList_S, ACE_Recursive_Thread_Mutex> DiameterAvpList;
@@ -62,6 +55,6 @@ typedef ACE_Singleton<DiameterAvpList_S, ACE_Recursive_Thread_Mutex> DiameterAvp
   (avp->avpCode == 0 ? 0 : \
   (avp->flags & DIAMETER_AVP_FLAG_VENDOR_SPECIFIC ? 12 : 8))
 
-ACE_UINT32 getMinSize(DiameterDictionaryEntry*) throw (DiameterErrorCode);
+ACE_UINT32 getMinSize(AAADictionaryEntry*) throw (DiameterErrorCode);
 
 #endif // __AVPLIST_H__

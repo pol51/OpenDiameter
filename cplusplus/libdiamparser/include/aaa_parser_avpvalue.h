@@ -42,7 +42,6 @@
 #include <ace/CDR_Base.h>
 #include "resultcodes.h"
 #include "diameter_parser.h"
-#include "aaa_parser.h"
 #include "aaa_parser_avp.h"
 #include "aaa_parser_q_avplist.h"
 #include "aaa_q_avplist.h"
@@ -365,7 +364,7 @@ class Utf8stringParser : public OctetstringParser
     {
       DiameterStringAvpContainerEntry *e;
       getAppData(e);
-      DiameterDictionaryEntry *avp = getDictData();
+      AAADictionaryEntry *avp = getDictData();
       if (e->dataType() != AAA_AVP_UTF8_STRING_TYPE)
 	{
 	  DiameterErrorCode st;
@@ -536,7 +535,7 @@ class DiamidentParser : public Utf8stringParser
     {
       DiameterStringAvpContainerEntry *e;
       DiameterErrorCode st;
-      DiameterDictionaryEntry *avp = getDictData();
+      AAADictionaryEntry *avp = getDictData();
       getAppData(e);
       if (e->dataType() != AAA_AVP_DIAMID_TYPE)
 	{
@@ -583,7 +582,7 @@ class DiamidentParser : public Utf8stringParser
       }
 
       DiameterErrorCode st;
-      DiameterDictionaryEntry *avp = getDictData();
+      AAADictionaryEntry *avp = getDictData();
 
       std::string& str = e->dataRef();
       do {
@@ -726,7 +725,7 @@ class DiamuriParser : public Utf8stringParser
       AAAAvpContainerEntry *e2 = em.acquire(AAA_AVP_UTF8_STRING_TYPE);
       setAppData(e2);    // Replace the original container entry with
 			 // the new UTF8 string container entry.
-      DiameterDictionaryEntry *avp = getDictData();
+      AAADictionaryEntry *avp = getDictData();
 
       DiameterErrorCode st;
       try {
@@ -1190,7 +1189,7 @@ class IPFilterRuleParser : public Utf8stringParser
       AAAAvpContainerEntry *e2 = em.acquire(AAA_AVP_UTF8_STRING_TYPE);
       setAppData(e2);    // Replace the original container entry with
 			 // the new UTF8 string container entry.
-      DiameterDictionaryEntry *avp = getDictData();
+      AAADictionaryEntry *avp = getDictData();
 
       DiameterErrorCode st;
       try {
@@ -1460,7 +1459,7 @@ class IPFilterRuleParser : public Utf8stringParser
          if (!parse(str.begin(), str.end(), grammar, space_p).full)
          {
 	    AAA_LOG(LM_ERROR, "IPFilterRule parseAppToRaw failure.");
-	    DiameterDictionaryEntry *avp = getDictData();
+	    AAADictionaryEntry *avp = getDictData();
 	    DiameterErrorCode st;
 	    st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_AVP_VALUE, avp);
 	    em.release(e2);// Release the UTF8 string container entry.
@@ -1502,7 +1501,7 @@ class GroupedParser : public DiameterAvpValueParser
                  AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
 	  throw st;
 	}
-      DiameterDictionaryEntry *avp = getDictData();
+      AAADictionaryEntry *avp = getDictData();
 
       AAAAvpContainerList* acl = e->dataPtr();
       DiameterGroupedAVP* gavp;
@@ -1550,7 +1549,7 @@ class GroupedParser : public DiameterAvpValueParser
                  AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
 	  throw st;
 	}
-      DiameterDictionaryEntry *avp = getDictData();
+      AAADictionaryEntry *avp = getDictData();
 
       AAAAvpContainerList *acl = e->dataPtr();
       DiameterGroupedAVP* gavp;

@@ -71,28 +71,6 @@
  */
 
 /*!
- * DiameterAVPCode provides a way of referring to the code number of an AVP.
- * It is used as a parameter to the dictionary functions, and a field in
- * the AVP struct.
- */
-typedef ACE_UINT32     DiameterAVPCode;
-
-/*!
- * DiameterVendorId provides a way of referring to the vendor identification
- * code. It is used when registering callbacks, among others. Note that
- * vendor id 0 is reserved and is defined by the preprocessor constant
- * DIAMETER_NO_VENDOR_ID.
- */
-typedef ACE_UINT32     DiameterVendorId;
-
-/*!
- * DiameterAVPFlag provides a way of referring to the AVP flags carried
- * in the AVP header. It indicates whether an AVP is proxyable, mandatory,
- * etc.
- */
-typedef ACE_UINT32     DiameterAVPFlag;
-
-/*!
  * DiameterApplicationId identifies a particular client session to the API.
  * The application id is passed to AAAStartSession(), and is attached to
  * incoming messages, to indicate with which client session the message
@@ -152,6 +130,23 @@ enum {
 enum {
     DIAMETER_SCHEME_AAA = 0,
     DIAMETER_SCHEME_AAAS
+};
+
+/*!
+ * Parser options
+ */
+enum DiameterParseOption {
+    DIAMETER_PARSE_LOOSE     = 0,
+    DIAMETER_PARSE_STRICT    = 1,
+};
+
+/*!
+ * Parser error enumration.
+ */
+enum DiameterParserError {
+    DIAMETER_DICTIONARY_ERROR,
+    DIAMETER_HEADER_ERROR,
+    DIAMETER_PAYLOAD_ERROR
 };
 
 /*!
@@ -346,74 +341,10 @@ enum {
 
 /*!
  *==================================================
- * The following are definitions for the diameter
- * dictionary
+ * The following are definitions for diameter
+ * specific dictionary loading
  *==================================================
  */
-
-/*!
- * Parser options
- */
-enum DiameterParseOption {
-    DIAMETER_PARSE_LOOSE     = 0,
-    DIAMETER_PARSE_STRICT    = 1,
-};
-
-/*!
- * Parser error enumration.
- */
-enum DiameterParserError {
-    DiameterDictionaryError,
-    DiameterHeaderError,
-    DiameterPayloadError
-};
-
-/*! \brief DiameterDictionaryEntry Dictionary Entry for Diameter
- *
- * The following class refers to the AVP entry present
- * in the diameter dictionary. It represents a run-time
- * references for which AVPs are valid and loaded from
- * the XML dictionary.
- */
-class DiameterDictionaryEntry
-{
-    public:
-        /*!
-        * constructor
-        *
-        * \param code AVP code
-        * \param name AVP name
-        * \param type AVP type
-        * \param id vendor id
-        * \param flg AVP flags
-        * \param proto Protocol
-        */
-        DiameterDictionaryEntry(DiameterAVPCode code,
-                                const char *name,
-                                AAAAvpDataType type,
-                                DiameterVendorId vid,
-                                DiameterAVPFlag flg) :
-            avpName(name),
-            avpCode(code),
-            avpType(type),
-            vendorId(vid),
-            flags(flg) {
-        }
-
-
-    public:
-        std::string         avpName;  /**< AVP name */
-        DiameterAVPCode     avpCode;  /**< AVP code */
-        AAAAvpDataType      avpType;  /**< AVP type */
-        DiameterVendorId    vendorId; /**< Vendor ID */
-        DiameterAVPFlag     flags;    /**< AVP flags */
-};
-
-/*!
- * A class used as a handle for internal dictionary structures.
- */
-class DiameterDictionaryHandle {
-};
 
 /*! DictionaryManager Dictionary Manager Definition
  *
@@ -457,7 +388,7 @@ class AAA_PARSER_EXPORT DiameterDictionaryManager
         * \param id application Id
         * \param rflag Request flag
         */
-        DiameterDictionaryHandle *getDictHandle(AAACommandCode code,
+        AAADictionaryHandle *getDictHandle(AAACommandCode code,
                                             DiameterApplicationId id,
                                             int rflag);
 
@@ -467,23 +398,7 @@ class AAA_PARSER_EXPORT DiameterDictionaryManager
         *
         * \param cmdName Command name
         */
-        DiameterDictionaryHandle *getDictHandle(char *cmdName);
-};
-
-/*!
- * Dictionary data with protocol Id
- */
-class DiameterDictionaryOption
-{
-    public:
-        DiameterDictionaryOption() {
-        }
-        DiameterDictionaryOption(DiameterParseOption opt, int id) :
-            option(opt) {
-        }
-
-    public:
-        DiameterParseOption option;
+        AAADictionaryHandle *getDictHandle(char *cmdName);
 };
 
 /*!
@@ -531,7 +446,7 @@ class AAA_PARSER_EXPORT_ONLY DiameterErrorCode :
        */
       void set(AAA_PARSE_ERROR_TYPE type,
                int code,
-               DiameterDictionaryEntry* data);
+               AAADictionaryEntry* data);
 
       /*!
        * Access function to retrieve some private data.
@@ -659,10 +574,6 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
                                DiameterMsgHeader*,
                                DiameterParseOption>; /**< Parser friend */
 
-        friend class AAAParser<AAAMessageBlock*,
-                               DiameterMsgHeader*,
-                               DiameterDictionaryOption*>; /**< Parser friend */
-
     public:
         /*!
         * constructor
@@ -700,7 +611,7 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
         /*!
         * returns the current dictionary handle
         */
-        inline DiameterDictionaryHandle *getDictHandle() { 
+        inline AAADictionaryHandle *getDictHandle() { 
             return dictHandle;
         }
 
@@ -719,7 +630,7 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
         ACE_UINT32                 ee;          /**< End-to-End ID */
 
     private:
-        DiameterDictionaryHandle   *dictHandle;
+        AAADictionaryHandle   *dictHandle;
 };
 
 /*! \brief Message Diameter Message
@@ -751,7 +662,7 @@ class DiameterMsg
  */
 typedef AAAParser<AAAMessageBlock*,
                   AAAAvpContainerEntry*,
-                  DiameterDictionaryEntry*> DiameterAvpValueParser;
+                  AAADictionaryEntry*> DiameterAvpValueParser;
 
 /*! Parsing starts from the current read pointer of the raw data,
  *  i.e., AAAMessageBlock.  When parsing is successful, the read
@@ -782,7 +693,7 @@ typedef AAAParser<AAAMessageBlock*,
  *  i.e., the first octet of the payload.  When parsing fails, an *
  *  error status is thrown.  When the DiameterParseOption is set to
  *  DIAMETER_PARSE_LOOSE, command flag validity check will be skipped.  When
- *  DiameterParseOption is set to DIAMETER_PARSE_STRICT, an DiameterDictionaryHandle will be
+ *  DiameterParseOption is set to DIAMETER_PARSE_STRICT, an AAADictionaryHandle will be
  *  set inside the DiameterMsgHeader so that the command
  *  dictionary can be passed to the payload parser. */
 template<> void AAA_PARSER_EXPORT_ONLY DiameterMsgHeaderParser::parseRawToApp();
@@ -793,7 +704,7 @@ template<> void AAA_PARSER_EXPORT_ONLY DiameterMsgHeaderParser::parseRawToApp();
  *  i.e., the first octet of the payload.  When parsing fails, an
  *  error status is thrown.  When the DiameterParseOption is set to
  *  DIAMETER_PARSE_LOOSE, command flag validity check will be skipped.  When
- *  DiameterParseOption is set to DIAMETER_PARSE_STRICT, an DiameterDictionaryHandle will be
+ *  DiameterParseOption is set to DIAMETER_PARSE_STRICT, an AAADictionaryHandle will be
  *  set inside the DiameterMsgHeader so that the command dictionary
  *  can be passed to the payload parser.
  */
@@ -804,7 +715,7 @@ template<> void AAA_PARSER_EXPORT_ONLY DiameterMsgHeaderParser::parseAppToRaw();
  */
 typedef AAAParser<AAAMessageBlock*,
                   AAAAvpContainerList*,
-                  DiameterDictionaryHandle*> DiameterMsgPayloadParser;
+                  AAADictionaryHandle*> DiameterMsgPayloadParser;
 
 /*! Parsing starts from the current read pointer of the raw data,
  *  i.e., AAAMessageBlock.  When parsing is successful, the read

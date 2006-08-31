@@ -38,37 +38,20 @@
 #include "diameter_parser.h"
 #include "aaa_avplist.h"
 
-struct qual
+class DiameterQualifiedAvpList:
+    public AAAQualifiedAvpList
 {
-  ACE_UINT16 min;
-  ACE_UINT16 max;
+    public:
+        DiameterQualifiedAvpList(AAAAvpParseType pt) :
+            AAAQualifiedAvpList(pt) {
+        }
+        ACE_UINT32 getMinSize(void) {
+            unsigned sum=0;
+            for (iterator c=begin(); c!=end(); c++) {
+                sum += (::getMinSize((*c)->avp)) * ((*c)->qual.min);
+            }
+            return sum;
+        }
 };
-
-#define QUAL_INFINITY 65535 /* 2^16 -1 */
-
-typedef struct /* AVP with qualifier (min,max) */
-{
-  DiameterDictionaryEntry *avp;
-  struct qual qual;
-} DiameterQualifiedAVP;
-
-class DiameterQualifiedAvpList: public std::list<DiameterQualifiedAVP*>
-{
- public:
-  DiameterQualifiedAvpList(AAAAvpParseType pt) { parseType = pt; };
-  ~DiameterQualifiedAvpList();
-  inline void add(DiameterQualifiedAVP* q_avp) { push_back(q_avp); }
-  unsigned getMinSize(void);
-  inline AAAAvpParseType& getParseType(void) { return parseType; };
- private:
-  AAAAvpParseType parseType;
-};
-
-struct four_qavp_l {
-  DiameterQualifiedAvpList *avp_f;
-  DiameterQualifiedAvpList *avp_r;
-  DiameterQualifiedAvpList *avp_o;
-};
-
 
 #endif // __Q_AVPLIST_H__

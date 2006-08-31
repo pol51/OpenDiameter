@@ -36,7 +36,6 @@
 
 #include "diameter_parser.h"
 #include "aaa_avplist.h"
-#include "aaa_parser.h"
 #include "aaa_avp_header.h"
 #include "aaa_q_avplist.h"
 #include "aaa_comlist.h"
@@ -53,11 +52,11 @@ class DiameterAvpRawData
 
 typedef AAAParser<DiameterAvpRawData*,
                   DiameterAvpHeader*,
-                  DiameterDictionaryEntry*>
+                  AAADictionaryEntry*>
                   DiameterAvpHeaderParser;
 typedef AAAParser<DiameterAvpRawData*,
                   AAAAvpContainer*,
-                  DiameterDictionaryEntry*>
+                  AAADictionaryEntry*>
                   DiameterAvpParser;
 
 #endif // __PARSER_AVP_H__

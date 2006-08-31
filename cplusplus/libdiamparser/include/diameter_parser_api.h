@@ -85,6 +85,8 @@ typedef   AAAInt8                        AAA_INT8;
 typedef   AAAUInt8                       AAA_UINT8;
 typedef   AAAIpAddr                      IP_ADDR;
 typedef   AAAAvpDataType                 AAA_AVPDataType;
+typedef   AAAAVPCode                     AAA_AVPCode;
+typedef   AAAAVPFlag                     AAA_AVPFlag;
 typedef   diameter_avp_t                 avp_t;
 
 //
@@ -97,11 +99,8 @@ typedef   DiameterIPFilterRuleSrcDst     AAA_IPFILTER_RULE_SRCDST;
 //
 // Old classes mapped to current classes
 //
-typedef   DiameterAVPCode                AAA_AVPCode;
 typedef   DiameterAvpType                AvpType;
 typedef   DiameterErrorCode              AAAErrorStatus;
-typedef   DiameterVendorId               AAAVendorId;
-typedef   DiameterAVPFlag                DiameterAVPFlag;
 typedef   DiameterApplicationId          AAAApplicationId;
 typedef   DiameterResultCode             AAAResultCode;
 typedef   DiameterAvpFlagEnum            AAA_AVPFlagEnum;
@@ -109,7 +108,6 @@ typedef   DiameterAvpFlagEnum            AAA_AVPFlagEnum;
 //
 // Old data structure classes mapped to current classes
 //
-typedef   DiameterDictionaryEntry        AAADictionaryEntry;
 typedef   DiameterDictionaryManager      AAADictionaryManager;
 typedef   DiameterParseOption            ParseOption;
 typedef   DiameterAvpContainerEntryManager  AAAAvpContainerEntryManager;
@@ -258,9 +256,9 @@ enum {
 };
 
 enum ParserError {
-    DictionaryError                            = DiameterDictionaryError,
-    HeaderError                                = DiameterHeaderError,
-    PayloadError                               = DiameterPayloadError
+    DictionaryError                            = DIAMETER_DICTIONARY_ERROR,
+    HeaderError                                = DIAMETER_HEADER_ERROR,
+    PayloadError                               = DIAMETER_PAYLOAD_ERROR
 };
 
 #endif /* __DIAMETER_PARSER_API_H__ */
