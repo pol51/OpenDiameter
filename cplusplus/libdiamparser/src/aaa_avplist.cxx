@@ -95,7 +95,7 @@ DiameterAvpList_S::add(DiameterDictionaryEntry *avp)
 {
   if (this->search(avp->avpName) != NULL)
     {
-      AAA_LOG(LM_ERROR, "duplicated AVP definition [%s].\n", 
+      AAA_LOG(LM_ERROR, "duplicated AVP definition [%s].\n",
 		   avp->avpName.c_str());
       exit(1);
     }

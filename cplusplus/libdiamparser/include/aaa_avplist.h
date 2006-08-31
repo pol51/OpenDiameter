@@ -58,7 +58,7 @@ class DiameterAvpList_S :
 
 typedef ACE_Singleton<DiameterAvpList_S, ACE_Recursive_Thread_Mutex> DiameterAvpList;
 
-#define AVP_HEADER_LEN(avp) \
+#define DIAMETER_AVP_HEADER_LEN(avp) \
   (avp->avpCode == 0 ? 0 : \
   (avp->flags & DIAMETER_AVP_FLAG_VENDOR_SPECIFIC ? 12 : 8))
 

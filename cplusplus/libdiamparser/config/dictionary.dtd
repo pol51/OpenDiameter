@@ -72,9 +72,6 @@
 
      -->
      <!ELEMENT dictionary (vendor*, base, application*)>
-     <!ATTLIST dictionary 
-          protocol CDATA #REQUIRED
-     >
 
      <!ELEMENT vendor EMPTY>
      <!ATTLIST vendor

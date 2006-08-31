@@ -176,8 +176,8 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIBTOOL_DEPS = ./ltmain.sh
 LN_S = ln -s
 LTLIBOBJS = 
-L_CPPFLAGS = -Wall -Wno-strict-aliasing -I/usr/include -I/usr/include -g
-L_CXXFLAGS = -Wall -Wno-strict-aliasing -I/usr/include -I/usr/include -g
+L_CPPFLAGS = -Wall -I/usr/include -I/usr/include -g
+L_CXXFLAGS = -Wall -I/usr/include -I/usr/include -g
 L_LDFLAGS = -L/usr/include/ace
 L_LIBS = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser
 L_MPAFLAGS = 
@@ -247,7 +247,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = $(prefix)/etc/opendiameter/diametermip4
 target_alias = 
-AM_CPPFLAGS = -Wall -Wno-strict-aliasing -I/usr/include -I/usr/include -g  \
+AM_CPPFLAGS = -Wall -I/usr/include -I/usr/include -g  \
               -I../include \
               -I../libodutl/include \
               -I../libdiamparser/include \

@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd">
 
-<dictionary protocol="1">
-
-  <!-- ***************** PANA Base Protocol Definition ******************* -->
-  <base uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-pana-pana-01.txt">
-
+<dictionary>
     <!-- *********************** Message types *************************** -->
     <command name="PANA-PAA-Discover" code="1">
       <answerrules>
@@ -226,7 +222,7 @@
       </answerrules>
     </command>
     <!-- ********************** End Message types ************************ -->
-    
+
     <!-- ************************ typedefn's ************************ -->
     <typedefn type-name="Any"/> <!-- Added by Ohba-->
     <typedefn type-name="OctetString"/>
@@ -243,7 +239,7 @@
     <typedefn type-name="Unsigned64"/>
     <typedefn type-name="Dhcp"/>
     <!-- *********************** End Typedefns ********************** -->
-    
+
     <!-- ***************** PANA PROTOCOL AVPS ************** -->
     <avp name="AVP" code="0"> <!-- Added by Ohba -->
       <type type-name="Any"/>
@@ -352,6 +348,4 @@
 
     <!-- ************** PANA PROTOCOL AVPS ************* -->
 
-  </base>
-        
 </dictionary>

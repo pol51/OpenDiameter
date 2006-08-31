@@ -192,7 +192,7 @@
 
 -->
 
-<dictionary protocol="0">
+<dictionary>
   <!-- ************************* Vendors **************************** -->
   <vendor id="61" name="Merit Networks"/>
   <vendor id="42" name="Sun Microsystems, Inc."/>

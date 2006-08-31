@@ -140,7 +140,7 @@ DiameterAvpHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
       if ((*i).code == avp->avpCode)
 	{
 	  *h = *i; ahl->erase(i);
-	  h->value_p += AVP_HEADER_LEN(avp);  // restore original value_p
+	  h->value_p += DIAMETER_AVP_HEADER_LEN(avp);  // restore original value_p
 	  return;
 	}
     }
@@ -167,7 +167,7 @@ DiameterAvpHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
 	    st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_AVP_BITS, avp);
 	    throw st;
 	  }
-	h->value_p += AVP_HEADER_LEN(avp);  // restore original value_p
+	h->value_p += DIAMETER_AVP_HEADER_LEN(avp);  // restore original value_p
 	return;
       }
     }
@@ -189,7 +189,7 @@ DiameterAvpHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
   DiameterErrorCode st;
 
   /* length check */
-  if ((unsigned)AVP_HEADER_LEN(avp) > aBuffer->size())
+  if ((unsigned)DIAMETER_AVP_HEADER_LEN(avp) > aBuffer->size())
     {
       AAA_LOG(LM_ERROR, "Header buffer overflow\n");
       st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_INVALID_PARSER_USAGE);
@@ -278,7 +278,7 @@ DiameterAvpParser::parseRawToApp()// throw(DiameterErrorCode)
       }
 	
       aBuffer = 
-	AAAMessageBlock::Acquire(h.value_p, h.length-AVP_HEADER_LEN(avp));
+	AAAMessageBlock::Acquire(h.value_p, h.length-DIAMETER_AVP_HEADER_LEN(avp));
       vp->setRawData(aBuffer);
       vp->setAppData(e);
       vp->setDictData(avp);

@@ -98,6 +98,35 @@ class PANA_DhcpDataParser : public DiameterAvpValueParser
       }
 };
 
+/*!
+ * PANA AVP header
+ */
+class PANA_AvpHeader
+{
+    public:
+        typedef struct {
+            ACE_UINT16    vendor;        // Vendor flag
+            ACE_UINT16    mandatory;     // Mandatory flag
+            ACE_UINT16    reserved;      // reserved
+        } Flags;
+
+    public:
+        PANA_AvpHeader() :
+            m_Code(0),
+            m_Length(0),
+            m_Vendor(0),
+            m_pValue(0) {
+            memset(&m_Flags, 0, sizeof(PANA_AvpHeader::Flags));
+        }
+
+    public:
+        ACE_UINT16                 m_Code;       // AVP code
+        PANA_AvpHeader::Flags      m_Flags;      // AVP flags
+        ACE_UINT16                 m_Length;     // AVP length
+        ACE_UINT32                 m_Vendor;     // Vendor code
+        char*                      m_pValue;     // Value
+}; 
+
 /*
 
 6.2  PANA Header
@@ -194,14 +223,14 @@ class PANA_DhcpDataParser : public DiameterAvpValueParser
       PANA message.  See section Section 6.3 for more information on
       AVPs.
  */
-class PANA_EXPORT PANA_MsgHeader 
+class PANA_EXPORT PANA_MsgHeader
 {
     public:
        typedef struct {
           ACE_UINT16 request   : 1;  // Request flag
           ACE_UINT16 separate  : 1;  // Separate flag
-          ACE_UINT16 nap       : 1;  // Nap flag 
-          ACE_UINT16 reserved  : 13;  
+          ACE_UINT16 nap       : 1;  // Nap flag
+          ACE_UINT16 reserved  : 13;
        } Flags;
 
        // Default header length definition 
@@ -211,28 +240,28 @@ class PANA_EXPORT PANA_MsgHeader
 
     public:
        PANA_MsgHeader();
-       virtual ~PANA_MsgHeader() { 
+       virtual ~PANA_MsgHeader() {
        }
-       inline UCHAR &version() { 
+       inline UCHAR &version() {
            return m_Version; 
        }
-       inline ACE_UINT16 &length() { 
-           return m_Length; 
+       inline ACE_UINT16 &length() {
+           return m_Length;
        }
-       inline PANA_MsgHeader::Flags &flags() { 
-           return m_Flags; 
+       inline PANA_MsgHeader::Flags &flags() {
+           return m_Flags;
        }
-       inline ACE_UINT16 &type() { 
-           return m_Type; 
+       inline ACE_UINT16 &type() {
+           return m_Type;
        }
-       inline ACE_UINT32 &seq() { 
-           return m_SeqNum; 
+       inline ACE_UINT32 &seq() {
+           return m_SeqNum;
        }
-       inline DiameterDictionaryHandle *getDictHandle() { 
-           return m_DictHandle; 
+       inline DiameterDictionaryHandle *getDictHandle() {
+           return m_DictHandle;
        }
-       inline void setDictHandle(DiameterDictionaryHandle *handle) { 
-           m_DictHandle = handle; 
+       inline void setDictHandle(DiameterDictionaryHandle *handle) {
+           m_DictHandle = handle;
        }
 
     protected:
@@ -256,20 +285,20 @@ typedef AAAParser<AAAMessageBlock*,
 class PANA_EXPORT PANA_Message : public PANA_MsgHeader
 {
      public:
-         PANA_Message() : 
+         PANA_Message() :
              m_SrcPort(0) {
          }
          virtual ~PANA_Message() {
              m_AvpList.releaseContainers();
          }
-         AAAAvpContainerList &avpList() { 
-             return m_AvpList; 
+         AAAAvpContainerList &avpList() {
+             return m_AvpList;
          }
-         PANA_DeviceIdContainer &srcDevices() { 
-             return m_SrcDevices; 
+         PANA_DeviceIdContainer &srcDevices() {
+             return m_SrcDevices;
          }
-         ACE_UINT32 &srcPort() { 
-             return m_SrcPort; 
+         ACE_UINT32 &srcPort() {
+             return m_SrcPort;
          }
 
      protected:
