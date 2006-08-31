@@ -56,7 +56,7 @@ AMA_Parser::parseAppToRaw()
   if (!dm.getCommandCode("AA-Mobile-Node-Answer", &code, &appId))
     {
       AAA_LOG(LM_ERROR, "Cannot find Diameter message in dictionary\n.");
-      throw (DiameterDictionaryError);
+      throw (DIAMETER_DICTIONARY_ERROR);
       return;
     }
 
@@ -252,7 +252,7 @@ AMA_Parser::parseRawToApp()
 	  != (*c)[0]->dataRef(Type2Type<diameter_unsigned32_t>()))
 	{
 	  AAA_LOG(LM_ERROR, "[%N] Unexpected application id.\n");
-	  throw (DiameterPayloadError);
+	  throw (DIAMETER_PAYLOAD_ERROR);
 	}
     }
   if ((c = aaaMessage.acl.search("Result-Code")))
