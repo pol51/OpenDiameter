@@ -168,4 +168,41 @@ class AAAQualifiedAvpList :
         AAAAvpParseType parseType;
 };
 
+template<class COMMAND>
+class AAACommandList :
+    public std::list<COMMAND*>
+{
+    public:
+        void add(COMMAND *com) {
+            if (search(com->name.c_str()) != NULL) {
+                AAA_LOG(LM_ERROR, "Attempt to load duplicate command definition.\n");
+                exit(1);
+            }
+            mutex.acquire();
+            push_back(com);
+            mutex.release();
+        }
+        COMMAND* search(const char*name) {
+            mutex.acquire();
+            std::list<COMMAND*>::iterator c = this->begin();
+            for (; c != this->end(); c++) {
+                if ((*c)->name == std::string(name)) {
+                    mutex.release();
+                    return *c;
+                }
+            }
+            mutex.release();
+            return NULL;
+        }
+
+    protected:
+        AAACommandList() {
+        }
+        virtual ~AAACommandList() {
+        }
+
+    protected:
+        ACE_Thread_Mutex mutex;
+};
+
 #endif // __AAA_DICTIONARY_API_H__
