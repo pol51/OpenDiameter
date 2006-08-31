@@ -74,6 +74,7 @@ class DiameterCommandList_S :
         DiameterCommand* search(ACE_UINT32 code,
                                 ACE_UINT32 appId,
                                 int request);
+        DiameterCommand* search(const char*name);
 
     private:
         virtual ~DiameterCommandList_S();
