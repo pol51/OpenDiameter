@@ -65,6 +65,19 @@ DiameterCommand* DiameterCommandList_S::search(ACE_UINT32 code,
     return NULL;
 }
 
+DiameterCommand* DiameterCommandList_S::search(const char* name)
+{
+    mutex.acquire();
+    for (iterator c = this->begin(); c != this->end(); c++) {
+        if ((*c)->name == std::string(name)) {
+            mutex.release();
+            return *c;
+        }
+    }
+    mutex.release();
+    return NULL;
+}
+
 bool DiameterDictionaryManager::getCommandCode(char *commandName,
                                                AAACommandCode *commandCode,
                                                DiameterApplicationId *appId)
