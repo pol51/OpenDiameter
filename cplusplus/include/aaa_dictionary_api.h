@@ -182,18 +182,6 @@ class AAACommandList :
             push_back(com);
             mutex.release();
         }
-        COMMAND* search(const char*name) {
-            mutex.acquire();
-            std::list<COMMAND*>::iterator c = this->begin();
-            for (; c != this->end(); c++) {
-                if ((*c)->name == std::string(name)) {
-                    mutex.release();
-                    return *c;
-                }
-            }
-            mutex.release();
-            return NULL;
-        }
 
     protected:
         AAACommandList() {
