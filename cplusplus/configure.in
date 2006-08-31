@@ -100,12 +100,6 @@ case $host in
      AC_MSG_ERROR([Unsupported OS]); 
 esac
 
-# PANA cookie debugging flag 
-AC_DEFINE_UNQUOTED([PANA_COOKIE_DEBUG], [0], [PANA cookie debugging flag])
-
-# PANA dhcp key generator debugging flag 
-AC_DEFINE_UNQUOTED([PANA_DHCP_DEBUG], [0], [PANA dhcp key generator debugging flag])
-
 # Standard libraries for distribution
 AC_CONFIG_FILES([Makefile
                  libodutl/Makefile               
