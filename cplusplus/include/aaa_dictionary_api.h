@@ -197,4 +197,33 @@ class AAACommandList :
         ACE_Thread_Mutex mutex;
 };
 
+template<class GROUP>
+class AAAGroupedAvpList :
+    public std::list<GROUP*>
+{
+    public:
+        void add(GROUP* gavp) {
+            if (search(gavp->code, gavp->vendorId) != NULL) {
+                AAA_LOG(LM_ERROR, "duplicated grouped AVP.\n");
+                exit(1);
+            }
+            mutex.acquire();
+            push_back(gavp);
+            mutex.release();
+        }
+        virtual GROUP* search(ACE_UINT32 code,
+                              ACE_UINT32 vendorId) {
+            return NULL;
+        }
+
+    protected:
+        AAAGroupedAvpList() {
+        }
+        virtual ~AAAGroupedAvpList() {
+        }
+
+    protected:
+        ACE_Thread_Mutex mutex;
+};
+
 #endif // __AAA_DICTIONARY_API_H__
