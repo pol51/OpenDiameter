@@ -51,7 +51,7 @@ typedef struct
 {
     AAAUInt8 request:1;   /* request */
     AAAUInt8 stateless:1; /* stateless handshake */
-    AAAUInt8 reseverd:6;
+    AAAUInt8 reserved:6;
 } PANA_CommandFlags;
 
 class PANA_Command :

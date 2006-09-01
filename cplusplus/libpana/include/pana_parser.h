@@ -194,6 +194,36 @@ class PANA_AvpTypeList_S :
 typedef ACE_Singleton<PANA_AvpTypeList_S, ACE_Recursive_Thread_Mutex> PANA_AvpTypeList;
 AAA_PARSER_SINGLETON_DECLARE(ACE_Singleton, PANA_AvpTypeList_S, ACE_Recursive_Thread_Mutex);
 
+/*
+ *==================================================
+ * This section defines the diameter specific parsing
+ * functions and objects
+ *==================================================
+ */
+
+/*
+ * Diameter AVP value parser
+ */
+typedef AAAParser<AAAMessageBlock*,
+                  AAAAvpContainerEntry*,
+                  PANA_DictionaryEntry*> PANA_AvpValueParser;
+
+/*  Parsing starts from the current read pointer of the raw data,
+ *  i.e., AAAMessageBlock.  When parsing is successful, the read
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_AvpValueParser::parseRawToApp();
+
+/* Parsing starts from the current write pointer of the raw data,
+ *  i.e., AAAMessageBlock.  When parsing is successful, the write
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_AvpValueParser::parseAppToRaw();
+
 
 
 
@@ -356,36 +386,6 @@ class DiameterMsg
 };
 
 /*!
- *==================================================
- * This section defines the diameter specific parsing
- * functions and objects
- *==================================================
- */
-
-/*!
- * Diameter AVP value parser
- */
-typedef AAAParser<AAAMessageBlock*,
-                  AAAAvpContainerEntry*,
-                  DiameterDictionaryEntry*> DiameterAvpValueParser;
-
-/*! Parsing starts from the current read pointer of the raw data,
- *  i.e., AAAMessageBlock.  When parsing is successful, the read
- *  pointer will proceed to one octet after the last octet of the
- *  AVP value.  When parsing fails, an error status is thrown.  A
- *  non-null dictionary data must be specified.
- */
-template<> void AAA_PARSER_EXPORT_ONLY DiameterAvpValueParser::parseRawToApp();
-
-/*! Parsing starts from the current write pointer of the raw data,
- *  i.e., AAAMessageBlock.  When parsing is successful, the write
- *  pointer will proceed to one octet after the last octet of the
- *  AVP value.  When parsing fails, an error status is thrown.  A
- *  non-null dictionary data must be specified.
- */
-template<> void AAA_PARSER_EXPORT_ONLY DiameterAvpValueParser::parseAppToRaw();
-
-/*!
  * Diameter header parser definition
  */
 typedef AAAParser<AAAMessageBlock*,
@@ -455,21 +455,6 @@ template<> void AAA_PARSER_EXPORT_ONLY DiameterMsgPayloadParser::parseAppToRaw()
  *  parser.
  */
 typedef boost::function0<DiameterAvpValueParser*> DiameterAvpValueParserFunctor;
-
-/*!
- * A template class for type-specific AVP value parser creator.
- */
-template <class T>
-class DiameterAvpValueParserCreator
-{
-    public:
-        /*!
-        * Abstractor * operator
-        */
-        DiameterAvpValueParser* operator()() {
-            return new T();
-        }
-};
 
 /*! This class defines an AVP type.  An AVP type is defined as a set
  *  of typename, typevalue, size of the AVP payload and the function
