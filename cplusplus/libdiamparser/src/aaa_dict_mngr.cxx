@@ -30,53 +30,12 @@
 /* changes to one unified version of this software.                       */
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
-/* $Id: comlist.cxx,v 1.30 2006/05/31 17:53:33 vfajardo Exp $ */
+
 #include <ace/OS.h>
 #include "aaa_avplist.h"
 #include "aaa_comlist.h"
 #include "aaa_xml_parsing.h"
 #include "aaa_parser_avpvalue.h"
-
-DiameterCommandList_S::~DiameterCommandList_S()
-{
-    for (iterator i=begin(); i!=end(); i++) {
-        //      delete (*i)->name;
-        delete (*i)->avp_f;
-        delete (*i)->avp_r;
-        delete (*i)->avp_o;
-        delete *i;
-    }
-}
-
-DiameterCommand* DiameterCommandList_S::search(ACE_UINT32 code,
-                                               ACE_UINT32 appId,
-                                               int request)
-{
-    mutex.acquire();
-    for (iterator c=begin(); c!=end(); c++) {
-        if ((*c)->code == code && 
-            (*c)->appId == appId &&
-            (*c)->flags.r == request) {
-            mutex.release();
-            return *c;
-        }
-    }
-    mutex.release();
-    return NULL;
-}
-
-DiameterCommand* DiameterCommandList_S::search(const char* name)
-{
-    mutex.acquire();
-    for (iterator c = this->begin(); c != this->end(); c++) {
-        if ((*c)->name == std::string(name)) {
-            mutex.release();
-            return *c;
-        }
-    }
-    mutex.release();
-    return NULL;
-}
 
 bool DiameterDictionaryManager::getCommandCode(char *commandName,
                                                AAACommandCode *commandCode,

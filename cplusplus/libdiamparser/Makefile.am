@@ -10,7 +10,7 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
 AM_LDFLAGS = @L_LDFLAGS@
 
 PARSER_SRC = src/aaa_avplist.cxx \
-	     src/aaa_comlist.cxx \
+	     src/aaa_dict_mngr.cxx \
              src/aaa_parser.cxx \
 	     src/aaa_parser_avp.cxx \
 	     src/aaa_avp_header.cxx \

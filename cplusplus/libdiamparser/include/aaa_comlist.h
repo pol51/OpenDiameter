@@ -71,13 +71,35 @@ class DiameterCommandList_S :
         friend class ACE_Singleton<DiameterCommandList_S, ACE_Recursive_Thread_Mutex>;
 
     public:
+        DiameterCommand* search(const char*name) {
+            return AAACommandList<DiameterCommand>::search(name);
+        }
         DiameterCommand* search(ACE_UINT32 code,
                                 ACE_UINT32 appId,
-                                int request);
-        DiameterCommand* search(const char*name);
+                                int request) {
+            mutex.acquire();
+            for (iterator c=begin(); c!=end(); c++) {
+                if ((*c)->code == code && 
+                    (*c)->appId == appId &&
+                    (*c)->flags.r == request) {
+                    mutex.release();
+                    return *c;
+                }
+            }
+            mutex.release();
+            return NULL;
+        }
 
     private:
-        virtual ~DiameterCommandList_S();
+        virtual ~DiameterCommandList_S() {
+            for (iterator i=begin(); i!=end(); i++) {
+                //      delete (*i)->name;
+                delete (*i)->avp_f;
+                delete (*i)->avp_r;
+                delete (*i)->avp_o;
+                delete *i;
+            }
+        }
 };
 
 typedef ACE_Singleton<DiameterCommandList_S, ACE_Recursive_Thread_Mutex> DiameterCommandList;

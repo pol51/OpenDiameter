@@ -50,20 +50,6 @@ class DiameterGroupedAvpList_S :
 {
     friend class ACE_Singleton<DiameterGroupedAvpList_S, ACE_Recursive_Thread_Mutex>;
 
-    public:
-        DiameterGroupedAVP* search(ACE_UINT32 code,
-                                   ACE_UINT32 vendorId) {
-            mutex.acquire();
-            for (iterator c=begin(); c!=end(); c++) {
-                if ((*c)->code == code && (*c)->vendorId == vendorId) {
-                    mutex.release();
-                    return *c;
-                }
-            }
-            mutex.release();
-            return NULL;
-        }
-
     private:
         virtual ~DiameterGroupedAvpList_S() {
             for (iterator i=begin(); i!=end(); i++) {
