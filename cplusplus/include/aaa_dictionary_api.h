@@ -183,7 +183,15 @@ class AAACommandList :
             mutex.release();
         }
         virtual COMMAND* search(const char*name) {
-            // implemented by specific dictionary
+            mutex.acquire();
+            typename std::list<COMMAND*>::iterator c = this->begin();
+            for (; c != this->end(); c++) {
+                if ((*c)->name == std::string(name)) {
+                    mutex.release();
+                    return *c;
+                }
+            }
+            mutex.release();
             return NULL;
         }
 
@@ -213,6 +221,15 @@ class AAAGroupedAvpList :
         }
         virtual GROUP* search(ACE_UINT32 code,
                               ACE_UINT32 vendorId) {
+            mutex.acquire();
+            typename std::list<GROUP*>::iterator c=this->begin();
+            for (; c!=this->end(); c++) {
+                if ((*c)->code == code && (*c)->vendorId == vendorId) {
+                    mutex.release();
+                    return *c;
+                }
+            }
+            mutex.release();
             return NULL;
         }
 
