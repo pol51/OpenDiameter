@@ -34,28 +34,23 @@
 
 #include "aaa_parser_avpvalue.h"
 
-// static variables
-#ifndef BOOST_SPIRIT_THREADSAFE
-ACE_Mutex AvpGrammarMutex_S;
-#endif
-
-template<> void DiameterAvpValueParser::parseRawToApp() {
+template<> void PANA_AvpValueParser::parseRawToApp() {
 }
 
-template<> void DiameterAvpValueParser::parseAppToRaw() {
+template<> void PANA_AvpValueParser::parseAppToRaw() {
 }
 
 /// Parser creators.
-static DiameterAvpValueParserCreator<AnyParser>           anyParserCreator;
-static DiameterAvpValueParserCreator<Integer32Parser>     integer32ParserCreator;
-static DiameterAvpValueParserCreator<Integer64Parser>     integer64ParserCreator;
-static DiameterAvpValueParserCreator<Utf8stringParser>    utf8stringParserCreator;
-static DiameterAvpValueParserCreator<OctetstringParser>   octetstringParserCreator;
-static DiameterAvpValueParserCreator<DiamidentParser>     diamidentParserCreator;
-static DiameterAvpValueParserCreator<DiamuriParser>       diamuriParserCreator;
-static DiameterAvpValueParserCreator<IPFilterRuleParser>  ipfilterRuleParserCreator;
-static DiameterAvpValueParserCreator<GroupedParser>       groupedParserCreator;
-static DiameterAvpValueParserCreator<AddressParser>       addressParserCreator;
+static AAAAvpValueParserCreator<AnyParser>           anyParserCreator;
+static AAAAvpValueParserCreator<Integer32Parser>     integer32ParserCreator;
+static AAAAvpValueParserCreator<Integer64Parser>     integer64ParserCreator;
+static AAAAvpValueParserCreator<Utf8stringParser>    utf8stringParserCreator;
+static AAAAvpValueParserCreator<OctetstringParser>   octetstringParserCreator;
+static AAAAvpValueParserCreator<DiamidentParser>     diamidentParserCreator;
+static AAAAvpValueParserCreator<DiamuriParser>       diamuriParserCreator;
+static AAAAvpValueParserCreator<IPFilterRuleParser>  ipfilterRuleParserCreator;
+static AAAAvpValueParserCreator<GroupedParser>       groupedParserCreator;
+static AAAAvpValueParserCreator<AddressParser>       addressParserCreator;
 
 /// Container entry creators.
 static AAAAvpContainerEntryCreator<DiameterStringAvpContainerEntry>

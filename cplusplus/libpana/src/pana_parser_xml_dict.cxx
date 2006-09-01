@@ -30,7 +30,6 @@
 /* changes to one unified version of this software.                       */
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
-/* $Id: xml_parsing.cxx,v 1.1 2006/05/31 18:02:13 vfajardo Exp $ */
 
 #include <string>
 #include <map>
@@ -138,8 +137,7 @@ class PANAXML_CommandElement :
   public:
      PANAXML_CommandElement(PANAXML_ElementStack &stack) :
         PANAXML_Element("command", stack),
-        m_code(0), m_appId(0), 
-        m_pBit(0), m_eBit(0) {
+        m_code(0) {
      }
      virtual bool startElement(ACEXML_Attributes *alist) {
         if (! PANAXML_Element::startElement(alist)) {
@@ -153,15 +151,6 @@ class PANAXML_CommandElement :
                else if (! ACE_OS::strcmp(alist->getQName(i), "code")) {
                    m_code = ACE_OS::atoi(alist->getValue(i));
                }
-               else if (! ACE_OS::strcmp(alist->getQName(i), "application-id")) {
-                   m_appId = ACE_OS::atoi(alist->getValue(i));
-               }
-               else if (! ACE_OS::strcmp(alist->getQName(i), "pbit")) {
-                   m_pBit = ACE_OS::atoi(alist->getValue(i));
-               }
-               else if (! ACE_OS::strcmp(alist->getQName(i), "ebit")) {
-                   m_eBit = ACE_OS::atoi(alist->getValue(i));
-               }
             }
 #if PANAXML_DEBUG
             ACE_DEBUG((LM_DEBUG, " Command [ name = %s, code = %d\n", 
@@ -173,21 +162,6 @@ class PANAXML_CommandElement :
                "Command code does not have attributes !!!\n"));
             throw;
         }
-
-        // application id over-rides
-        if (Parent()->Name() == std::string("base")) {
-            m_appId = 0;
-        }
-        else if (Parent()->Name() == std::string("application")) {
-            PANAXML_ApplicationElement *appElm = 
-                (PANAXML_ApplicationElement*)Parent();
-            m_appId = appElm->AppId();
-        }
-        else {
-            ACE_DEBUG((LM_ERROR, 
-                 "Command has an invalid parent !!!\n"));
-            throw;
-        }
         return true;
      }
      std::string &Name() {
@@ -195,15 +169,6 @@ class PANAXML_CommandElement :
      }
      int Code() {
         return m_code;
-     }
-     int AppId() {
-        return m_appId;
-     }
-     int pBit() {
-        return m_pBit;
-     }
-     int eBit() {
-        return m_eBit;
      }
      virtual bool endElement() {
         m_name = "";
@@ -214,9 +179,6 @@ class PANAXML_CommandElement :
   private:
      std::string m_name;
      int m_code;
-     int m_appId;
-     int m_pBit;
-     int m_eBit;
 };
 
 class PANAXML_RequestRulesElement :
@@ -232,25 +194,24 @@ class PANAXML_RequestRulesElement :
             return false;
         }
 
-        PANAXML_CommandElement *cmdElm = 
+        PANAXML_CommandElement *cmdElm =
             (PANAXML_CommandElement*)Parent();
 
-        m_command = new DiameterCommand;
-        m_command->avp_f = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
-        m_command->avp_r = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
-        m_command->avp_o = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
+        m_command = new PANA_Command;
+        m_command->m_Fixed = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
+        m_command->m_Required = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
+        m_command->m_Optional = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
 
-        m_command->name = cmdElm->Name() + std::string("-Request");
-        m_command->code = cmdElm->Code();
-        m_command->appId = cmdElm->AppId();
-        m_command->flags.p = cmdElm->pBit();
-        m_command->flags.e = cmdElm->eBit();
-        m_command->flags.r = 1;
-        DiameterCommandList::instance()->add(m_command);
+        m_command->m_Name = cmdElm->Name() + std::string("-Request");
+        m_command->m_Code = cmdElm->Code();
+        m_command->m_Flags.request = 1;
+        m_command->m_Flags.stateless = 0;
+        m_command->m_Flags.reserved = 0;
+        PANA_CommandList::instance()->add(m_command);
 
 #if PANAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " Request [name = %s, code = %d, applid = %d]\n", 
-	           m_command->name.c_str(), m_command->code, m_command->appId));
+        ACE_DEBUG((LM_DEBUG, " Request [name = %s, code = %d]\n",
+	           m_command->m_Name.c_str(), m_command->m_Code));
 #endif
         return true;
      }
@@ -258,12 +219,12 @@ class PANAXML_RequestRulesElement :
         m_command = NULL;
         return PANAXML_Element::endElement();
      }
-     DiameterCommand *Cmd() {
+     PANA_Command *Cmd() {
         return m_command;
      }
  
   private:
-     DiameterCommand *m_command;
+     PANA_Command *m_command;
 };
 
 class PANAXML_AnswerRulesElement :
@@ -279,25 +240,24 @@ class PANAXML_AnswerRulesElement :
             return false;
         }
 
-        m_command = new DiameterCommand;
-        m_command->avp_f = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
-        m_command->avp_r = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
-        m_command->avp_o = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
+        m_command = new PANA_Command;
+        m_command->m_Fixed = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
+        m_command->m_Required = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
+        m_command->m_Optional = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
 
-        PANAXML_CommandElement *cmdElm = 
+        PANAXML_CommandElement *cmdElm =
             (PANAXML_CommandElement*)Parent();
 
-        m_command->name = cmdElm->Name() + std::string("-Answer");
-        m_command->code = cmdElm->Code();
-        m_command->appId = cmdElm->AppId();
-        m_command->flags.p = cmdElm->pBit();
-        m_command->flags.e = cmdElm->eBit();
-        m_command->flags.r = 0;
-        DiameterCommandList::instance()->add(m_command);
+        m_command->m_Name = cmdElm->Name() + std::string("-Answer");
+        m_command->m_Code = cmdElm->Code();
+        m_command->m_Flags.request = 0;
+        m_command->m_Flags.stateless = 0;
+        m_command->m_Flags.reserved = 0;
+        PANA_CommandList::instance()->add(m_command);
 
 #if PANAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " Answer [name = %s, code = %d, applid = %d]\n", 
-	           m_command->name.c_str(), m_command->code, m_command->appId));
+        ACE_DEBUG((LM_DEBUG, " Answer [name = %s, code = %d]\n",
+	           m_command->m_Name.c_str(), m_command->m_Code));
 #endif
         return true;
      }
@@ -305,15 +265,15 @@ class PANAXML_AnswerRulesElement :
         m_command = NULL;
         return PANAXML_Element::endElement();
      }
-     DiameterCommand *Cmd() {
+     PANA_Command *Cmd() {
         return m_command;
      }
- 
+
   private:
-     DiameterCommand *m_command;
+     PANA_Command *m_command;
 };
 
-class PANAXML_TypedefElement : 
+class PANAXML_TypedefElement :
   public PANAXML_Element
 {
   public:
