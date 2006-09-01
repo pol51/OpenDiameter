@@ -532,6 +532,7 @@ class AAAXML_TypeElement :
             for (size_t i = 0; i < alist->getLength (); ++i) {
                if (! ACE_OS::strcmp(alist->getQName(i), "type-name")) {
                    tname = alist->getValue(i);
+                   break;
                }
             }
         }
