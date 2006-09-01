@@ -17,9 +17,7 @@
      <!ELEMENT avp ((type | grouped), (enum*))>
      <!ATTLIST avp
           name ID #REQUIRED
-          description CDATA #IMPLIED
           code CDATA #REQUIRED
-          mandatory (must | may | mustnot | shouldnot) "may"
           vendor-id CDATA #IMPLIED
      >
      <!ELEMENT type EMPTY>

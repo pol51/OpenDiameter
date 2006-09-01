@@ -244,44 +244,35 @@
     <avp name="AVP" code="0"> <!-- Added by Ohba -->
       <type type-name="Any"/>
     </avp>
-    <avp name="Algorithm" code="1" mandatory="must"
-	 protected="mustnot">
+    <avp name="Algorithm" code="1" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="AUTH" code="2" mandatory="must"
-	 protected="mustnot">
+    <avp name="AUTH" code="2" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Cookie" code="3" mandatory="must"
-	 protected="mustnot">
+    <avp name="Cookie" code="3" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Device-Id" code="4" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="Device-Id" code="4" mandatory="must">
       <type type-name="Address"/>
     </avp>
-    <avp name="EAP-Payload" code="5" mandatory="must"
-	 protected="mustnot">
+    <avp name="EAP-Payload" code="5" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Failed-AVP" code="6" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="Failed-AVP" code="6" mandatory="must">
       <grouped>
          <optional>
             <avprule name="AVP"/>
          </optional>
       </grouped>
     </avp>
-    <avp name="Provider-Identifier" code="14" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="Provider-Identifier" code="14" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Provider-Name" code="15" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="Provider-Name" code="15" mandatory="must">
       <type type-name="UTF8String"/>
     </avp>
-    <avp name="ISP-Information" code="7" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="ISP-Information" code="7" mandatory="must">
       <grouped>
          <required>
             <avprule name="Provider-Identifier" maximum="1" minimum="0" />
@@ -289,12 +280,10 @@
          </required>
       </grouped>
     </avp>
-    <avp name="Key-Id" code="8" mandatory="must"
-	 protected="mustnot">
+    <avp name="Key-Id" code="8" mandatory="must">
       <type type-name="Integer32"/>
     </avp>
-    <avp name="NAP-Information" code="9" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="NAP-Information" code="9" mandatory="must">
       <grouped>
          <required>
             <avprule name="Provider-Identifier" maximum="1" minimum="0" />
@@ -302,50 +291,37 @@
          </required>
       </grouped>
     </avp>
-    <avp name="Nonce" code="10" mandatory="must"
-	 protected="mustnot">
+    <avp name="Nonce" code="10" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Notification" code="11" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="Notification" code="11" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="PPAC" code="12" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="PPAC" code="12" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Protection-Capability" code="13" mandatory="must"
-	 protected="mustnot">
+    <avp name="Protection-Capability" code="13" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Result-Code" code="16" mandatory="must"
-	 protected="mustnot">
+    <avp name="Result-Code" code="16" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Session-Id" code="17" mandatory="must"
-	 protected="mustnot">
+    <avp name="Session-Id" code="17" mandatory="must">
       <type type-name="UTF8String"/>
     </avp>
-    <avp name="Session-Lifetime" code="18" mandatory="must"
-	 protected="mustnot">
+    <avp name="Session-Lifetime" code="18" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Termination-Cause" code="19" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="Termination-Cause" code="19" mandatory="must">
       <type type-name="Unsigned32"/>
       <enum name="Logout" code="1"/>
       <enum name="Administrative" code="4"/>
       <enum name="Session Timeout" code="8"/>
     </avp>
-    <avp name="Dhcp-Avp" code="100" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="Dhcp-Avp" code="100" mandatory="must">
       <type type-name="Dhcp"/>
     </avp>
-    <avp name="PAC-Ip-Address" code="101" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="PAC-Ip-Address" code="101" mandatory="must">
       <type type-name="Address"/>
     </avp>
-
-    <!-- ************** PANA PROTOCOL AVPS ************* -->
-
 </dictionary>
