@@ -45,20 +45,34 @@ class DiameterGroupedAVP :
     public DiameterDictionary {
 };
 
-class DiameterGroupedAvpList_S : 
-    public std::list<DiameterGroupedAVP*>
+class DiameterGroupedAvpList_S :
+    public AAAGroupedAvpList<DiameterGroupedAVP>
 {
     friend class ACE_Singleton<DiameterGroupedAvpList_S, ACE_Recursive_Thread_Mutex>;
 
     public:
-        void add(DiameterGroupedAVP*);
-        DiameterGroupedAVP* search(ACE_UINT32, ACE_UINT32);
+        DiameterGroupedAVP* search(ACE_UINT32 code,
+                                   ACE_UINT32 vendorId) {
+            mutex.acquire();
+            for (iterator c=begin(); c!=end(); c++) {
+                if ((*c)->code == code && (*c)->vendorId == vendorId) {
+                    mutex.release();
+                    return *c;
+                }
+            }
+            mutex.release();
+            return NULL;
+        }
 
     private:
-        DiameterGroupedAvpList_S() {
+        virtual ~DiameterGroupedAvpList_S() {
+            for (iterator i=begin(); i!=end(); i++) {
+                delete (*i)->avp_f;
+                delete (*i)->avp_r;
+                delete (*i)->avp_o;
+                delete *i;
+            }
         }
-        ~DiameterGroupedAvpList_S();
-        ACE_Thread_Mutex mutex;
 };
 
 typedef ACE_Singleton<DiameterGroupedAvpList_S, ACE_Recursive_Thread_Mutex>
