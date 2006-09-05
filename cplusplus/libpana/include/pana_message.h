@@ -276,10 +276,6 @@ class PANA_MsgHeader
        AAADictionaryHandle* m_DictHandle;
 };
 
-// PANA Message Header parser
-typedef AAAParser<AAAMessageBlock*,
-                  PANA_MsgHeader*> PANA_HeaderParser;
-
 // PANA Message definition
 class PANA_Message : public PANA_MsgHeader
 {

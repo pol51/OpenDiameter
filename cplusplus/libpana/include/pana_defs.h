@@ -34,8 +34,6 @@
 #ifndef __PANA_DEFS_H__
 #define __PANA_DEFS_H__
 
-#include "pana_parser.h"
-
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000

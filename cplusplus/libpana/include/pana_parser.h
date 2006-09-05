@@ -35,7 +35,6 @@
 #define __PANA_PARSER_H__
 
 #include "aaa_parser_api.h"
-#include "pana_defs.h"
 #include "pana_message.h"
 
 /*
@@ -311,5 +310,9 @@ class PANA_AvpHeaderList :
 typedef AAAParser<AAAMessageBlock*,
                   AAAAvpContainerList*,
                   PANA_Dictionary*> PANA_QualifiedAvpListParser;
+
+// PANA Message Header parser
+typedef AAAParser<AAAMessageBlock*,
+                  PANA_MsgHeader*> PANA_HeaderParser;
 
 #endif // __PANA_PARSER_H__
