@@ -584,6 +584,8 @@ int main(int argc, char **argv)
   task.Start(5);
   
   try {
+      PANA_Node node(task, cfgfile);
+#if 0
       if (b_client) {
           PANA_Node node(task, cfgfile);
           PeerApplication peer(node, semaphore);
@@ -605,6 +607,7 @@ int main(int argc, char **argv)
           task.Stop();
           USER_DB_CLOSE();
       }
+#endif
   }
   catch (PANA_Exception &e) {
       std::cout << "PANA exception: " << e.description() << std::endl;

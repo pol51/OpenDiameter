@@ -290,7 +290,7 @@ class PANA_MsgBlockGuard
        PANA_MsgBlockGuard() : 
            m_Block(0) {
        }
-       PANA_MsgBlockGuard(AAAMessageBlock *b, 
+       PANA_MsgBlockGuard(AAAMessageBlock *b,
                           bool clone = false) :
            m_Block(0) {
            m_Block = (clone) ? Clone(b) : b;

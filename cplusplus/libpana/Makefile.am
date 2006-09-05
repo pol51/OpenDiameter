@@ -66,8 +66,9 @@ PANA_HDRS = include/pana_auth_script.h \
 
 PANA_SRC  = src/pana_parser.cxx \
             src/pana_parser_avpvalue.cxx \
-            src/pana_parser_dict.cxx
-##          src/pana_client.cxx \
+            src/pana_parser_dict.cxx \
+            src/pana_node.cxx
+##            src/pana_client.cxx \
 ##            src/pana_client_fsm.cxx \
 ##            src/pana_config_manager.cxx \
 ##            src/pana_cookie.cxx \
@@ -115,27 +116,25 @@ LDADD = @L_LIBS@ \
 noinst_PROGRAMS = pana_test1 pana_test2 pana_test3
 
 pana_test1_SOURCES = test/Test1.cxx test/user_db.cxx
-pana_test1_LDADD = @L_LIBS@ \
-                   libpana.la \
-	           $(top_srcdir)/libodutl/libodutl.la \
-	           $(top_srcdir)/libeap/libeap.la \
-	           $(top_srcdir)/libdiamparser/libdiamparser.la
+pana_test1_LDADD = $(top_builddir)/libeap/libeap.la \
+		$(top_builddir)/libeap/libeaparchie.la \
+		$(top_builddir)/libpana/libpana.la \
+                $(top_builddir)/libodutl/libodutl.la \
+                @L_LIBS@
 
 pana_test2_SOURCES = test/Test2.cxx test/user_db.cxx
-pana_test2_LDADD = @L_LIBS@ \
-                   libpana.la \
-	           $(top_srcdir)/libodutl/libodutl.la \
-	           $(top_srcdir)/libeap/libeap.la \
-                   $(top_srcdir)/libeap/libeaparchie.la \
-	           $(top_srcdir)/libdiamparser/libdiamparser.la
+pana_test2_LDADD = $(top_builddir)/libeap/libeap.la \
+		$(top_builddir)/libeap/libeaparchie.la \
+		$(top_builddir)/libpana/libpana.la \
+                $(top_builddir)/libodutl/libodutl.la \
+                @L_LIBS@
 
 pana_test3_SOURCES = test/Test3.cxx test/user_db.cxx
-pana_test3_LDADD = @L_LIBS@ \
-                   libpana.la \
-	           $(top_srcdir)/libodutl/libodutl.la \
-	           $(top_srcdir)/libeap/libeap.la \
-                   $(top_srcdir)/libeap/libeaparchie.la \
-	           $(top_srcdir)/libdiamparser/libdiamparser.la
+pana_test3_LDADD = $(top_builddir)/libeap/libeap.la \
+		$(top_builddir)/libeap/libeaparchie.la \
+		$(top_builddir)/libpana/libpana.la \
+                $(top_builddir)/libodutl/libodutl.la \
+                @L_LIBS@
 
 pkginclude_HEADERS = test/user_db.h
 
