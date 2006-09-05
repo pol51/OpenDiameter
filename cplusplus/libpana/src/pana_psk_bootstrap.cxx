@@ -1,7 +1,7 @@
 #include "pana_psk_bootstrap.h"
 
-void PANA_PSKKey::generate_key(diameter_octetstring_t &pac_epkey,
-                  diameter_octetstring_t &chain)
+void PANA_PSKKey::generate_key(pana_octetstring_t &pac_epkey,
+                  pana_octetstring_t &chain)
 {
 	ACE_Byte *psk = new ACE_Byte[40];
 	ACE_UINT16 S_len=chain.size();

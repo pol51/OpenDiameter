@@ -32,7 +32,6 @@
 /* END_COPYRIGHT                                                          */
 
 #include <ace/OS.h>
-#include "pana_avplist.h"
 #include "pana_parser.h"
 
 static AAADictionaryEntry PANA_CatchAllAvp(0, "AVP", AAA_AVP_DATA_TYPE, 0, 0);
@@ -45,5 +44,47 @@ PANA_AvpList_S::PANA_AvpList_S()
 PANA_AvpList_S::~PANA_AvpList_S()
 {
     pop_front(); // remove ANY AVP
+}
+
+void PANA_AvpHeaderList::create(AAAMessageBlock *aBuffer)
+    throw (AAAErrorCode)
+{
+    PANA_AvpHeader h;
+    AAAErrorCode st;
+    char *start = aBuffer->rd_ptr();
+    char *end = aBuffer->base()+aBuffer->size();
+
+    for (char *cavp = start; cavp < end; cavp += adjust_word_boundary(h.m_Length)) {
+        char *p = cavp;
+
+        h.m_Code = ACE_NTOHS(*((ACE_UINT16*)p)); p += 2;
+        h.m_Flags.vendor = (*((ACE_UINT16*)p) & PANA_AVP_FLAG_VENDOR_SPECIFIC) ? 1 : 0;
+        h.m_Flags.mandatory = (*((ACE_UINT16*)p) & PANA_AVP_FLAG_MANDATORY) ? 1 : 0;
+        p += 2;
+
+        h.m_Length = ACE_NTOHL(*((ACE_UINT16*)p)); p += 4;
+        if (h.m_Length == 0 || h.m_Length > (ACE_UINT32)(end-cavp)) {
+            AAAErrorCode st;
+            AAA_LOG(LM_ERROR, "invalid message length\n");
+            st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_MESSAGE_LENGTH);
+            throw st;
+        }
+
+        if (h.m_Flags.vendor == 1) {
+            h.m_Flags.vendor = ACE_NTOHL(*((ACE_UINT32*)p)); p+=4;
+        }
+        h.m_pValue = cavp;      // Store the pointer to the header head
+        push_back(h);
+    }
+
+    aBuffer->rd_ptr(end);
+}
+
+template<> void PANA_QualifiedAvpListParser::parseRawToApp()// throw (DiameterErrorCode)
+{
+}
+
+template<> void PANA_QualifiedAvpListParser::parseAppToRaw()// throw (DiameterErrorCode)
+{
 }
 

@@ -276,7 +276,7 @@ class PeerApplication : public AAA_JobData,
          pacSession.SendNotification(msg);
      }
   }
-  bool IsKeyAvailable(diameter_octetstring_t &key) {
+  bool IsKeyAvailable(pana_octetstring_t &key) {
      return false;
   }
   bool ResumeSession() {
@@ -286,10 +286,10 @@ class PeerApplication : public AAA_JobData,
       eap->Stop();
       // semaphore.release();
   }
-  void Notification(diameter_octetstring_t &msg) {
+  void Notification(pana_octetstring_t &msg) {
       std::cout << "PANA notification: " << msg << std::endl;
   }
-  void Notification(diameter_octetstring_t &msg, 
+  void Notification(pana_octetstring_t &msg, 
                     PANA_DeviceId &pacId) {
       char display[64];
       ACE_INET_Addr addr;
@@ -363,17 +363,17 @@ class StandAloneAuthApplication : public AAA_JobData,
       return true;
   }
 #endif
-  bool IsKeyAvailable(diameter_octetstring_t &key) {
+  bool IsKeyAvailable(pana_octetstring_t &key) {
      return false;
   }
   bool IsUserAuthorized() {
       return true;
   }
-  void Notification(diameter_octetstring_t &msg) {
+  void Notification(pana_octetstring_t &msg) {
       std::cout << "PANA notification: " << msg << std::endl;
       paaSession.Stop();
   }
-  void Notification(diameter_octetstring_t &msg, 
+  void Notification(pana_octetstring_t &msg, 
                     PANA_DeviceId &pacId) {
       char display[64];
       ACE_INET_Addr addr;

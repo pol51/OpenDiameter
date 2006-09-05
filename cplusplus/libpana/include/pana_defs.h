@@ -34,7 +34,7 @@
 #ifndef __PANA_DEFS_H__
 #define __PANA_DEFS_H__
 
-#include "diameter_parser.h"
+#include "pana_parser.h"
 
 #if _MSC_VER > 1000
 #pragma once
@@ -44,7 +44,9 @@
 
 // Global macro defining the current version
 // of this implementation.
-#define PANA_VERSION    1
+#define PANA_VERSION     0x1
+#define PANA_FLAG_SET    0x1
+#define PANA_FLAG_CLR    0x0
 
 // Use this macro to control (compile-time only) the
 // maximum raw PANA message packet size that can be
@@ -169,6 +171,95 @@
 #define PANA_RCODE_PROTOCOL_ERROR(x)     PANA_RCODE_RANGE(x, 3000, 3999)
 #define PANA_RCODE_TRANSIENT_FAILURE(x)  PANA_RCODE_RANGE(x, 4000, 4999)
 #define PANA_RCODE_PERMANENT_FAILURE(x)  PANA_RCODE_RANGE(x, 5000, 5999)
+
+//
+// ==================================================
+// The following definitions are for PANA specific
+// parsing support. Some basic data types have been
+// derived from the generic aaa_parser_api
+// ==================================================
+
+//
+// PANAAvpCode provides a way of referring to the code number of an AVP.
+// It is used as a parameter to the dictionary functions, and a field in
+// the AVP struct.
+//
+typedef ACE_UINT16     PANA_AvpCode;
+
+//
+// PANAVendorId provides a way of referring to the vendor identification
+// code. It is used when ing callbacks, among others. 
+//
+typedef ACE_UINT32     PANA_VendorId;
+
+//
+// PANAAvpFlag provides a way of referring to the AVP flags carried
+// in the AVP header. It indicates whether an AVP is vendor or mandatory.
+//
+typedef ACE_UINT16     PANA_AvpFlag;
+
+//
+//==================================================
+// Pre-defined enumration
+//==================================================
+//
+
+//
+// The AVP flags defines the flags set in the AVP header.
+// They correspond directly to the avp flags defined in the
+// pana-draft-12 specification [1]:
+//
+typedef enum {
+    PANA_AVP_FLAG_NONE                 =   0x0,
+    PANA_AVP_FLAG_MANDATORY            =   0x4000,
+    PANA_AVP_FLAG_VENDOR_SPECIFIC      =   0x8000,
+    PANA_AVP_FLAG_RESERVED             =   0x0000,
+} PANA_AvpFlagEnum;
+
+//
+//==================================================
+// The following definitions are for diameter specific
+// data type definitions for storing parsed data.
+//==================================================
+//
+
+//
+// Data type definitions for AAA Parser
+//
+typedef ACE_INT32                  pana_integer32_t;
+
+typedef ACE_UINT64                 pana_integer64_t;
+
+typedef ACE_UINT32                 pana_unsigned32_t;
+
+typedef ACE_UINT64                 pana_unsigned64_t;
+
+typedef pana_unsigned32_t          pana_enumerated_t;
+
+typedef pana_unsigned32_t          pana_time_t;
+
+typedef std::string                pana_octetstring_t;
+
+typedef pana_octetstring_t         pana_utf8string_t;
+
+typedef class AAAAvpContainerList  pana_grouped_t;
+
+//
+// values possible for transport field of pana_diamident_t
+//
+// avp_t is a special type used only in this library
+// for constructing a raw AVP.  When using this type, specify
+// "AVP" as the avp_container type.
+// The string contains the entire AVP including AVP header.
+//
+typedef pana_octetstring_t         pana_avp_t;
+
+typedef struct
+{
+    public:
+        ACE_UINT16               type;
+        pana_octetstring_t   value;
+} pana_address_t;
 
 // 
 // Simple queue type
@@ -295,13 +386,13 @@ class PANA_ScholarValue
 class PANA_AddrConverter
 {
     public:
-        static inline void ToAce(diameter_address_t &from,
+        static inline void ToAce(pana_address_t &from,
                                  ACE_INET_Addr &to) {
            to.set_address(from.value.data(), 
                           (int)from.value.size());
         }
         static inline void ToAAAAddress(ACE_INET_Addr &from,
-                                        diameter_address_t &to) {
+                                        pana_address_t &to) {
 #if defined (ACE_HAS_IPV6)
            if (from.get_type() == AF_INET6) {
                sockaddr_in6 *in = (sockaddr_in6*)from.get_addr();

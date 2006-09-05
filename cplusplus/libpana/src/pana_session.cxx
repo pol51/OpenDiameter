@@ -541,7 +541,7 @@ void PANA_Session::RxPTR()
 
     // termination cause
     DiameterUInt32AvpContainerWidget causeAvp(msg.avpList());
-    diameter_unsigned32_t *cause = causeAvp.GetAvp(PANA_AVPNAME_TERMCAUSE);
+    pana_unsigned32_t *cause = causeAvp.GetAvp(PANA_AVPNAME_TERMCAUSE);
     if (cause) {
         Disconnect(ACE_NTOHL(*cause));
     }
@@ -616,7 +616,7 @@ void PANA_Session::RxPTA()
     Disconnect(PANA_TERMCAUSE_LOGOUT);
 }
 
-void PANA_Session::TxPER(diameter_unsigned32_t rcode)
+void PANA_Session::TxPER(pana_unsigned32_t rcode)
 {
     /*
       7.14  PANA-Error-Request (PER)
@@ -696,7 +696,7 @@ void PANA_Session::RxPER()
 
     // result-code
     DiameterUInt32AvpContainerWidget rcodeAvp(msg.avpList());
-    diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
+    pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
     if (rcode == NULL) {
         throw (PANA_Exception(PANA_Exception::FAILED, 
                "No Result-Code AVP in PER message"));
@@ -819,7 +819,7 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
 
    // verify the session id
    DiameterUtf8AvpContainerWidget sessionIdAvp(msg.avpList());
-   diameter_utf8string_t *sid = sessionIdAvp.GetAvp(PANA_AVPNAME_SESSIONID);
+   pana_utf8string_t *sid = sessionIdAvp.GetAvp(PANA_AVPNAME_SESSIONID);
    if (sid) {
        if (ACE_OS::memcmp(SessionId().data(), sid->data(), sid->size())) {
            throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
@@ -887,10 +887,10 @@ void PANA_Session::AddNotification(PANA_Message& msg)
 void PANA_Session::ProcessNotification(PANA_Message &msg)
 {
     DiameterAddressAvpContainerWidget pacIdAvp(msg.avpList());
-    diameter_address_t *pacId = pacIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
+    pana_address_t *pacId = pacIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
 
     DiameterStringAvpContainerWidget NotificationAvp(msg.avpList());
-    diameter_octetstring_t *note = NotificationAvp.GetAvp
+    pana_octetstring_t *note = NotificationAvp.GetAvp
         (PANA_AVPNAME_NOTIFICATION);
 
     if (note && pacId) {

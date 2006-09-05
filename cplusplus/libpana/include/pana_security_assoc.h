@@ -44,12 +44,12 @@
 #define PANA_AUTH_HMACSIZE         20
 
 class PANA_EXPORT PANA_Nonce : 
-    public PANA_ScholarValue<diameter_octetstring_t>
+    public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
         PANA_Nonce() {
         }
-        PANA_Nonce(diameter_octetstring_t &str) {
+        PANA_Nonce(pana_octetstring_t &str) {
             Set(str);
         }
         bool operator==(PANA_Nonce &n) {
@@ -75,7 +75,7 @@ class PANA_EXPORT PANA_Nonce :
 };
 
 class PANA_EXPORT PANA_AAAKey : 
-    public PANA_ScholarValue<diameter_octetstring_t>
+    public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
         PANA_AAAKey() : 
@@ -93,17 +93,17 @@ class PANA_EXPORT PANA_AAAKey :
 };
 
 class PANA_EXPORT PANA_AuthKey : 
-    public PANA_ScholarValue<diameter_octetstring_t>
+    public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
         void Generate(PANA_Nonce &pac,
                       PANA_Nonce &paa,
-                      diameter_octetstring_t &aaaKey,
-                      diameter_utf8string_t &sessionId);
+                      pana_octetstring_t &aaaKey,
+                      pana_utf8string_t &sessionId);
 };
 
 class PANA_EXPORT PANA_SecurityAssociation : 
-    public PANA_ScholarValue<diameter_octetstring_t>
+    public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
         typedef enum {
@@ -136,13 +136,13 @@ class PANA_EXPORT PANA_SecurityAssociation :
         void UpdateKeyId2(ACE_UINT32 keyId) {
             m_AAAKey2.Id() = keyId;
         }
-        void UpdateAAAKey1(diameter_octetstring_t &key) {
+        void UpdateAAAKey1(pana_octetstring_t &key) {
             m_AAAKey1.Set(key);
         }
-        void UpdateAAAKey2(diameter_octetstring_t &key) {
+        void UpdateAAAKey2(pana_octetstring_t &key) {
             m_AAAKey2.Set(key);
         }
-        void UpdateAAAKey(diameter_octetstring_t &key) {
+        void UpdateAAAKey(pana_octetstring_t &key) {
             Set(key);
         }
         PANA_AAAKey &AAAKey1() {
@@ -152,7 +152,7 @@ class PANA_EXPORT PANA_SecurityAssociation :
             return m_AAAKey2;
         }
 
-        void GenerateAuthKey(diameter_utf8string_t &sessionId);
+        void GenerateAuthKey(pana_utf8string_t &sessionId);
         bool AddKeyIdAvp(PANA_Message &msg);
         bool AddAuthAvp(PANA_Message &msg);
         bool ValidateAuthAvp(PANA_Message &msg);
@@ -160,7 +160,7 @@ class PANA_EXPORT PANA_SecurityAssociation :
     protected:
        void GenerateAuthAvpValue(const char *PDU,
                                 ACE_UINT32 PDULength,
-                                diameter_octetstring_t &authValue);
+                                pana_octetstring_t &authValue);
 
     private:
         TYPE         m_Type;

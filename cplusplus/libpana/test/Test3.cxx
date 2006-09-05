@@ -382,10 +382,10 @@ class PeerChannel : public PANA_ClientEventInterface
      std::string note = "new address notification";
      pana.Update(newAddr, note);
   }
-  void Notification(diameter_octetstring_t &msg) {
+  void Notification(pana_octetstring_t &msg) {
       std::cout << "PANA notification: " << msg << std::endl;
   }
-  void Notification(diameter_octetstring_t &msg, 
+  void Notification(pana_octetstring_t &msg, 
                     PANA_DeviceId &pacId) {
       char display[64];
       ACE_INET_Addr addr;
@@ -393,7 +393,7 @@ class PeerChannel : public PANA_ClientEventInterface
       addr.addr_to_string(display, sizeof(display));
       std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
   }
-  bool IsKeyAvailable(diameter_octetstring_t &key) {
+  bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {
        for (int i=0; i<32; i++)
          {
@@ -487,7 +487,7 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
    void Authorize(PANA_AuthorizationArgs &args) {
       PANA_AuthScriptCtl::Print(args);
    }
-   bool IsKeyAvailable(diameter_octetstring_t &key) {
+   bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {
        for (int i=0; i<32; i++)
          {
@@ -504,10 +504,10 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
      }
      return false;
    }
-   void Notification(diameter_octetstring_t &msg) {
+   void Notification(pana_octetstring_t &msg) {
        std::cout << "PANA notification: " << msg << std::endl;
    }
-  void Notification(diameter_octetstring_t &msg, 
+  void Notification(pana_octetstring_t &msg, 
                     PANA_DeviceId &pacId) {
       char display[64];
       ACE_INET_Addr addr;

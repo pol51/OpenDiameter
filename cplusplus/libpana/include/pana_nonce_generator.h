@@ -40,7 +40,7 @@
 class PANA_NonceGenerator
 {
     public:
-       static inline void Get(diameter_octetstring_t &nonce) {
+       static inline void Get(pana_octetstring_t &nonce) {
           ACE_UINT32 ltime;
           ACE_UINT32 buffer[4]; // 128-bit nonce       
 

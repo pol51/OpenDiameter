@@ -47,24 +47,24 @@
 class PANA_EXPORT PANA_DhcpKey
 {
     public:
-        PANA_DhcpKey(diameter_octetstring_t &aaaKey,
+        PANA_DhcpKey(pana_octetstring_t &aaaKey,
                      ACE_UINT32 secretId,
-                     diameter_octetstring_t &nonceClient,   
-                     diameter_octetstring_t &nonceNas) {
+                     pana_octetstring_t &nonceClient,   
+                     pana_octetstring_t &nonceNas) {
            Generate(aaaKey, secretId, nonceClient, nonceNas); 
         }
 
-        diameter_octetstring_t &GetKey() { 
+        pana_octetstring_t &GetKey() { 
            return m_Value; 
         }
 
     private:       
-        diameter_octetstring_t m_Value;
+        pana_octetstring_t m_Value;
 
-        void Generate(diameter_octetstring_t &aaaKey,
+        void Generate(pana_octetstring_t &aaaKey,
                       ACE_UINT32 secredId,
-                      diameter_octetstring_t &nonceClient,   
-                      diameter_octetstring_t &nonceNas);
+                      pana_octetstring_t &nonceClient,   
+                      pana_octetstring_t &nonceNas);
 };
 
 class PANA_EXPORT PANA_DhcpSecretIdPool
@@ -122,10 +122,10 @@ class PANA_EXPORT PANA_DhcpSecurityAssociation
         ACE_UINT32 &SecretId() {
            return m_SecretId;
         }
-        diameter_octetstring_t &PeerNonce() {
+        pana_octetstring_t &PeerNonce() {
            return m_PeerNonce;
         }
-        diameter_octetstring_t &LocalNonce() {
+        pana_octetstring_t &LocalNonce() {
            return m_LocalNonce;
         }
 
@@ -140,8 +140,8 @@ class PANA_EXPORT PANA_DhcpSecurityAssociation
           Nonce value MUST be randomly chosen and MUST be at least 128
           bits in size. Nonce values MUST NOT be reused.
          */
-        diameter_octetstring_t m_PeerNonce;
-        diameter_octetstring_t m_LocalNonce;
+        pana_octetstring_t m_PeerNonce;
+        pana_octetstring_t m_LocalNonce;
 };
 
 class PANA_EXPORT PANA_PacDhcpSecurityAssociation :
@@ -151,8 +151,8 @@ class PANA_EXPORT PANA_PacDhcpSecurityAssociation :
         bool CheckPBR(PANA_Message &pbr);
         void AffixToPBA(PANA_Message &pba);
 
-        void DhcpKey(diameter_octetstring_t &aaaKey,
-                     diameter_octetstring_t &dhcpKey) {
+        void DhcpKey(pana_octetstring_t &aaaKey,
+                     pana_octetstring_t &dhcpKey) {
            PANA_DhcpKey key(aaaKey, 
                             m_SecretId, 
                             m_LocalNonce,
@@ -168,8 +168,8 @@ class PANA_EXPORT PANA_PaaDhcpSecurityAssociation :
         void AffixToPBR(PANA_Message &pba);
         bool CheckPBA(PANA_Message &pbr);
    
-        void DhcpKey(diameter_octetstring_t &aaaKey,
-                     diameter_octetstring_t &dhcpKey) {
+        void DhcpKey(pana_octetstring_t &aaaKey,
+                     pana_octetstring_t &dhcpKey) {
            PANA_DhcpKey key(aaaKey, 
                             m_SecretId, 
                             m_PeerNonce,

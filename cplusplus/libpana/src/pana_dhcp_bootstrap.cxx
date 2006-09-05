@@ -34,10 +34,10 @@
 #include "od_utl_md5.h"
 #include "pana_dhcp_bootstrap.h"
 
-void PANA_DhcpKey::Generate(diameter_octetstring_t &aaaKey,
+void PANA_DhcpKey::Generate(pana_octetstring_t &aaaKey,
                             ACE_UINT32 secretId,
-                            diameter_octetstring_t &nonceClient,   
-                            diameter_octetstring_t &nonceNas)
+                            pana_octetstring_t &nonceClient,   
+                            pana_octetstring_t &nonceNas)
 {
 #if PANA_DHCP_DEBUG
     printf("AAA key: %d\n", aaaKey.size());

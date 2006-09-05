@@ -82,7 +82,7 @@ class PANA_EXPORT PANA_Paa : public PANA_Session
 
       virtual void NotifyAuthorization();
       virtual void NotifyEapRestart();
-      virtual void NotifyEapResponse(diameter_octetstring_t &payload);
+      virtual void NotifyEapResponse(pana_octetstring_t &payload);
       virtual void NotifyEapTimeout();
       virtual void NotifyEapReAuth();
 
@@ -90,9 +90,9 @@ class PANA_EXPORT PANA_Paa : public PANA_Session
 
       virtual void TxPSR();
       virtual void TxPAR();
-      virtual void TxPBR(diameter_unsigned32_t rcode,
+      virtual void TxPBR(pana_unsigned32_t rcode,
                          EAP_EVENT ev);
-      virtual void TxPFER(diameter_unsigned32_t rcode,
+      virtual void TxPFER(pana_unsigned32_t rcode,
                           EAP_EVENT ev);
       virtual void TxPAN();
       virtual void TxPRAA();

@@ -33,7 +33,7 @@
 
 #include "pana_provider_info.h"
 
-void PANA_ProviderInfoTool::Add(diameter_grouped_t &grp, PANA_CfgProviderInfo &pInfo)
+void PANA_ProviderInfoTool::Add(pana_grouped_t &grp, PANA_CfgProviderInfo &pInfo)
 {
    // Add the Provider Id to group
    if (pInfo.m_Id > 0) {
@@ -48,16 +48,16 @@ void PANA_ProviderInfoTool::Add(diameter_grouped_t &grp, PANA_CfgProviderInfo &p
    grp.add(providerNameAvp());
 }
 
-void PANA_ProviderInfoTool::Extract(diameter_grouped_t &grp, PANA_CfgProviderInfo &pInfo)
+void PANA_ProviderInfoTool::Extract(pana_grouped_t &grp, PANA_CfgProviderInfo &pInfo)
 {
    DiameterUtf8AvpContainerWidget providerNameAvp(grp);
-   diameter_utf8string_t *name = providerNameAvp.GetAvp(PANA_AVPNAME_PROVIDERNAME);
+   pana_utf8string_t *name = providerNameAvp.GetAvp(PANA_AVPNAME_PROVIDERNAME);
    if (name) {
       pInfo.m_Name.assign(name->data(), name->length());
    }
 
    DiameterUInt32AvpContainerWidget providerIdAvp(grp);
-   diameter_unsigned32_t *id = providerIdAvp.GetAvp(PANA_AVPNAME_PROVIDERID);
+   pana_unsigned32_t *id = providerIdAvp.GetAvp(PANA_AVPNAME_PROVIDERID);
    if (id) {
       pInfo.m_Id = ACE_NTOHL(*id);
    }

@@ -51,6 +51,9 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_paa_fsm.h \
             include/pana_paa_factory.h \
             include/pana_pac_ep_key.h \
+	    include/pana_parser.h \
+	    include/pana_parser_avpvalue.h \
+	    include/pana_parser_dict.h \
             include/pana_pmk_bootstrap.h \
             include/pana_prf_plus.h \
             include/pana_provider_info.h \
@@ -61,25 +64,28 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_sid_generator.h \
             include/pana_udp_transport.h
 
-PANA_SRC  = src/pana_client.cxx \
-            src/pana_client_fsm.cxx \
-            src/pana_config_manager.cxx \
-            src/pana_cookie.cxx \
-            src/pana_dhcp_bootstrap.cxx \
-            src/pana_egress.cxx \
-            src/pana_ingress.cxx \
-            src/pana_message.cxx \
-            src/pana_node.cxx \
-            src/pana_paa.cxx \
-            src/pana_paa_factory.cxx \
-            src/pana_paa_fsm.cxx \
-            src/pana_pac_ep_key.cxx \
-            src/pana_pmk_bootstrap.cxx \
-            src/pana_prf_plus.cxx \
-            src/pana_provider_info.cxx \
-            src/pana_psk_bootstrap.cxx \
-            src/pana_security_assoc.cxx \
-            src/pana_session.cxx
+PANA_SRC  = src/pana_parser.cxx \
+            src/pana_parser_avpvalue.cxx \
+            src/pana_parser_dict.cxx
+##          src/pana_client.cxx \
+##            src/pana_client_fsm.cxx \
+##            src/pana_config_manager.cxx \
+##            src/pana_cookie.cxx \
+##            src/pana_dhcp_bootstrap.cxx \
+##            src/pana_egress.cxx \
+##            src/pana_ingress.cxx \
+##            src/pana_message.cxx \
+##            src/pana_node.cxx \
+##            src/pana_paa.cxx \
+##            src/pana_paa_factory.cxx \
+##            src/pana_paa_fsm.cxx \
+##            src/pana_pac_ep_key.cxx \
+##            src/pana_pmk_bootstrap.cxx \
+##            src/pana_prf_plus.cxx \
+##            src/pana_provider_info.cxx \
+##            src/pana_psk_bootstrap.cxx \
+##            src/pana_security_assoc.cxx \
+##            src/pana_session.cxx
 
 includedir = $(prefix)/include/opendiameter/pana
 include_HEADERS = $(PANA_HDRS)

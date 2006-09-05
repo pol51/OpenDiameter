@@ -75,7 +75,7 @@ class PANA_EXPORT PANA_Client : public PANA_Session
 
       virtual void NotifyEapRestart();
       virtual void NotifyAuthorization();
-      virtual void NotifyEapRequest(diameter_octetstring_t &payload);
+      virtual void NotifyEapRequest(pana_octetstring_t &payload);
       
       virtual bool IsSessionResumed();
 

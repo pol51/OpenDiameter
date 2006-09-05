@@ -46,12 +46,12 @@
 #endif // _MSC_VER > 1000
 
 #define PANA_DICT_PROTOCOL_ID  1
-
+#if 0
 // PANA DHCP AVP definitions.
 // We extend open diameter AVP containers
 typedef struct {
     ACE_UINT32 id;
-    diameter_octetstring_t nonce;
+    pana_octetstring_t nonce;
 } PANA_DhcpData_t;
 
 // Data type assignment
@@ -97,7 +97,7 @@ class PANA_DhcpDataParser : public DiameterAvpValueParser
           aBuffer->copy(dhcp.nonce.data(), dhcp.nonce.size());
       }
 };
-
+#endif
 /*!
  * PANA AVP header
  */
@@ -223,7 +223,7 @@ class PANA_AvpHeader
       PANA message.  See section Section 6.3 for more information on
       AVPs.
  */
-class PANA_EXPORT PANA_MsgHeader
+class PANA_MsgHeader
 {
     public:
        typedef struct {
@@ -257,10 +257,10 @@ class PANA_EXPORT PANA_MsgHeader
        inline ACE_UINT32 &seq() {
            return m_SeqNum;
        }
-       inline DiameterDictionaryHandle *getDictHandle() {
+       inline AAADictionaryHandle *getDictHandle() {
            return m_DictHandle;
        }
-       inline void setDictHandle(DiameterDictionaryHandle *handle) {
+       inline void setDictHandle(AAADictionaryHandle *handle) {
            m_DictHandle = handle;
        }
 
@@ -273,16 +273,15 @@ class PANA_EXPORT PANA_MsgHeader
        ACE_UINT32 m_SeqNum;
 
        // auxillary
-       DiameterDictionaryHandle* m_DictHandle;
+       AAADictionaryHandle* m_DictHandle;
 };
 
 // PANA Message Header parser
 typedef AAAParser<AAAMessageBlock*,
-                  PANA_MsgHeader*,
-                  DiameterDictionaryOption*> PANA_HeaderParser;
+                  PANA_MsgHeader*> PANA_HeaderParser;
 
 // PANA Message definition
-class PANA_EXPORT PANA_Message : public PANA_MsgHeader
+class PANA_Message : public PANA_MsgHeader
 {
      public:
          PANA_Message() :
@@ -306,16 +305,5 @@ class PANA_EXPORT PANA_Message : public PANA_MsgHeader
          PANA_DeviceIdContainer m_SrcDevices;
          ACE_UINT32 m_SrcPort;
 };
-
-// AVP codec definition
-class PANA_EXPORT PANA_AvpHeaderCodec : public AvpHeaderCodec
-{
-    public:
-      virtual void parseRawToApp();
-      virtual void parseAppToRaw();
-};
-
-// Alias
-typedef PayloadParserWithCodec<PANA_AvpHeaderCodec> PANA_PayloadParser;
 
 #endif /* __PANA_MESSAGE_H__ */

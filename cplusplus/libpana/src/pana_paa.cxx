@@ -93,7 +93,7 @@ PANA_Paa::PANA_Paa(PANA_SessionTxInterface &tp,
     Reset();
 
     // generate a new session id 
-    diameter_octetstring_t sid;
+    pana_octetstring_t sid;
     PANA_SESSIONID_GENERATOR().Generate(sid);
     SessionId().assign(sid.data(), sid.size());
 
@@ -143,7 +143,7 @@ void PANA_Paa::NotifyAuthorization()
         args.m_Key.Set(SecurityAssociation().Get());
         // TBD: key id removed from args
         if (PPAC().DhcpV6() && DhcpBootstrap().Enable()) {
-            diameter_octetstring_t dhcpKey;
+            pana_octetstring_t dhcpKey;
             DhcpBootstrap().DhcpKey(SecurityAssociation().Get(), 
                                     dhcpKey);
             args.m_DhcpKey.Set(dhcpKey);
@@ -191,7 +191,7 @@ void PANA_Paa::NotifyEapRestart()
     AuxVariables().NapAuthentication() = false;
 }
 
-void PANA_Paa::NotifyEapResponse(diameter_octetstring_t &payload)
+void PANA_Paa::NotifyEapResponse(pana_octetstring_t &payload)
 {
     AAAMessageBlock *block = AAAMessageBlock::Acquire(payload.size());
     if (block) {
@@ -262,7 +262,7 @@ void PANA_Paa::TxPSR()
 
     // add paa nonce
     SecurityAssociation().PaaNonce().Generate();
-    diameter_octetstring_t &nonce = SecurityAssociation().PaaNonce().Get();
+    pana_octetstring_t &nonce = SecurityAssociation().PaaNonce().Get();
     DiameterStringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
     nonceAvp.Get().assign(nonce.data(), nonce.size());
     msg->avpList().add(nonceAvp());
@@ -368,7 +368,7 @@ void PANA_Paa::RxPSA()
 
     // update pac nonce
     DiameterStringAvpContainerWidget nonceAvp(msg.avpList());
-    diameter_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
+    pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && 
         ! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Set(*nonce);
@@ -381,7 +381,7 @@ void PANA_Paa::RxPSA()
 
     // update ISP info
     DiameterGroupedAvpContainerWidget ispAvp(msg.avpList());
-    diameter_grouped_t *isp = ispAvp.GetAvp(PANA_AVPNAME_ISPINFO);
+    pana_grouped_t *isp = ispAvp.GetAvp(PANA_AVPNAME_ISPINFO);
     if (isp) {
         PANA_ProviderInfoTool infoTool;
         infoTool.Extract(*isp, PreferedISP());
@@ -390,7 +390,7 @@ void PANA_Paa::RxPSA()
     }
 
     DiameterUtf8AvpContainerWidget sidAvp(msg.avpList());
-    diameter_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
+    pana_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
     if (sid && PANA_CFG_GENERAL().m_MobilityEnabled) {
         // mobility support
         AuxVariables().SecAssociationResumed() = true;
@@ -406,7 +406,7 @@ void PANA_Paa::RxPSA()
         }
 
         DiameterStringAvpContainerWidget eapAvp(msg.avpList());
-        diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+        pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
         if (payload) {
             NotifyEapResponse(*payload);
         }
@@ -474,7 +474,7 @@ void PANA_Paa::TxPAR()
         // generate nouce
         SecurityAssociation().PaaNonce().Generate();
         
-        diameter_octetstring_t &nonce = SecurityAssociation().PaaNonce().Get();
+        pana_octetstring_t &nonce = SecurityAssociation().PaaNonce().Get();
         DiameterStringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
         nonceAvp.Get().assign(nonce.data(), nonce.size());
         msg->avpList().add(nonceAvp());
@@ -494,7 +494,7 @@ void PANA_Paa::TxPAR()
     SendReqMsg(msg);
 }
 
-void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
+void PANA_Paa::TxPBR(pana_unsigned32_t rcode,
                      EAP_EVENT ev)
 {
     /*
@@ -632,7 +632,7 @@ void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
 
     // update the aaa key's
     if ((ev == EAP_SUCCESS) && (! AuxVariables().SecAssociationResumed())) {
-        diameter_octetstring_t newKey;
+        pana_octetstring_t newKey;
         if (m_Event.IsKeyAvailable(newKey)) {
             if (AuxVariables().SeparateAuthentication() == false) {
                 SecurityAssociation().UpdateAAAKey(newKey);
@@ -674,7 +674,7 @@ void PANA_Paa::TxPBR(diameter_unsigned32_t rcode,
     SendReqMsg(msg);
 }
 
-void PANA_Paa::TxPFER(diameter_unsigned32_t rcode,
+void PANA_Paa::TxPFER(pana_unsigned32_t rcode,
                       EAP_EVENT ev)
 {
     /*
@@ -733,7 +733,7 @@ void PANA_Paa::TxPFER(diameter_unsigned32_t rcode,
             if (ev == EAP_SUCCESS) {
                 // update aaa key if any make sure
                 // key id is added for new keys
-                diameter_octetstring_t newKey;
+                pana_octetstring_t newKey;
                 if (m_Event.IsKeyAvailable(newKey)) {
                     if (! AuxVariables().AlgorithmIsSet()) {
                        // add algorithm
@@ -825,7 +825,7 @@ void PANA_Paa::RxPBA(bool success)
 
         // save the device id
         DiameterAddressAvpContainerWidget pacIdAvp(msg.avpList());
-        diameter_address_t *pacId = pacIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
+        pana_address_t *pacId = pacIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
         if (pacId) {
             PacDeviceId() = *pacId;
         }
@@ -948,7 +948,7 @@ void PANA_Paa::RxPAR()
     ProcessNotification(msg);
 
     DiameterStringAvpContainerWidget eapAvp(msg.avpList());
-    diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+    pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapResponse(*payload);
     }
@@ -988,14 +988,14 @@ void PANA_Paa::RxPAN()
 
     // update pac nonce
     DiameterStringAvpContainerWidget nonceAvp(msg.avpList());
-    diameter_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
+    pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && 
         ! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Set(*nonce);
     }
     
     DiameterStringAvpContainerWidget eapAvp(msg.avpList());
-    diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+    pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapResponse(*payload);
     }

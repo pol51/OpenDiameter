@@ -42,14 +42,14 @@
 #include "pana_defs.h"
 
 class PANA_DeviceId : 
-    public diameter_address_t
+    public pana_address_t
 {
     public:
         PANA_DeviceId(ACE_UINT16 typ, std::string &id) {
             type = typ;
             value.assign(id.data(), id.size());
         }
-        PANA_DeviceId(diameter_address_t &addr) {
+        PANA_DeviceId(pana_address_t &addr) {
             *this = addr;
         }
         PANA_DeviceId() {
@@ -65,13 +65,13 @@ class PANA_DeviceId :
                          src.value.size());
             return (*this);
         }
-        diameter_address_t &operator=(diameter_address_t &src) {
+        pana_address_t &operator=(pana_address_t &src) {
             type = src.type;
             value.assign(src.value.data(), 
                          src.value.size());
             return (*this);
         }
-        diameter_address_t &operator()() {
+        pana_address_t &operator()() {
             return *this;
         }
 };

@@ -38,8 +38,8 @@
 
 void PANA_AuthKey::Generate(PANA_Nonce &pac,
                             PANA_Nonce &paa,
-                            diameter_octetstring_t &aaaKey,
-                            diameter_utf8string_t &sessionId)
+                            pana_octetstring_t &aaaKey,
+                            pana_utf8string_t &sessionId)
 {
     //
     // The PANA_AUTH_Key is used to integrity protect PANA messages and
@@ -100,10 +100,10 @@ void PANA_AuthKey::Generate(PANA_Nonce &pac,
 }
 
 void PANA_SecurityAssociation::GenerateAuthKey
-    (diameter_utf8string_t &sessionId) 
+    (pana_utf8string_t &sessionId) 
 {
     if (m_Type == DOUBLE) {
-        diameter_octetstring_t combinedKey;
+        pana_octetstring_t combinedKey;
         if (! m_AAAKey1.IsSet()) {
             throw (PANA_Exception(PANA_Exception::FAILED, 
                    "Auth key generation failed, no keys present"));
@@ -123,7 +123,7 @@ void PANA_SecurityAssociation::GenerateAuthKey
 void PANA_SecurityAssociation::GenerateAuthAvpValue
            (const char *PDU,
             ACE_UINT32 PDULength,
-            diameter_octetstring_t &authValue)
+            pana_octetstring_t &authValue)
 {
     //
     //   A PANA message can contain a AUTH (Message Authentication Code) AVP 
@@ -199,7 +199,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
 {
     // add auth-avp
     DiameterStringAvpWidget authAvp(PANA_AVPNAME_AUTH);
-    diameter_octetstring_t &auth = authAvp.Get();
+    pana_octetstring_t &auth = authAvp.Get();
     msg.avpList().add(authAvp());
 
     // init this to zero so we can compute true AUTH
@@ -243,14 +243,14 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
 {
     try {
         DiameterStringAvpContainerWidget authAvp(msg.avpList());
-        diameter_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
+        pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
         if (auth == NULL) {
             throw (PANA_Exception(PANA_Exception::FAILED, 
                                   "Missing AUTH-AVP"));
         }
 
         // temporarily save the AUTH value and insert 0 auth
-        diameter_octetstring_t mvalue;
+        pana_octetstring_t mvalue;
         mvalue.assign(auth->data(), auth->size());
 
 #if PANA_SA_DEBUG

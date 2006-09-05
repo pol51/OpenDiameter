@@ -161,13 +161,13 @@ class PANA_SessionAttribute {
        PANA_CfgProviderInfo &PreferedNAP() {
            return m_PreferedNAP;
        }
-       diameter_octetstring_t &DhcpKey() {
+       pana_octetstring_t &DhcpKey() {
            return m_DhcpKey;
        }
-       diameter_octetstring_t &LastTxNotification() {
+       pana_octetstring_t &LastTxNotification() {
            return m_LastTxNotification;
        }
-       diameter_octetstring_t &LastRxNotification() {
+       pana_octetstring_t &LastRxNotification() {
            return m_LastRxNotification;
        }
        virtual void Reset();
@@ -189,9 +189,9 @@ class PANA_SessionAttribute {
        PANA_CfgPPAC m_PPAC; // Post pana address config flags
        PANA_CfgProviderInfo m_PreferedISP; // negotiated ISP information
        PANA_CfgProviderInfo m_PreferedNAP; // negotiated NAP information
-       diameter_octetstring_t m_DhcpKey; // DHCP key 
-       diameter_octetstring_t m_LastTxNotification; // Last notification sent
-       diameter_octetstring_t m_LastRxNotification; // Last notification received
+       pana_octetstring_t m_DhcpKey; // DHCP key 
+       pana_octetstring_t m_LastTxNotification; // Last notification sent
+       pana_octetstring_t m_LastRxNotification; // Last notification received
 };
 
 typedef enum {
@@ -340,12 +340,12 @@ class PANA_EXPORT PANA_SessionEventInterface
       typedef struct {
          AAAScholarAttribute<PANA_DeviceId> m_Paa;
          AAAScholarAttribute<PANA_DeviceId> m_Pac;
-         AAAScholarAttribute<diameter_octetstring_t> m_Key;
+         AAAScholarAttribute<pana_octetstring_t> m_Key;
          AAAScholarAttribute<ACE_UINT32> m_KeyId;
          AAAScholarAttribute<ACE_UINT32> m_Lifetime;
          AAAScholarAttribute<ACE_UINT32> m_ProtectionCapability;
          AAAScholarAttribute<PANA_DeviceIdContainer*> m_Ep;
-         AAAScholarAttribute<diameter_octetstring_t> m_DhcpKey;
+         AAAScholarAttribute<pana_octetstring_t> m_DhcpKey;
          AAAScholarAttribute<PANA_PMKKeyList> m_PMKKeyList;
          AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedISP;
          AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedNAP;
@@ -359,9 +359,9 @@ class PANA_EXPORT PANA_SessionEventInterface
    public:
       virtual void EapStart(bool &nap) = 0;
       virtual void Authorize(PANA_AuthorizationArgs &args) = 0;
-      virtual bool IsKeyAvailable(diameter_octetstring_t &key) = 0;
-      virtual void Notification(diameter_octetstring_t &msg) = 0;
-      virtual void Notification(diameter_octetstring_t &msg,
+      virtual bool IsKeyAvailable(pana_octetstring_t &key) = 0;
+      virtual void Notification(pana_octetstring_t &msg) = 0;
+      virtual void Notification(pana_octetstring_t &msg,
                                 PANA_DeviceId &pacId) = 0;
       virtual void Disconnect(ACE_UINT32 cause = 0) = 0;
       virtual void EapAltReject() = 0;
@@ -382,7 +382,7 @@ class PANA_EXPORT PANA_Session : public PANA_SessionAttribute
       virtual void TxPUA();
       virtual void TxPTR(ACE_UINT32 cause);
       virtual void TxPTA();
-      virtual void TxPER(diameter_unsigned32_t rcode);
+      virtual void TxPER(pana_unsigned32_t rcode);
       virtual void TxPEA();
 
       virtual void RxPPR();

@@ -1,9 +1,9 @@
 /* BEGIN_COPYRIGHT                                                        */
 /*                                                                        */
-/* Open Diameter: Open-source software for the Diameter and               */
-/*                Diameter related protocols                              */
+/* Open PANA_: Open-source software for the PANA_ and               */
+/*                PANA_ related protocols                              */
 /*                                                                        */
-/* Copyright (C) 2002-2004 Open Diameter Project                          */
+/* Copyright (C) 2002-2004 Open PANA_ Project                          */
 /*                                                                        */
 /* This library is free software; you can redistribute it and/or modify   */
 /* it under the terms of the GNU Lesser General Public License as         */
@@ -32,7 +32,7 @@
 /* END_COPYRIGHT                                                          */
 /* $Id: parser_avpvalue.cxx,v 1.21 2006/04/21 19:15:39 vfajardo Exp $ */
 
-#include "aaa_parser_avpvalue.h"
+#include "pana_parser_avpvalue.h"
 
 template<> void PANA_AvpValueParser::parseRawToApp() {
 }
@@ -41,87 +41,69 @@ template<> void PANA_AvpValueParser::parseAppToRaw() {
 }
 
 /// Parser creators.
-static AAAAvpValueParserCreator<AnyParser>           anyParserCreator;
-static AAAAvpValueParserCreator<Integer32Parser>     integer32ParserCreator;
-static AAAAvpValueParserCreator<Integer64Parser>     integer64ParserCreator;
-static AAAAvpValueParserCreator<Utf8stringParser>    utf8stringParserCreator;
-static AAAAvpValueParserCreator<OctetstringParser>   octetstringParserCreator;
-static AAAAvpValueParserCreator<DiamidentParser>     diamidentParserCreator;
-static AAAAvpValueParserCreator<DiamuriParser>       diamuriParserCreator;
-static AAAAvpValueParserCreator<IPFilterRuleParser>  ipfilterRuleParserCreator;
-static AAAAvpValueParserCreator<GroupedParser>       groupedParserCreator;
-static AAAAvpValueParserCreator<AddressParser>       addressParserCreator;
+static PANA_AvpValueParserCreator<PANA_AnyParser>           anyParserCreator;
+static PANA_AvpValueParserCreator<PANA_Integer32Parser>     integer32ParserCreator;
+static PANA_AvpValueParserCreator<PANA_Integer64Parser>     integer64ParserCreator;
+static PANA_AvpValueParserCreator<PANA_Utf8stringParser>    utf8stringParserCreator;
+static PANA_AvpValueParserCreator<PANA_OctetstringParser>   octetstringParserCreator;
+static PANA_AvpValueParserCreator<PANA_GroupedParser>       groupedParserCreator;
+static PANA_AvpValueParserCreator<PANA_AddressParser>       addressParserCreator;
 
 /// Container entry creators.
-static AAAAvpContainerEntryCreator<DiameterStringAvpContainerEntry>
+static AAAAvpContainerEntryCreator<PANA_StringAvpContainerEntry>
     stringContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterInteger32AvpContainerEntry>
+static AAAAvpContainerEntryCreator<PANA_Integer32AvpContainerEntry>
     integer32ContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterUnsigned32AvpContainerEntry>
+static AAAAvpContainerEntryCreator<PANA_Unsigned32AvpContainerEntry>
     unsigned32ContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterInteger64AvpContainerEntry>
+static AAAAvpContainerEntryCreator<PANA_Integer64AvpContainerEntry>
     integer64ContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterUnsigned64AvpContainerEntry>
+static AAAAvpContainerEntryCreator<PANA_Unsigned64AvpContainerEntry>
     unsigned64ContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterURIAvpContainerEntry>
-    diamuriContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterIPFilterRuleAvpContainerEntry>
-    ipfilterRuleContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterGroupedAvpContainerEntry>
+static AAAAvpContainerEntryCreator<PANA_GroupedAvpContainerEntry>
     groupedContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterAddressAvpContainerEntry>
+static AAAAvpContainerEntryCreator<PANA_AddressAvpContainerEntry>
     addressContainerEntryCreator;
-static AAAAvpContainerEntryCreator<DiameterTimeAvpContainerEntry>
+static AAAAvpContainerEntryCreator<PANA_TimeAvpContainerEntry>
     timeContainerEntryCreator;
 
-void
-DiameterAvpTypeList_S::registerDefaultTypes()
+void PANA_AvpTypeList_S::DefaultTypes()
 {
   // Registering default AVP types and AVP value parsers.  This
-  // function is called from the constructor.  Since DiameterAvpTypeList is
+  // function is called from the constructor.  Since PANA_AvpTypeList is
   // used as a singleton, this function is called just one time when
   // it is used at the first time.
-  add(new DiameterAvpType("Any", AAA_AVP_DATA_TYPE, 0,
+  add(new PANA_AvpType("Any", AAA_AVP_DATA_TYPE, 0,
                     anyParserCreator, stringContainerEntryCreator));
 
-  add(new DiameterAvpType("Integer32", AAA_AVP_INTEGER32_TYPE, 4,
+  add(new PANA_AvpType("Integer32", AAA_AVP_INTEGER32_TYPE, 4,
                     integer32ParserCreator, integer32ContainerEntryCreator));
 
-  add(new DiameterAvpType("Integer64", AAA_AVP_INTEGER64_TYPE, 8,
+  add(new PANA_AvpType("Integer64", AAA_AVP_INTEGER64_TYPE, 8,
                     integer64ParserCreator, integer64ContainerEntryCreator));
 
-  add(new DiameterAvpType("Unsigned32",  AAA_AVP_UINTEGER32_TYPE, 4,
+  add(new PANA_AvpType("Unsigned32",  AAA_AVP_UINTEGER32_TYPE, 4,
                     integer32ParserCreator, unsigned32ContainerEntryCreator));
 
-  add(new DiameterAvpType("Unsigned64", AAA_AVP_UINTEGER64_TYPE, 8,
+  add(new PANA_AvpType("Unsigned64", AAA_AVP_UINTEGER64_TYPE, 8,
                     integer64ParserCreator, unsigned64ContainerEntryCreator));
 
-  add(new DiameterAvpType("UTF8String", AAA_AVP_UTF8_STRING_TYPE, 0,
+  add(new PANA_AvpType("UTF8String", AAA_AVP_UTF8_STRING_TYPE, 0,
                     utf8stringParserCreator, stringContainerEntryCreator));
 
-  add(new DiameterAvpType("Enumerated", AAA_AVP_ENUM_TYPE, 4,
+  add(new PANA_AvpType("Enumerated", AAA_AVP_ENUM_TYPE, 4,
                     integer32ParserCreator, integer32ContainerEntryCreator));
 
-  add(new DiameterAvpType("Time", AAA_AVP_TIME_TYPE, 4,
+  add(new PANA_AvpType("Time", AAA_AVP_TIME_TYPE, 4,
                     integer32ParserCreator, timeContainerEntryCreator));
 
-  add(new DiameterAvpType("OctetString", AAA_AVP_STRING_TYPE, 0,
+  add(new PANA_AvpType("OctetString", AAA_AVP_STRING_TYPE, 0,
                     octetstringParserCreator, stringContainerEntryCreator));
 
-  add(new DiameterAvpType("DiameterIdentity", AAA_AVP_DIAMID_TYPE, 0,
-                    diamidentParserCreator, stringContainerEntryCreator));
-
-  add(new DiameterAvpType("DiameterURI", AAA_AVP_DIAMURI_TYPE, 0,
-                    diamuriParserCreator, diamuriContainerEntryCreator));
-
-  add(new DiameterAvpType("IPFilterRule", AAA_AVP_IPFILTER_RULE_TYPE, 0,
-                    ipfilterRuleParserCreator,
-                    ipfilterRuleContainerEntryCreator));
-
-  add(new DiameterAvpType("Grouped", AAA_AVP_GROUPED_TYPE, 0,
+  add(new PANA_AvpType("Grouped", AAA_AVP_GROUPED_TYPE, 0,
                     groupedParserCreator, groupedContainerEntryCreator));
 
-  add(new DiameterAvpType("Address", AAA_AVP_ADDRESS_TYPE, 0,
+  add(new PANA_AvpType("Address", AAA_AVP_ADDRESS_TYPE, 0,
                     addressParserCreator, addressContainerEntryCreator));
 }
 

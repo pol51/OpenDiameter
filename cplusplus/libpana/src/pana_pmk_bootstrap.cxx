@@ -166,20 +166,20 @@ progress), July 2004.
 
 */
 
-void PANA_PMKKey::Seed(diameter_octetstring_t &aaaKey,
-                       diameter_octetstring_t &supplicantAddr,   
-                       diameter_octetstring_t &authenticatorAddr,
+void PANA_PMKKey::Seed(pana_octetstring_t &aaaKey,
+                       pana_octetstring_t &supplicantAddr,   
+                       pana_octetstring_t &authenticatorAddr,
                        size_t bit_length)
 {
     const int vector_count = (bit_length / 160) + 1;
     char O[2] = { (char)((0xFF00 &bit_length) >> 8), 
                   (char)(0x00FF & bit_length) }; 
-    diameter_octetstring_t vector;
-    diameter_octetstring_t &K = aaaKey;
-    diameter_octetstring_t L = "IEEE 802.11i PMK derived from AAA-Key";
-    diameter_octetstring_t D = supplicantAddr + authenticatorAddr;
-    diameter_octetstring_t S = L + " " + D + O;
-    diameter_octetstring_t *T = new diameter_octetstring_t[vector_count];
+    pana_octetstring_t vector;
+    pana_octetstring_t &K = aaaKey;
+    pana_octetstring_t L = "IEEE 802.11i PMK derived from AAA-Key";
+    pana_octetstring_t D = supplicantAddr + authenticatorAddr;
+    pana_octetstring_t S = L + " " + D + O;
+    pana_octetstring_t *T = new pana_octetstring_t[vector_count];
 
 #if PANA_PMK_DEBUG
     printf("AAA key: %d\n", aaaKey.size());

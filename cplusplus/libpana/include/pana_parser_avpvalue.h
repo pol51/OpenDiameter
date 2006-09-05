@@ -42,7 +42,6 @@
 // Local headers
 #include "resultcodes.h"
 #include "pana_parser.h"
-#include "pana_parser_avplist.h"
 #include "pana_parser_avpvalue.h"
 
 /// Container entry type definitions.
@@ -343,7 +342,6 @@ class PANA_Utf8stringParser :
         void parseRawToApp() throw(AAAErrorCode) {
             PANA_StringAvpContainerEntry *e;
             getAppData(e);
-            AAADictionaryEntry *avp = getDictData();
             if (e->dataType() != AAA_AVP_UTF8_STRING_TYPE) {
                 AAAErrorCode st;
                 AAA_LOG(LM_ERROR, "Invalid AVP type.");
@@ -356,7 +354,7 @@ class PANA_Utf8stringParser :
             AAAErrorCode st;
             e->dataType() = AAA_AVP_STRING_TYPE;
             try {
-                OctetstringParser::parseRawToApp();
+                PANA_OctetstringParser::parseRawToApp();
             }
             catch (AAAErrorCode &st) {
                 e->dataType() = AAA_AVP_UTF8_STRING_TYPE;
@@ -367,7 +365,7 @@ class PANA_Utf8stringParser :
             if (check(str.data(), str.size()) != 0)
                 {
                     AAA_LOG(LM_ERROR, "Invalid UTF8 string");
-                    st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_AVP_VALUE, avp);
+                    st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_AVP_VALUE);
                     throw st;
                 }
         }
@@ -393,7 +391,7 @@ class PANA_Utf8stringParser :
             }
             e->dataType() = AAA_AVP_STRING_TYPE;
             try {
-                OctetstringParser::parseAppToRaw();
+                PANA_OctetstringParser::parseAppToRaw();
             }
             catch (AAAErrorCode &st)	{
                 e->dataType() = AAA_AVP_UTF8_STRING_TYPE;
@@ -424,7 +422,7 @@ class PANA_AddressParser :
 
             AAAErrorCode st;
             try {
-                OctetstringParser::parseRawToApp();
+                PANA_OctetstringParser::parseRawToApp();
             }
             catch (AAAErrorCode &st) {
                 setAppData(e); // Recover the original container entry.
@@ -465,7 +463,7 @@ class PANA_AddressParser :
             setAppData(e2);
 
             try {
-                OctetstringParser::parseAppToRaw();
+                PANA_OctetstringParser::parseAppToRaw();
             }
             catch (AAAErrorCode &st)
                 {
@@ -494,8 +492,7 @@ class PANA_GroupedParser :
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
             }
-            AAADictionaryEntry *avp = getDictData();
-
+            PANA_DictionaryEntry *avp = getDictData();
             AAAAvpContainerList* acl = e->dataPtr();
             PANA_GroupedAVP* gavp;
             AAAErrorCode st;
@@ -506,14 +503,14 @@ class PANA_GroupedParser :
 #endif
 
             if ((gavp = PANA_GroupedAvpList::instance()
-                ->search(avp->avpCode, avp->vendorId)) == NULL) {
+                ->search(avp->m_AvpCode, avp->m_VendorId)) == NULL) {
                     AAA_LOG(LM_ERROR, "Grouped AVP not found.");
-                    st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_UNSUPPORTED, avp);
+                    st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_UNSUPPORTED);
                     throw st;
             }
 
             do {
-                QualifiedAvpListParser qc;
+                PANA_QualifiedAvpListParser qc;
                 qc.setRawData(aBuffer);
                 qc.setAppData(acl);
                 qc.setDictData(gavp);
@@ -538,21 +535,20 @@ class PANA_GroupedParser :
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
             }
-            AAADictionaryEntry *avp = getDictData();
-
+            PANA_DictionaryEntry *avp = getDictData();
             AAAAvpContainerList *acl = e->dataPtr();
             PANA_GroupedAVP* gavp;
             AAAErrorCode st;
 
             if ((gavp = PANA_GroupedAvpList::instance()
-                ->search(avp->avpCode, avp->vendorId)) == NULL) {
+                ->search(avp->m_AvpCode, avp->m_VendorId)) == NULL) {
                 AAA_LOG(LM_ERROR, "Grouped AVP not found");
-                st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_UNSUPPORTED, avp);
+                st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_UNSUPPORTED);
                 throw st;
             }
 
             do {
-                QualifiedAvpListParser qc;
+                PANA_QualifiedAvpListParser qc;
                 qc.setRawData(aBuffer);
                 qc.setAppData(acl);
                 qc.setDictData(gavp);

@@ -36,11 +36,7 @@
 #include "ACEXML/common/FileCharStream.h"
 #include "ACEXML/parser/parser/Parser.h"
 #include "ACEXML/common/DefaultHandler.h"
-#include "aaa_comlist.h"
-#include "aaa_avplist.h"
-#include "aaa_q_avplist.h"
-#include "aaa_g_avplist.h"
-#include "diameter_parser.h"
+#include "pana_parser.h"
 
 class PANAXML_Element;
 typedef std::list<PANAXML_Element*> PANAXML_ElementStack;
@@ -172,7 +168,7 @@ class PANAXML_CommandElement :
      }
      virtual bool endElement() {
         m_name = "";
-        m_code = m_appId = m_pBit = m_eBit = 0;
+        m_code = 0;
         return PANAXML_Element::endElement();
      }
 
@@ -202,16 +198,16 @@ class PANAXML_RequestRulesElement :
         m_command->m_Required = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
         m_command->m_Optional = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
 
-        m_command->m_Name = cmdElm->Name() + std::string("-Request");
-        m_command->m_Code = cmdElm->Code();
-        m_command->m_Flags.request = 1;
-        m_command->m_Flags.stateless = 0;
-        m_command->m_Flags.reserved = 0;
+        m_command->name = cmdElm->Name() + std::string("-Request");
+        m_command->code = cmdElm->Code();
+        m_command->flags.request = 1;
+        m_command->flags.stateless = 0;
+        m_command->flags.reserved = 0;
         PANA_CommandList::instance()->add(m_command);
 
 #if PANAXML_DEBUG
         ACE_DEBUG((LM_DEBUG, " Request [name = %s, code = %d]\n",
-	           m_command->m_Name.c_str(), m_command->m_Code));
+                   m_command->m_Name.c_str(), m_command->code));
 #endif
         return true;
      }
@@ -248,16 +244,16 @@ class PANAXML_AnswerRulesElement :
         PANAXML_CommandElement *cmdElm =
             (PANAXML_CommandElement*)Parent();
 
-        m_command->m_Name = cmdElm->Name() + std::string("-Answer");
-        m_command->m_Code = cmdElm->Code();
-        m_command->m_Flags.request = 0;
-        m_command->m_Flags.stateless = 0;
-        m_command->m_Flags.reserved = 0;
+        m_command->name = cmdElm->Name() + std::string("-Answer");
+        m_command->code = cmdElm->Code();
+        m_command->flags.request = 0;
+        m_command->flags.stateless = 0;
+        m_command->flags.reserved = 0;
         PANA_CommandList::instance()->add(m_command);
 
 #if PANAXML_DEBUG
         ACE_DEBUG((LM_DEBUG, " Answer [name = %s, code = %d]\n",
-	           m_command->m_Name.c_str(), m_command->m_Code));
+	           m_command->m_Name.c_str(), m_command->code));
 #endif
         return true;
      }
@@ -391,13 +387,11 @@ class PANAXML_TypeElement :
             ACE_DEBUG((LM_ERROR, "AVP Type not specified\n"));
             throw;
         }
- 
-        ++++++++++++++++++++++++ TBD +++++++++++++++++++++
-#if 0
+
         // check for validity of type
-        DiameterAvpType *avpt = (DiameterAvpType*)DiameterAvpTypeList::instance()->search(tname.c_str());
+        PANA_AvpType *avpt = (PANA_AvpType*)PANA_AvpTypeList::instance()->search(tname.c_str());
         if (avpt == NULL) {
-            ACE_DEBUG((LM_ERROR, 
+            ACE_DEBUG((LM_ERROR,
                  "Unknown AVP type %s.\n", tname.c_str()));
             throw;
         }
@@ -406,7 +400,7 @@ class PANAXML_TypeElement :
            PANAXML_AvpElement *avpElm = (PANAXML_AvpElement*)Parent();
            avpElm->Avp()->avpType = avpt->getType();
         }
-#endif
+
         return true;
      }
      virtual bool endElement() {
@@ -428,24 +422,24 @@ class PANAXML_GroupedElement :
         }
 
         PANAXML_AvpElement *avpElm = (PANAXML_AvpElement*)Parent();
-        m_grpAvp = new DiameterGroupedAVP;
+        m_grpAvp = new PANA_GroupedAVP;
         m_grpAvp->code = avpElm->Avp()->avpCode;
         m_grpAvp->vendorId = avpElm->Avp()->vendorId;
-        m_grpAvp->avp_f = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
-        m_grpAvp->avp_r = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
-        m_grpAvp->avp_o = new DiameterQualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
+        m_grpAvp->m_Fixed = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_FIXED_HEAD);
+        m_grpAvp->m_Required = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_REQUIRED);
+        m_grpAvp->m_Optional = new PANA_QualifiedAvpList(AAA_PARSE_TYPE_OPTIONAL);
 
-        DiameterGroupedAvpList::instance()->add(m_grpAvp);  // to be revisited
-						       // after parsing
-                                                       // all avps.
+        PANA_GroupedAvpList::instance()->add(m_grpAvp);  // to be revisited
+                                                         // after parsing
+                                                         // all avps.
         avpElm->Avp()->avpType = AAA_AVP_GROUPED_TYPE;
 #if PANAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " Grouped [code = %d]\n", 
+        ACE_DEBUG((LM_DEBUG, " Grouped [code = %d]\n",
                    m_grpAvp->code));
 #endif
         return true;
      }
-     DiameterGroupedAVP *Avp() {
+     PANA_GroupedAVP *Avp() {
         return m_grpAvp;
      }
      virtual bool endElement() {
@@ -454,7 +448,7 @@ class PANAXML_GroupedElement :
      }
 
   private:
-     DiameterGroupedAVP *m_grpAvp;
+     PANA_GroupedAVP *m_grpAvp;
 };
 
 class PANAXML_PositionElement :
@@ -471,11 +465,11 @@ class PANAXML_PositionElement :
             return false;
         }
         if (Parent()->Name() == std::string("requestrules")) {
-            PANAXML_RequestRulesElement *reqElm = 
+            PANAXML_RequestRulesElement *reqElm =
                 (PANAXML_RequestRulesElement*)(Parent());
             m_qAvpList = ResolveAvpList(reqElm->Cmd(), Name());
 #if PANAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Request [%s] definition\n", 
+            ACE_DEBUG((LM_DEBUG, " Request [%s] definition\n",
                        Name().c_str()));
 #endif
         }
@@ -484,7 +478,7 @@ class PANAXML_PositionElement :
                 (PANAXML_AnswerRulesElement*)(Parent());
             m_qAvpList = ResolveAvpList(ansrElm->Cmd(), Name());
 #if PANAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Answer [%s] definition\n", 
+            ACE_DEBUG((LM_DEBUG, " Answer [%s] definition\n",
                        Name().c_str()));
 #endif
         }
@@ -492,14 +486,14 @@ class PANAXML_PositionElement :
             PANAXML_GroupedElement *grpElm = (PANAXML_GroupedElement*)Parent();
             m_qAvpList = ResolveAvpList(grpElm->Avp(), Name());
 #if PANAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Grouped [%s] definition\n", 
+            ACE_DEBUG((LM_DEBUG, " Grouped [%s] definition\n",
                        Name().c_str()));
 #endif
         }
         else {
             IsSkipped() = true;
 #if PANAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Skipped [%s] definition\n", 
+            ACE_DEBUG((LM_DEBUG, " Skipped [%s] definition\n",
                        Name().c_str()));
 #endif
         }
@@ -510,23 +504,23 @@ class PANAXML_PositionElement :
         m_qAvpList = NULL;
         return PANAXML_Element::endElement();
      }
-     DiameterQualifiedAvpList* AvpList() {
+     PANA_QualifiedAvpList* AvpList() {
         return m_qAvpList;
      }
-     DiameterQualifiedAvpList *ResolveAvpList(DiameterDictionary *dict, 
-                                         std::string &position) {
+     PANA_QualifiedAvpList *ResolveAvpList(PANA_Dictionary *dict,
+                                           std::string &position) {
         if (dict == NULL) {
             ACE_DEBUG((LM_ERROR, "Command not allocated !!!\n"));
             throw;
         }
         if (position == std::string("fixed")) {
-            return dict->avp_f;
+            return dict->m_Fixed;
         }
         else if (position == std::string("required")) {
-            return dict->avp_r;
+            return dict->m_Required;
         }
         else if (position == std::string("optional")) {
-            return dict->avp_o;
+            return dict->m_Optional;
         }
         else {
             ACE_DEBUG((LM_ERROR, "Grouped AVP not allocated !!!\n"));
@@ -535,10 +529,10 @@ class PANAXML_PositionElement :
      }
 
   private:
-     DiameterQualifiedAvpList* m_qAvpList;
+     PANA_QualifiedAvpList* m_qAvpList;
 };
 
-class PANAXML_FixedElement : 
+class PANAXML_FixedElement :
   public PANAXML_PositionElement
 {
   public:
@@ -547,7 +541,7 @@ class PANAXML_FixedElement :
      }
 };
 
-class PANAXML_RequiredElement : 
+class PANAXML_RequiredElement :
   public PANAXML_PositionElement
 {
   public:
@@ -556,7 +550,7 @@ class PANAXML_RequiredElement :
      }
 };
 
-class PANAXML_OptionalElement : 
+class PANAXML_OptionalElement :
   public PANAXML_PositionElement
 {
   public:
@@ -608,7 +602,7 @@ class PANAXML_AvpRuleElement :
             throw;
         }
 
-        if ((avp = DiameterAvpList::instance()->search(avpName)) == NULL) {
+        if ((avp = PANA_AvpList::instance()->search(avpName)) == NULL) {
             AAA_LOG(LM_ERROR, "*** Cannot find AVP named %s ***\n\
   If %s is included inside a grouped avp, \n\
   make sure it's <avp> definition comes before \n\
@@ -620,18 +614,18 @@ class PANAXML_AvpRuleElement :
         }
 
         int min = (sMin == std::string("")) ? 0 :
-                   ACE_OS::atoi(sMin.c_str()); 
+                   ACE_OS::atoi(sMin.c_str());
         int max = ((sMax == std::string("none")) ||
-                   (sMax == std::string(""))) ? 
-		   AAA_QUALIFIER_INFINITY : ACE_OS::atoi(sMax.c_str());
+                   (sMax == std::string(""))) ?
+                   AAA_QUALIFIER_INFINITY : ACE_OS::atoi(sMax.c_str());
 
         qavp = new AAAQualifiedAVP;
-        qavp->avp = avp; 
-        qavp->qual.min = min; 
-        qavp->qual.max = max; 
+        qavp->avp = avp;
+        qavp->qual.min = min;
+        qavp->qual.max = max;
         posElm->AvpList()->add(qavp);
 #if PANAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " Avp Rule [name = %s]\n", 
+        ACE_DEBUG((LM_DEBUG, " Avp Rule [name = %s]\n",
                   avpName.c_str()));
 #endif
         return true;

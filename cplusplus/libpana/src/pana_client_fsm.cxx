@@ -1739,7 +1739,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
          // update session-id 
          if (msg.flags().request && (m_arg.SessionId().size() == 0)) {
              DiameterUtf8AvpContainerWidget sidAvp(msg.avpList());
-             diameter_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
+             pana_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
              if (sid == NULL) {
                  throw (PANA_Exception(PANA_Exception::FAILED, 
                         "Session id missing from PAR"));
@@ -1785,7 +1785,7 @@ class PANA_CsmRxPFER : public PANA_ClientRxStateFilter
 
          // third level validation
          DiameterUInt32AvpContainerWidget algoAvp(msg.avpList());
-         diameter_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
+         pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
          if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
                    "PFER received with no matching algorithm"));
@@ -1807,13 +1807,13 @@ class PANA_CsmRxPFER : public PANA_ClientRxStateFilter
             ev.EnableCfg_Separate();
          }
          DiameterUInt32AvpContainerWidget rcodeAvp(msg.avpList());
-         diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
+         pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
          if (rcode && (PANA_RCODE_SUCCESS(ACE_NTOHL(*rcode)))) {
             ev.Result_Eap(PANA_EAP_RESULT_SUCCESS);
          }
          else {
             DiameterStringAvpContainerWidget eapAvp(msg.avpList());
-            diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+            pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
             if (payload) {
                 ev.AvpExist_EapPayload();
             }
@@ -1852,7 +1852,7 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
 
          // third level validation
          DiameterUInt32AvpContainerWidget algoAvp(msg.avpList());
-         diameter_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
+         pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
          if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
                    "PBR received with no matching algorithm"));
@@ -1864,7 +1864,7 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
          
          // resolve the eap event
          DiameterStringAvpContainerWidget eapAvp(msg.avpList());
-         diameter_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+         pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
          if (payload) {
             ev.AvpExist_EapPayload();
          }
@@ -1878,7 +1878,7 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
             ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
          }
          DiameterUInt32AvpContainerWidget rcodeAvp(msg.avpList());
-         diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
+         pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
          if (rcode && (PANA_RCODE_SUCCESS(ACE_NTOHL(*rcode)))) {
             ev.Result_Eap(PANA_EAP_RESULT_SUCCESS);
          }
@@ -1888,12 +1888,12 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
          if (m_arg.AuxVariables().SecAssociationResumed()) {
             ev.Do_ResumeSession();
             DiameterUInt32AvpContainerWidget keyIdAvp(msg.avpList());
-            diameter_unsigned32_t *keyId = keyIdAvp.GetAvp(PANA_AVPNAME_KEYID);
+            pana_unsigned32_t *keyId = keyIdAvp.GetAvp(PANA_AVPNAME_KEYID);
             if (keyId) {
                 ev.AvpExist_KeyId();
             }
             DiameterStringAvpContainerWidget authAvp(msg.avpList());
-            diameter_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
+            pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
             if (auth) {
                 ev.AvpExist_Auth();
             }
@@ -2030,7 +2030,7 @@ class PANA_CsmRxPE : public PANA_ClientRxStateFilter
               ev.MsgType(PANA_EV_MTYPE_PER);
               if (m_arg.IsFatalError()) {
                   DiameterStringAvpContainerWidget authAvp(msg.avpList());
-                  diameter_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
+                  pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
                   if (auth && m_arg.SecurityAssociation().IsSet()) {
                       ev.Do_FatalError();
                   }

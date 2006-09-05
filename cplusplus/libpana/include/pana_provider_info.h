@@ -39,8 +39,8 @@
 class PANA_EXPORT PANA_ProviderInfoTool
 {
    public:
-      void Add(diameter_grouped_t &grp, PANA_CfgProviderInfo &pInfo);
-      void Extract(diameter_grouped_t &grp, PANA_CfgProviderInfo &pInfo);
+      void Add(pana_grouped_t &grp, PANA_CfgProviderInfo &pInfo);
+      void Extract(pana_grouped_t &grp, PANA_CfgProviderInfo &pInfo);
 };
 
 #endif /* __PANA_PROVIDER_INFO_H__ */

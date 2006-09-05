@@ -35,7 +35,7 @@
 #define __PANA_PMK_BOOTSTRAP_H__
 
 #include "pana_exports.h"
-#include "diameter_parser.h"
+#include "pana_parser.h"
 
 /*
 10.2.2  PANA with Bootstrapping WPA/IEEE 802.11i
@@ -106,29 +106,29 @@
 class PANA_EXPORT PANA_PMKKey
 {
     public:
-        PANA_PMKKey(diameter_octetstring_t &aaaKey,
-                    diameter_octetstring_t &supplicantAddr,   
-                    diameter_octetstring_t &authenticatorAddr,
+        PANA_PMKKey(pana_octetstring_t &aaaKey,
+                    pana_octetstring_t &supplicantAddr,   
+                    pana_octetstring_t &authenticatorAddr,
                     size_t bit_length = 256) {
             Seed(aaaKey, supplicantAddr, authenticatorAddr, bit_length); 
         }
         virtual ~PANA_PMKKey() {
         }
-        virtual diameter_octetstring_t &Key() {
+        virtual pana_octetstring_t &Key() {
             return m_Key;
         }
 
     protected:
-        virtual void Seed(diameter_octetstring_t &aaaKey,
-                    diameter_octetstring_t &supplicantAddr,   
-                    diameter_octetstring_t &authenticatorAddr,
+        virtual void Seed(pana_octetstring_t &aaaKey,
+                    pana_octetstring_t &supplicantAddr,   
+                    pana_octetstring_t &authenticatorAddr,
                     size_t bit_length);
 
     private:
-        diameter_octetstring_t m_Key;
+        pana_octetstring_t m_Key;
 };
 
-typedef std::list< diameter_octetstring_t > PANA_PMKKeyList;
+typedef std::list< pana_octetstring_t > PANA_PMKKeyList;
 typedef PANA_PMKKeyList::iterator PAMA_PMKKeyListIterator;
 
 #endif /* __PANA_PMK_BOOTSTRAP_H__ */

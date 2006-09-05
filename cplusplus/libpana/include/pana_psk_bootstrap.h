@@ -1,7 +1,7 @@
 #ifndef __PANA_PSK_BOOTSTRAP_H__
 #define __PANA_PSK_BOOTSTRAP_H__
 
-#include "diameter_parser.h"
+#include "pana_parser.h"
 #include "pana_exports.h"
 #include "pana_prf_plus.h"
 
@@ -18,29 +18,29 @@ class PANA_EXPORT PANA_PSKKey
 {
 
     public:
-        PANA_PSKKey(diameter_octetstring_t &pac_epkey,
-                    diameter_octetstring_t chain = "IEEE802.11i PSK") {
+        PANA_PSKKey(pana_octetstring_t &pac_epkey,
+                    pana_octetstring_t chain = "IEEE802.11i PSK") {
             
             generate_key(pac_epkey,chain); 
         }
         virtual ~PANA_PSKKey() {
         }
-        virtual diameter_octetstring_t &Key() {
+        virtual pana_octetstring_t &Key() {
             return m_Key;
         }
 
     protected:
-        virtual void generate_key(diameter_octetstring_t &pac_epkey,
-                    		  diameter_octetstring_t &chain);
+        virtual void generate_key(pana_octetstring_t &pac_epkey,
+                    		  pana_octetstring_t &chain);
 
     private:
-        diameter_octetstring_t m_Key;
+        pana_octetstring_t m_Key;
 
 
 };
 
 
-typedef std::list<diameter_octetstring_t> PANA_PSKKeyList;
+typedef std::list<pana_octetstring_t> PANA_PSKKeyList;
 typedef PANA_PSKKeyList::iterator PAMA_PSKKeyListIterator;
 
 

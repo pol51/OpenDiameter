@@ -1,10 +1,10 @@
 #include "pana_pac_ep_key.h"
 
 
-void PANA_PAC_EP_Key::generate_key(diameter_octetstring_t &aaaKey,
+void PANA_PAC_EP_Key::generate_key(pana_octetstring_t &aaaKey,
                   ACE_UINT32 keyId,
-                  diameter_octetstring_t &sessionId,   
-                  diameter_octetstring_t &epdeviceId)
+                  pana_octetstring_t &sessionId,   
+                  pana_octetstring_t &epdeviceId)
 {
      
 	std::string pac_ep_string = "PaC-EP master key";
@@ -40,7 +40,7 @@ void PANA_PAC_EP_Key::generate_key(diameter_octetstring_t &aaaKey,
 
 
 
-     /*diameter_octetstring_t pac_ep_string = "PaC-EP master key";
+     /*pana_octetstring_t pac_ep_string = "PaC-EP master key";
      ACE_UINT16 S_len;
         S_len=(ACE_UINT16)(pac_ep_string.length() + sessionId.size() + sizeof(ACE_UINT32) + epdeviceId.size());
         //                  "PaC-EP master key" | Session ID          | Key-ID            | EP-Device-Id

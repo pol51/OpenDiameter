@@ -44,7 +44,7 @@ class PANA_AuthScriptCtl
    public:
       PANA_AuthScriptCtl() {
       }
-      PANA_AuthScriptCtl(diameter_octetstring_t &script) :
+      PANA_AuthScriptCtl(pana_octetstring_t &script) :
          m_Script(script) { 
       }
       ~PANA_AuthScriptCtl() {
@@ -270,7 +270,7 @@ class PANA_AuthScriptCtl
 	 }
       }
    protected:
-      static void FormatToString(diameter_octetstring_t &data,
+      static void FormatToString(pana_octetstring_t &data,
                           char *buf,
                           size_t bsize) {
          ACE_OS::memset(buf, 0, bsize);
@@ -305,7 +305,7 @@ class PANA_AuthScriptCtl
 
    private:
       PANA_SessionEventInterface::PANA_AuthorizationArgs m_Args;
-      diameter_octetstring_t m_Script;
+      pana_octetstring_t m_Script;
 };
 
 #endif // __PANA_AUTH_SCRIPT_H__

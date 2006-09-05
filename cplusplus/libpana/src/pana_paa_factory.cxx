@@ -49,7 +49,7 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
 
    try {
       DiameterUtf8AvpContainerWidget sidAvp(msg.avpList());
-      diameter_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
+      pana_utf8string_t *sid = sidAvp.GetAvp(PANA_AVPNAME_SESSIONID);
       if (sid) {
          PANA_PaaSession *session = PANA_SESSIONDB_SEARCH
                                        (const_cast<std::string&>(*sid));
@@ -158,7 +158,7 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
 
        // add to pending db
        ACE_DEBUG((LM_INFO, "(%P|%t) New session created [stateful discovery]\n"));  
-       diameter_address_t id;
+       pana_address_t id;
        PANA_AddrConverter::ToAAAAddress(addr, id);
        m_PendingDb.Add(id.value, *session);
 
@@ -213,7 +213,7 @@ void PANA_PaaSessionFactory::RxPDI(PANA_Message &msg)
    }
 
    DiameterStringAvpContainerWidget NotificationAvp(msg.avpList());
-   diameter_octetstring_t *note = NotificationAvp.GetAvp
+   pana_octetstring_t *note = NotificationAvp.GetAvp
        (PANA_AVPNAME_NOTIFICATION);
    if (note) {
        ACE_DEBUG((LM_INFO, "(%P|%t) NOTIFICATION: %s\n",
@@ -256,8 +256,8 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
     msg->flags().separate = PANA_CFG_GENERAL().m_SeparateAuth;
 
     // add cookie
-    diameter_octetstring_t cookie;
-    diameter_address_t id;
+    pana_octetstring_t cookie;
+    pana_address_t id;
     PANA_AddrConverter::ToAAAAddress(addr, id);
     PANA_COOKIE_GENERATE(id.value, cookie);
     DiameterStringAvpWidget cookieAvp(PANA_AVPNAME_COOKIE);
@@ -404,7 +404,7 @@ void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
 bool PANA_PaaSessionFactory::ValidateCookie(PANA_Message &msg)
 {
    DiameterStringAvpContainerWidget cookieAvp(msg.avpList());
-   diameter_octetstring_t *cookie = cookieAvp.GetAvp(PANA_AVPNAME_COOKIE);
+   pana_octetstring_t *cookie = cookieAvp.GetAvp(PANA_AVPNAME_COOKIE);
    if (cookie) {
        PANA_DeviceId *ipId = PANA_DeviceIdConverter::GetIpOnlyAddress
            (msg.srcDevices(), (bool)PANA_CFG_GENERAL().m_IPv6Enabled);
