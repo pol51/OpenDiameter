@@ -34,6 +34,7 @@
 #include "pana_node.h"
 #include "pana_config_manager.h"
 #include "pana_message.h"
+#include "pana_parser_dict.h"
 
 /*!
  * PANA specific AVP's
@@ -54,17 +55,7 @@ void PANA_Node::Start(std::string &cfg_file)
     }
     bAlreadyLoaded = true;
 
-    DiameterDictionaryManager dm;
-
-    // Registering AVP types and AVP value parsers.
-    static DiameterAvpValueParserCreator<PANA_DhcpDataParser> dhcpParserCreator;
-
-    static AvpContainerEntryCreator<AAADhcpDataAvpContainerEntry> dhcpContainerEntryCreator;
-
-    AvpTypeList::instance()->add(new AvpType("Dhcp", (AAAAvpDataType)AAA_AVP_DHCP_TYPE, 0,
-		  dhcpParserCreator, dhcpContainerEntryCreator));
-
-    dm.init((char*)PANA_CFG_GENERAL().m_Dictionary.c_str());
+    PANA_LoadXMLDictionary((char*)PANA_CFG_GENERAL().m_Dictionary.c_str());
 }
 
 void PANA_Node::Stop()
