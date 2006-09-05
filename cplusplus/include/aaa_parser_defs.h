@@ -118,6 +118,10 @@ static inline ACE_UINT64 AAA_SWAP_64(ACE_UINT64 b) {
     #define AAA_HTON_64(x) AAA_SWAP_64(x)
 #endif
 
+static inline unsigned int adjust_word_boundary(unsigned int len) {
+    return ((ACE_UINT32)((((len-1)>>2)+1)<<2));
+}
+
 /*!
  *==================================================
  * Basic supplimental types for multi-platform abstraction support.
