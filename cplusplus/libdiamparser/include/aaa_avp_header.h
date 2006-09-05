@@ -38,8 +38,6 @@
 #include <string>
 #include "diameter_parser.h"
 
-#define adjust_word_boundary(len)  ((ACE_UINT32)((((len-1)>>2)+1)<<2))
-
 class DiameterAvpHeaderList :
     public std::list<DiameterAvpHeader>
 {
