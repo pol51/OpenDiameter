@@ -474,36 +474,6 @@ class AAAErrorCode
 
 /*!
  *==================================================
- * Log facility
- *==================================================
- */
-
-/*! \brief AAALogMsg Generic/Global log facility
- *
- * Diameter logging facity derived directly from ACE
- */
-class AAALogMsg :
-    public ACE_Log_Msg
-{
-    friend class ACE_Singleton<AAALogMsg, ACE_Recursive_Thread_Mutex>;    /**< ACE logger */
-
-    private:
-        /*
-         * protected constructors/destructors to prevent derivation
-         */
-        AAALogMsg() {
-        }
-        ~AAALogMsg() {
-        }
-};
-
-typedef ACE_Singleton<AAALogMsg, ACE_Recursive_Thread_Mutex> AAALogMsg_S;
-AAA_PARSER_SINGLETON_DECLARE(ACE_Singleton, AAALogMsg, ACE_Recursive_Thread_Mutex);
-
-#define AAA_LOG AAALogMsg_S::instance()->log
-
-/*!
- *==================================================
  * Utility classes in support of 
  * manipulating basic error types
  *==================================================

@@ -641,7 +641,7 @@ class AAAAvpContainerEntryMngr
             AAAAvpType *avpType =  typeList.search(type);
             if (avpType == NULL) {
                 AAAErrorCode cd;
-                AAA_LOG(LM_ERROR, "Pre-defined type not found", type);
+                AAA_LOG((LM_ERROR, "Pre-defined type not found", type));
                 cd.set(AAA_PARSE_ERROR_TYPE_BUG,
                        AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM);
                 throw cd;

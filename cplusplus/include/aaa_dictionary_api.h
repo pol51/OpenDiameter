@@ -42,6 +42,7 @@
 #include <ace/Basic_Types.h>
 
 // Local dependencies
+#include "framework.h"
 #include "aaa_parser_defs.h"
 
 typedef struct
@@ -89,8 +90,8 @@ class AAAAvpList :
     public:
         void add(AAADictionaryEntry* avp) {
             if (this->search(avp->avpName) != NULL) {
-                AAA_LOG(LM_ERROR, "duplicated AVP definition [%s].\n",
-                            avp->avpName.c_str());
+                AAA_LOG((LM_ERROR, "duplicated AVP definition [%s].\n",
+                            avp->avpName.c_str()));
                 exit(1);
             }
 
@@ -175,7 +176,7 @@ class AAACommandList :
     public:
         void add(COMMAND *com) {
             if (search(com->name.c_str()) != NULL) {
-                AAA_LOG(LM_ERROR, "Attempt to load duplicate command definition.\n");
+                AAA_LOG((LM_ERROR, "Attempt to load duplicate command definition.\n"));
                 exit(1);
             }
             mutex.acquire();
@@ -212,7 +213,7 @@ class AAAGroupedAvpList :
     public:
         void add(GROUP* gavp) {
             if (search(gavp->code, gavp->vendorId) != NULL) {
-                AAA_LOG(LM_ERROR, "duplicated grouped AVP.\n");
+                AAA_LOG((LM_ERROR, "duplicated grouped AVP.\n"));
                 exit(1);
             }
             mutex.acquire();
