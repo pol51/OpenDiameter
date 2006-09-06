@@ -130,3 +130,11 @@ DiameterAvpTypeList_S::registerDefaultTypes()
                     addressParserCreator, addressContainerEntryCreator));
 }
 
+DiameterAvpTypeList_S::~DiameterAvpTypeList_S(void) 
+{
+  while (! empty()) {
+    DiameterAvpType *p = (DiameterAvpType*)(*(begin()));
+    delete p;
+    pop_front();
+  }
+}
