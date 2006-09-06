@@ -53,7 +53,7 @@ DiameterNasreqServerSession::DiameterNasreqServerSession
   // Register the AA-Answer message handler
   if (RegisterMessageHandler(&requestHandler) != AAA_ERR_SUCCESS)
     {
-      AAA_LOG(LM_ERROR, "[%N] AA_AnswerHandler registration failed.\n");
+      AAA_LOG((LM_ERROR, "[%N] AA_AnswerHandler registration failed.\n"));
       throw -1; // XXX
     }
 }
@@ -64,18 +64,18 @@ DiameterNasreqServerSession::HandleMessage(DiameterMsg &msg)
   // Header flag check.
   if (!msg.hdr.flags.r)
     {
-      AAA_LOG(LM_ERROR, "[%N] Received DEA instead of DER.\n");
+      AAA_LOG((LM_ERROR, "[%N] Received DEA instead of DER.\n"));
       return AAA_ERR_UNKNOWN_CMD;
     }
 
-  AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
+  AAA_LOG((LM_ERROR, "[%N] Unknown command.\n"));
   return AAA_ERR_UNKNOWN_CMD;
 }
 
 AAAReturnCode
 DiameterNasreqServerSession::HandleDisconnect() 
 { 
-  AAA_LOG(LM_ERROR, "[%N] Session termination event received.\n");
+  AAA_LOG((LM_ERROR, "[%N] Session termination event received.\n"));
   Notify(DiameterNasreqServerStateMachine::EvSgDisconnect);
   return AAA_ERR_SUCCESS; 
 }
@@ -83,7 +83,7 @@ DiameterNasreqServerSession::HandleDisconnect()
 AAAReturnCode 
 DiameterNasreqServerSession::HandleSessionTimeout() 
 { 
-  AAA_LOG(LM_ERROR, "[%N] Session timeout received.\n");
+  AAA_LOG((LM_ERROR, "[%N] Session timeout received.\n"));
   Notify(DiameterNasreqServerStateMachine::EvSgSessionTimeout);
   return AAA_ERR_SUCCESS; 
 }
@@ -91,7 +91,7 @@ DiameterNasreqServerSession::HandleSessionTimeout()
 AAAReturnCode 
 DiameterNasreqServerSession::HandleAuthLifetimeTimeout()
 { 
-  AAA_LOG(LM_ERROR, "[%N] Timeout received.\n");
+  AAA_LOG((LM_ERROR, "[%N] Timeout received.\n"));
   Notify(DiameterNasreqServerStateMachine::EvSgAuthLifetimeTimeout);
   return AAA_ERR_SUCCESS; 
 }
@@ -99,7 +99,7 @@ DiameterNasreqServerSession::HandleAuthLifetimeTimeout()
 AAAReturnCode 
 DiameterNasreqServerSession::HandleAuthGracePeriodTimeout()
 { 
-  AAA_LOG(LM_ERROR, "[%N] Timeout received.\n");
+  AAA_LOG((LM_ERROR, "[%N] Timeout received.\n"));
   Notify(DiameterNasreqServerStateMachine::EvSgAuthGracePeriodTimeout);
   return AAA_ERR_SUCCESS; 
 }
@@ -107,7 +107,7 @@ DiameterNasreqServerSession::HandleAuthGracePeriodTimeout()
 AAAReturnCode 
 DiameterNasreqServerSession::HandleTimeout() 
 { 
-  AAA_LOG(LM_ERROR, "[%N] General timeout received.\n");
+  AAA_LOG((LM_ERROR, "[%N] General timeout received.\n"));
   Notify(DiameterNasreqServerStateMachine::EvSgTimeout);
   return AAA_ERR_SUCCESS; 
 }
@@ -118,7 +118,7 @@ AA_RequestHandler::HandleMessage (DiameterMsg &msg)
   // Header flag check.
   if (!msg.hdr.flags.r)
     {
-      AAA_LOG(LM_ERROR, "[%N] Received AA-Answer instead of AA-Request.\n");
+      AAA_LOG((LM_ERROR, "[%N] Received AA-Answer instead of AA-Request.\n"));
       return AAA_ERR_UNKNOWN_CMD;
     }
 
@@ -131,7 +131,7 @@ AA_RequestHandler::HandleMessage (DiameterMsg &msg)
     parser.parseRawToApp();
   }
   catch (DiameterParserError) {
-    AAA_LOG(LM_ERROR, "[%N] Parsing error.\n");
+    AAA_LOG((LM_ERROR, "[%N] Parsing error.\n"));
     return AAA_ERR_PARSING_ERROR;
   }
 

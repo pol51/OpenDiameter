@@ -64,7 +64,7 @@ class DiameterNasreqServerStateTable_S
   {
     void operator()(DiameterNasreqServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] forwarding authinfo to application.\n");
+      AAA_LOG((LM_DEBUG, "[%N] forwarding authinfo to application.\n"));
       sm.ForwardAuthenticationInfo(sm.AuthenticationInfo());
     }
   };
@@ -73,7 +73,7 @@ class DiameterNasreqServerStateTable_S
   {
     void operator()(DiameterNasreqServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Copying AA-Request to AA-Answer.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Copying AA-Request to AA-Answer.\n"));
       if (sm.CheckAA_Request())
 	sm.Event(DiameterNasreqServerStateMachine::EvSgValidAA_Request);
       else
@@ -85,8 +85,8 @@ class DiameterNasreqServerStateTable_S
   {
     void operator()(DiameterNasreqServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending AA-Answer with AAA_MULTI_ROUND_AUTH.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending AA-Answer with AAA_MULTI_ROUND_AUTH.\n"));
 
       // Set Result-Code to AAA_MULTI_ROUND_AUTH.
       AA_AnswerData& aaAnswer = sm.AA_Answer();
@@ -100,7 +100,7 @@ class DiameterNasreqServerStateTable_S
       if (sm.AuthenticationInfo().AuthenticationType() 
 	  != NASREQ_AUTHENTICATION_TYPE_ARAP)
 	{
-	  AAA_LOG(LM_DEBUG, "[%N] Unacceptable auth type in multi-round auth.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] Unacceptable auth type in multi-round auth.\n"));
 	  sm.Abort();
 	  return;
 	}
@@ -121,8 +121,8 @@ class DiameterNasreqServerStateTable_S
   {
     void operator()(DiameterNasreqServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending AA-Answer with a success Result-Code.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending AA-Answer with a success Result-Code.\n"));
       AA_AnswerData& aaAnswer = sm.AA_Answer();
 
       aaAnswer.ResultCode = AAA_SUCCESS;
@@ -146,8 +146,8 @@ class DiameterNasreqServerStateTable_S
     void operator()(DiameterNasreqServerStateMachine& sm)
     {
       AA_AnswerData& aaAnswer = sm.AA_Answer();
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending AA-Answer due to authentication failure.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending AA-Answer due to authentication failure.\n"));
 
       aaAnswer.ResultCode = AAA_AUTHENTICATION_REJECTED;
       // Set ARAP-Challenge-Response AVP.
@@ -169,8 +169,8 @@ class DiameterNasreqServerStateTable_S
     void operator()(DiameterNasreqServerStateMachine& sm)
     {
       AA_AnswerData& aaAnswer = sm.AA_Answer();
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending AA-Answer due to authorization failure.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending AA-Answer due to authorization failure.\n"));
 
       aaAnswer.ResultCode = AAA_AUTHORIZATION_REJECTED;
       sm.SendAA_Answer(); 
@@ -184,8 +184,8 @@ class DiameterNasreqServerStateTable_S
     void operator()(DiameterNasreqServerStateMachine& sm)
     {
       AA_AnswerData& aaAnswer = sm.AA_Answer();
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending AA-Answer due to invalid AA-Request.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending AA-Answer due to invalid AA-Request.\n"));
 
       aaAnswer.ResultCode = AAA_INVALID_AVP_VALUE;
       sm.Session().Update(AAASession::EVENT_AUTH_CONTINUE);
@@ -335,16 +335,16 @@ DiameterNasreqServerStateMachine::SendAA_Answer(){
     parser.parseAppToRaw();
   }
   catch (DiameterParserError) {
-    AAA_LOG(LM_ERROR, "[%N] Parsing error.\n");
+    AAA_LOG((LM_ERROR, "[%N] Parsing error.\n"));
     return;
   }
 
   AAAMessageControl msgControl(Session().Self());
   if (msgControl.Send(msg) != AAA_ERR_SUCCESS) {
-    AAA_LOG(LM_ERROR, "Failed sending message.\n");
+    AAA_LOG((LM_ERROR, "Failed sending message.\n"));
   }
   else {
-    AAA_LOG(LM_DEBUG, "Sent AA-Answer Message.\n");
+    AAA_LOG((LM_DEBUG, "Sent AA-Answer Message.\n"));
   }
 }
 
@@ -357,7 +357,7 @@ DiameterNasreqServerStateMachine::CheckAA_Request()
   // Validate Auth-Request-Type.
   if (!ValidateAuthRequestType(aaRequest.AuthRequestType()))
     {
-      AAA_LOG(LM_ERROR, "[%N] Invalid auth request type.\n");
+      AAA_LOG((LM_ERROR, "[%N] Invalid auth request type.\n"));
       return false;
     }
   aaAnswer.AuthRequestType = aaRequest.AuthRequestType();
@@ -375,8 +375,8 @@ DiameterNasreqServerStateMachine::CheckAA_Request()
       if (authenticationInfo->AuthenticationType() !=
 	  NASREQ_AUTHENTICATION_TYPE_ARAP)
 	{
-	  AAA_LOG(LM_ERROR, 
-		       "[%N] Multi-round not allowed for PAP and CHAP.\n");
+	  AAA_LOG((LM_ERROR, 
+		       "[%N] Multi-round not allowed for PAP and CHAP.\n"));
 	  return false;
 	}
       goto arap_multi_round_check;
@@ -400,7 +400,7 @@ DiameterNasreqServerStateMachine::CheckAA_Request()
   // 
   if (!aaRequest.UserName.IsSet())
     {
-      AAA_LOG(LM_DEBUG, "[%N] No username.\n");
+      AAA_LOG((LM_DEBUG, "[%N] No username.\n"));
       return false;
     }
 
@@ -408,7 +408,7 @@ DiameterNasreqServerStateMachine::CheckAA_Request()
     {
       if (!aaRequest.ChapChallenge.IsSet())
 	{
-	  AAA_LOG(LM_ERROR, "[%N] Missing CHAP-Challenge AVP.\n");
+	  AAA_LOG((LM_ERROR, "[%N] Missing CHAP-Challenge AVP.\n"));
 	  return false;
 	}
       authenticationInfo = boost::shared_ptr<CHAP_Info>
@@ -429,8 +429,8 @@ DiameterNasreqServerStateMachine::CheckAA_Request()
     {
       if (!aaRequest.ArapChallengeResponse.IsSet())
 	{
-	  AAA_LOG(LM_ERROR, 
-		       "[%N] Missing ARAP-Challenge-Response AVP.\n");
+	  AAA_LOG((LM_ERROR, 
+		       "[%N] Missing ARAP-Challenge-Response AVP.\n"));
 	  return false;
 	}
       authenticationInfo = boost::shared_ptr<ARAP_Info>
@@ -441,7 +441,7 @@ DiameterNasreqServerStateMachine::CheckAA_Request()
     }
 
   // No authentication information is found.
-  AAA_LOG(LM_ERROR, "[%N] No authentication information AVP.\n");
+  AAA_LOG((LM_ERROR, "[%N] No authentication information AVP.\n"));
   return false;
 
  arap_multi_round_check:
@@ -466,7 +466,7 @@ DiameterNasreqServerStateMachine::CheckAA_Request()
       if (!aaRequest.State.IsSet() || 
 	  !ValidateState(aaRequest.State(), aaAnswer.State()))
 	{
-	  AAA_LOG(LM_DEBUG, "[%N] Invalid State AVP.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] Invalid State AVP.\n"));
 	  return false;
 	}
       else // Try to set initial state
@@ -482,7 +482,7 @@ void
 DiameterNasreqServerStateMachine::SignalContinue
 (DiameterNasreqAuthenticationInfo &authInfo)
 {
-  AAA_LOG(LM_ERROR, "[%N] Continue received from application.\n");
+  AAA_LOG((LM_ERROR, "[%N] Continue received from application.\n"));
   if (authInfo.AuthenticationType() == NASREQ_AUTHENTICATION_TYPE_PAP)
     authenticationInfo = boost::shared_ptr<PAP_Info>
       (new PAP_Info((PAP_Info&)authInfo));
@@ -498,21 +498,21 @@ DiameterNasreqServerStateMachine::SignalContinue
 void
 DiameterNasreqServerStateMachine::SignalSuccess()
 {
-  AAA_LOG(LM_ERROR, "[%N] Success received from application.\n");
+  AAA_LOG((LM_ERROR, "[%N] Success received from application.\n"));
   Notify(EvRxAuthSuccess);
 }
 
 void
 DiameterNasreqServerStateMachine::SignalFailure()
 {
-  AAA_LOG(LM_ERROR, "[%N] Failure received from application.\n");
+  AAA_LOG((LM_ERROR, "[%N] Failure received from application.\n"));
   Notify(EvRxAuthFailure);
 }
 
 bool
 DiameterNasreqServerStateMachine::Authorize()
 {
-  AAA_LOG(LM_DEBUG, "[%N] Authorizing AAREQUEST.\n");
+  AAA_LOG((LM_DEBUG, "[%N] Authorizing AAREQUEST.\n"));
   AA_AnswerData& aaAnswer = aaAnswerData;
   AA_RequestData& aaRequest = aaRequestData;
   bool r;
@@ -522,62 +522,62 @@ DiameterNasreqServerStateMachine::Authorize()
   // If AuthRequestType indicates authentication only, do nothing.
   if (aaAnswer.AuthRequestType() == AUTH_REQUEST_TYPE_AUTHENTICATION_ONLY)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Authorization totally success.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Authorization totally success.\n"));
       return true;
     }
   
   if (!AuthorizeOriginHost(aaRequest.OriginHost()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize origin host.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize origin host.\n"));
       return false;
     }
 
   if (!AuthorizeOriginRealm(aaRequest.OriginRealm()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize origin realm.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize origin realm.\n"));
       return false;
     }
   // Authorization of optional AVPs.
 
   if (!AuthorizeNasIdentifier(aaRequest.NasIdentifier()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize nas identifier.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize nas identifier.\n"));
       return false;
     }
   if (!AuthorizeNasIpAddress(aaRequest.NasIpAddress()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize nas ip address.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize nas ip address.\n"));
       return false;
     }
   if (!AuthorizeNasIpv6Address(aaRequest.NasIpAddress()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize nas ipv6 address.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize nas ipv6 address.\n"));
       return false;
     }
   if (!AuthorizeNasPort(aaRequest.NasPort()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize nas port.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize nas port.\n"));
       return false;
     }
   if (!AuthorizeNasPortId(aaRequest.NasPortId()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize nas port id.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize nas port id.\n"));
       return false;
     }
   if (!AuthorizeNasPortType(aaRequest.NasPortType()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize nas port type.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize nas port type.\n"));
       return false;
     }
   if (!AuthorizeOriginStateId(aaRequest.OriginStateId()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize origin state id.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize origin state id.\n"));
       return false;
     }
 
   if (!AuthorizeFilterId(aaAnswer.FilterId))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize filter id.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize filter id.\n"));
       return false;
     }
 
@@ -587,7 +587,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizePortLimit(aaAnswer.PortLimit);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize port limit.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize port limit.\n"));
       return false;
     }
 
@@ -597,63 +597,63 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeServiceType(aaAnswer.ServiceType);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize service type.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize service type.\n"));
       return false;
     }
 
   if (!AuthorizeClass(aaAnswer.Class))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize Class.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize Class.\n"));
       return false;
     }
 
   if (!AuthorizeConfigurationToken(aaAnswer.ConfigurationToken))
     {
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Failed to authorize configuration token.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Failed to authorize configuration token.\n"));
       return false;
     }
 
   if (!AuthorizeAcctInterimInterval(aaAnswer.AcctInterimInterval))
     {
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Failed to authorize acct interim interval.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Failed to authorize acct interim interval.\n"));
       return false;
     }
 
   if (!AuthorizeIdleTimeout(aaAnswer.IdleTimeout))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize idle timeout.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize idle timeout.\n"));
       return false;
     }
 
   if (!AuthorizeAuthorizationLifetime(aaAnswer.AuthorizationLifetime))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize authz lifetime.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize authz lifetime.\n"));
       return false;
     }
 
   if (!AuthorizeAuthGracePeriod(aaAnswer.AuthGracePeriod))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize auth grace period.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize auth grace period.\n"));
       return false;
     }
 
   if (!AuthorizeAuthSessionState(aaAnswer.AuthSessionState))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize auth session state.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize auth session state.\n"));
       return false;
     }
 
   if (!AuthorizeReAuthRequestType(aaAnswer.ReAuthRequestType))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize reauth req. type.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize reauth req. type.\n"));
       return false;
     }
 
   if (!AuthorizeSessionTimeout(aaAnswer.SessionTimeout))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize session timeout.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize session timeout.\n"));
       return false;
     }
 
@@ -666,49 +666,49 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeCallbackNumber(aaAnswer.CallbackNumber);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize callback num.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize callback num.\n"));
       return false;
     }
 
   if (!AuthorizeCallingStationId(aaRequest.CallingStationId()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to validate calling station id.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to validate calling station id.\n"));
       return false;
     }
 
   if (!AuthorizeCalledStationId(aaRequest.CalledStationId()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to validate called station id.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to validate called station id.\n"));
       return false;
     }
 
   if (!AuthorizeOriginatingLineInfo(aaRequest.OriginatingLineInfo()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize orig. line info.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize orig. line info.\n"));
       return false;
     }
 
   if (!AuthorizeConnectInfo(aaRequest.ConnectInfo()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize connec info.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize connec info.\n"));
       return false;
     }
 
   if (!AuthorizeFramedAppletalkLink(aaAnswer.FramedAppletalkLink))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize appletalk link.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize appletalk link.\n"));
       return false;
     }
 
   if (!AuthorizeFramedAppletalkZone(aaAnswer.FramedAppletalkZone))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize appletalk zone.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize appletalk zone.\n"));
       return false;
     }
 
   if (!AuthorizeFramedAppletalkNetwork(aaAnswer.FramedAppletalkNetwork))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize appletalk network.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize appletalk network.\n"));
       return false;
     }
 
@@ -719,7 +719,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeFramedCompression(aaAnswer.FramedCompression);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed compression.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed compression.\n"));
       return false;
     }
 
@@ -730,7 +730,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r= AuthorizeFramedInterfaceId(aaAnswer.FramedInterfaceId);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ifid.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ifid.\n"));
       return false;
     }
 
@@ -741,7 +741,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeFramedIpAddress(aaAnswer.FramedIpAddress);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipaddr.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipaddr.\n"));
       return false;
     }
 
@@ -752,31 +752,31 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeFramedIpv6Prefix(aaAnswer.FramedIpv6Prefix);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipv6prx.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipv6prx.\n"));
       return false;
     }
       
   if (!AuthorizeFramedIpv6Pool(aaAnswer.FramedIpv6Pool))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipv6 pool.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipv6 pool.\n"));
       return false;
     }
 
   if (!AuthorizeFramedPool(aaAnswer.FramedPool))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed pool.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed pool.\n"));
       return false;
     }
 
   if (!AuthorizeFramedIpv6Route(aaAnswer.FramedIpv6Route))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipv6 route.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipv6 route.\n"));
       return false;
     }
 
   if (!AuthorizeFramedRoute(aaAnswer.FramedRoute))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed route.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed route.\n"));
       return false;
     }
 
@@ -787,13 +787,13 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeFramedIpNetmask(aaAnswer.FramedIpNetmask);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipmask.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipmask.\n"));
       return false;
     }
 
   if (!AuthorizeFramedIpxNetwork(aaAnswer.FramedIpxNetwork))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipx network.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipx network.\n"));
       return false;
     }
 
@@ -803,7 +803,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeFramedMtu(aaAnswer.FramedMtu);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed mtu.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed mtu.\n"));
       return false;
     }
 
@@ -814,13 +814,13 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeFramedProtocol(aaAnswer.FramedProtocol);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed proto.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed proto.\n"));
       return false;
     }
 
   if (!AuthorizeFramedRouting(aaAnswer.FramedRouting))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed routing.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed routing.\n"));
       return false;
     }
 
@@ -831,7 +831,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeLoginIpHost(aaAnswer.LoginIpHost);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize login ip host.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize login ip host.\n"));
       return false;
     }
 
@@ -842,7 +842,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeLoginIpv6Host(aaAnswer.LoginIpv6Host);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize login ipv6 host.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize login ipv6 host.\n"));
       return false;
     }
 
@@ -853,7 +853,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeLoginLatGroup(aaAnswer.LoginLatGroup);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize login lat group.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize login lat group.\n"));
       return false;
     }
 
@@ -864,7 +864,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeLoginLatNode(aaAnswer.LoginLatNode);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize login lat node.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize login lat node.\n"));
       return false;
     }
 
@@ -875,7 +875,7 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeLoginLatPort(aaAnswer.LoginLatPort);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize login lat port.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize login lat port.\n"));
       return false;
     }
 
@@ -886,19 +886,19 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeLoginLatService(aaAnswer.LoginLatService);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize login lat service.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize login lat service.\n"));
       return false;
     }
 
   if (!AuthorizeLoginTcpPort(aaAnswer.LoginTcpPort))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize login tcp port.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize login tcp port.\n"));
       return false;
     }
 
   if (!AuthorizeNasFilterRule(aaAnswer.NasFilterRule))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize nas filter rule.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize nas filter rule.\n"));
       return false;
     }
 
@@ -908,11 +908,11 @@ DiameterNasreqServerStateMachine::Authorize()
     r = AuthorizeTunneling(aaAnswer.Tunneling);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize tunneling.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize tunneling.\n"));
       return false;
     }
 
-  AAA_LOG(LM_DEBUG, "[%N] Authorization totally success.\n");
+  AAA_LOG((LM_DEBUG, "[%N] Authorization totally success.\n"));
   authorizationDone = true;
   return true;
 }

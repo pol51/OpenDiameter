@@ -118,7 +118,7 @@ class BackendSession : AAA_Job
   void Receive(DiameterNasreqAuthenticationInfo &authInfo)
   {
     bool authSuccess;
-    AAA_LOG(LM_DEBUG, "Username = %s.\n", authInfo.UserName().c_str());
+    AAA_LOG((LM_DEBUG, "Username = %s.\n", authInfo.UserName().c_str()));
     diameter_utf8string_t password("abcdef12345678");
     if (authInfo.AuthenticationType() == NASREQ_AUTHENTICATION_TYPE_PAP)
       authSuccess = ((PAP_Info&)authInfo).Validate(password);
@@ -255,11 +255,11 @@ class MyInitializer
   }
   void InitApplicationCore()
   {
-    AAA_LOG(LM_DEBUG, "[%N] Application starting\n");
+    AAA_LOG((LM_DEBUG, "[%N] Application starting\n"));
     if (applicationCore.Open("config/server.local.xml",
                              task) != AAA_ERR_SUCCESS)
       {
-	AAA_LOG(LM_ERROR, "[%N] Can't open configuraiton file.");
+	AAA_LOG((LM_ERROR, "[%N] Can't open configuraiton file."));
 	exit(1);
       }
   }

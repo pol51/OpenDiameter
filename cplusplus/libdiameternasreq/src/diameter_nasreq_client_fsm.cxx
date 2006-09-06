@@ -66,7 +66,7 @@ class DiameterNasreqClientStateTable_S
     {
       AA_AnswerData& aaAnswer = sm.AA_Answer();
       ARAP_Info& arapInfo = (ARAP_Info&)sm.AuthenticationInfo();
-      AAA_LOG(LM_DEBUG, "[%N] passing authinfo to the application.\n");
+      AAA_LOG((LM_DEBUG, "[%N] passing authinfo to the application.\n"));
 
       // If the Auth-Request-Type is AUTHORIZE_ONLY, validation
       // completes with success.
@@ -98,14 +98,14 @@ class DiameterNasreqClientStateTable_S
   {
     void operator()(DiameterNasreqClientStateMachine& sm) 
     { 
-      ACE_DEBUG((LM_DEBUG, "[%N] sending AA-Request.\n"));
+      AAA_LOG((LM_DEBUG, "[%N] sending AA-Request.\n"));
       AA_RequestData& aaRequest = sm.AA_Request();
 
       // Generate authorization AVPs.
       sm.SetDestinationRealm(aaRequest.DestinationRealm);
       if (!aaRequest.DestinationRealm.IsSet())
 	{
-	  AAA_LOG(LM_ERROR, "Failed to set destination realm.\n");
+	  AAA_LOG((LM_ERROR, "Failed to set destination realm.\n"));
 	  sm.Event(DiameterNasreqClientStateMachine::EvSgDisconnect);
 	  return;
 	}
@@ -115,7 +115,7 @@ class DiameterNasreqClientStateTable_S
       sm.SetAuthRequestType(aaRequest.AuthRequestType);
       if (!aaRequest.AuthRequestType.IsSet())
 	{
-	  AAA_LOG(LM_ERROR, "Failed to set auth request type.\n");
+	  AAA_LOG((LM_ERROR, "Failed to set auth request type.\n"));
 	  sm.Event(DiameterNasreqClientStateMachine::EvSgDisconnect);
 	  return;
 	}
@@ -176,7 +176,7 @@ class DiameterNasreqClientStateTable_S
 	{
 	  if (aaRequest.AuthRequestType() != AUTH_REQUEST_TYPE_AUTHORIZE_ONLY)
 	    {
-	      AAA_LOG(LM_ERROR, "Failed to set authinfo type.\n");
+	      AAA_LOG((LM_ERROR, "Failed to set authinfo type.\n"));
 	      sm.Event(DiameterNasreqClientStateMachine::EvSgDisconnect);
 	      return;
 	    }
@@ -256,10 +256,10 @@ class DiameterNasreqClientStateTable_S
       switch (resultCode)
 	{
 	case AAA_SUCCESS :
-	  AAA_LOG(LM_DEBUG, "[%N] AAA_SUCCESS received.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] AAA_SUCCESS received.\n"));
 	  if (aaRequest.AuthRequestType() != aaAnswer.AuthRequestType())
 	    {
-	      AAA_LOG(LM_ERROR, "[%N] request type mismatch.\n");
+	      AAA_LOG((LM_ERROR, "[%N] request type mismatch.\n"));
 	      sm.Event(DiameterNasreqClientStateTable_S::EvSgFailure);
 	      break;
 	    }
@@ -267,17 +267,17 @@ class DiameterNasreqClientStateTable_S
 	      AUTH_REQUEST_TYPE_AUTHORIZE_AUTHENTICATE && 
 	      aaRequest.AuthRequestType() != AUTH_REQUEST_TYPE_AUTHORIZE_ONLY)
 	    {
-	      AAA_LOG(LM_ERROR, "[%N] request type invalid.\n");
+	      AAA_LOG((LM_ERROR, "[%N] request type invalid.\n"));
 	      sm.Event(DiameterNasreqClientStateTable_S::EvSgFailure);
 	      break;
 	    }
 	  sm.Event(DiameterNasreqClientStateTable_S::EvSgSuccess);
 	  break;
 	case AAA_MULTI_ROUND_AUTH :
-	  AAA_LOG(LM_DEBUG, "[%N] AAA_MULTI_ROUND_AUTH received.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] AAA_MULTI_ROUND_AUTH received.\n"));
 	  if (aaRequest.AuthRequestType() != aaAnswer.AuthRequestType())
 	    {
-	      AAA_LOG(LM_ERROR, "[%N] request type mismatch.\n");
+	      AAA_LOG((LM_ERROR, "[%N] request type mismatch.\n"));
 	      sm.Event(DiameterNasreqClientStateTable_S::EvSgFailure);
 	      break;
 	    }
@@ -286,7 +286,7 @@ class DiameterNasreqClientStateTable_S
 	       aaRequest.AuthRequestType() != 
 	      AUTH_REQUEST_TYPE_AUTHENTICATION_ONLY)
 	    {
-	      AAA_LOG(LM_ERROR, "[%N] request type invalid.\n");
+	      AAA_LOG((LM_ERROR, "[%N] request type invalid.\n"));
 	      sm.Event(DiameterNasreqClientStateTable_S::EvSgFailure);
 	      break;
 	    }
@@ -300,8 +300,8 @@ class DiameterNasreqClientStateTable_S
 	    sm.Event(DiameterNasreqClientStateTable_S::EvSgFailure);
 	  break;
 	default:
-	  AAA_LOG(LM_DEBUG, "[%N] Error was received.\n");
-	  AAA_LOG(LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode);
+	  AAA_LOG((LM_DEBUG, "[%N] Error was received.\n"));
+	  AAA_LOG((LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode));
 	  sm.Event(DiameterNasreqClientStateTable_S::EvSgFailure);
 	  break;
 	}
@@ -497,7 +497,7 @@ class DiameterNasreqClientStateTable_S
   {
     void operator()(DiameterNasreqClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Reauthentication issued.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Reauthentication issued.\n"));
       sm.SignalReauthentication();
     }
   };
@@ -506,7 +506,7 @@ class DiameterNasreqClientStateTable_S
   {
     void operator()(DiameterNasreqClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Disconnect issued.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Disconnect issued.\n"));
       sm.SignalDisconnect();
     }
   };
@@ -624,16 +624,16 @@ DiameterNasreqClientStateMachine::SendAA_Request()
     parser.parseAppToRaw();
   }
   catch (DiameterParserError) {
-    AAA_LOG(LM_ERROR, "[%N] Parsing error.\n");
+    AAA_LOG((LM_ERROR, "[%N] Parsing error.\n"));
     return;
   }
 
   AAAMessageControl msgControl(Session().Self());
   if (msgControl.Send(msg) != AAA_ERR_SUCCESS) {
-    AAA_LOG(LM_ERROR, "Failed sending message.\n");
+    AAA_LOG((LM_ERROR, "Failed sending message.\n"));
   }
   else {
-    AAA_LOG(LM_DEBUG, "Sent AA-Request Message.\n");
+    AAA_LOG((LM_DEBUG, "Sent AA-Request Message.\n"));
   }
 }
 
@@ -641,27 +641,27 @@ void
 DiameterNasreqClientStateMachine::ForwardAuthenticationInfo
 (DiameterNasreqAuthenticationInfo &authInfo)
 { 
-  AAA_LOG(LM_ERROR, "[%N] Authinfo received from the application.\n");
+  AAA_LOG((LM_ERROR, "[%N] Authinfo received from the application.\n"));
   if (authInfo.AuthenticationType() == NASREQ_AUTHENTICATION_TYPE_NONE)
     {
-      AAA_LOG(LM_ERROR, "Failed to set authinfo type.\n");
+      AAA_LOG((LM_ERROR, "Failed to set authinfo type.\n"));
       return;
     }
   if (authInfo.AuthenticationType() == NASREQ_AUTHENTICATION_TYPE_PAP)
     {
-      AAA_LOG(LM_DEBUG, "PAP info.\n");
+      AAA_LOG((LM_DEBUG, "PAP info.\n"));
       authenticationInfo = boost::shared_ptr<PAP_Info>
 	(new PAP_Info((PAP_Info&)authInfo));
     }
   else if (authInfo.AuthenticationType() == NASREQ_AUTHENTICATION_TYPE_CHAP)
     {
-      AAA_LOG(LM_DEBUG, "CHAP info.\n");
+      AAA_LOG((LM_DEBUG, "CHAP info.\n"));
       authenticationInfo = boost::shared_ptr
 	<CHAP_Info>(new CHAP_Info((CHAP_Info&)authInfo));
     }
   else 
     {
-      AAA_LOG(LM_DEBUG, "ARAP info.\n");
+      AAA_LOG((LM_DEBUG, "ARAP info.\n"));
       authenticationInfo = boost::shared_ptr<ARAP_Info>
 	(new ARAP_Info((ARAP_Info&)authInfo));
     }

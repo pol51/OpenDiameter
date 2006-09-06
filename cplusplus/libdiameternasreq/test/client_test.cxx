@@ -218,7 +218,7 @@ class ClientSession : AAA_Job
       }
     else
       {
-	AAA_LOG(LM_ERROR, "invalid authenticaiton type.\n");
+	AAA_LOG((LM_ERROR, "invalid authenticaiton type.\n"));
 	Send(authInfo);
       }
   }
@@ -369,7 +369,7 @@ MyDiameterNasreqClientSession::SignalContinue
 void 
 MyDiameterNasreqClientSession::SignalSuccess()
   {
-    AAA_LOG(LM_DEBUG, "Client authentication successful.\n");
+    AAA_LOG((LM_DEBUG, "Client authentication successful.\n"));
     TotalSuccess++;
     Stop();
     JobData(Type2Type<NAS_Application>()).Semaphore().release();
@@ -378,14 +378,14 @@ MyDiameterNasreqClientSession::SignalSuccess()
 void 
 MyDiameterNasreqClientSession::SignalFailure()
   {
-    AAA_LOG(LM_DEBUG, "Client authentication failed.\n");
+    AAA_LOG((LM_DEBUG, "Client authentication failed.\n"));
     Abort();
   }
 
 void 
 MyDiameterNasreqClientSession::SignalReauthentication()
   {
-    AAA_LOG(LM_DEBUG, "Client Re-authentication triggerred (to be implemented).\n");
+    AAA_LOG((LM_DEBUG, "Client Re-authentication triggerred (to be implemented).\n"));
     Abort();
   }
 
@@ -452,7 +452,7 @@ class MyInitializer
   }
   void InitApplicationCore()
   {
-    ACE_DEBUG((LM_DEBUG, "[%N] Application starting\n"));
+    AAA_LOG((LM_DEBUG, "[%N] Application starting\n"));
     if (applicationCore.Open("config/client.local.xml",
                              task) != AAA_ERR_SUCCESS)
       {

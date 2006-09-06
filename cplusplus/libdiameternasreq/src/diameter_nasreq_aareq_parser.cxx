@@ -57,7 +57,7 @@ AA_RequestParser::parseAppToRaw()
   // Obtain Command Code and Application Identifier.
   if (!dm.getCommandCode("AA-Request", &code, &appId))
     {
-      AAA_LOG(LM_ERROR, "[%N] Cannot find message in dictionary\n.");
+      AAA_LOG((LM_ERROR, "[%N] Cannot find message in dictionary\n."));
       throw (DIAMETER_DICTIONARY_ERROR);
     }
 
@@ -383,7 +383,7 @@ AA_RequestParser::parseRawToApp()
       if (NasreqApplicationId
 	  != (*c)[0]->dataRef(Type2Type<diameter_unsigned32_t>()))
 	{
-	  AAA_LOG(LM_ERROR, "[%N] Unexpected application id.\n");
+	  AAA_LOG((LM_ERROR, "[%N] Unexpected application id.\n"));
 	  throw (DIAMETER_PAYLOAD_ERROR);
 	}
     }
