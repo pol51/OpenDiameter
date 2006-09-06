@@ -300,7 +300,7 @@ class AAAAvpContainer :
         * \param name New AVP name
         */
         void setAvpName(const char* name) {
-            avpName = std::string(name);
+            avpName.assign(name);
         }
 
         /*!
