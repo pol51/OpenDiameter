@@ -35,7 +35,6 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_cookie.h \
             include/pana_defs.h \
             include/pana_device_id.h \
-            include/pana_dhcp_bootstrap.h \
             include/pana_egress.h \
             include/pana_exceptions.h \
             include/pana_exports.h \
@@ -67,12 +66,11 @@ PANA_HDRS = include/pana_auth_script.h \
 PANA_SRC  = src/pana_parser.cxx \
             src/pana_parser_avpvalue.cxx \
             src/pana_parser_dict.cxx \
-            src/pana_node.cxx
+            src/pana_node.cxx \
+            src/pana_config_manager.cxx
 ##            src/pana_client.cxx \
 ##            src/pana_client_fsm.cxx \
-##            src/pana_config_manager.cxx \
 ##            src/pana_cookie.cxx \
-##            src/pana_dhcp_bootstrap.cxx \
 ##            src/pana_egress.cxx \
 ##            src/pana_ingress.cxx \
 ##            src/pana_message.cxx \
