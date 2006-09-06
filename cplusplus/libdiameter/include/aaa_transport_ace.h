@@ -103,7 +103,7 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
 #else
              ACE_INET_Addr localAddr(port);
 #endif // ACE_HAS_IPV6
-             return AceAsynchResults(m_Acceptor.open(localAddr));
+             return AceAsynchResults(m_Acceptor.open(localAddr, true));
          }
          return (-1);
       }
