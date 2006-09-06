@@ -85,11 +85,11 @@ int main(int argc, char *argv[])
     */
 
    if (argc != 2) {
-      ACE_DEBUG((LM_DEBUG, "(%P|%t) Server: Usage: has_test [config file]\n"));
+      AAA_LOG((LM_DEBUG, "(%P|%t) Server: Usage: has_test [config file]\n"));
       return (1);
    }
 
-   ACE_DEBUG((LM_DEBUG, "(%P|%t) Server: Application starting\n"));
+   AAA_LOG((LM_DEBUG, "(%P|%t) Server: Application starting\n"));
    AAA_Task myTask;
    try {
       myTask.Start(10);
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
    // removing the session factory will go in the exit routine. 
    myCore.RemoveServerSessionFactory(&authFactory);
 
-   ACE_DEBUG((LM_DEBUG, "(%P|%t) Server: Exiting\n"));
+   AAA_LOG((LM_DEBUG, "(%P|%t) Server: Exiting\n"));
    
    return (0);
 }

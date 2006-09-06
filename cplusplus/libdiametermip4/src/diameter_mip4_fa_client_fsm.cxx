@@ -61,7 +61,7 @@ class DiameterMip4FaClientStateTable_S
   {
     void operator()(DiameterMip4FaClientStateMachine& sm) 
     { 
-      ACE_DEBUG((LM_DEBUG, "[%N] sending AMR.\n"));
+      AAA_LOG((LM_DEBUG, "[%N] sending AMR.\n"));
 
       AMR_Data& amr = sm.AMR();  
       sm.SetUserName( amr.UserName);
@@ -70,7 +70,7 @@ class DiameterMip4FaClientStateTable_S
       sm.SetDestinationRealm( amr.DestinationRealm);
       if (!amr.DestinationRealm.IsSet())
 	{
-	  AAA_LOG(LM_ERROR, "Failed to set destination realm.\n");
+	  AAA_LOG((LM_ERROR, "Failed to set destination realm.\n"));
 	  sm.Event( DiameterMip4FaClientStateMachine::EvSgDisconnect);
 	  return;
 	}
@@ -121,13 +121,13 @@ class DiameterMip4FaClientStateTable_S
       switch (resultCode)
 	{
 	case AAA_SUCCESS :
-	  AAA_LOG(LM_DEBUG, "[%N] DIAMETER_SUCCESS received.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] DIAMETER_SUCCESS received.\n"));
 	  sm.Event(DiameterMip4FaClientStateTable_S::EvSgSuccess);
 	  break;
 
 	default:
-	  AAA_LOG(LM_DEBUG, "[%N] Error was received.\n");
-	  AAA_LOG(LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode);
+	  AAA_LOG((LM_DEBUG, "[%N] Error was received.\n"));
+	  AAA_LOG((LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode));
 	  sm.Event(DiameterMip4FaClientStateTable_S::EvSgFailure);
 	  break;
 	}
@@ -193,14 +193,14 @@ class DiameterMip4FaClientStateTable_S
       
       if (amaData.ErrorMessage.IsSet())
       {
-        AAA_LOG(LM_DEBUG, "[%N] Error Message: %s .\n", 
-		amaData.ErrorMessage().data()); 
+        AAA_LOG((LM_DEBUG, "[%N] Error Message: %s .\n", 
+		amaData.ErrorMessage().data())); 
 	sm.EnforceErrorMessage( amaData.ErrorMessage().data() );
       }
       if (amaData.ErrorReportingHost.IsSet())
       {
-	AAA_LOG(LM_DEBUG, "[%N] Error Reporting Host: %s .\n", 
-		amaData.ErrorReportingHost().data());
+	AAA_LOG((LM_DEBUG, "[%N] Error Reporting Host: %s .\n", 
+		amaData.ErrorReportingHost().data()));
       }
 
       sm.Session().Update(AAASession::EVENT_AUTH_FAILED);  
@@ -229,7 +229,7 @@ class DiameterMip4FaClientStateTable_S
   {
     void operator()(DiameterMip4FaClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Disconnect issued, before AMA.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Disconnect issued, before AMA.\n"));
       // 4000 Diameter error category, transient errors
       diameter_unsigned32_t disconect_before_ama_response = 4000;
 
@@ -242,7 +242,7 @@ class DiameterMip4FaClientStateTable_S
   {
     void operator()(DiameterMip4FaClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Disconnect issued.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Disconnect issued.\n"));
       sm.Event(DiameterMip4FaClientStateTable_S::EvSgReset);
     }
   };
@@ -251,7 +251,7 @@ class DiameterMip4FaClientStateTable_S
   {
     void operator()(DiameterMip4FaClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Reset session object after session termination.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Reset session object after session termination.\n"));
       sm.Reset();
     }
   };
@@ -385,16 +385,16 @@ DiameterMip4FaClientStateMachine::SendAMR()
     parser.parseAppToRaw();
   }
   catch (DiameterParserError) {
-    AAA_LOG(LM_ERROR, "[%N] Parsing error.\n");
+    AAA_LOG((LM_ERROR, "[%N] Parsing error.\n"));
     return;
   }
 
   AAAMessageControl msgControl( &session );    
   if (msgControl.Send(msg) != AAA_ERR_SUCCESS) {
-    AAA_LOG(LM_ERROR, "Failed sending message.\n");
+    AAA_LOG((LM_ERROR, "Failed sending message.\n"));
   }
   else {
-    AAA_LOG(LM_DEBUG, "Sent AMR Message.\n");
+    AAA_LOG((LM_DEBUG, "Sent AMR Message.\n"));
   }
 }
 

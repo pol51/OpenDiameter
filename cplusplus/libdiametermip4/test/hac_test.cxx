@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
     */
 
    if (argc != 5) {
-      ACE_DEBUG((LM_DEBUG, "(%P|%t) Client: Usage: hac_test [AAA Server host] [AAA Server realm] [num session] [config file]\n"));
+      AAA_LOG((LM_DEBUG, "(%P|%t) Client: Usage: hac_test [AAA Server host] [AAA Server realm] [num session] [config file]\n"));
       return (1);
    }
 
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
       return (1);
    }
 
-  ACE_DEBUG((LM_DEBUG, "(%P|%t) HA Client: Application starting\n"));
+  AAA_LOG((LM_DEBUG, "(%P|%t) HA Client: Application starting\n"));
 
    AAA_Task myTask;
    try {

@@ -688,7 +688,7 @@ public:
 
     if (bitToSetOn < 1 || bitToSetOn > 256)
     {
-      AAA_LOG(LM_ERROR, "[%N] SetMipFeatureVectorBits: Wrong parameter.\n");
+      AAA_LOG((LM_ERROR, "[%N] SetMipFeatureVectorBits: Wrong parameter.\n"));
       return;
     }
    

@@ -82,7 +82,7 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
     // Header flag check.
       if (msg.hdr.flags.r)
 	{
-	  AAA_LOG(LM_ERROR, "[%N] Received HAR instead of HAA.\n");
+	  AAA_LOG((LM_ERROR, "[%N] Received HAR instead of HAA.\n"));
 	  return AAA_ERR_UNKNOWN_CMD;
 	}
 
@@ -96,7 +96,7 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
       }
       catch ( DiameterParserError ) 
 	{
-	  AAA_LOG(LM_ERROR, "[%N] Payload error.\n");
+	  AAA_LOG((LM_ERROR, "[%N] Payload error.\n"));
 	  return AAA_ERR_PARSING_ERROR;
 	}
 
@@ -125,7 +125,7 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
     // Register the HAA message handler
     if (RegisterMessageHandler( answerHandler) != AAA_ERR_SUCCESS)
     {
-      AAA_LOG(LM_ERROR, "[%N] HAA_Handler registration failed.\n");
+      AAA_LOG((LM_ERROR, "[%N] HAA_Handler registration failed.\n"));
       throw -1; 
     }
 
@@ -151,7 +151,7 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
   /// interested in it.
   AAAReturnCode HandleMessage(DiameterMsg &msg)
   {
-    AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
+    AAA_LOG((LM_ERROR, "[%N] Unknown command.\n"));
     return AAA_ERR_UNKNOWN_CMD;
   }
 
@@ -163,14 +163,14 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
   /// interested in it.
   AAAReturnCode HandleDisconnect()
   { 
-    AAA_LOG(LM_ERROR, "[%N] Session termination event received.\n");
+    AAA_LOG((LM_ERROR, "[%N] Session termination event received.\n"));
     Notify(DiameterMip4AaaSClientStateMachine::EvSgDisconnect);
     return AAA_ERR_SUCCESS; 
   }
   /// Reimplemented from AAAClientSession.
   AAAReturnCode HandleSessionTimeout()
   { 
-    AAA_LOG(LM_ERROR, "[%N] Session timeout received.\n");
+    AAA_LOG((LM_ERROR, "[%N] Session timeout received.\n"));
     Notify(DiameterMip4AaaSClientStateMachine::EvSgSessionTimeout);
     return AAA_ERR_SUCCESS; 
   }
@@ -178,7 +178,7 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
   /// Reimplemented from AAAClientSession.
   AAAReturnCode HandleAuthLifetimeTimeout()
   { 
-    AAA_LOG(LM_ERROR, "[%N] Timeout received.\n");
+    AAA_LOG((LM_ERROR, "[%N] Timeout received.\n"));
     Notify(DiameterMip4AaaSClientStateMachine::EvSgAuthLifetimeTimeout);
     return AAA_ERR_SUCCESS; 
   }
@@ -186,7 +186,7 @@ class  DIAMETER_MIP4_AAAS_CLIENT_EXPORTS DiameterMip4AaaSClientSession:
   /// Reimplemented from AAAClientSession.
   AAAReturnCode HandleAuthGracePeriodTimeout()
   { 
-    AAA_LOG(LM_ERROR, "[%N] Timeout received.\n");
+    AAA_LOG((LM_ERROR, "[%N] Timeout received.\n"));
     Notify(DiameterMip4AaaSClientStateMachine::EvSgAuthGracePeriodTimeout);
     return AAA_ERR_SUCCESS; 
   }

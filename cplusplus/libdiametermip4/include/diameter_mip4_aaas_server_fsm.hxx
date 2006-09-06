@@ -113,7 +113,7 @@ class DIAMETER_MIP4_AAAS_SERVER_EXPORTS DiameterMip4AaaSServerStateMachine
   /// when Notify() fails.
   virtual void Abort()
   {
-    AAA_LOG(LM_DEBUG, "Diameter AAA server session aborted.\n");
+    AAA_LOG((LM_DEBUG, "Diameter AAA server session aborted.\n"));
     //Abort();  WHAT SHOULD BE DONE HERE ??
   }
 
@@ -194,7 +194,7 @@ class DIAMETER_MIP4_AAAS_SERVER_EXPORTS DiameterMip4AaaSServerStateMachine
   {
     if (!AAA_EventQueueJob::ExistBacklog())
       {
-	AAA_LOG(LM_ERROR, "%N: no backlog to serve.");
+	AAA_LOG((LM_ERROR, "%N: no backlog to serve."));
 	return 0;
       }
 

@@ -80,7 +80,7 @@ class AMR_Handler:public AAASessionMessageHandler
       // Header flag check.
       if (!msg.hdr.flags.r)
 	{
-	  AAA_LOG(LM_ERROR, "[%N] Received AMA instead of AMR.\n");
+	  AAA_LOG((LM_ERROR, "[%N] Received AMA instead of AMR.\n"));
 	  return AAA_ERR_UNKNOWN_CMD;
 	}
 
@@ -94,7 +94,7 @@ class AMR_Handler:public AAASessionMessageHandler
       }
       catch ( DiameterParserError ) 
 	{
-	  AAA_LOG(LM_ERROR, "[%N] Payload error.\n");
+	  AAA_LOG((LM_ERROR, "[%N] Payload error.\n"));
 	  return AAA_ERR_PARSING_ERROR;
 	}
 
@@ -118,7 +118,7 @@ class AMR_Handler:public AAASessionMessageHandler
     // Register the AMR message handler
     if (RegisterMessageHandler( requestHandler) != AAA_ERR_SUCCESS)
     {
-      AAA_LOG(LM_ERROR, "[%N] AMR_Handler registration failed.\n");
+      AAA_LOG((LM_ERROR, "[%N] AMR_Handler registration failed.\n"));
       throw -1; 
     }
   }
@@ -152,14 +152,14 @@ class AMR_Handler:public AAASessionMessageHandler
   /// Reimplemented from AAAServerSession. 
   AAAReturnCode HandleMessage(DiameterMsg &msg)
   {
-    AAA_LOG(LM_ERROR, "[%N] Unknown command.\n");
+    AAA_LOG((LM_ERROR, "[%N] Unknown command.\n"));
     return AAA_ERR_UNKNOWN_CMD;
   }
 
   /// Reimplemented from AAAServerSession. 
   AAAReturnCode HandleDisconnect()
   {
-    AAA_LOG(LM_ERROR, "[%N] Session termination event received.\n");
+    AAA_LOG((LM_ERROR, "[%N] Session termination event received.\n"));
     Notify(DiameterMip4AaaSServerStateMachine::EvSgDisconnect);
     return AAA_ERR_SUCCESS; 
   }
@@ -167,7 +167,7 @@ class AMR_Handler:public AAASessionMessageHandler
   /// Reimplemented from AAAServerSession.
   AAAReturnCode HandleSessionTimeout()
   { 
-    AAA_LOG(LM_ERROR, "[%N] Session timeout received.\n");
+    AAA_LOG((LM_ERROR, "[%N] Session timeout received.\n"));
     Notify(DiameterMip4AaaSServerStateMachine::EvSgSessionTimeout);
     return AAA_ERR_SUCCESS; 
   }
@@ -175,7 +175,7 @@ class AMR_Handler:public AAASessionMessageHandler
   /// Reimplemented from AAAServerSession.
   AAAReturnCode HandleAuthLifetimeTimeout()
   { 
-    AAA_LOG(LM_ERROR, "[%N] Timeout received.\n");
+    AAA_LOG((LM_ERROR, "[%N] Timeout received.\n"));
     Notify(DiameterMip4AaaSServerStateMachine::EvSgAuthLifetimeTimeout);
     return AAA_ERR_SUCCESS; 
   }
@@ -183,7 +183,7 @@ class AMR_Handler:public AAASessionMessageHandler
   /// Reimplemented from AAAServerSession.
   AAAReturnCode HandleAuthGracePeriodTimeout()
   { 
-    AAA_LOG(LM_ERROR, "[%N] Timeout received.\n");
+    AAA_LOG((LM_ERROR, "[%N] Timeout received.\n"));
     Notify(DiameterMip4AaaSServerStateMachine::EvSgAuthGracePeriodTimeout);
     return AAA_ERR_SUCCESS; 
   }
@@ -195,7 +195,7 @@ class AMR_Handler:public AAASessionMessageHandler
   /// event handler.
   AAAReturnCode HandleTimeout()
   { 
-    AAA_LOG(LM_ERROR, "[%N] General timeout received.\n");
+    AAA_LOG((LM_ERROR, "[%N] General timeout received.\n"));
     Notify(DiameterMip4AaaSServerStateMachine::EvSgTimeout);
     return AAA_ERR_SUCCESS; 
   }

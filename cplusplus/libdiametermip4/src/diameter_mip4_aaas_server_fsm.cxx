@@ -59,8 +59,8 @@ class DiameterMip4AaaSServerStateTable_S
   {
     void operator()(DiameterMip4AaaSServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Check AMR authentication.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Check AMR authentication.\n"));
       
       int rc = sm.AuthenticateUser( sm.AMR().UserName(), 
 		    sm.AMR().MipMobileNodeAddress(),
@@ -95,7 +95,7 @@ class DiameterMip4AaaSServerStateTable_S
   {
     void operator()(DiameterMip4AaaSServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Send positive AMA.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Send positive AMA.\n"));
       // set Result-Code + other AVPs
 
       AMR_Data& amr = sm.AMR();
@@ -168,7 +168,7 @@ class DiameterMip4AaaSServerStateTable_S
   {
     void operator()(DiameterMip4AaaSServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Sending AMA with Auth Rejected result-code.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Sending AMA with Auth Rejected result-code.\n"));
       
       AMR_Data& amr = sm.AMR();
       AMA_Data& ama = sm.AMA();
@@ -209,7 +209,7 @@ class DiameterMip4AaaSServerStateTable_S
   {
     void operator()(DiameterMip4AaaSServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Constructing and Sending HAR.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Constructing and Sending HAR.\n"));
 
       // populate HAR attributes and trigger the clientSession to send HAR
       sm.SendHAR();  
@@ -224,8 +224,8 @@ class DiameterMip4AaaSServerStateTable_S
     void operator()(DiameterMip4AaaSServerStateMachine& sm)
     {
 
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending AMA due to HAA authorization failure.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending AMA due to HAA authorization failure.\n"));
 
       AMR_Data& amr = sm.AMR();
       AMA_Data& ama = sm.AMA();
@@ -268,8 +268,8 @@ class DiameterMip4AaaSServerStateTable_S
     void operator()(DiameterMip4AaaSServerStateMachine& sm)
     {
 
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending AMA due to HAA authorization failure.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending AMA due to HAA authorization failure.\n"));
 
       AMR_Data& amr = sm.AMR();
       AMA_Data& ama = sm.AMA();
@@ -310,7 +310,7 @@ class DiameterMip4AaaSServerStateTable_S
     void operator()(DiameterMip4AaaSServerStateMachine& sm)
     {
 
-      AAA_LOG(LM_DEBUG, "[%N] Sending AMA due to successful HAA.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Sending AMA due to successful HAA.\n"));
 
       AMR_Data& amr = sm.AMR();
       HAA_Data& haa = sm.HAA();
@@ -493,17 +493,17 @@ DiameterMip4AaaSServerStateMachine::SendAMA()
     parser.parseAppToRaw();
   }
   catch (DiameterParserError) {
-    AAA_LOG(LM_ERROR, "[%N] Parsing error.\n");
+    AAA_LOG((LM_ERROR, "[%N] Parsing error.\n"));
     return;
   }
   AAAServerSession &session = Session();
   
   AAAMessageControl msgControl( &session );  
   if (msgControl.Send(msg) != AAA_ERR_SUCCESS) {
-    AAA_LOG(LM_ERROR, "Failed sending message.\n");
+    AAA_LOG((LM_ERROR, "Failed sending message.\n"));
   }
   else {
-    AAA_LOG(LM_DEBUG, "Sent AMA Message.\n");
+    AAA_LOG((LM_DEBUG, "Sent AMA Message.\n"));
   }
 }
 

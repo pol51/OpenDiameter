@@ -67,7 +67,7 @@ class DiameterMip4AaaSClientStateTable_S
   {
     void operator()(DiameterMip4AaaSClientStateMachine& sm) 
     { 
-      ACE_DEBUG((LM_DEBUG, "[%N] sending HAR.\n"));
+      AAA_LOG((LM_DEBUG, "[%N] sending HAR.\n"));
 
       sm.SendHAR(); 
     }
@@ -85,13 +85,13 @@ class DiameterMip4AaaSClientStateTable_S
       switch (resultCode)
 	{
 	case AAA_SUCCESS :
-	  AAA_LOG(LM_DEBUG, "[%N] DIAMETER_SUCCESS received.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] DIAMETER_SUCCESS received.\n"));
 	  sm.Notify(DiameterMip4AaaSClientStateMachine::EvSgSuccess);
 	  break;
 
 	default:
-	  AAA_LOG(LM_DEBUG, "[%N] Error was received.\n");
-	  AAA_LOG(LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode);
+	  AAA_LOG((LM_DEBUG, "[%N] Error was received.\n"));
+	  AAA_LOG((LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode));
 	  sm.Notify(DiameterMip4AaaSClientStateMachine::EvSgFailure);
 	  break;
 	}
@@ -121,12 +121,12 @@ class DiameterMip4AaaSClientStateTable_S
       if (haaData.ErrorMessage.IsSet())
       {
 	str = haaData.ErrorMessage();
-	AAA_LOG(LM_DEBUG, "[%N] Error Message: %s \n", str.data());
+	AAA_LOG((LM_DEBUG, "[%N] Error Message: %s \n", str.data()));
       }
       if (haaData.ErrorReportingHost.IsSet())
       {
 	str = haaData.ErrorReportingHost();
-	AAA_LOG(LM_DEBUG, "[%N] Error Message: %s \n", str.data());
+	AAA_LOG((LM_DEBUG, "[%N] Error Message: %s \n", str.data()));
       }
 
        sm.Session().serverSession.ServerSessionNotify( 
@@ -141,7 +141,7 @@ class DiameterMip4AaaSClientStateTable_S
   {
     void operator()(DiameterMip4AaaSClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Disconnect issued.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Disconnect issued.\n"));
       //sm.SignalDisconnect();
     }
   };
@@ -150,7 +150,7 @@ class DiameterMip4AaaSClientStateTable_S
   {
     void operator()(DiameterMip4AaaSClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] HAA not received.\n");
+      AAA_LOG((LM_DEBUG, "[%N] HAA not received.\n"));
       sm.Session().serverSession.ServerSessionNotify( 
 		    DiameterMip4AaaSServerStateMachine::EvSgHaaNotReceived);
     }
@@ -160,7 +160,7 @@ class DiameterMip4AaaSClientStateTable_S
   {
     void operator()(DiameterMip4AaaSClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Reset session object after session termination.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Reset session object after session termination.\n"));
       //sm.Reset();
     }
   };
@@ -304,16 +304,16 @@ void DiameterMip4AaaSClientStateMachine::SendHAR()
     parser.parseAppToRaw();
   }
   catch (DiameterParserError) {
-    AAA_LOG(LM_ERROR, "[%N] Parsing error.\n");
+    AAA_LOG((LM_ERROR, "[%N] Parsing error.\n"));
     return;
   }
 
   AAAMessageControl msgControl( &session );    
   if (msgControl.Send(msg) != AAA_ERR_SUCCESS) {
-    AAA_LOG(LM_ERROR, "Failed sending message.\n");
+    AAA_LOG((LM_ERROR, "Failed sending message.\n"));
   }
   else {
-    AAA_LOG(LM_DEBUG, "Sent HAR Message.\n");
+    AAA_LOG((LM_DEBUG, "Sent HAR Message.\n"));
   }
 }
 

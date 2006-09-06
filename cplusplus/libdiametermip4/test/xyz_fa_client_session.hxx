@@ -54,13 +54,13 @@ public:
   void SendMipRegReply(diameter_unsigned32_t &amaResultCode,
 		       diameter_octetstring_t &mipRegReply )
   {
-    AAA_LOG(LM_DEBUG, "[%N]Sending MIP Registration Reply:\nResult-Code=%d Mip Reply: %s\n", 
-	    amaResultCode, mipRegReply.data());
+    AAA_LOG((LM_DEBUG, "[%N]Sending MIP Registration Reply:\nResult-Code=%d Mip Reply: %s\n", 
+	    amaResultCode, mipRegReply.data()));
   }
 
   void SendMipRegReply(diameter_unsigned32_t &amaResultCode)
   {
-    AAA_LOG(LM_DEBUG, "[%N]Sending MIP Registration Reply:\nResult-Code=%d\n", amaResultCode);
+    AAA_LOG((LM_DEBUG, "[%N]Sending MIP Registration Reply:\nResult-Code=%d\n", amaResultCode));
   }
 
   int SetUserName ( diameter_utf8string_t &UserName)
