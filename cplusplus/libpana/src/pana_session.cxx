@@ -987,5 +987,4 @@ void PANA_SessionAttribute::Reset()
    m_SessionLifetime = PANA_CFG_PAA().m_SessionLifetime;
    m_ProtectionCapability = PANA_CFG_GENERAL().m_ProtectionCap;
    m_PPAC = PANA_CFG_GENERAL().m_PPAC;
-   m_DhcpKey = "";
 }

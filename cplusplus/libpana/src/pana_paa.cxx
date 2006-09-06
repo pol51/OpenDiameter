@@ -141,14 +141,6 @@ void PANA_Paa::NotifyAuthorization()
 
     if (SecurityAssociation().IsSet()) {
         args.m_Key.Set(SecurityAssociation().Get());
-        // TBD: key id removed from args
-        if (PPAC().DhcpV6() && DhcpBootstrap().Enable()) {
-            pana_octetstring_t dhcpKey;
-            DhcpBootstrap().DhcpKey(SecurityAssociation().Get(), 
-                                    dhcpKey);
-            args.m_DhcpKey.Set(dhcpKey);
-        }
-
         if (PANA_CFG_GENERAL().m_WPASupport &&
             (PANA_CFG_PAA().m_EpIdList.size() > 0)) {
             PANA_DeviceIdIterator i;
@@ -609,12 +601,6 @@ void PANA_Paa::TxPBR(pana_unsigned32_t rcode,
             msg->avpList().add(deviceAvp());
         }
 
-        // add Dhcp-AVP
-        if (PPAC().DhcpV6() && SecurityAssociation().IsSet() &&
-            DhcpBootstrap().Enable()) {
-            DhcpBootstrap().AffixToPBR(*msg);
-        }
-
 #if defined(PANA_MPA_SUPPORT)
         // add PaC address piggyback if present
         PANA_DeviceId ip;
@@ -817,11 +803,6 @@ void PANA_Paa::RxPBA(bool success)
     if (success) {
 
         m_Timer.CancelTxRetry();
-
-        // check dhcp
-        if (PPAC().DhcpV6() && DhcpBootstrap().Enable()) {
-            DhcpBootstrap().CheckPBA(msg);
-        }
 
         // save the device id
         DiameterAddressAvpContainerWidget pacIdAvp(msg.avpList());
