@@ -843,8 +843,7 @@ class AAA_PARSER_EXPORT DiameterAvpTypeList_S :
         /*!
         * protected destructor
         */
-        ~DiameterAvpTypeList_S(void) {
-        }
+        ~DiameterAvpTypeList_S(void);
 
         /*!
         * private method for registering known types
