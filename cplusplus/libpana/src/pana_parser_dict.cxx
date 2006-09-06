@@ -58,6 +58,7 @@ class PANAXML_Element
         m_name(name),
         m_callStack(stack),
         m_parent(NULL) {
+        PANAXML_DEBUG ((LM_DEBUG, "Loading element: %s\n", name));
      }
      virtual ~PANAXML_Element() {
      }
@@ -86,6 +87,7 @@ class PANAXML_Element
                         m_name.data()));
             return false;
         }
+        PANAXML_DEBUG ((LM_DEBUG, "Setting data for: %s\n", m_name.data()));
         return true;
      }
      virtual bool endElement() {
@@ -97,6 +99,7 @@ class PANAXML_Element
         m_inProcess = false;
         m_callStack.pop_front();
         m_parent = NULL;
+        PANAXML_DEBUG ((LM_DEBUG, "End of element: %s\n", m_name.data()));
         return true;
      }
      PANAXML_ElementStack &CallStack() {
@@ -156,10 +159,8 @@ class PANAXML_CommandElement :
                    m_code = ACE_OS::atoi(alist->getValue(i));
                }
             }
-#if PANAXML_DEBUG
-            AAA_LOG((LM_DEBUG, " Command [ name = %s, code = %d\n", 
-	           m_name.c_str(), m_code));
-#endif
+            PANAXML_DEBUG ((LM_DEBUG, " Command [ name = %s, code = %d\n",
+                            m_name.c_str(), m_code));
         }
         else {
             AAA_LOG((LM_ERROR, 
@@ -213,10 +214,8 @@ class PANAXML_RequestRulesElement :
         m_command->flags.reserved = 0;
         PANA_CommandList::instance()->add(m_command);
 
-#if PANAXML_DEBUG
-        AAA_LOG((LM_DEBUG, " Request [name = %s, code = %d]\n",
-                   m_command->m_Name.c_str(), m_command->code));
-#endif
+        PANAXML_DEBUG ((LM_DEBUG, " Request [name = %s, code = %d]\n",
+                        m_command->name.c_str(), m_command->code));
         return true;
      }
      virtual bool endElement() {
@@ -259,10 +258,8 @@ class PANAXML_AnswerRulesElement :
         m_command->flags.reserved = 0;
         PANA_CommandList::instance()->add(m_command);
 
-#if PANAXML_DEBUG
-        AAA_LOG((LM_DEBUG, " Answer [name = %s, code = %d]\n",
-	           m_command->m_Name.c_str(), m_command->code));
-#endif
+        PANAXML_DEBUG ((LM_DEBUG, " Answer [name = %s, code = %d]\n",
+	               m_command->name.c_str(), m_command->code));
         return true;
      }
      virtual bool endElement() {
@@ -288,7 +285,7 @@ class PANAXML_TypedefElement :
         if (! PANAXML_Element::startElement(alist)) {
             return false;
         }
-#if PANAXML_DEBUG
+#if PANA_PARSER_DEBUG
         if (alist != 0) {
             for (size_t i = 0; i < alist->getLength (); ++i) {
                AAA_LOG ((LM_INFO,
@@ -351,7 +348,7 @@ class PANAXML_AvpElement :
                 delete m_avp;
                 m_avp = NULL;
             }
-#if PANAXML_DEBUG
+#if PANA_PARSER_DEBUG
             AAA_LOG((LM_DEBUG, " Avp [name = %s, code = %d]\n", 
                        name.c_str(), code));
 #endif
@@ -409,6 +406,7 @@ class PANAXML_TypeElement :
            avpElm->Avp()->avpType = avpt->getType();
         }
 
+        PANAXML_DEBUG ((LM_DEBUG, " Type name = %s\n", tname.c_str()));
         return true;
      }
      virtual bool endElement() {
@@ -441,7 +439,7 @@ class PANAXML_GroupedElement :
                                                          // after parsing
                                                          // all avps.
         avpElm->Avp()->avpType = AAA_AVP_GROUPED_TYPE;
-#if PANAXML_DEBUG
+#if PANA_PARSER_DEBUG
         AAA_LOG((LM_DEBUG, " Grouped [code = %d]\n",
                    m_grpAvp->code));
 #endif
@@ -476,7 +474,7 @@ class PANAXML_PositionElement :
             PANAXML_RequestRulesElement *reqElm =
                 (PANAXML_RequestRulesElement*)(Parent());
             m_qAvpList = ResolveAvpList(reqElm->Cmd(), Name());
-#if PANAXML_DEBUG
+#if PANA_PARSER_DEBUG
             AAA_LOG((LM_DEBUG, " Request [%s] definition\n",
                        Name().c_str()));
 #endif
@@ -485,7 +483,7 @@ class PANAXML_PositionElement :
             PANAXML_AnswerRulesElement *ansrElm = 
                 (PANAXML_AnswerRulesElement*)(Parent());
             m_qAvpList = ResolveAvpList(ansrElm->Cmd(), Name());
-#if PANAXML_DEBUG
+#if PANA_PARSER_DEBUG
             AAA_LOG((LM_DEBUG, " Answer [%s] definition\n",
                        Name().c_str()));
 #endif
@@ -493,14 +491,14 @@ class PANAXML_PositionElement :
         else if (Parent()->Name() == std::string("grouped")) {
             PANAXML_GroupedElement *grpElm = (PANAXML_GroupedElement*)Parent();
             m_qAvpList = ResolveAvpList(grpElm->Avp(), Name());
-#if PANAXML_DEBUG
+#if PANA_PARSER_DEBUG
             AAA_LOG((LM_DEBUG, " Grouped [%s] definition\n",
                        Name().c_str()));
 #endif
         }
         else {
             IsSkipped() = true;
-#if PANAXML_DEBUG
+#if PANA_PARSER_DEBUG
             AAA_LOG((LM_DEBUG, " Skipped [%s] definition\n",
                        Name().c_str()));
 #endif
@@ -581,6 +579,8 @@ class PANAXML_AvpRuleElement :
 
         PANAXML_PositionElement *posElm = (PANAXML_PositionElement*)Parent();
         if (posElm->IsSkipped()) {
+            PANAXML_DEBUG_LOG((LM_DEBUG, " Avp Rule [name = %s] is skipped\n",
+                               Name().c_str()));
             return true;
         }
 
@@ -632,10 +632,8 @@ class PANAXML_AvpRuleElement :
         qavp->qual.min = min;
         qavp->qual.max = max;
         posElm->AvpList()->add(qavp);
-#if PANAXML_DEBUG
-        AAA_LOG((LM_DEBUG, " Avp Rule [name = %s]\n",
-                  avpName.c_str()));
-#endif
+        PANAXML_DEBUG_LOG((LM_DEBUG, " Avp Rule [name = %s, min = %d, max = %d]\n",
+                           avpName.c_str(), min, max));
         return true;
      }
 };
