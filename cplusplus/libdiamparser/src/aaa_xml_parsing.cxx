@@ -64,7 +64,7 @@ class AAAXML_Element
      }
      virtual bool startElement(ACEXML_Attributes *atts) {
         if (m_inProcess) {
-            ACE_DEBUG ((LM_ERROR, "Error: element %s already in process\n",
+            AAA_LOG ((LM_ERROR, "Error: element %s already in process\n",
                         m_name.data()));
             return false;
         }
@@ -79,7 +79,7 @@ class AAAXML_Element
                              int start,
                              int length ACEXML_ENV_ARG_DECL) {
         if (! m_inProcess) {
-            ACE_DEBUG ((LM_ERROR, "Error: element %s not in process\n",
+            AAA_LOG ((LM_ERROR, "Error: element %s not in process\n",
                         m_name.data()));
             return false;
         }
@@ -87,7 +87,7 @@ class AAAXML_Element
      }
      virtual bool endElement() {
         if (! m_inProcess) {
-            ACE_DEBUG ((LM_ERROR, "Error: element %s not in process\n",
+            AAA_LOG ((LM_ERROR, "Error: element %s not in process\n",
                        m_name.data()));
             return false;
         }
@@ -145,7 +145,7 @@ class AAAXML_VendorElement :
         }
         if (alist != 0) {
             for (size_t i = 0; i < alist->getLength (); ++i) {
-               ACE_DEBUG ((LM_INFO,
+               AAA_LOG ((LM_INFO,
                           ACE_TEXT (" Vendor [%s = \"%s\"]\n"),
                alist->getQName (i), alist->getValue (i)));
             }
@@ -167,7 +167,7 @@ class AAAXML_BaseElement :
         }
         if (alist != 0) {
             for (size_t i = 0; i < alist->getLength (); ++i) {
-               ACE_DEBUG ((LM_INFO,
+               AAA_LOG ((LM_INFO,
                           ACE_TEXT (" Base   [%s = \"%s\"]\n"),
                alist->getQName (i), alist->getValue (i)));
             }
@@ -202,7 +202,7 @@ class AAAXML_ApplicationElement :
             }
         }
 #if AAAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " App    [ name = %s, id = %d, uri = %s\n", 
+        AAA_LOG((LM_DEBUG, " App    [ name = %s, id = %d, uri = %s\n", 
 	           m_name.c_str(), m_appId, m_uri.c_str()));
 #endif
         return true;
@@ -261,12 +261,12 @@ class AAAXML_CommandElement :
                }
             }
 #if AAAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Command [ name = %s, code = %d\n", 
+            AAA_LOG((LM_DEBUG, " Command [ name = %s, code = %d\n", 
 	           m_name.c_str(), m_code));
 #endif
         }
         else {
-            ACE_DEBUG((LM_ERROR, 
+            AAA_LOG((LM_ERROR, 
                "Command code does not have attributes !!!\n"));
             throw;
         }
@@ -281,7 +281,7 @@ class AAAXML_CommandElement :
             m_appId = appElm->AppId();
         }
         else {
-            ACE_DEBUG((LM_ERROR, 
+            AAA_LOG((LM_ERROR, 
                  "Command has an invalid parent !!!\n"));
             throw;
         }
@@ -346,7 +346,7 @@ class AAAXML_RequestRulesElement :
         DiameterCommandList::instance()->add(m_command);
 
 #if AAAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " Request [name = %s, code = %d, applid = %d]\n", 
+        AAA_LOG((LM_DEBUG, " Request [name = %s, code = %d, applid = %d]\n", 
 	           m_command->name.c_str(), m_command->code, m_command->appId));
 #endif
         return true;
@@ -393,7 +393,7 @@ class AAAXML_AnswerRulesElement :
         DiameterCommandList::instance()->add(m_command);
 
 #if AAAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " Answer [name = %s, code = %d, applid = %d]\n", 
+        AAA_LOG((LM_DEBUG, " Answer [name = %s, code = %d, applid = %d]\n", 
 	           m_command->name.c_str(), m_command->code, m_command->appId));
 #endif
         return true;
@@ -424,7 +424,7 @@ class AAAXML_TypedefElement :
 #if AAAXML_DEBUG
         if (alist != 0) {
             for (size_t i = 0; i < alist->getLength (); ++i) {
-               ACE_DEBUG ((LM_INFO,
+               AAA_LOG ((LM_INFO,
                           ACE_TEXT (" Type   [%s = \"%s\"]\n"),
                alist->getQName (i), alist->getValue (i)));
             }
@@ -497,7 +497,7 @@ class AAAXML_AvpElement :
                 m_avp = NULL;
             }
 #if AAAXML_DEBUG
-           ACE_DEBUG((LM_DEBUG, " Avp [name = %s, code = %d]\n", 
+           AAA_LOG((LM_DEBUG, " Avp [name = %s, code = %d]\n", 
                       name.c_str(), code));
 #endif
         }
@@ -537,14 +537,14 @@ class AAAXML_TypeElement :
             }
         }
         if (tname.length() == 0) {
-            ACE_DEBUG((LM_ERROR, "AVP Type not specified\n"));
+            AAA_LOG((LM_ERROR, "AVP Type not specified\n"));
             throw;
         }
  
         // check for validity of type
         DiameterAvpType *avpt = (DiameterAvpType*)DiameterAvpTypeList::instance()->search(tname.c_str());
         if (avpt == NULL) {
-            ACE_DEBUG((LM_ERROR, 
+            AAA_LOG((LM_ERROR, 
                  "Unknown AVP type %s.\n", tname.c_str()));
             throw;
         }
@@ -586,7 +586,7 @@ class AAAXML_GroupedElement :
                                                        // all avps.
         avpElm->Avp()->avpType = AAA_AVP_GROUPED_TYPE;
 #if AAAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " Grouped [code = %d]\n", 
+        AAA_LOG((LM_DEBUG, " Grouped [code = %d]\n", 
                    m_grpAvp->code));
 #endif
         return true;
@@ -621,7 +621,7 @@ class AAAXML_PositionElement :
                 (AAAXML_RequestRulesElement*)(Parent());
             m_qAvpList = ResolveAvpList(reqElm->Cmd(), Name());
 #if AAAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Request [%s] definition\n", 
+            AAA_LOG((LM_DEBUG, " Request [%s] definition\n", 
                        Name().c_str()));
 #endif
         }
@@ -630,7 +630,7 @@ class AAAXML_PositionElement :
                 (AAAXML_AnswerRulesElement*)(Parent());
             m_qAvpList = ResolveAvpList(ansrElm->Cmd(), Name());
 #if AAAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Answer [%s] definition\n", 
+            AAA_LOG((LM_DEBUG, " Answer [%s] definition\n", 
                        Name().c_str()));
 #endif
         }
@@ -638,14 +638,14 @@ class AAAXML_PositionElement :
             AAAXML_GroupedElement *grpElm = (AAAXML_GroupedElement*)Parent();
             m_qAvpList = ResolveAvpList(grpElm->Avp(), Name());
 #if AAAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Grouped [%s] definition\n", 
+            AAA_LOG((LM_DEBUG, " Grouped [%s] definition\n", 
                        Name().c_str()));
 #endif
         }
         else {
             IsSkipped() = true;
 #if AAAXML_DEBUG
-            ACE_DEBUG((LM_DEBUG, " Skipped [%s] definition\n", 
+            AAA_LOG((LM_DEBUG, " Skipped [%s] definition\n", 
                        Name().c_str()));
 #endif
         }
@@ -662,7 +662,7 @@ class AAAXML_PositionElement :
      DiameterQualifiedAvpList *ResolveAvpList(DiameterDictionary *dict, 
                                          std::string &position) {
         if (dict == NULL) {
-            ACE_DEBUG((LM_ERROR, "Command not allocated !!!\n"));
+            AAA_LOG((LM_ERROR, "Command not allocated !!!\n"));
             throw;
         }
         if (position == std::string("fixed")) {
@@ -675,7 +675,7 @@ class AAAXML_PositionElement :
             return dict->avp_o;
         }
         else {
-            ACE_DEBUG((LM_ERROR, "Grouped AVP not allocated !!!\n"));
+            AAA_LOG((LM_ERROR, "Grouped AVP not allocated !!!\n"));
             throw;
         }
      }
@@ -750,18 +750,18 @@ class AAAXML_AvpRuleElement :
             }
         }
         else {
-            AAA_LOG(LM_ERROR, "AVP rule does not have attributes\n");
+            AAA_LOG((LM_ERROR, "AVP rule does not have attributes\n"));
             throw;
         }
 
         if ((avp = DiameterAvpList::instance()->search(avpName)) == NULL) {
-            AAA_LOG(LM_ERROR, "*** Cannot find AVP named %s ***\n\
+            AAA_LOG((LM_ERROR, "*** Cannot find AVP named %s ***\n\
   If %s is included inside a grouped avp, \n\
   make sure it's <avp> definition comes before \n\
   the <grouped> definition using it. If it is\n\
   not in a group, make sure it spelled properly\n\
   and there are no white-spaces.\n", 
-            avpName.c_str(), avpName.c_str());
+            avpName.c_str(), avpName.c_str()));
             throw;
         }
 
@@ -777,7 +777,7 @@ class AAAXML_AvpRuleElement :
         qavp->qual.max = max; 
         posElm->AvpList()->add(qavp);
 #if AAAXML_DEBUG
-        ACE_DEBUG((LM_DEBUG, " Avp Rule [name = %s]\n", 
+        AAA_LOG((LM_DEBUG, " Avp Rule [name = %s]\n", 
                   avpName.c_str()));
 #endif
         return true;
@@ -1006,7 +1006,7 @@ class AAAXML_SAXHandler : public ACEXML_DefaultHandler
      // Methods inherit from ACEXML_ErrorHandler.
      virtual void error (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
          ACE_THROW_SPEC ((ACEXML_SAXException)) {
-         ACE_DEBUG ((LM_INFO, "Error %s: line: %d col: %d \n",
+         AAA_LOG ((LM_INFO, "Error %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
                      m_locator->getColumnNumber()));
@@ -1015,7 +1015,7 @@ class AAAXML_SAXHandler : public ACEXML_DefaultHandler
      }
      virtual void fatalError (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
          ACE_THROW_SPEC ((ACEXML_SAXException)) {
-         ACE_DEBUG ((LM_INFO, "Fatal error %s: line: %d col: %d \n",
+         AAA_LOG ((LM_INFO, "Fatal error %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
                      m_locator->getColumnNumber()));
@@ -1024,7 +1024,7 @@ class AAAXML_SAXHandler : public ACEXML_DefaultHandler
      }
      virtual void warning (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
          ACE_THROW_SPEC ((ACEXML_SAXException)) {
-         ACE_DEBUG ((LM_INFO, "Warning %s: line: %d col: %d \n",
+         AAA_LOG ((LM_INFO, "Warning %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
                      m_locator->getColumnNumber()));
@@ -1052,20 +1052,20 @@ parseXMLDictionary(char* xmlFile)
    ACEXML_FileCharStream *fstm = NULL;
    try {
        if (xmlFile == NULL) {
-           ACE_DEBUG((LM_ERROR, 
+           AAA_LOG((LM_ERROR, 
                       "No dictionary file specified\n"));
            throw;
        }
 
        fstm = new ACEXML_FileCharStream;
        if (fstm == NULL) {
-           ACE_DEBUG((LM_ERROR, 
+           AAA_LOG((LM_ERROR, 
                       "Allocation failure\n"));
            throw;
        }
    
        if (fstm->open (xmlFile) != 0) {
-           ACE_DEBUG((LM_ERROR, 
+           AAA_LOG((LM_ERROR, 
                       "Failed to open XML file: %s\n", xmlFile));
            throw;
        }
@@ -1073,7 +1073,7 @@ parseXMLDictionary(char* xmlFile)
        auto_ptr<ACEXML_DefaultHandler> handler
            (new AAAXML_SAXHandler(xmlFile));
        if (handler.get() == NULL) {
-           ACE_DEBUG((LM_ERROR, 
+           AAA_LOG((LM_ERROR, 
                       "Allocation failure\n"));
            throw;
       }
@@ -1095,13 +1095,13 @@ parseXMLDictionary(char* xmlFile)
       }
       catch (ACEXML_SAXException &ex) {
           ex.print();
-          ACE_DEBUG ((LM_ERROR, ACE_TEXT ("Exception occurred. Exiting...\n")));
+          AAA_LOG ((LM_ERROR, ACE_TEXT ("Exception occurred. Exiting...\n")));
           throw;
       }
 
       AAAXML_SAXHandler *h = static_cast<AAAXML_SAXHandler*>(handler.get());
       if (h->FatalError() || (h->ErrorCount() > 0)) {
-          ACE_DEBUG ((LM_ERROR, ACE_TEXT ("Exception occurred. Exiting...\n")));
+          AAA_LOG ((LM_ERROR, ACE_TEXT ("Exception occurred. Exiting...\n")));
           throw;
       }       
    }

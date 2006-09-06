@@ -53,7 +53,7 @@ createAvpValueParser(AAAAvpDataType type)// throw(DiameterErrorCode)
       // the AVP value parser for the corresponding type is not found,
       // it must be the implementation bug.
 
-      AAA_LOG(LM_ERROR, "Specified avp type not found");
+      AAA_LOG((LM_ERROR, "Specified avp type not found"));
       st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
       throw (st);
     }
@@ -62,7 +62,7 @@ createAvpValueParser(AAAAvpDataType type)// throw(DiameterErrorCode)
   if (p == NULL)
     {
       // This is also a bug for the same reason as above.
-      AAA_LOG(LM_ERROR, "Avp value parser not found");
+      AAA_LOG((LM_ERROR, "Avp value parser not found"));
       st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER);
       throw (st);
     }
@@ -75,27 +75,27 @@ checkFlags(struct diameter_avp_flag flag, AAAAVPFlag flags)
 {
   if (flag.m == 0 && (flags & DIAMETER_AVP_FLAG_MANDATORY))
     {
-      AAA_LOG(LM_ERROR, "M-flag must be set\n");
+      AAA_LOG((LM_ERROR, "M-flag must be set\n"));
       return -1;
     }
   if (flag.m == 1 && (flags & DIAMETER_AVP_FLAG_MANDATORY) == 0)
     {
-      AAA_LOG(LM_ERROR, "M-flag must not be set\n");
+      AAA_LOG((LM_ERROR, "M-flag must not be set\n"));
       return -1;
     }
   if (flag.v == 0 && (flags & DIAMETER_AVP_FLAG_VENDOR_SPECIFIC))
     {
-      AAA_LOG(LM_ERROR, "V-flag needs to be set\n");
+      AAA_LOG((LM_ERROR, "V-flag needs to be set\n"));
       return -1;
     }
   if (flag.v == 1 && (flags & DIAMETER_AVP_FLAG_VENDOR_SPECIFIC) == 0)
     {
-      AAA_LOG(LM_ERROR, "V-flag must not be set\n");
+      AAA_LOG((LM_ERROR, "V-flag must not be set\n"));
       return -1;
     }
   if (flag.p == 1 && (flags & DIAMETER_AVP_FLAG_END_TO_END_ENCRYPT) == 0)
     {
-      AAA_LOG(LM_ERROR, "P-flag must not be set\n");
+      AAA_LOG((LM_ERROR, "P-flag must not be set\n"));
       return -1;
     }
   return 0;
@@ -115,7 +115,7 @@ DiameterAvpHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
 
   if (! avp)
   {
-	AAA_LOG(LM_ERROR, "AVP dictionary cannot be null.");
+	AAA_LOG((LM_ERROR, "AVP dictionary cannot be null."));
 	st.set(AAA_PARSE_ERROR_TYPE_BUG,
                AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
 	throw st;
@@ -130,7 +130,7 @@ DiameterAvpHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
     {
       if (avp->avpCode == 0)
 	  {
-            AAA_LOG(LM_ERROR, "Wildcard AVP cannot be a fixed AVP.");
+            AAA_LOG((LM_ERROR, "Wildcard AVP cannot be a fixed AVP."));
             st.set(AAA_PARSE_ERROR_TYPE_BUG,
                    AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM);
             throw st;
@@ -190,7 +190,7 @@ DiameterAvpHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
   /* length check */
   if ((unsigned)DIAMETER_AVP_HEADER_LEN(avp) > aBuffer->size())
     {
-      AAA_LOG(LM_ERROR, "Header buffer overflow\n");
+      AAA_LOG((LM_ERROR, "Header buffer overflow\n"));
       st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_INVALID_PARSER_USAGE);
       throw st;
     }
@@ -308,7 +308,7 @@ DiameterAvpParser::parseAppToRaw()// throw(DiameterErrorCode)
   DiameterErrorCode st;
   if (!avp)
   {
-	  AAA_LOG(LM_ERROR, "AVP dictionary cannot be null.");
+	  AAA_LOG((LM_ERROR, "AVP dictionary cannot be null."));
 	  st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
 	  throw st;
   }

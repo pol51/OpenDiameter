@@ -58,7 +58,7 @@ DiameterAvpHeaderList::create(AAAMessageBlock *aBuffer)
         if (h.length == 0 || h.length > (ACE_UINT32)(end-cavp))
           {
             DiameterErrorCode st;
-            AAA_LOG(LM_ERROR, "invalid message length\n");
+            AAA_LOG((LM_ERROR, "invalid message length\n"));
             st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_MESSAGE_LENGTH);
             throw st;
           }

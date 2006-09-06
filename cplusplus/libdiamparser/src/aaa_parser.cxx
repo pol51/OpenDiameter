@@ -82,26 +82,26 @@ DiameterMsgHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
   if ((com = DiameterCommandList::instance()
        ->search(h.code, h.appId, h.flags.r)) == NULL)
   {
-    AAA_LOG(LM_ERROR, "command (%d,r-flag=%1d) not found\n", 
-	       h.code, h.flags.r);
+    AAA_LOG((LM_ERROR, "command (%d,r-flag=%1d) not found\n", 
+	       h.code, h.flags.r));
     st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
     throw st;
   }
 
   if (com->flags.r && h.flags.e)
     {
-      AAA_LOG(LM_ERROR, 
+      AAA_LOG((LM_ERROR, 
 		      "command (%d) e flag cannot be set for request\n", 
-		      h.code);
+		      h.code));
       st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_BIT_IN_HEADER);
       throw st;
     }
 
   if (com->flags.p == 0 && h.flags.p == 1)
     {
-      AAA_LOG(LM_ERROR, 
+      AAA_LOG((LM_ERROR, 
 		      "command (%d) contains mismatch in p flag\n", 
-		      h.code);
+		      h.code));
       st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_BIT_IN_HEADER);
       throw st;
     }
@@ -121,8 +121,8 @@ DiameterMsgHeaderParser::parseRawToApp()// throw(DiameterErrorCode)
 	}
       if (com == NULL)
 	{
-	  AAA_LOG(LM_ERROR, 
-			  "No way to handle answer with error\n");
+	  AAA_LOG((LM_ERROR, 
+			  "No way to handle answer with error\n"));
 	  st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
 	  throw st;
 	}
@@ -149,26 +149,26 @@ DiameterMsgHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
       if ((com = DiameterCommandList::instance()->
 	   search(h.code, h.appId, h.flags.r)) == NULL)
 	{
-	  AAA_LOG(LM_ERROR, "command (%d,r-flag=%1d) not found\n", 
-			  h.code, h.flags.r);
+	  AAA_LOG((LM_ERROR, "command (%d,r-flag=%1d) not found\n", 
+			  h.code, h.flags.r));
 	  st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
 	  throw st;
 	}
 
       if (com->flags.r && h.flags.e)
 	{
-	  AAA_LOG(LM_ERROR, 
+	  AAA_LOG((LM_ERROR, 
 			  "command (%d) e flag cannot be set for request\n", 
-			  h.code);
+			  h.code));
 	  st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_HDR_BITS);
 	  throw st;
 	}
 
       if (com->flags.p == 0 && h.flags.p == 1)
 	{
-	  AAA_LOG(LM_ERROR, 
+	  AAA_LOG((LM_ERROR, 
 			  "command (%d) contains mismatch in p flag\n", 
-			  h.code);
+			  h.code));
 	  st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_HDR_BITS);
 	  throw st;
 	}
@@ -186,8 +186,8 @@ DiameterMsgHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
 	    }
 	  if (com == NULL)
 	    {
-	      AAA_LOG(LM_ERROR, 
-			      "No way to handle answer with error\n");
+	      AAA_LOG((LM_ERROR, 
+			      "No way to handle answer with error\n"));
 	      st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
 	      throw st;
 	    }
@@ -230,7 +230,7 @@ DiameterMsgPayloadParser::parseRawToApp()// throw(DiameterErrorCode)
     qc.parseRawToApp();
   }
   catch (DiameterErrorCode st) {
-    AAA_LOG(LM_ERROR, "Parse error");
+    AAA_LOG((LM_ERROR, "Parse error"));
     throw;
   }
 }
@@ -255,7 +255,7 @@ DiameterMsgPayloadParser::parseAppToRaw()// throw(DiameterErrorCode)
     qc.parseAppToRaw();
   }
   catch (DiameterErrorCode &st) {
-    AAA_LOG(LM_ERROR, "Parse error");
+    AAA_LOG((LM_ERROR, "Parse error"));
     throw;
   }
 }

@@ -116,7 +116,7 @@ parseRawToAppWithoutDict(DiameterAvpHeaderList *ahl,
       // use default dictionary only
       if ((avp = DiameterAvpList::instance()->search(name)) == NULL)
 	{
-	  AAA_LOG(LM_ERROR, "No dictionary entry for %s avp.\n", name);
+	  AAA_LOG((LM_ERROR, "No dictionary entry for %s avp.\n", name));
 	  st.set(AAA_PARSE_ERROR_TYPE_BUG,
                 AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
 	  throw;
@@ -145,7 +145,7 @@ parseRawToAppWithoutDict(DiameterAvpHeaderList *ahl,
 	      else
 		{
 		  // Parse error 
-		  AAA_LOG(LM_ERROR, "Error in AVP %s.\n", name);
+		  AAA_LOG((LM_ERROR, "Error in AVP %s.\n", name));
 		  throw;
 		}
 	    }
@@ -216,13 +216,13 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
             if (0 == min)
                continue;
 
-		      AAA_LOG(LM_ERROR, "missing %s avp.\n", name);
+		      AAA_LOG((LM_ERROR, "missing %s avp.\n", name));
 		      throw;
 		    }
 		  else
 		    {
 		      // Parse error 
-		      AAA_LOG(LM_ERROR, "Error in AVP %s.\n", name);
+		      AAA_LOG((LM_ERROR, "Error in AVP %s.\n", name));
 		      cm.release(c);
 		      throw;
 		    }
@@ -230,7 +230,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 	      // Check number of containers
 	      if (c->size() < min)
 		{
-		  AAA_LOG(LM_ERROR, "at lease min %s avp needed.\n", name);
+		  AAA_LOG((LM_ERROR, "at lease min %s avp needed.\n", name));
 		  st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_MISSING_AVP, qavp->avp);
 		  c->releaseEntries();
 		  cm.release(c);
@@ -238,7 +238,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 		}
 	      if (c->size() > max)
 		{
-		  AAA_LOG(LM_ERROR, "at most max[%d] %s avp allowed.\n", max, name);
+		  AAA_LOG((LM_ERROR, "at most max[%d] %s avp allowed.\n", max, name));
 		  st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_OCCURS_TOO_MANY_TIMES, qavp->avp);
 		  c->releaseEntries();
 		  cm.release(c);
@@ -268,7 +268,7 @@ parseAppToRawWithoutDict(AAAMessageBlock *msg, AAAAvpContainerList *acl)
       // use default dictionary only
       if ((avp = DiameterAvpList::instance()->search(name)) == NULL)
 	{
-	  AAA_LOG(LM_ERROR, "No dictionary entry for %s avp.\n", name);
+	  AAA_LOG((LM_ERROR, "No dictionary entry for %s avp.\n", name));
 	  st.set(AAA_PARSE_ERROR_TYPE_BUG,
                  AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
 	  throw;
@@ -291,7 +291,7 @@ parseAppToRawWithoutDict(AAAMessageBlock *msg, AAAAvpContainerList *acl)
       }
       catch (DiameterErrorCode &st)
 	{
-	  AAA_LOG(LM_ERROR, "Error in AVP %s.\n", name);
+	  AAA_LOG((LM_ERROR, "Error in AVP %s.\n", name));
 	  throw;
 	}
     }
@@ -329,7 +329,7 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
 	    {
 	      if (min > 0 && max > 0 && pt != AAA_PARSE_TYPE_OPTIONAL)
 		{
-		  AAA_LOG(LM_ERROR, "missing avp %s in container.\n", name);
+		  AAA_LOG((LM_ERROR, "missing avp %s in container.\n", name));
 		  st.set(AAA_PARSE_ERROR_TYPE_BUG,
                          AAA_PARSE_ERROR_MISSING_CONTAINER);
 		  throw st;
@@ -339,28 +339,28 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
 
 	  if (max == 0)
 	    {
-	      AAA_LOG(LM_ERROR, "%s must not appear in container.\n", name);
+	      AAA_LOG((LM_ERROR, "%s must not appear in container.\n", name));
 	      st.set(AAA_PARSE_ERROR_TYPE_BUG,
                      AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
 	      throw st;
 	    }
 	  if (c->size() < min)
 	    {
-	      AAA_LOG(LM_ERROR, "less than min entries for the AVP.\n");
+	      AAA_LOG((LM_ERROR, "less than min entries for the AVP.\n"));
               st.set(AAA_PARSE_ERROR_TYPE_BUG,
                      AAA_PARSE_ERROR_TOO_LESS_AVP_ENTRIES);
 	      throw st;
 	    }
 	  if (c->size() > max)
 	    {
-	      AAA_LOG(LM_ERROR, "more than max entries for the AVP.\n");
+	      AAA_LOG((LM_ERROR, "more than max entries for the AVP.\n"));
 	      st.set(AAA_PARSE_ERROR_TYPE_BUG,
                      AAA_PARSE_ERROR_TOO_MUCH_AVP_ENTRIES);
 	      throw st;
 	    }
 	  if (c->size() == 0)
 	    {
-	      AAA_LOG(LM_INFO, "container is empty.\n");
+	      AAA_LOG((LM_INFO, "container is empty.\n"));
 	      continue;
 	    }
 
@@ -380,7 +380,7 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
 	  }
 	  catch (DiameterErrorCode &st)
 	    {
-	      AAA_LOG(LM_ERROR, "Error in AVP %s.\n", name);
+	      AAA_LOG((LM_ERROR, "Error in AVP %s.\n", name));
 	      throw;
 	    }
 	}

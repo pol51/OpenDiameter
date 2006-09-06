@@ -1263,16 +1263,16 @@ class DiameterMsgResultCode
 class DiameterMsgHeaderDump {
     public:
         static void Dump(DiameterMsg &msg) {
-            AAA_LOG(LM_INFO, "(%P|%t) Message header dump\n");
-            AAA_LOG(LM_INFO, "          version = %d\n", int(msg.hdr.ver));
-            AAA_LOG(LM_INFO, "          length  = %d\n", int(msg.hdr.length));
-            AAA_LOG(LM_INFO, "     flags(r,p,e,t) = (%d,%d,%d,%d)\n",
+            AAA_LOG((LM_INFO, "(%P|%t) Message header dump\n"));
+            AAA_LOG((LM_INFO, "          version = %d\n", int(msg.hdr.ver)));
+            AAA_LOG((LM_INFO, "          length  = %d\n", int(msg.hdr.length)));
+            AAA_LOG((LM_INFO, "     flags(r,p,e,t) = (%d,%d,%d,%d)\n",
                     int(msg.hdr.flags.r), int(msg.hdr.flags.p),
-                    int(msg.hdr.flags.e), int(msg.hdr.flags.t));
-            AAA_LOG(LM_INFO, "          command = %d\n", int(msg.hdr.code));
-            AAA_LOG(LM_INFO, "       hop-by-hop = %d\n", int(msg.hdr.hh));
-            AAA_LOG(LM_INFO, "       end-to-end = %d\n", int(msg.hdr.ee));
-            AAA_LOG(LM_INFO, "   Application id = %d\n", int(msg.hdr.appId));
+                    int(msg.hdr.flags.e), int(msg.hdr.flags.t)));
+            AAA_LOG((LM_INFO, "          command = %d\n", int(msg.hdr.code)));
+            AAA_LOG((LM_INFO, "       hop-by-hop = %d\n", int(msg.hdr.hh)));
+            AAA_LOG((LM_INFO, "       end-to-end = %d\n", int(msg.hdr.ee)));
+            AAA_LOG((LM_INFO, "   Application id = %d\n", int(msg.hdr.appId)));
         }
 };
 
@@ -1310,7 +1310,7 @@ class DiameterMsgWidget
                 DiameterMsgHeaderDump::Dump(*message);
                 return;
             }
-            AAA_LOG(LM_INFO, "Msg widget is un-assigned\n");
+            AAA_LOG((LM_INFO, "Msg widget is un-assigned\n"));
         }
 
     private:
@@ -1394,7 +1394,7 @@ class DiameterMsgParserWidgetChecked :
                 ErrorDump(st);
             }
             catch (...) {
-                AAA_LOG(LM_INFO, "Parser error: Unknown fatal !!!\n");
+                AAA_LOG((LM_INFO, "Parser error: Unknown fatal !!!\n"));
                 exit (0);
             }
             return (-1);
@@ -1420,19 +1420,18 @@ class DiameterMsgParserWidgetChecked :
                 ErrorDump(st);
             }
             catch (...) {
-                AAA_LOG(LM_INFO, "Parser error: Unknown fatal !!!\n");
+                AAA_LOG((LM_INFO, "Parser error: Unknown fatal !!!\n"));
                 exit (0);
             }
             return (-1);
         }
         static void ErrorDump(DiameterErrorCode &st) {
-            AAA_LOG(LM_INFO, "Parser error: ");
+            AAA_LOG((LM_INFO, "Parser error: "));
             AAA_PARSE_ERROR_TYPE type;
             int code;
             std::string avp;
             st.get(type, code, avp);
-            AAA_LOG(LM_INFO, "Error type=%d, code=%d, name=%s\n",
-                    type, code, avp.data());
+            AAA_LOG((LM_INFO, "Error type=%d, code=%d, name=%s\n", type, code, avp.data()));
         }
 };
 

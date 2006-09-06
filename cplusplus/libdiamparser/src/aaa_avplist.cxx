@@ -48,7 +48,7 @@ ACE_UINT32 getMinSize(AAADictionaryEntry *avp)
     DiameterErrorCode st;
 
     if (!avp) {
-        AAA_LOG(LM_ERROR, "getMinSize(): AVP dictionary cannot be null.");
+        AAA_LOG((LM_ERROR, "getMinSize(): AVP dictionary cannot be null."));
         st.set(AAA_PARSE_ERROR_TYPE_BUG,
             AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
         throw st;
@@ -56,7 +56,7 @@ ACE_UINT32 getMinSize(AAADictionaryEntry *avp)
 
     avpt = (DiameterAvpType*)DiameterAvpTypeList::instance()->search(avp->avpType);
     if (!avpt) {
-        AAA_LOG(LM_ERROR, "getMinSize(): Cannot find AVP type.");
+        AAA_LOG((LM_ERROR, "getMinSize(): Cannot find AVP type."));
         st.set(AAA_PARSE_ERROR_TYPE_BUG,
             AAA_PARSE_ERROR_MISSING_AVP_VALUE_PARSER);
         throw st;
@@ -65,7 +65,7 @@ ACE_UINT32 getMinSize(AAADictionaryEntry *avp)
     if (avp->avpType == AAA_AVP_GROUPED_TYPE) {
         gavp = DiameterGroupedAvpList::instance()->search(avp->avpCode, avp->vendorId);
         if (!gavp) {
-            AAA_LOG(LM_ERROR, "getMinSize(): Cannot grouped AVP dictionary.");
+            AAA_LOG((LM_ERROR, "getMinSize(): Cannot grouped AVP dictionary."));
             st.set(AAA_PARSE_ERROR_TYPE_BUG,
                 AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
             throw st;
