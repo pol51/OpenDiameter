@@ -79,29 +79,29 @@ class PANA_AuthScriptCtl
 
          if (args.m_Pac.IsSet()) {        
             FormatToString(args.m_Pac(), buf, sizeof(buf));
-            ACE_DEBUG((LM_INFO, "PaC Device Id: %s\n", buf));
+            AAA_LOG((LM_INFO, "PaC Device Id: %s\n", buf));
          }
 
 #if defined(PANA_MPA_SUPPORT)
  	 if (args.m_PacIPaddr.IsSet()) {        
              FormatToString(args.m_PacIPaddr(), buf, sizeof(buf));
-             ACE_DEBUG((LM_INFO, "PaC IP addr: %s\n", buf));
+             AAA_LOG((LM_INFO, "PaC IP addr: %s\n", buf));
          }
  
          if (args.m_PaaIPaddr.IsSet()) {        
              FormatToString(args.m_PaaIPaddr(), buf, sizeof(buf));
-             ACE_DEBUG((LM_INFO, "PAA IP addr: %s\n", buf));
+             AAA_LOG((LM_INFO, "PAA IP addr: %s\n", buf));
          }
 #endif
 
          if (args.m_Paa.IsSet()) {        
             FormatToString(args.m_Paa(), buf, sizeof(buf));
-            ACE_DEBUG((LM_INFO, "PAA Device Id: %s\n", buf));
+            AAA_LOG((LM_INFO, "PAA Device Id: %s\n", buf));
          }
 
          if (args.m_Key.IsSet()) {
             FormatToString(args.m_Key(), buf, sizeof(buf));
-            ACE_DEBUG((LM_INFO, "AAA-Key: %s\n", buf));
+            AAA_LOG((LM_INFO, "AAA-Key: %s\n", buf));
          }
 
          if (args.m_KeyId.IsSet()) {
@@ -122,12 +122,12 @@ class PANA_AuthScriptCtl
                  i != args.m_PMKKeyList().end(); 
                  i ++ ) {
                 FormatToString((*i), buf, sizeof(buf));
-                ACE_DEBUG((LM_INFO, "PMK-Key: %s\n", buf));
+                AAA_LOG((LM_INFO, "PMK-Key: %s\n", buf));
             }
          }
 
          if (args.m_PreferedISP.IsSet()) {
-            ACE_DEBUG((LM_INFO, "Prefered ISP: %s\n", 
+            AAA_LOG((LM_INFO, "Prefered ISP: %s\n", 
 	              args.m_PreferedISP().m_Name.data()));
          }
 
@@ -138,13 +138,13 @@ class PANA_AuthScriptCtl
                   i != args.m_PSKKeyList().end(); 
                   i ++ ) {
                  FormatToString((*i), buf, sizeof(buf));
-                 ACE_DEBUG((LM_INFO, "PSK-Key: %s\n", buf));
+                 AAA_LOG((LM_INFO, "PSK-Key: %s\n", buf));
              }
          }
 #endif
  
          if (args.m_PreferedNAP.IsSet()) {
-            ACE_DEBUG((LM_INFO, "Prefered NAP: %s\n", 
+            AAA_LOG((LM_INFO, "Prefered NAP: %s\n", 
 		      args.m_PreferedNAP().m_Name.data()));
          }
 
@@ -154,7 +154,7 @@ class PANA_AuthScriptCtl
             for (;i != args.m_Ep()->end(); i++) {
                 id = (*i);
                 FormatToString(*id, buf, sizeof(buf));
-	        ACE_DEBUG((LM_INFO, "EP Device id: %s\n", buf));
+	        AAA_LOG((LM_INFO, "EP Device id: %s\n", buf));
             }
          }
       }
@@ -255,7 +255,7 @@ class PANA_AuthScriptCtl
             system(sysCmd.data());
          }
 	 else {
-            ACE_DEBUG((LM_INFO, "%s is invalid !\n"));
+            AAA_LOG((LM_INFO, "%s is invalid !\n"));
 	 }
       }
    protected:

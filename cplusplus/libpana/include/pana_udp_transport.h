@@ -234,7 +234,7 @@ class PANA_EXPORT PANA_IfAdapterInfo : public PANA_IfName
                freeifaddrs(ifap);
            }
            else {
-               ACE_DEBUG((LM_ERROR, "(%P|%t) Get address failure\n"));
+               AAA_LOG((LM_ERROR, "(%P|%t) Get address failure\n"));
            }
            return (rc);
         }
@@ -269,7 +269,7 @@ class PANA_EXPORT PANA_IfAdapterInfo : public PANA_IfName
 
             ACE_SOCK_IO querySo;
             if (querySo.open(SOCK_DGRAM, PF_INET, IPPROTO_UDP, 0) < 0) {
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Interface query socket failed to open\n"));
+                AAA_LOG((LM_ERROR, "(%P|%t) Interface query socket failed to open\n"));
                 return rc;
             }
 
@@ -451,7 +451,7 @@ class PANA_EXPORT PANA_BoundedSocket : public PANA_Socket<PF>
                                  listenAddr.get_size()) == 0) {
                     return 0;
                 }
-                ACE_DEBUG((LM_ERROR, "(%P|%t) UDP bind failure\n"));
+                AAA_LOG((LM_ERROR, "(%P|%t) UDP bind failure\n"));
                 PANA_Socket<PF>::close();
             }
             return -1;
@@ -487,7 +487,7 @@ class PANA_EXPORT PANA_UdpIPv6 : public PANA_Socket<PF_INET6>
                             listenAddr.get_port_number());
             if (getaddrinfo(NULL, service, 
                             &hints, &res) != 0) {
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Address info failure\n"));
+                AAA_LOG((LM_ERROR, "(%P|%t) Address info failure\n"));
                 return -1;
             }
             ressave=res;
@@ -508,7 +508,7 @@ class PANA_EXPORT PANA_UdpIPv6 : public PANA_Socket<PF_INET6>
                     if (BIND && ACE_OS::bind(m_Socket.get_handle(), 
                                      res->ai_addr, 
                                      (int)res->ai_addrlen) < 0) {
-                        ACE_DEBUG((LM_ERROR, "(%P|%t) UDP bind failure\n"));
+                        AAA_LOG((LM_ERROR, "(%P|%t) UDP bind failure\n"));
                         throw (1);
                     }
                     sockaddr_in6 *in6 = (sockaddr_in6*)listenAddr.get_addr();
@@ -548,7 +548,7 @@ class PANA_EXPORT PANA_UdpIPv6 : public PANA_Socket<PF_INET6>
                     daddr.sin6_scope_id = m_AdapterInfo.get_adapter_index
                                    (          m_AdapterInfo.Ifname().data());
                     if (daddr.sin6_scope_id == 0) {
-                        ACE_DEBUG((LM_ERROR, "(%P|%t) IF index failed to resolve: %s\n", 
+                        AAA_LOG((LM_ERROR, "(%P|%t) IF index failed to resolve: %s\n", 
                         m_AdapterInfo.Ifname().data()));
                         return -1;
                     }
@@ -573,13 +573,13 @@ class PANA_EXPORT PANA_UdpIPv6 : public PANA_Socket<PF_INET6>
                                     IPV6_MULTICAST_HOPS, 
                                     &hops, 
                                     sizeof(hops)) < 0) {
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Multicast hops option failed\n"));
+                AAA_LOG((LM_ERROR, "(%P|%t) Multicast hops option failed\n"));
                 return -1;
             }
             int ifindex = m_AdapterInfo.get_adapter_index
                 (m_AdapterInfo.Ifname().data());
             if (ifindex == 0) {
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Invalid ifname: %s\n",
+                AAA_LOG((LM_ERROR, "(%P|%t) Invalid ifname: %s\n",
                            m_AdapterInfo.Ifname().data()));
                 return -1;
             }
@@ -587,7 +587,7 @@ class PANA_EXPORT PANA_UdpIPv6 : public PANA_Socket<PF_INET6>
                                     IPV6_MULTICAST_IF,
                                     &ifindex, 
                                     sizeof(ifindex)) < 0) {
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Multicast IF option failed\n"));
+                AAA_LOG((LM_ERROR, "(%P|%t) Multicast IF option failed\n"));
                 return -1; 
             }
             if (JOIN) {
@@ -600,7 +600,7 @@ class PANA_EXPORT PANA_UdpIPv6 : public PANA_Socket<PF_INET6>
                                         IPV6_JOIN_GROUP,
                                         (char *)&mreq, 
                                         sizeof(mreq)) < 0) {
-                    ACE_DEBUG((LM_ERROR, "(%P|%t) Multicast join failed: %s\n",
+                    AAA_LOG((LM_ERROR, "(%P|%t) Multicast join failed: %s\n",
                               strerror(errno)));
                     return -1;
                 }
@@ -651,7 +651,7 @@ class PANA_EXPORT PANA_McastSender : public PANA_BoundedSocket<PF_INET>
                     return 0; 
                 }
             }
-            ACE_DEBUG((LM_ERROR, "(%P|%t) Multicast IF option failed\n"));
+            AAA_LOG((LM_ERROR, "(%P|%t) Multicast IF option failed\n"));
             close();
             return -1;
         }
@@ -690,7 +690,7 @@ class PANA_EXPORT PANA_McastListener : public PANA_BoundedSocket<PF_INET>
                     return (0);
                 }
                 printf("Error: %s\n", strerror(errno));
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Multicast add membership failed\n"));
+                AAA_LOG((LM_ERROR, "(%P|%t) Multicast add membership failed\n"));
                 close();
             }
             return -1;

@@ -34,6 +34,7 @@
 #include "ace/Log_Msg.h"
 #include "ace/INET_Addr.h"
 #include "od_utl_xml_sax_parser.h"
+#include "framework.h"
 #include "user_db.h"
 
 class AAA_XMLUserEntry :
@@ -93,7 +94,7 @@ class AAA_XMLNameParser :
              entryElm->Get()->m_Username = ch;
          }
          else {
-             ACE_DEBUG((LM_ERROR, 
+             AAA_LOG((LM_ERROR, 
                   "Name has an invalid parent !!!\n"));
              throw;
          }
@@ -125,7 +126,7 @@ class AAA_XMLPassParser :
              entryElm->Get()->m_Passphrase = ch;
          }
          else {
-             ACE_DEBUG((LM_ERROR, 
+             AAA_LOG((LM_ERROR, 
                   "Auth has an invalid parent !!!\n"));
              throw;
          }
@@ -162,13 +163,13 @@ class AAA_XMLAuthParser :
                  entryElm->Get()->m_AuthType = 100;
              }
              else {
-                 ACE_DEBUG((LM_ERROR, 
+                 AAA_LOG((LM_ERROR, 
                       "Invalid type !!!\n"));
                  throw;
              }
          }
          else {
-             ACE_DEBUG((LM_ERROR, 
+             AAA_LOG((LM_ERROR, 
                   "Pass has an invalid parent !!!\n"));
              throw;
          }

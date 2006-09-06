@@ -319,13 +319,13 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         if (*auth == mvalue) {
             return (true);
         }
-        ACE_DEBUG((LM_ERROR, "(%P|%t) AUTH value is invalid\n"));
+        AAA_LOG((LM_ERROR, "(%P|%t) AUTH value is invalid\n"));
     }
     catch (DiameterErrorCode &st) {
-        ACE_DEBUG((LM_ERROR, "(%P|%t) Parsing error is session transmitter\n"));
+        AAA_LOG((LM_ERROR, "(%P|%t) Parsing error is session transmitter\n"));
     }  
     catch (PANA_Exception &e) {
-        ACE_DEBUG((LM_ERROR, "(%P|%t) %s\n", e.description().data()));
+        AAA_LOG((LM_ERROR, "(%P|%t) %s\n", e.description().data()));
     }
     return (false);
 }

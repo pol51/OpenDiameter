@@ -2095,7 +2095,7 @@ class PANA_PsmRxPU : public PANA_ServerRxStateFilter
               newAddr.set_port_number(msg.srcPort());
               // save address of PaC       
               if (m_arg.PacIpAddress() != newAddr) {
-                  ACE_DEBUG((LM_INFO, "(%P|%t) New IP address detected for Pac ... updating\n"));
+                  AAA_LOG((LM_INFO, "(%P|%t) New IP address detected for Pac ... updating\n"));
                   m_arg.PacIpAddress() = newAddr;
                   m_arg.PacDeviceId() = *ipId;
               }

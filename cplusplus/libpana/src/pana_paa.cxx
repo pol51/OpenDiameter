@@ -329,7 +329,7 @@ void PANA_Paa::TxPSR()
      integrity-protected PANA-Bind-Request upon successful authentication.
     */
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPSR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendReqMsg(msg);
@@ -355,7 +355,7 @@ void PANA_Paa::RxPSA()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPSA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPSA: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // update pac nonce
@@ -377,7 +377,7 @@ void PANA_Paa::RxPSA()
     if (isp) {
         PANA_ProviderInfoTool infoTool;
         infoTool.Extract(*isp, PreferedISP());
-        ACE_DEBUG((LM_INFO, "(%P|%t) ISP INFO: id=%d, name=%s\n",
+        AAA_LOG((LM_INFO, "(%P|%t) ISP INFO: id=%d, name=%s\n",
                    PreferedISP().m_Id, PreferedISP().m_Name.data()));
     }
 
@@ -480,7 +480,7 @@ void PANA_Paa::TxPAR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPAR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendReqMsg(msg);
@@ -654,7 +654,7 @@ void PANA_Paa::TxPBR(pana_unsigned32_t rcode,
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPBR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPBR: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendReqMsg(msg);
@@ -768,7 +768,7 @@ void PANA_Paa::TxPFER(pana_unsigned32_t rcode,
                "Sending PFER with separate auth disabled"));
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPFER: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPFER: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendReqMsg(msg);
@@ -794,7 +794,7 @@ void PANA_Paa::RxPBA(bool success)
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPBA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPBA: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -837,7 +837,7 @@ void PANA_Paa::RxPFEA(bool success)
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPFEA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPFEA: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -895,7 +895,7 @@ void PANA_Paa::TxPAN()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPAN: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendAnsMsg(msg);
@@ -922,7 +922,7 @@ void PANA_Paa::RxPAR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPAR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -959,7 +959,7 @@ void PANA_Paa::RxPAN()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPAN: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -1000,7 +1000,7 @@ void PANA_Paa::RxPRAR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPRAR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPRAR: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -1043,7 +1043,7 @@ void PANA_Paa::TxPRAA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPRAA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPRAA: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendAnsMsg(msg);

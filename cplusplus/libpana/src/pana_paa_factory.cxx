@@ -157,7 +157,7 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
        }
 
        // add to pending db
-       ACE_DEBUG((LM_INFO, "(%P|%t) New session created [stateful discovery]\n"));  
+       AAA_LOG((LM_INFO, "(%P|%t) New session created [stateful discovery]\n"));  
        pana_address_t id;
        PANA_AddrConverter::ToAAAAddress(addr, id);
        m_PendingDb.Add(id.value, *session);
@@ -195,7 +195,7 @@ void PANA_PaaSessionFactory::RxPDI(PANA_Message &msg)
 
    */
 
-   ACE_DEBUG((LM_INFO, "(%P|%t) RxPDI: S-flag %d, seq=%d\n",
+   AAA_LOG((LM_INFO, "(%P|%t) RxPDI: S-flag %d, seq=%d\n",
              msg.flags().separate, msg.seq()));
 
    // validate sequence number
@@ -216,7 +216,7 @@ void PANA_PaaSessionFactory::RxPDI(PANA_Message &msg)
    pana_octetstring_t *note = NotificationAvp.GetAvp
        (PANA_AVPNAME_NOTIFICATION);
    if (note) {
-       ACE_DEBUG((LM_INFO, "(%P|%t) NOTIFICATION: %s\n",
+       AAA_LOG((LM_INFO, "(%P|%t) NOTIFICATION: %s\n",
            note->data()));
    }
     
@@ -327,7 +327,7 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
     msg->srcDevices().clone(ipId);
     msg->srcPort() = addr.get_port_number();
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPSR: Stateless, S-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: Stateless, S-flag=%d, seq=%d\n",
                msg->flags().separate, msg->seq()));
 
     m_UdpChannel.Send(msg);
@@ -351,7 +351,7 @@ void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
                          *  [ AVP ]
     */
 
-   ACE_DEBUG((LM_INFO, "(%P|%t) RxPSA: Stateless, S-flag %d, seq=%d\n",
+   AAA_LOG((LM_INFO, "(%P|%t) RxPSA: Stateless, S-flag %d, seq=%d\n",
                        msg.flags().separate, msg.seq()));
 
    PANA_DeviceId *ipId = PANA_DeviceIdConverter::GetIpOnlyAddress
@@ -385,7 +385,7 @@ void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
       throw (PANA_Exception(PANA_Exception::NO_MEMORY, 
                            "Failed to auth agent session"));
    }
-   ACE_DEBUG((LM_INFO, "(%P|%t) New session created [stateless discovery]\n"));  
+   AAA_LOG((LM_INFO, "(%P|%t) New session created [stateless discovery]\n"));  
 
    // save address of PaC       
    session->m_PAA.PacDeviceId() = *ipId;
@@ -409,7 +409,7 @@ bool PANA_PaaSessionFactory::ValidateCookie(PANA_Message &msg)
        PANA_DeviceId *ipId = PANA_DeviceIdConverter::GetIpOnlyAddress
            (msg.srcDevices(), (bool)PANA_CFG_GENERAL().m_IPv6Enabled);
 
-       ACE_DEBUG((LM_INFO, "(%P|%t) Validating cookie\n"));
+       AAA_LOG((LM_INFO, "(%P|%t) Validating cookie\n"));
 
        return PANA_COOKIE_VERIFY(ipId->value, *cookie);
    }

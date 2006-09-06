@@ -44,7 +44,7 @@ int PANA_IngressMsgParser::Serve()
        ACE_NEW_NORETURN(parsedMsg, PANA_Message);
 
        if (parsedMsg == NULL) {
-          ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] App message\n"));
+          AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] App message\n"));
           throw (0);
        }
 
@@ -70,10 +70,10 @@ int PANA_IngressMsgParser::Serve()
        (*m_MsgHandler)(*parsedMsg);
     }
     catch (DiameterErrorCode &st) {
-       ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, PARSING] parsing error\n"));
+       AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, PARSING] parsing error\n"));
     }
     catch (PANA_Exception &e) {
-       ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, RECEIVER] %s\n", 
+       AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECEIVER] %s\n", 
                   e.description().data())); 
     }
     catch (...) {
@@ -96,7 +96,7 @@ int PANA_IngressReceiver::Serve()
         PANA_DeviceIdContainer *srcDevices;
         ACE_NEW_NORETURN(srcDevices, PANA_DeviceIdContainer);
         if (srcDevices == NULL) {
-            ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] device id on %s\n",
+            AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] device id on %s\n",
                        m_Name.data()));
             throw (0);
         }
@@ -106,7 +106,7 @@ int PANA_IngressReceiver::Serve()
                                   srcPort, *srcDevices);
         if (bytes > 0) {
             if (m_MsgHandler == NULL) {
-                ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, RECV] handler absent on %s\n",
+                AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] handler absent on %s\n",
                            m_Name.data()));
                 throw (1);
             }
@@ -122,13 +122,13 @@ int PANA_IngressReceiver::Serve()
                 parser->RegisterHandler(*m_MsgHandler);
                 if (Schedule(parser) < 0) {
                    delete parser;
-                   ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, SCHEDULE] delivery job on %s\n",
+                   AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, SCHEDULE] delivery job on %s\n",
                               m_Name.data()));
                    throw (0);
                 }
             }
             else {
-                ACE_DEBUG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] message parser job on %s\n",
+                AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] message parser job on %s\n",
                            m_Name.data()));
                 throw (0);
             }
@@ -142,7 +142,7 @@ int PANA_IngressReceiver::Serve()
         } else if ((errno != EAGAIN) &&
                    (errno != ETIME) &&
                    (errno != ECONNREFUSED)) {
-            ACE_DEBUG((LM_ERROR, "(%P|%t) Receive channel error on %s : %s, retrying\n",
+            AAA_LOG((LM_ERROR, "(%P|%t) Receive channel error on %s : %s, retrying\n",
                        m_Name.data(), strerror(errno)));
             if (! m_Abort) {
                 m_IO.ReOpen();

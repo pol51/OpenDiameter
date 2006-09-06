@@ -151,48 +151,48 @@ class PANA_PaaEventVariable
         }
         void DumpEvent() {
 #if defined(PANA_DEBUG)
-            ACE_DEBUG((LM_DEBUG, "Event: "));
+            AAA_LOG((LM_DEBUG, "Event: "));
             if (m_Event.i.m_Type_Msg)
-                ACE_DEBUG((LM_DEBUG, "Msg[%d] ", m_Event.i.m_Type_Msg));
+                AAA_LOG((LM_DEBUG, "Msg[%d] ", m_Event.i.m_Type_Msg));
             if (m_Event.i.m_Event_App)
-                ACE_DEBUG((LM_DEBUG, "App[%d] ", m_Event.i.m_Event_App));
+                AAA_LOG((LM_DEBUG, "App[%d] ", m_Event.i.m_Event_App));
             if (m_Event.i.m_Event_Eap)
-                ACE_DEBUG((LM_DEBUG, "Eap[%d] ", m_Event.i.m_Event_Eap));
+                AAA_LOG((LM_DEBUG, "Eap[%d] ", m_Event.i.m_Event_Eap));
             if (m_Event.i.m_Cfg_UseCookie)
-                ACE_DEBUG((LM_DEBUG, "CookieCfg "));
+                AAA_LOG((LM_DEBUG, "CookieCfg "));
             if (m_Event.i.m_Cfg_PiggyBack)
-                ACE_DEBUG((LM_DEBUG, "EapPiggy "));
+                AAA_LOG((LM_DEBUG, "EapPiggy "));
             if (m_Event.i.m_Flag_Separate)
-                ACE_DEBUG((LM_DEBUG, "S-flag "));
+                AAA_LOG((LM_DEBUG, "S-flag "));
             if (m_Event.i.m_Result_FirstEap)
-                ACE_DEBUG((LM_DEBUG, "1stEAP[%d] ", m_Event.i.m_Result_FirstEap));
+                AAA_LOG((LM_DEBUG, "1stEAP[%d] ", m_Event.i.m_Result_FirstEap));
             if (m_Event.i.m_Do_AbortOnFirstEap)
-                ACE_DEBUG((LM_DEBUG, "Abort1stEap "));
+                AAA_LOG((LM_DEBUG, "Abort1stEap "));
             if (m_Event.i.m_Do_Separate)
-                ACE_DEBUG((LM_DEBUG, "DoSep "));
+                AAA_LOG((LM_DEBUG, "DoSep "));
             if (m_Event.i.m_Do_RetreiveSA)
-                ACE_DEBUG((LM_DEBUG, "DoSA "));
+                AAA_LOG((LM_DEBUG, "DoSA "));
             if (m_Event.i.m_Do_Authorize)
-                ACE_DEBUG((LM_DEBUG, "DoAuth "));
+                AAA_LOG((LM_DEBUG, "DoAuth "));
             if (m_Event.i.m_Do_Ping)
-                ACE_DEBUG((LM_DEBUG, "DoPing "));
+                AAA_LOG((LM_DEBUG, "DoPing "));
             if (m_Event.i.m_Do_RetryTimeout)
-                ACE_DEBUG((LM_DEBUG, "RetryTout "));
+                AAA_LOG((LM_DEBUG, "RetryTout "));
             if (m_Event.i.m_Do_ReTransmission)
-                ACE_DEBUG((LM_DEBUG, "Retran "));
+                AAA_LOG((LM_DEBUG, "Retran "));
             if (m_Event.i.m_Do_EapRespTimeout)
-                ACE_DEBUG((LM_DEBUG, "EapRespTout "));
+                AAA_LOG((LM_DEBUG, "EapRespTout "));
             if (m_Event.i.m_Do_Mobility)
-                ACE_DEBUG((LM_DEBUG, "DoMobility "));
+                AAA_LOG((LM_DEBUG, "DoMobility "));
             if (m_Event.i.m_Do_FatalError)
-                ACE_DEBUG((LM_DEBUG, "Fatal "));
+                AAA_LOG((LM_DEBUG, "Fatal "));
             if (m_Event.i.m_Do_Missing_DeviceId)
-                ACE_DEBUG((LM_DEBUG, "MissingDevId "));
+                AAA_LOG((LM_DEBUG, "MissingDevId "));
             if (m_Event.i.m_Do_SessTimeout)
-                ACE_DEBUG((LM_DEBUG, "SessTout "));
+                AAA_LOG((LM_DEBUG, "SessTout "));
             if (m_Event.i.m_AvpExist_EapPayload)
-                ACE_DEBUG((LM_DEBUG, "EapPayload "));
-            ACE_DEBUG((LM_DEBUG, "\n"));
+                AAA_LOG((LM_DEBUG, "EapPayload "));
+            AAA_LOG((LM_DEBUG, "\n"));
 #endif
         }
 

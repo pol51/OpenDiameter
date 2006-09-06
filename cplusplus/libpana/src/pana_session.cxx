@@ -223,7 +223,7 @@ void PANA_Session::TxPUR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPUR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPUR: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendReqMsg(msg);
@@ -262,7 +262,7 @@ void PANA_Session::TxPUA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPUA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPUA: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendAnsMsg(msg);
@@ -305,7 +305,7 @@ void PANA_Session::TxPPR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPPR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPPR: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendReqMsg(msg);
@@ -329,7 +329,7 @@ void PANA_Session::RxPUA()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPUA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPUA: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -357,7 +357,7 @@ void PANA_Session::RxPPR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPPR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPPR: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -385,7 +385,7 @@ void PANA_Session::RxPUR()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPUR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPUR: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -427,7 +427,7 @@ void PANA_Session::TxPPA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPPA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPPA: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendAnsMsg(msg);
@@ -451,7 +451,7 @@ void PANA_Session::RxPPA()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPPA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPPA: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -503,7 +503,7 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPTR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPTR: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     // session timer
@@ -531,7 +531,7 @@ void PANA_Session::RxPTR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPTR: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPTR: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -583,7 +583,7 @@ void PANA_Session::TxPTA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPTA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPTA: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendAnsMsg(msg);
@@ -607,7 +607,7 @@ void PANA_Session::RxPTA()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPTA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPTA: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -662,7 +662,7 @@ void PANA_Session::TxPER(pana_unsigned32_t rcode)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPER: [RCODE=%d] S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPER: [RCODE=%d] S-flag %d, N-flag=%d, seq=%d\n",
                rcode, msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendReqMsg(msg);
@@ -688,7 +688,7 @@ void PANA_Session::RxPER()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPER: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPER: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -735,7 +735,7 @@ void PANA_Session::TxPEA()
     // add notification if any       
     AddNotification(*msg);
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) TxPEA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPEA: S-flag %d, N-flag=%d, seq=%d\n",
                msg->flags().separate, msg->flags().nap, msg->seq()));
 
     SendAnsMsg(msg);
@@ -759,7 +759,7 @@ void PANA_Session::RxPEA(bool fatal)
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    ACE_DEBUG((LM_INFO, "(%P|%t) RxPEA: S-flag %d, N-flag=%d, seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPEA: S-flag %d, N-flag=%d, seq=%d\n",
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // process notification
@@ -813,7 +813,7 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
                 throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
                        "PANA session received msg with invalid AUTH value"));
            }
-           ACE_DEBUG((LM_INFO, "(%P|%t) Auth validated\n"));
+           AAA_LOG((LM_INFO, "(%P|%t) Auth validated\n"));
        }
    }
 
@@ -838,7 +838,7 @@ bool PANA_Session::TxLastReqMsg()
 {
     if (m_Timer.ReScheduleTxRetry()) {
 
-        ACE_DEBUG((LM_INFO, "(%P|%t) Re-transmitting last request\n"));
+        AAA_LOG((LM_INFO, "(%P|%t) Re-transmitting last request\n"));
 
         // reset the master list
         LastTxReqMsg()->avpList().reset();
@@ -849,7 +849,7 @@ bool PANA_Session::TxLastReqMsg()
         return (true);
     }
     else {
-        ACE_DEBUG((LM_INFO, "(%P|%t) Re-transmission giving up\n"));
+        AAA_LOG((LM_INFO, "(%P|%t) Re-transmission giving up\n"));
         m_Timer.ScheduleSession(0);
     }
     return (false);
@@ -857,7 +857,7 @@ bool PANA_Session::TxLastReqMsg()
 
 bool PANA_Session::TxLastAnsMsg()
 {
-    ACE_DEBUG((LM_INFO, "(%P|%t) Re-transmitting last answer\n"));
+    AAA_LOG((LM_INFO, "(%P|%t) Re-transmitting last answer\n"));
 
     // reset the master list
     CachedAnsMsg()->avpList().reset();
@@ -895,12 +895,12 @@ void PANA_Session::ProcessNotification(PANA_Message &msg)
 
     if (note && pacId) {
         PANA_DeviceId updatedPacId(*pacId);
-        ACE_DEBUG((LM_INFO, "(%P|%t) NOTIFICATION: %s\n",
+        AAA_LOG((LM_INFO, "(%P|%t) NOTIFICATION: %s\n",
             note->data()));
         m_Event.Notification(*note, updatedPacId);
     }    
     else if (note) {
-        ACE_DEBUG((LM_INFO, "(%P|%t) NOTIFICATION: %s\n",
+        AAA_LOG((LM_INFO, "(%P|%t) NOTIFICATION: %s\n",
             note->data()));
         m_Event.Notification(*note);
     }
@@ -933,7 +933,7 @@ void PANA_Session::Reset()
 
 void PANA_Session::Disconnect(ACE_UINT32 cause)
 {
-   ACE_DEBUG((LM_INFO, "(%P|%t) Disconnect: cause=%d\n", 
+   AAA_LOG((LM_INFO, "(%P|%t) Disconnect: cause=%d\n", 
        cause));
 
    m_Timer.CancelTxRetry();
@@ -945,7 +945,7 @@ void PANA_Session::Disconnect(ACE_UINT32 cause)
 
 void PANA_Session::Error(ACE_UINT32 resultCode)
 {
-   ACE_DEBUG((LM_INFO, "(%P|%t) Error: result-code=%d\n", 
+   AAA_LOG((LM_INFO, "(%P|%t) Error: result-code=%d\n", 
        resultCode));
 
    m_Timer.CancelTxRetry();

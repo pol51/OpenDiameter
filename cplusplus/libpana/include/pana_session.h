@@ -253,16 +253,16 @@ class PANA_EXPORT PANA_SessionRxInterfaceTable : public AAA_Job
             }
             catch (PANA_Exception &e) {
                delete &msg;
-               ACE_DEBUG((LM_INFO, "(%P|%t) ERROR: code = %d, desc = %s\n",
+               AAA_LOG((LM_INFO, "(%P|%t) ERROR: code = %d, desc = %s\n",
                         e.code(), e.description().data()));
             }
             catch (...) {
                delete &msg;
-               ACE_DEBUG((LM_INFO, "(%P|%t) ERROR: Unknown exception\n"));
+               AAA_LOG((LM_INFO, "(%P|%t) ERROR: Unknown exception\n"));
             }
          }
          else {
-            ACE_DEBUG((LM_INFO, "(%P|%t) ERROR: No message handler for msg: %d, discarding\n",
+            AAA_LOG((LM_INFO, "(%P|%t) ERROR: No message handler for msg: %d, discarding\n",
                        msg.type()));
          }
          return (0);

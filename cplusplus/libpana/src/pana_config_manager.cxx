@@ -161,7 +161,7 @@ class PANA_IdParser :
              }
          }
          else {
-             ACE_DEBUG((LM_ERROR, 
+             AAA_LOG((LM_ERROR, 
                   "Id has an invalid parent !!!\n"));
              throw;
          }
@@ -193,7 +193,7 @@ class PANA_TypeParser :
              epElm->DeviceId().type = ACE_OS::atoi(ch);
          }
          else {
-             ACE_DEBUG((LM_ERROR, 
+             AAA_LOG((LM_ERROR, 
                   "EP type has an invalid parent !!!\n"));
              throw;
          }
@@ -231,7 +231,7 @@ class PANA_NameParser :
              ispElm->Get()->m_Name = ch;
          }
          else {
-             ACE_DEBUG((LM_ERROR, 
+             AAA_LOG((LM_ERROR, 
                   "Name has an invalid parent !!!\n"));
              throw;
          }
@@ -400,62 +400,62 @@ void PANA_CfgManager::close()
 
 void PANA_CfgManager::dump()
 {
-    ACE_DEBUG((LM_INFO, "     General configuration\n"));
-    ACE_DEBUG((LM_INFO, "          Listen Port     : %d\n", m_Data.m_General.m_ListenPort));
-    ACE_DEBUG((LM_INFO, "          Interface name  : %s\n", m_Data.m_General.m_Interface.data()));
-    ACE_DEBUG((LM_INFO, "          IPv6            : %d\n", m_Data.m_General.m_IPv6Enabled));
-    ACE_DEBUG((LM_INFO, "          Protection Cap  : %d\n", m_Data.m_General.m_ProtectionCap));
-    ACE_DEBUG((LM_INFO, "          Dictionary      : %s\n", m_Data.m_General.m_Dictionary.data()));
-    ACE_DEBUG((LM_INFO, "          Mobility        : %d\n", m_Data.m_General.m_MobilityEnabled));
-    ACE_DEBUG((LM_INFO, "          Separate NAP/ISP: %d\n", m_Data.m_General.m_SeparateAuth));
-    ACE_DEBUG((LM_INFO, "          Abort on 1st EAP: %d\n", m_Data.m_General.m_AbortOnFirstEapFailure));
-    ACE_DEBUG((LM_INFO, "          EAP Piggyback   : %d\n", m_Data.m_General.m_EapPiggyback));
-    ACE_DEBUG((LM_INFO, "          EAP Piggyback   : %d\n", m_Data.m_General.m_EapPiggyback));
-    ACE_DEBUG((LM_INFO, "          Re-Transmission\n"));
-    ACE_DEBUG((LM_INFO, "                     IRT  : %d\n", m_Data.m_General.m_RT.m_IRT));
-    ACE_DEBUG((LM_INFO, "                     MRC  : %d\n", m_Data.m_General.m_RT.m_MRC));
-    ACE_DEBUG((LM_INFO, "                     MRT  : %d\n", m_Data.m_General.m_RT.m_MRT));
-    ACE_DEBUG((LM_INFO, "                     MRD  : %d\n", m_Data.m_General.m_RT.m_MRD));
-    ACE_DEBUG((LM_INFO, "   Post-Pana Address Config\n"));
-    ACE_DEBUG((LM_INFO, "                No Config : %d\n", m_Data.m_General.m_PPAC.Get().u.m_NoConfig));
-    ACE_DEBUG((LM_INFO, "                   DHCPv4 : %d\n", m_Data.m_General.m_PPAC.Get().u.m_DHCPv4));
-    ACE_DEBUG((LM_INFO, "                   DHCPv6 : %d\n", m_Data.m_General.m_PPAC.Get().u.m_DHCPv6));
-    ACE_DEBUG((LM_INFO, "             Auto Conf v6 : %d\n", m_Data.m_General.m_PPAC.Get().u.m_AUTOv6));
-    ACE_DEBUG((LM_INFO, "             DHCPv4 IPsec : %d\n", m_Data.m_General.m_PPAC.Get().u.m_DHCPv4IPsec));
-    ACE_DEBUG((LM_INFO, "                    IKEv2 : %d\n", m_Data.m_General.m_PPAC.Get().u.m_IKEv2));
+    AAA_LOG((LM_INFO, "     General configuration\n"));
+    AAA_LOG((LM_INFO, "          Listen Port     : %d\n", m_Data.m_General.m_ListenPort));
+    AAA_LOG((LM_INFO, "          Interface name  : %s\n", m_Data.m_General.m_Interface.data()));
+    AAA_LOG((LM_INFO, "          IPv6            : %d\n", m_Data.m_General.m_IPv6Enabled));
+    AAA_LOG((LM_INFO, "          Protection Cap  : %d\n", m_Data.m_General.m_ProtectionCap));
+    AAA_LOG((LM_INFO, "          Dictionary      : %s\n", m_Data.m_General.m_Dictionary.data()));
+    AAA_LOG((LM_INFO, "          Mobility        : %d\n", m_Data.m_General.m_MobilityEnabled));
+    AAA_LOG((LM_INFO, "          Separate NAP/ISP: %d\n", m_Data.m_General.m_SeparateAuth));
+    AAA_LOG((LM_INFO, "          Abort on 1st EAP: %d\n", m_Data.m_General.m_AbortOnFirstEapFailure));
+    AAA_LOG((LM_INFO, "          EAP Piggyback   : %d\n", m_Data.m_General.m_EapPiggyback));
+    AAA_LOG((LM_INFO, "          EAP Piggyback   : %d\n", m_Data.m_General.m_EapPiggyback));
+    AAA_LOG((LM_INFO, "          Re-Transmission\n"));
+    AAA_LOG((LM_INFO, "                     IRT  : %d\n", m_Data.m_General.m_RT.m_IRT));
+    AAA_LOG((LM_INFO, "                     MRC  : %d\n", m_Data.m_General.m_RT.m_MRC));
+    AAA_LOG((LM_INFO, "                     MRT  : %d\n", m_Data.m_General.m_RT.m_MRT));
+    AAA_LOG((LM_INFO, "                     MRD  : %d\n", m_Data.m_General.m_RT.m_MRD));
+    AAA_LOG((LM_INFO, "   Post-Pana Address Config\n"));
+    AAA_LOG((LM_INFO, "                No Config : %d\n", m_Data.m_General.m_PPAC.Get().u.m_NoConfig));
+    AAA_LOG((LM_INFO, "                   DHCPv4 : %d\n", m_Data.m_General.m_PPAC.Get().u.m_DHCPv4));
+    AAA_LOG((LM_INFO, "                   DHCPv6 : %d\n", m_Data.m_General.m_PPAC.Get().u.m_DHCPv6));
+    AAA_LOG((LM_INFO, "             Auto Conf v6 : %d\n", m_Data.m_General.m_PPAC.Get().u.m_AUTOv6));
+    AAA_LOG((LM_INFO, "             DHCPv4 IPsec : %d\n", m_Data.m_General.m_PPAC.Get().u.m_DHCPv4IPsec));
+    AAA_LOG((LM_INFO, "                    IKEv2 : %d\n", m_Data.m_General.m_PPAC.Get().u.m_IKEv2));
     
     if (m_hasClient) {
-        ACE_DEBUG((LM_INFO, "     Client configuration\n"));
-        ACE_DEBUG((LM_INFO, "          PAA IP Adress   : %s\n", m_Data.m_PaC.m_PaaIpAddress.data()));
-        ACE_DEBUG((LM_INFO, "          PAA Port Number : %d\n", m_Data.m_PaC.m_PaaPortNumber));
-        ACE_DEBUG((LM_INFO, "          PAA Mcast Addr  : %s\n", m_Data.m_PaC.m_PaaMcastAddress.data()));        
-        ACE_DEBUG((LM_INFO, "             ISP Provider Info\n"));
-        ACE_DEBUG((LM_INFO, "                     Name : %s\n", m_Data.m_PaC.m_IspInfo.m_Name.c_str()));
-        ACE_DEBUG((LM_INFO, "                     ID   : %d\n", m_Data.m_PaC.m_IspInfo.m_Id));
+        AAA_LOG((LM_INFO, "     Client configuration\n"));
+        AAA_LOG((LM_INFO, "          PAA IP Adress   : %s\n", m_Data.m_PaC.m_PaaIpAddress.data()));
+        AAA_LOG((LM_INFO, "          PAA Port Number : %d\n", m_Data.m_PaC.m_PaaPortNumber));
+        AAA_LOG((LM_INFO, "          PAA Mcast Addr  : %s\n", m_Data.m_PaC.m_PaaMcastAddress.data()));        
+        AAA_LOG((LM_INFO, "             ISP Provider Info\n"));
+        AAA_LOG((LM_INFO, "                     Name : %s\n", m_Data.m_PaC.m_IspInfo.m_Name.c_str()));
+        AAA_LOG((LM_INFO, "                     ID   : %d\n", m_Data.m_PaC.m_IspInfo.m_Id));
     }
     
     if (m_hasServer) {
-        ACE_DEBUG((LM_INFO, "     Auth Agent configuration\n"));
-        ACE_DEBUG((LM_INFO, "          Use Cookie      : %d\n", m_Data.m_PAA.m_UseCookie));
-        ACE_DEBUG((LM_INFO, "          Session-Lifetime: %d\n", m_Data.m_PAA.m_SessionLifetime));
-        ACE_DEBUG((LM_INFO, "          Grace Period    : %d\n", m_Data.m_PAA.m_GracePeriod));
-        ACE_DEBUG((LM_INFO, "          Multicast Addr  : %s\n", m_Data.m_PAA.m_McastAddress.data()));        
-        ACE_DEBUG((LM_INFO, "             NAP Provider Info\n"));
-        ACE_DEBUG((LM_INFO, "                     Name : %s\n", m_Data.m_PAA.m_NapInfo.m_Name.data()));
-        ACE_DEBUG((LM_INFO, "                     ID   : %d\n", m_Data.m_PAA.m_NapInfo.m_Id));
+        AAA_LOG((LM_INFO, "     Auth Agent configuration\n"));
+        AAA_LOG((LM_INFO, "          Use Cookie      : %d\n", m_Data.m_PAA.m_UseCookie));
+        AAA_LOG((LM_INFO, "          Session-Lifetime: %d\n", m_Data.m_PAA.m_SessionLifetime));
+        AAA_LOG((LM_INFO, "          Grace Period    : %d\n", m_Data.m_PAA.m_GracePeriod));
+        AAA_LOG((LM_INFO, "          Multicast Addr  : %s\n", m_Data.m_PAA.m_McastAddress.data()));        
+        AAA_LOG((LM_INFO, "             NAP Provider Info\n"));
+        AAA_LOG((LM_INFO, "                     Name : %s\n", m_Data.m_PAA.m_NapInfo.m_Name.data()));
+        AAA_LOG((LM_INFO, "                     ID   : %d\n", m_Data.m_PAA.m_NapInfo.m_Id));
         
         PANA_CfgProviderList::iterator i = m_Data.m_PAA.m_IspInfo.begin();
         for (; i != m_Data.m_PAA.m_IspInfo.end(); i++) {
-            ACE_DEBUG((LM_INFO, "             ISP Provider Info\n"));
-            ACE_DEBUG((LM_INFO, "                     Name : %s\n", (*i)->m_Name.c_str()));
-            ACE_DEBUG((LM_INFO, "                     ID   : %d\n", (*i)->m_Id));
+            AAA_LOG((LM_INFO, "             ISP Provider Info\n"));
+            AAA_LOG((LM_INFO, "                     Name : %s\n", (*i)->m_Name.c_str()));
+            AAA_LOG((LM_INFO, "                     ID   : %d\n", (*i)->m_Id));
         }
         
         PANA_DeviceIdIterator n = m_Data.m_PAA.m_EpIdList.begin();
         for (; n != m_Data.m_PAA.m_EpIdList.end(); n++) {
-            ACE_DEBUG((LM_INFO, "          EP Device Id    : %d, %s\n",
+            AAA_LOG((LM_INFO, "          EP Device Id    : %d, %s\n",
                       (*n)->type, (*n)->value.c_str()));
         }
-        ACE_DEBUG((LM_INFO, "           Cary Device-Id : %d\n", m_Data.m_PAA.m_CarryDeviceId));        
+        AAA_LOG((LM_INFO, "           Cary Device-Id : %d\n", m_Data.m_PAA.m_CarryDeviceId));        
     }
 }

@@ -79,7 +79,7 @@ class PANA_AnyParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_DATA_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                        AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -93,7 +93,7 @@ class PANA_AnyParser :
             std::string& str = e->dataRef();
             if (e->dataType() != AAA_AVP_DATA_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                        AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -101,7 +101,7 @@ class PANA_AnyParser :
             if ((aBuffer->size() + (size_t)aBuffer->base() - 
                 (size_t)aBuffer->wr_ptr()) < str.length()) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Not enough buffer");
+                AAA_LOG((LM_ERROR, "Not enough buffer"));
                 st.set(AAA_PARSE_ERROR_TYPE_NORMAL,
                        AAA_OUT_OF_SPACE);
                 throw st;
@@ -126,7 +126,7 @@ class PANA_Integer32Parser :
                 e->dataType() != AAA_AVP_ENUM_TYPE &&
                 e->dataType() != AAA_AVP_TIME_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -143,7 +143,7 @@ class PANA_Integer32Parser :
                 e->dataType() != AAA_AVP_ENUM_TYPE &&
                 e->dataType() != AAA_AVP_TIME_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -152,7 +152,7 @@ class PANA_Integer32Parser :
                 (size_t)aBuffer->wr_ptr()) < sizeof(pana_integer32_t)) {
                 /* assuming 32-bit boundary */
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Not enough buffer");
+                AAA_LOG((LM_ERROR, "Not enough buffer"));
                 st.set(AAA_PARSE_ERROR_TYPE_NORMAL,
                         AAA_OUT_OF_SPACE);
                 throw st;
@@ -176,7 +176,7 @@ class PANA_Integer64Parser :
             if (e->dataType() != AAA_AVP_INTEGER64_TYPE &&
                 e->dataType() != AAA_AVP_UINTEGER64_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -191,7 +191,7 @@ class PANA_Integer64Parser :
             if (e->dataType() != AAA_AVP_INTEGER64_TYPE &&
                 e->dataType() != AAA_AVP_UINTEGER64_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -200,7 +200,7 @@ class PANA_Integer64Parser :
                 (size_t)aBuffer->wr_ptr()) < sizeof(pana_integer64_t)) {
                 /* assuming 32-bit boundary */
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Not enough buffer");
+                AAA_LOG((LM_ERROR, "Not enough buffer"));
                 st.set(AAA_PARSE_ERROR_TYPE_NORMAL,
                         AAA_OUT_OF_SPACE);
                 throw st;
@@ -223,7 +223,7 @@ class PANA_OctetstringParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_STRING_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -237,7 +237,7 @@ class PANA_OctetstringParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_STRING_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -247,7 +247,7 @@ class PANA_OctetstringParser :
             AAAErrorCode st;
             if (aBuffer->size() + (size_t)aBuffer->base() -
                 (size_t)aBuffer->wr_ptr() < str.length()) {
-                AAA_LOG(LM_ERROR, "Not enough buffer\n");
+                AAA_LOG((LM_ERROR, "Not enough buffer\n"));
                 st.set(AAA_PARSE_ERROR_TYPE_NORMAL,
                         AAA_OUT_OF_SPACE);
                 throw st;
@@ -344,7 +344,7 @@ class PANA_Utf8stringParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_UTF8_STRING_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -364,7 +364,7 @@ class PANA_Utf8stringParser :
             UTF8Checker check;
             if (check(str.data(), str.size()) != 0)
                 {
-                    AAA_LOG(LM_ERROR, "Invalid UTF8 string");
+                    AAA_LOG((LM_ERROR, "Invalid UTF8 string"));
                     st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_AVP_VALUE);
                     throw st;
                 }
@@ -374,7 +374,7 @@ class PANA_Utf8stringParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_UTF8_STRING_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -384,7 +384,7 @@ class PANA_Utf8stringParser :
             AAAErrorCode st;
             UTF8Checker check;
             if (check(str.data(), str.size()) != 0) {
-                AAA_LOG(LM_ERROR, "Invalid UTF8 string");
+                AAA_LOG((LM_ERROR, "Invalid UTF8 string"));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG, 
                         AAA_PARSE_ERROR_INVALID_CONTAINER_CONTENTS);
                 throw st;
@@ -411,7 +411,7 @@ class PANA_AddressParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_ADDRESS_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG, 
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -445,7 +445,7 @@ class PANA_AddressParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_ADDRESS_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -467,7 +467,7 @@ class PANA_AddressParser :
             }
             catch (AAAErrorCode &st)
                 {
-                AAA_LOG(LM_ERROR, "error\n");
+                AAA_LOG((LM_ERROR, "error\n"));
                 setAppData(e);
                 em.release(e2);
                 throw;
@@ -487,7 +487,7 @@ class PANA_GroupedParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_GROUPED_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -504,7 +504,7 @@ class PANA_GroupedParser :
 
             if ((gavp = PANA_GroupedAvpList::instance()
                 ->search(avp->m_AvpCode, avp->m_VendorId)) == NULL) {
-                    AAA_LOG(LM_ERROR, "Grouped AVP not found.");
+                    AAA_LOG((LM_ERROR, "Grouped AVP not found."));
                     st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_UNSUPPORTED);
                     throw st;
             }
@@ -519,7 +519,7 @@ class PANA_GroupedParser :
                     qc.parseRawToApp();
                 }
                 catch (AAAErrorCode &st) {
-                    AAA_LOG(LM_ERROR, "Grouped AVP failure");
+                    AAA_LOG((LM_ERROR, "Grouped AVP failure"));
                     throw;
                 }
             } while (0);
@@ -530,7 +530,7 @@ class PANA_GroupedParser :
             getAppData(e);
             if (e->dataType() != AAA_AVP_GROUPED_TYPE) {
                 AAAErrorCode st;
-                AAA_LOG(LM_ERROR, "Invalid AVP type.");
+                AAA_LOG((LM_ERROR, "Invalid AVP type."));
                 st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
@@ -542,7 +542,7 @@ class PANA_GroupedParser :
 
             if ((gavp = PANA_GroupedAvpList::instance()
                 ->search(avp->m_AvpCode, avp->m_VendorId)) == NULL) {
-                AAA_LOG(LM_ERROR, "Grouped AVP not found");
+                AAA_LOG((LM_ERROR, "Grouped AVP not found"));
                 st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_UNSUPPORTED);
                 throw st;
             }
@@ -557,7 +557,7 @@ class PANA_GroupedParser :
                     qc.parseAppToRaw();
                 }
                 catch (AAAErrorCode &st) {
-                    AAA_LOG(LM_ERROR, "Grouped AVP failure");
+                    AAA_LOG((LM_ERROR, "Grouped AVP failure"));
                     throw;
                 }
             } while (0);

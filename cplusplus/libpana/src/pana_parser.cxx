@@ -65,7 +65,7 @@ void PANA_AvpHeaderList::create(AAAMessageBlock *aBuffer)
         h.m_Length = ACE_NTOHL(*((ACE_UINT16*)p)); p += 4;
         if (h.m_Length == 0 || h.m_Length > (ACE_UINT32)(end-cavp)) {
             AAAErrorCode st;
-            AAA_LOG(LM_ERROR, "invalid message length\n");
+            AAA_LOG((LM_ERROR, "invalid message length\n"));
             st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_MESSAGE_LENGTH);
             throw st;
         }

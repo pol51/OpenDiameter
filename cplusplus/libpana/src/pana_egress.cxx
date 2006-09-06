@@ -63,7 +63,7 @@ int PANA_EgressSender::Serve()
     for (; retry < RETRY_COUNT; retry ++) {
         if (m_IO().send(rawBuf->base(), m_Msg->length(), 
                         m_Msg->srcPort(), m_Msg->srcDevices()) < 0) {
-            ACE_DEBUG((LM_ERROR, "(%P|%t) Retransmitt error: %s, retrying\n",
+            AAA_LOG((LM_ERROR, "(%P|%t) Retransmitt error: %s, retrying\n",
                        strerror(errno)));
             try {
                 for (int reopen = 0; reopen < RETRY_COUNT; reopen ++) {
@@ -73,7 +73,7 @@ int PANA_EgressSender::Serve()
                     ACE_Time_Value tout(1, 0);
                     ACE_OS::sleep(tout);
                 }                
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Unable to re-open socket, giving-up\n"));
+                AAA_LOG((LM_ERROR, "(%P|%t) Unable to re-open socket, giving-up\n"));
                 break;
             } catch (...) {
             }
@@ -83,7 +83,7 @@ int PANA_EgressSender::Serve()
         }
     }
     if (retry == RETRY_COUNT) {
-        ACE_DEBUG((LM_ERROR, "(%P|%t) Unable to send message, giving-up\n"));
+        AAA_LOG((LM_ERROR, "(%P|%t) Unable to send message, giving-up\n"));
     }
 
     PANA_MESSAGE_POOL()->free(rawBuf);

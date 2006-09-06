@@ -80,7 +80,7 @@ template<> void PANA_HeaderParser::parseRawToApp()
 
    if ((handle = dm.getDictHandle(h->type(), 
                     0, h->flags().request)) == NULL) {
-       ACE_DEBUG((LM_ERROR, "command (%d,r-flag=%1d,proto=%d) not found\n",
+       AAA_LOG((LM_ERROR, "command (%d,r-flag=%1d,proto=%d) not found\n",
                   h->type(), h->flags().request, opt->protocolId));
        st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
        throw st;
@@ -106,7 +106,7 @@ template<> void PANA_HeaderParser::parseAppToRaw()
    if (opt->option != PARSE_LOOSE) {
        if ((handle = dm.getDictHandle(h->type(), 
                  0, h->flags().request)) == NULL) {
-          ACE_DEBUG((LM_ERROR, "command (%d,r-flag=%1d,proto=%d) not found\n",
+          AAA_LOG((LM_ERROR, "command (%d,r-flag=%1d,proto=%d) not found\n",
                      h->type(), h->flags().request, opt->protocolId));
 	      st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
 	      throw st;

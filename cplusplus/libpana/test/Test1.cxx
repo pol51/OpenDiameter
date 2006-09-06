@@ -232,7 +232,6 @@ class PeerApplication : public AAA_JobData,
     md5Method(EapContinuedPolicyElement(EapType(4)))
   {
     eap->Policy().InitialPolicyElement(&md5Method);
-    pacSession.EnableDhcpBootstrap() = true;
   }
   virtual ~PeerApplication() { }
 
@@ -331,7 +330,6 @@ class StandAloneAuthApplication : public AAA_JobData,
   {
     // start paa session
     paaSession.Start();
-    paaSession.EnableDhcpBootstrap() = true;
     // Policy settings for the authenticator
     identityMethod.AddContinuedPolicyElement
       (&md5Method, EapContinuedPolicyElement::PolicyOnSuccess);

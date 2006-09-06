@@ -255,18 +255,18 @@ class PANA_EXPORT PANA_StateMachine :
              AAA_StateMachineWithTimer<ARG>::Event(ev);
 
 #if PANA_FSM_DEBUG
-             ACE_DEBUG((LM_DEBUG, "(%P|%t) From state: %s to %s\n",
+             AAA_LOG((LM_DEBUG, "(%P|%t) From state: %s to %s\n",
                         StrState(prevState),
                         StrState(AAA_StateMachineWithTimer<ARG>::state)));
 #endif
          }
          catch (PANA_Exception &e) {
-             ACE_DEBUG((LM_ERROR, "(%P|%t) Error[%d]: %s\n",
+             AAA_LOG((LM_ERROR, "(%P|%t) Error[%d]: %s\n",
                         e.code(), e.description().data()));
              Stop();
          }
          catch (...) {
-             ACE_DEBUG((LM_ERROR, "(%P|%t) Unknown error during FSM\n"));
+             AAA_LOG((LM_ERROR, "(%P|%t) Unknown error during FSM\n"));
              Stop();
          }
          return (0);
