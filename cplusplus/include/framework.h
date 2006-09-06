@@ -1452,4 +1452,31 @@ private:
   AAA_FsmTimerEventHandler timerEventHandler;
 };
 
+/*!
+ *! \brief AAALogMsg Generic/Global log facility
+ * Log facility
+ * Open Diameter logging facity derived directly from ACE
+ */
+class AAALogMsg :
+    public ACE_Log_Msg
+{
+    friend class ACE_Singleton<AAALogMsg, ACE_Recursive_Thread_Mutex>;    /**< ACE logger */
+
+    private:
+        /*
+         * protected constructors/destructors to prevent derivation
+         */
+        AAALogMsg() {
+        }
+        ~AAALogMsg() {
+        }
+};
+
+typedef ACE_Singleton<AAALogMsg, ACE_Recursive_Thread_Mutex> AAALogMsg_S;
+ACE_EXPORT_SINGLETON_DECLARE(ACE_Singleton, AAALogMsg, ACE_Recursive_Thread_Mutex);
+
+#define AAA_LOG(X) do { \
+                         AAALogMsg_S::instance()->log X; \
+                     } while(0)
+
 #endif // __FRAMEWORK_H__
