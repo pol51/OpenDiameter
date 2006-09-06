@@ -57,8 +57,6 @@ class NASD_PaaSession :
                   "(%P|%t) PANA configuration entry not found\n");
 	    }
             else {
-	        m_PaaSession.EnableDhcpBootstrap() = 
-                  m_CfgData->Protocol().DhcpBootstrap();
                 m_ScriptCtl.CurrentScript() =
                   m_CfgData->Protocol().EpScript();
 	    }

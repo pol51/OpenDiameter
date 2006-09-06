@@ -131,11 +131,7 @@ class NASD_ProtocolElement :
 class NASD_ApPanaElement
 {
    public:
-      NASD_ApPanaElement() : 
-         m_DhcpBootstrap(false) {
-      }
-      bool &DhcpBootstrap() {
-         return m_DhcpBootstrap;
+      NASD_ApPanaElement() {
       }
       std::string &CfgFile() {
          return m_CfgFile;
@@ -145,9 +141,6 @@ class NASD_ApPanaElement
       }
       void Dump() {
          NASD_LOG(LM_INFO, 
-                  "(%P|%t)           Dhcp: %s\n", 
-                  m_DhcpBootstrap ? "true" : "false");
-         NASD_LOG(LM_INFO, 
                   "(%P|%t)       Cfg File: %s\n", 
                   m_CfgFile.data());
          NASD_LOG(LM_INFO, 
@@ -155,7 +148,6 @@ class NASD_ApPanaElement
                   m_EpScript.data());
       }
    protected:
-      bool m_DhcpBootstrap;
       std::string m_CfgFile;
       std::string m_AuthScript;
       std::string m_EpScript;

@@ -127,7 +127,6 @@ class PeerChannel : public PANA_ClientEventInterface
             m_Eap(s), 
             m_Pana(n, *this), 
             m_AuthScriptCtl(PANA_CLIENT->Arg().m_AuthScript) {
-            m_Pana.EnableDhcpBootstrap() = true;
             m_Pana.Start(); // discovery
         }
         virtual ~PeerChannel() {

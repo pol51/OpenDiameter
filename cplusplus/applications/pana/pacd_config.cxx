@@ -54,9 +54,6 @@ int PACD_Config::Open(std::string &cfgfile)
     OD_Utl_XML_StringElement setup05(m_Data.m_AuthScript, 
                                      "auth_script", parser);
 
-    OD_Utl_XML_UInt32Element setup06(m_Data.m_DhcpBootstrap, 
-                                     "dhcp_bootstrap", parser);
-
     OD_Utl_XML_UInt32Element setup07(m_Data.m_UseArchie, 
                                      "use_archie", parser);
 
@@ -93,9 +90,6 @@ void PACD_Config::print()
    std::cout << "     Auth script     : " 
              << m_Data.m_AuthScript
              << std::endl;
-   std::cout << "     DHCP bootstrap  : ";
-   std::cout <<  m_Data.m_DhcpBootstrap;
-   std::cout << std::endl;
    std::cout << "     Use Archie      : ";
    std::cout <<  m_Data.m_UseArchie;
    std::cout << std::endl;

@@ -272,15 +272,6 @@ methodTls(EapContinuedPolicyElement(EapType(TLS_METHOD_TYPE)))
         std::cout << std::endl;
      }
 
-     if (args.m_DhcpKey.IsSet()) {
-        std::cout << "DHCP Key: ";
-        for (int i=0; i<args.m_DhcpKey().size();i++) {
-            printf("0x%02X ", (unsigned char)args.m_DhcpKey().data()[i]);
-            if ((i+1) % 16 == 0) std::cout << std::endl;
-	}
-        std::cout << std::endl;
-     }
-
      if (args.m_Ep.IsSet()) {
         PANA_DeviceIdIterator i = args.m_Ep()->begin();
         for (;i != args.m_Ep()->end(); i++) {

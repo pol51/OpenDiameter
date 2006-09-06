@@ -146,8 +146,6 @@ class PeerChannel : public PANA_ClientEventInterface,
           m_TimerHandle(0),
           m_Task(n.Task()),
           m_AuthScriptCtl(PACD_CONFIG().m_AuthScript) {
-          m_PaC.EnableDhcpBootstrap() = PACD_CONFIG().m_DhcpBootstrap ?
-                                              true : false;
           m_PaC.Start();
        }
        virtual ~PeerChannel() {

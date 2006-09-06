@@ -143,31 +143,6 @@ class NASD_EpScriptConv :
      }
 };
 
-class NASD_DhcpBootstrapConv :
-   public OD_Utl_XML_ContentConvNull<NASD_Identity>
-{
-  public:
-     NASD_DhcpBootstrapConv(OD_Utl_XML_Element *element) :
-         OD_Utl_XML_ContentConvNull<NASD_Identity>(element) {
-     }        
-     void content(const ACEXML_Char *ch,
-                  int start,
-                  int length,
-                  NASD_Identity &arg) {
-         if (m_element->Parent()->Name() == std::string("pana")) {
-             NASD_XML_ApPanaElm *panaElm = 
-                 (NASD_XML_ApPanaElm*)m_element->Parent();
-             panaElm->Get()->Protocol().DhcpBootstrap() = 
-                     (std::string(ch) == std::string("true")) ?
-                      true : false;
-         }
-         else {
-             std::cout << "dhcp bootstrap has an invalid parent !!!\n";
-             throw;
-         }
-     }
-};
-
 class NASD_SharedSecretConv :
    public OD_Utl_XML_ContentConvNull<NASD_Identity>
 {
@@ -389,8 +364,6 @@ class NASD_CfgLoader
                                       setup11(ident, "cfg_file", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_EpScriptConv> 
                                       setup12(ident, "ep_script", parser);
-         OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_DhcpBootstrapConv> 
-                                      setup13(ident, "dhcp_bootstrap", parser);
 
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_IdentityConv> 
                                       setup14(ident, "identity", parser);

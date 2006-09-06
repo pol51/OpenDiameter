@@ -45,7 +45,6 @@ typedef struct {
   std::string m_Password;
   std::string m_Secret;
   std::string m_AuthScript;
-  ACE_UINT32  m_DhcpBootstrap;
   ACE_UINT32  m_UseArchie;
   ACE_UINT32  m_AuthPeriod;
   ACE_UINT32  m_ThreadCount;
