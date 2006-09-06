@@ -199,8 +199,8 @@ void DiameterRouteEntry::clear(void *userData)
 
 void DiameterRouteEntry::Dump(void *userData)
 {
-    AAA_LOG(LM_INFO, "(%P|%t)              Route  : Realm = %s, Action = %d, Redirect-Usage = %d\n", 
-            m_Realm.data(), m_Action, m_RedirectUsage);
+    AAA_LOG((LM_INFO, "(%P|%t)              Route  : Realm = %s, Action = %d, Redirect-Usage = %d\n", 
+            m_Realm.data(), m_Action, m_RedirectUsage));
 
     DiameterRouteVendorIdMap::iterator x = m_Identifiers.begin();
     for (; x != m_Identifiers.end(); x++) {
@@ -208,12 +208,12 @@ void DiameterRouteEntry::Dump(void *userData)
         DiameterRouteAppIdMap::iterator y = id->begin();
         for (; y != id->end(); y++) {
             DiameterRouteApplication *app = y->second;
-            AAA_LOG(LM_INFO, "(%P|%t)                       Application Id=%d, Vendor=%d\n",
-                 app->ApplicationId(), app->VendorId());
+            AAA_LOG((LM_INFO, "(%P|%t)                       Application Id=%d, Vendor=%d\n",
+                 app->ApplicationId(), app->VendorId()));
             DiameterRouteServerEntry *server = app->Servers().First();
             while (server) {
-                AAA_LOG(LM_INFO, "(%P|%t)                          Server = %s, metric = %d\n", 
-                     server->Server().data(), server->Metric());
+                AAA_LOG((LM_INFO, "(%P|%t)                          Server = %s, metric = %d\n", 
+                     server->Server().data(), server->Metric()));
                 server = app->Servers().Next(*server);
             }
         }
@@ -222,11 +222,11 @@ void DiameterRouteEntry::Dump(void *userData)
 
 void DiameterRouteTable::Dump()
 {
-    AAA_LOG(LM_INFO, "(%P|%t)  Dumping Route Table\n");
-    AAA_LOG(LM_INFO, "(%P|%t)            Exp Time : %d\n", m_ExpireTime);
+    AAA_LOG((LM_INFO, "(%P|%t)  Dumping Route Table\n"));
+    AAA_LOG((LM_INFO, "(%P|%t)            Exp Time : %d\n", m_ExpireTime));
     m_Routes.Dump();
     if (m_DefaultRoute) {
-        AAA_LOG(LM_INFO, "(%P|%t)      Default Route\n");
+        AAA_LOG((LM_INFO, "(%P|%t)      Default Route\n"));
         m_DefaultRoute->Dump(0);
     }
 }

@@ -144,8 +144,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
             return (AAA_ROUTE_RESULT_SUCCESS);
         }
 
-        AAA_LOG(LM_INFO, "(%P|%t) DestHost(%s) present but not ours so try realm routing\n", 
-                DestHost->data());
+        AAA_LOG((LM_INFO, "(%P|%t) DestHost(%s) present but not ours so try realm routing\n", 
+                DestHost->data()));
         // next chain
     }
     else if (DestRealm) {
@@ -176,8 +176,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
             }
         }
 
-        AAA_LOG(LM_INFO, "(%P|%t) DestRealm(%s) present but no ours or no supported id\n", 
-                DestRealm->data());
+        AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) present but no ours or no supported id\n", 
+                DestRealm->data()));
         // next chain
     }
     else {
@@ -212,8 +212,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMs
             }
             // try routing it
         }
-        AAA_LOG(LM_INFO, "(%P|%t) DestHost(%s) does not match any peer\n", 
-            DestHost->data());
+        AAA_LOG((LM_INFO, "(%P|%t) DestHost(%s) does not match any peer\n", 
+            DestHost->data()));
     }
 
     return (AAA_ROUTE_RESULT_NEXT_CHAIN);
@@ -250,7 +250,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
             DiameterUtf8AvpContainerWidget username(msg->acl);
             diameter_utf8string_t *UserName = username.GetAvp(DIAMETER_AVPNAME_USERNAME);
             if (! UserName) {
-                AAA_LOG(LM_INFO, "(%P|%t) Can't determin DestRealm during realm routing\n");
+                AAA_LOG((LM_INFO, "(%P|%t) Can't determin DestRealm during realm routing\n"));
                 throw (0);
             }
             DestRealm = UserName->substr(UserName->find("@",0), UserName->length()-1);
@@ -261,8 +261,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
         
         DiameterRouteEntry *route = DIAMETER_ROUTE_TABLE()->Lookup(DestRealm);
         if (route == NULL) {
-            AAA_LOG(LM_INFO, "(%P|%t) DestRealm(%s) not in routing table\n",
-                    DestRealm.data());
+            AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) not in routing table\n",
+                    DestRealm.data()));
             throw (0);
         }
 
@@ -329,12 +329,12 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
                 }
                 server = app->Servers().Next(*server);
             }
-            AAA_LOG(LM_INFO, "(%P|%t) DestRealm(%s) in routing table but no open peers support it\n",
-                    DestRealm.data());
+            AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) in routing table but no open peers support it\n",
+                    DestRealm.data()));
         }
         else {
-            AAA_LOG(LM_INFO, "(%P|%t) DestRealm(%s) in routing table but no matching app Id\n",
-                    DestRealm.data());
+            AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) in routing table but no matching app Id\n",
+                    DestRealm.data()));
 	}
     }
     catch (...) {
@@ -355,7 +355,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRejected::Lookup(std::auto_ptr<DiameterMsg
             Result-Code set to AAA_UNABLE_TO_DELIVER, with the E-bit set.
      */
 
-    AAA_LOG(LM_INFO, "(%P|%t) Router cannot deliver message, sending back with an error\n");
+    AAA_LOG((LM_INFO, "(%P|%t) Router cannot deliver message, sending back with an error\n"));
     return (AAA_ROUTE_RESULT_SUCCESS);
 }
 
@@ -446,7 +446,7 @@ int DiameterMsgRouter::DcLocal::RequestMsg(std::auto_ptr<DiameterMsg> msg,
             Request(msg, source, dest);
     }
     else {
-        AAA_LOG(LM_INFO, "(%P|%t) **** Looped back message, discarded ***\n");
+        AAA_LOG((LM_INFO, "(%P|%t) **** Looped back message, discarded ***\n"));
         DiameterMsgHeaderDump::Dump(*msg);
     }
     return (0);
@@ -475,7 +475,7 @@ int DiameterMsgRouter::DcForward::LoopDetection(std::auto_ptr<DiameterMsg> &msg)
             msg->hdr.flags.r = 0;
             DiameterMsgResultCode rcode(*msg);
             rcode.ResultCode(AAA_LOOP_DETECTED);
-            AAA_LOG(LM_INFO, "(%P|%t) !!! WARNING !!!: Route record shows a loop in the message, sending back with error\n");
+            AAA_LOG((LM_INFO, "(%P|%t) !!! WARNING !!!: Route record shows a loop in the message, sending back with error\n"));
             return (0);
         }
         rteRec = rrecord.GetAvp(DIAMETER_AVPNAME_ROUTERECORD, p);
@@ -718,7 +718,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::DcReject::Process(std::auto_ptr<DiameterMsg>
         requests.  It SHOULD ignore answers received that do not match a
         known Hop-by-Hop Identifier.
     */
-    AAA_LOG(LM_INFO, "(%P|%t) *** Router rejected answer message ***\n");
+    AAA_LOG((LM_INFO, "(%P|%t) *** Router rejected answer message ***\n"));
     DiameterMsgHeaderDump::Dump(*msg);
     return (AAA_ROUTE_RESULT_SUCCESS);
 }
@@ -735,7 +735,7 @@ int DiameterMsgRouter::DcReject::RequestMsg(std::auto_ptr<DiameterMsg> msg,
          4. If none of the above is successful, an answer is returned with the
             Result-Code set to AAA_UNABLE_TO_DELIVER, with the E-bit set.
      */
-    AAA_LOG(LM_INFO, "(%P|%t) *** Router rejected request message ***\n");
+    AAA_LOG((LM_INFO, "(%P|%t) *** Router rejected request message ***\n"));
     DiameterMsgHeaderDump::Dump(*msg);
 
     msg->hdr.flags.r = 0;

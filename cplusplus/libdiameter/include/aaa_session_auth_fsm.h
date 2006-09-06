@@ -114,8 +114,8 @@ class DiameterSessionAuthFsmDebug
                                         "DIAMETER_SESSION_AUTH_ST_OPEN",
                                         "DIAMETER_SESSION_AUTH_ST_DISC"
           };
-          AAA_LOG(LM_INFO, "(%P|%t) Auth session event [state=%s, event=%s]\n",
-                    stStrTable[state], evStrTable[ev]);
+          AAA_LOG((LM_INFO, "(%P|%t) Auth session event [state=%s, event=%s]\n",
+                    stStrTable[state], evStrTable[ev]));
 #endif
       }
 };

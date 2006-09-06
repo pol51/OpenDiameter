@@ -192,14 +192,14 @@ class AAA_SessionMsgRx
               int Request(std::auto_ptr<DiameterMsg> &msg,
                           DiameterPeerEntry *source,
                           DiameterPeerEntry *dest) {
-                  AAA_LOG(LM_DEBUG, "(%P|%t) **** Request Message Error ****\n");
+                  AAA_LOG((LM_DEBUG, "(%P|%t) **** Request Message Error ****\n"));
                   DiameterMsgHeaderDump::Dump(*msg);
                   return LocalErrorHandling(msg, source, dest);
               }
               int Answer(std::auto_ptr<DiameterMsg> &msg,
                          DiameterPeerEntry *source,
                          DiameterPeerEntry *dest) {
-                  AAA_LOG(LM_DEBUG, "(%P|%t) **** Answer Message Error ****\n");
+                  AAA_LOG((LM_DEBUG, "(%P|%t) **** Answer Message Error ****\n"));
                   DiameterMsgHeaderDump::Dump(*msg);
                   return LocalErrorHandling(msg, source, dest);
               }

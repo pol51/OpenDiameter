@@ -80,10 +80,10 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
       void ConnectionRequestAccepted(std::auto_ptr<Diameter_IO_Base> io);
       void ConnectionRequestFailed();
       void Dump() {
-          AAA_LOG(LM_INFO, "(%P|%t)                Peer : Host = %s, Port = %d, TLS = %d\n", 
+          AAA_LOG((LM_INFO, "(%P|%t)                Peer : Host = %s, Port = %d, TLS = %d\n", 
                   PeerData().m_Identity.data(), 
                   PeerData().m_Port, 
-                  PeerData().m_TLS);
+                  PeerData().m_TLS));
       }
     
    protected:      
@@ -196,8 +196,8 @@ class DiameterPeerTable : private DiameterPeerList
           return m_ExpirationTime;
       }
       void Dump() {
-          AAA_LOG(LM_INFO, "(%P|%t) Dumping Peer Table\n");
-          AAA_LOG(LM_INFO, "(%P|%t)      Expire Time %d\n", m_ExpirationTime);
+          AAA_LOG((LM_INFO, "(%P|%t) Dumping Peer Table\n"));
+          AAA_LOG((LM_INFO, "(%P|%t)      Expire Time %d\n", m_ExpirationTime));
           DiameterPeerList::iterator i;
           for (i = begin(); i != end(); i++) {
               (*i)->Dump();

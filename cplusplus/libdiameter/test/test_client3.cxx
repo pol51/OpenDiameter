@@ -148,13 +148,13 @@ class AAA_SampleClientSubSession :
         }
         virtual AAAReturnCode Success() {
             // notification of successful ACR exchange for all record type
-            AAA_LOG(LM_INFO, "(%P|%t) **** record exchange completed ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** record exchange completed ****\n"));
             m_HowManyRecProcessed ++;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode Failed(int recNum) {
             // notification that recNum record was not processed properly
-            AAA_LOG(LM_INFO, "(%P|%t) **** record #%d not processed ****\n", recNum);
+            AAA_LOG((LM_INFO, "(%P|%t) **** record #%d not processed ****\n", recNum));
             return (AAA_ERR_SUCCESS);
         }
         int NumberOfRecordsProcessed() {

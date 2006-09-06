@@ -276,24 +276,24 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
                           return (0);
                       }
                       catch (...) {
-                          AAA_LOG(LM_ERROR,
+                          AAA_LOG((LM_ERROR,
                                   "(%P|%t) Factory %s error\n",
-                                  m_Name.data());
+                                  m_Name.data()));
                       }
                       newTransport->Close();
                       delete newTransport;
                   }
                   else {
-                      AAA_LOG(LM_ERROR,
+                      AAA_LOG((LM_ERROR,
                               "(%P|%t) Factory %s memory allocation error\n",
-                              m_Name.data());
+                              m_Name.data()));
                   }
                   Failed();
                   m_Active = false;
               }
               else if (rc < 0) {
-                  AAA_LOG(LM_ERROR, "(%P|%t) IO Factory error: %s [%d=%s]\n",
-                          m_Name.data(), errno, strerror(errno));
+                  AAA_LOG((LM_ERROR, "(%P|%t) IO Factory error: %s [%d=%s]\n",
+                          m_Name.data(), errno, strerror(errno)));
                   Failed();
                   m_Active = false;
               }
@@ -316,8 +316,8 @@ class Diameter_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
           if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::Open() >= 0) {
               if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Listen
                   (port) >= 0) {
-                  AAA_LOG(LM_ERROR, "(%P|%t) Listening at %d\n",
-                          port);
+                  AAA_LOG((LM_ERROR, "(%P|%t) Listening at %d\n",
+                          port));
                   return Diameter_IO_Factory<TX_IF, RX_HANDLER>::Activate();
               }
           }
@@ -349,8 +349,8 @@ class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
           if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::Open() >= 0) {
              if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Connect
                  (hostname, port) >= 0) {
-                 AAA_LOG(LM_ERROR, "(%P|%t) Connection attempt to %s:%d\n",
-                            hostname.data(), port);
+                 AAA_LOG((LM_ERROR, "(%P|%t) Connection attempt to %s:%d\n",
+                            hostname.data(), port));
                  return Diameter_IO_Factory<TX_IF, RX_HANDLER>::Activate();
              }
           }

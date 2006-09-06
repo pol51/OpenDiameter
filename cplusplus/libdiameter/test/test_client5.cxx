@@ -108,14 +108,14 @@ class AAA_SampleClient : public DiameterClientAuthSession {
             // initiated by the server. Note that the client
             // must return a valid result-code when exiting
             // this function
-            AAA_LOG(LM_INFO, "(%P|%t) **** server re-authentication ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** server re-authentication ****\n"));
             return (AAAReturnCode)(AAA_SUCCESS);
         }
         virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
             // all request messages are handled by this function.
             // AAA clients normally should not receive
             // request messags. 
-            AAA_LOG(LM_INFO, "(%P|%t) **** Request message message received in client ??? ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** Request message message received in client ??? ****\n"));
             DiameterMsgHeaderDump::Dump(msg);
             return (AAA_ERR_SUCCESS);
         }
@@ -128,7 +128,7 @@ class AAA_SampleClient : public DiameterClientAuthSession {
             //                         message trip exchange
             // c. AAA_ERR_FAILURE - client authentication failed
 
-            AAA_LOG(LM_INFO, "(%P|%t) Answer message received\n");
+            AAA_LOG((LM_INFO, "(%P|%t) Answer message received\n"));
             DiameterMsgHeaderDump::Dump(msg);
 
             DiameterIdentityAvpContainerWidget oHostAvp(msg.acl);
@@ -142,16 +142,16 @@ class AAA_SampleClient : public DiameterClientAuthSession {
             diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
 
             if (host) {
-                AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
+                AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
             }
             if (realm) {
-                AAA_LOG(LM_INFO, "(%P|%t) From Realm: %s\n", realm->data());
+                AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
             }
             if (uname) {
-                AAA_LOG(LM_INFO, "(%P|%t) From User: %s\n", uname->data());
+                AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
             }
             if (authAppId) {
-                AAA_LOG(LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId);
+                AAA_LOG((LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId));
             }
             if (m_MsgCount ++ < MSG_COUNT) {
                 TxAuthenticationRequest();
@@ -161,36 +161,36 @@ class AAA_SampleClient : public DiameterClientAuthSession {
         }
         virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
             // all error messages are handled by this function.
-            AAA_LOG(LM_INFO, "(%P|%t) **** Received message with error bit set ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** Received message with error bit set ****\n"));
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode Success() {
             // notification of successful auth
-            AAA_LOG(LM_INFO, "(%P|%t) **** user authorized ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** user authorized ****\n"));
             m_Success = true;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode Disconnect() {
             // notification of completed STR/STA exchange
-            AAA_LOG(LM_INFO, "(%P|%t) **** session disconnecting ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** session disconnecting ****\n"));
             m_Disconnected = true;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode SessionTimeout() {
             // notification of session timeout
-            AAA_LOG(LM_INFO, "(%P|%t) **** session timeout ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** session timeout ****\n"));
             m_Disconnected = true;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode AuthorizationTimeout() {
             // notification of auth lifetime timeout
-            AAA_LOG(LM_INFO, "(%P|%t) **** auth timeout ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** auth timeout ****\n"));
             m_Disconnected = true;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode AbortSession() {
             // notification of completed ASR/ASA exchange
-            AAA_LOG(LM_INFO, "(%P|%t) **** session aborted by server ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** session aborted by server ****\n"));
             m_Disconnected = true;
             return (AAA_ERR_SUCCESS);
         }

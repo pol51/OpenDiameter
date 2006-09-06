@@ -68,7 +68,7 @@ void DiameterServerAcctSession<REC_STORAGE>::RxRequest
 {
     // validate messge
     if (msg->hdr.code != DIAMETER_MSGCODE_ACCOUNTING) {
-        AAA_LOG(LM_INFO, "(%P|%t) Non-accounting request message received, discarding\n");
+        AAA_LOG((LM_INFO, "(%P|%t) Non-accounting request message received, discarding\n"));
         DiameterMsgHeaderDump::Dump(*msg);
         return;
     }
@@ -77,11 +77,11 @@ void DiameterServerAcctSession<REC_STORAGE>::RxRequest
     if (Attributes().SessionId().IsEmpty()) {
         DiameterSessionId sid;
         if (sid.Get(*msg)) {
-            AAA_LOG(LM_DEBUG,"(%P|%t) ERROR: Fatal, failed session id\n");
+            AAA_LOG((LM_DEBUG,"(%P|%t) ERROR: Fatal, failed session id\n"));
             return;
         }
         Attributes().SessionId() = sid;
-        AAA_LOG(LM_DEBUG,"(%P|%t) New acct session\n");
+        AAA_LOG((LM_DEBUG,"(%P|%t) New acct session\n"));
         sid.Dump();
     }
 
@@ -190,7 +190,7 @@ template <class REC_STORAGE>
 void DiameterServerAcctSession<REC_STORAGE>::RxAnswer
 (std::auto_ptr<DiameterMsg> msg) 
 {
-    AAA_LOG(LM_INFO, "(%P|%t) Service specific answer msg received in server, discarding\n");
+    AAA_LOG((LM_INFO, "(%P|%t) Service specific answer msg received in server, discarding\n"));
     DiameterMsgHeaderDump::Dump(*msg);
 }
 

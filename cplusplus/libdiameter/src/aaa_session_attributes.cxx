@@ -128,7 +128,7 @@ void DiameterSessionId::Dump()
 {
    std::string dump;
    Dump(dump);
-   AAA_LOG(LM_INFO, "(%P|%t) Session id=%s\n", dump.data());
+   AAA_LOG((LM_INFO, "(%P|%t) Session id=%s\n", dump.data()));
 }
 
 void DiameterSessionId::Dump(std::string &dump)

@@ -74,22 +74,22 @@ int AAA_SessionMsgRx::RxLocalMsgHandler::Request
                         DiameterBaseException::MISSING_SESSION_ID) {
                         delete newSession;
                     }
-                    AAA_LOG(LM_DEBUG,"(%P|%t) *** Processing error in new session ***\n");
+                    AAA_LOG((LM_DEBUG,"(%P|%t) *** Processing error in new session ***\n"));
                 }
                 catch (...) {
                 }
                 return (0);
             }
             else {
-                AAA_LOG(LM_DEBUG,"(%P|%t) *** Failed to create new session, discarding req msg ***\n");
+                AAA_LOG((LM_DEBUG,"(%P|%t) *** Failed to create new session, discarding req msg ***\n"));
             }
         }
         else {
-            AAA_LOG(LM_DEBUG,"(%P|%t) *** Un-supported application id, discarding req msg ***\n");
+            AAA_LOG((LM_DEBUG,"(%P|%t) *** Un-supported application id, discarding req msg ***\n"));
         }
     }
     else {
-        AAA_LOG(LM_DEBUG,"(%P|%t) *** Missing session id, discard req msg ***\n");
+        AAA_LOG((LM_DEBUG,"(%P|%t) *** Missing session id, discard req msg ***\n"));
     }
     DiameterMsgHeaderDump::Dump(*msg);
     return (-1);
@@ -117,11 +117,11 @@ int AAA_SessionMsgRx::RxLocalMsgHandler::Answer
             return (0);
         }
         else {
-            AAA_LOG(LM_DEBUG,"(%P|%t) *** Unknown session id, discard answer msg ***\n");
+            AAA_LOG((LM_DEBUG,"(%P|%t) *** Unknown session id, discard answer msg ***\n"));
         }
     }
     else {
-        AAA_LOG(LM_DEBUG,"(%P|%t) *** Missing session id, discard answer msg ***\n");
+        AAA_LOG((LM_DEBUG,"(%P|%t) *** Missing session id, discard answer msg ***\n"));
     }
     DiameterMsgHeaderDump::Dump(*msg);
     return (-1);
@@ -135,7 +135,7 @@ AAAReturnCode AAA_SessionMsgRx::RxUnknownSession
         TxASA(msg);
         return (AAA_ERR_SUCCESS);
     }
-    AAA_LOG(LM_DEBUG,"(%P|%t) *** Unknown session, discarding msg***\n");
+    AAA_LOG((LM_DEBUG,"(%P|%t) *** Unknown session, discarding msg***\n"));
     return (AAA_ERR_FAILURE);
 }
 
@@ -154,8 +154,8 @@ int AAA_SessionMsgRx::RxProxyMsgHandler::Request
         return (handler->RequestMsg(*msg) == AAA_ERR_SUCCESS) ? 0 : (-1);
     }
     else {
-        AAA_LOG(LM_DEBUG,"(%P|%t) *** No proxy support for appId=%d, forwarding message ***\n",
-                msg->hdr.appId);
+        AAA_LOG((LM_DEBUG,"(%P|%t) *** No proxy support for appId=%d, forwarding message ***\n",
+                msg->hdr.appId));
     }
     DiameterMsgHeaderDump::Dump(*msg);
     return (-1);
@@ -201,13 +201,13 @@ int AAA_SessionMsgRx::RxErrorMsgHandler::LocalErrorHandling
             return (0);
         }
         else {
-            AAA_LOG(LM_DEBUG,"(%P|%t) *** Error message with no local hanlder, resume routing ***\n");
+            AAA_LOG((LM_DEBUG,"(%P|%t) *** Error message with no local hanlder, resume routing ***\n"));
         }
     }
     else {
-        AAA_LOG(LM_DEBUG,"(%P|%t) *** Error message with missing session id ***\n");
+        AAA_LOG((LM_DEBUG,"(%P|%t) *** Error message with missing session id ***\n"));
     }
-    AAA_LOG(LM_DEBUG, "(%P|%t) Discarding message\n");
+    AAA_LOG((LM_DEBUG, "(%P|%t) Discarding message\n"));
     return (-1);
 }
 

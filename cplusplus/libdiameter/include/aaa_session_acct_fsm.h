@@ -106,8 +106,8 @@ class DiameterSessionAcctFsmDebug
                                         "DIAMETER_SESSION_ACCT_ST_PENDING_B",
                                         "DIAMETER_SESSION_ACCT_ST_PENDING_L"
           };
-          AAA_LOG(LM_INFO, "(%P|%t) Acct session event [state=%s, event=%s]\n",
-                  stStrTable[state], evStrTable[ev]);
+          AAA_LOG((LM_INFO, "(%P|%t) Acct session event [state=%s, event=%s]\n",
+                  stStrTable[state], evStrTable[ev]));
 #endif
       }
 };

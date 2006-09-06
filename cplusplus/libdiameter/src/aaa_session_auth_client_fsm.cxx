@@ -244,26 +244,26 @@ void DiameterAuthSessionClientStateMachine::RxASR(DiameterMsg &msg)
     diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
     diameter_unsigned32_t *acctAppId = acctAppIdAvp.GetAvp(DIAMETER_AVPNAME_ACCTAPPID);
 
-    AAA_LOG(LM_INFO, "(%P|%t) *** Abort session request received ***\n");
+    AAA_LOG((LM_INFO, "(%P|%t) *** Abort session request received ***\n"));
     Attributes().MsgIdRxMessage(msg);
 
     DiameterSessionId sid;
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
     }
     if (realm) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Realm: %s\n", realm->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
     }
     if (uname) {
-        AAA_LOG(LM_INFO, "(%P|%t) From User: %s\n", uname->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
     }
     if (authAppId) {
-        AAA_LOG(LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId);
+        AAA_LOG((LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId));
     }
     if (acctAppId) {
-        AAA_LOG(LM_INFO, "(%P|%t) Acct Application Id: %d\n", *acctAppId);
+        AAA_LOG((LM_INFO, "(%P|%t) Acct Application Id: %d\n", *acctAppId));
     }
 }
 
@@ -317,32 +317,32 @@ void DiameterAuthSessionClientStateMachine::RxSTA(DiameterMsg &msg)
     diameter_utf8string_t *errMsg = errMsgAvp.GetAvp(DIAMETER_AVPNAME_ERRORMESSAGE);
     diameter_identity_t *errHost = errHostAvp.GetAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
 
-    AAA_LOG(LM_INFO, "(%P|%t) *** Session termination answer received ***\n");
+    AAA_LOG((LM_INFO, "(%P|%t) *** Session termination answer received ***\n"));
     Attributes().MsgIdRxMessage(msg);
 
     DiameterSessionId sid;
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
     }
     if (realm) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Realm: %s\n", realm->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
     }
     if (uname) {
-        AAA_LOG(LM_INFO, "(%P|%t) From User: %s\n", uname->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
     }
     if (rcode) {
-        AAA_LOG(LM_INFO, "(%P|%t) Result-Code: %d\n", *rcode);
+        AAA_LOG((LM_INFO, "(%P|%t) Result-Code: %d\n", *rcode));
     }
     if (errMsg) {
         if (errHost) {
-            AAA_LOG(LM_INFO, "(%P|%t) Message from [%s]: %s\n", 
-                errHost->data(), errMsg->data());
+            AAA_LOG((LM_INFO, "(%P|%t) Message from [%s]: %s\n", 
+                errHost->data(), errMsg->data()));
         }
         else {
-            AAA_LOG(LM_INFO, "(%P|%t) Message: %s\n", 
-                errMsg->data());
+            AAA_LOG((LM_INFO, "(%P|%t) Message: %s\n", 
+                errMsg->data()));
         }
     }
 }
@@ -457,26 +457,26 @@ void DiameterAuthSessionClientStateMachine::RxRAR(DiameterMsg &msg)
     diameter_unsigned32_t *reAuthType = reAuthTypeAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
     diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
 
-    AAA_LOG(LM_INFO, "(%P|%t) *** Re-Auth request received ***\n");
+    AAA_LOG((LM_INFO, "(%P|%t) *** Re-Auth request received ***\n"));
     Attributes().MsgIdRxMessage(msg);
 
     DiameterSessionId sid;
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
     }
     if (realm) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Realm: %s\n", realm->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
     }
     if (uname) {
-        AAA_LOG(LM_INFO, "(%P|%t) From User: %s\n", uname->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
     }
     if (appId) {
-        AAA_LOG(LM_INFO, "(%P|%t) Application Id: %d\n", *appId);
+        AAA_LOG((LM_INFO, "(%P|%t) Application Id: %d\n", *appId));
     }
     if (reAuthType) {
-        AAA_LOG(LM_INFO, "(%P|%t) Re-Auth Type: %d\n", *reAuthType);
+        AAA_LOG((LM_INFO, "(%P|%t) Re-Auth Type: %d\n", *reAuthType));
     }
 }
 

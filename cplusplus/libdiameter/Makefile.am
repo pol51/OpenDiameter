@@ -112,8 +112,9 @@ aaa_test_agent_SOURCES = test/test_agent.cxx
 EXTRA_DIST = config
 INCLUDES = -I$(top_srcdir)/libdiamparser
 aaa_test_client1_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
-	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lssl -lACEXML_Parser -lACEXML \
-	-lACE_SSL -lACE
+	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la @L_LIBS@
+
+## -lssl -lACEXML_Parser -lACEXML -lACE_SSL -lACE
 aaa_test_agent_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
 	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE_SSL \
 	-lACE -lssl

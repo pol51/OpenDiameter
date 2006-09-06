@@ -230,7 +230,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
                    */
                   pReq->m_ReqMessage->hdr.flags.t = DIAMETER_FLAG_SET;
                                     
-                  AAA_LOG(LM_INFO, "(%P|%t) **** Request message re-transmission ****\n");
+                  AAA_LOG((LM_INFO, "(%P|%t) **** Request message re-transmission ****\n"));
                   DiameterMsgHeaderDump::Dump(*(pReq->m_ReqMessage));
                   
                   ACE_Time_Value expire(DIAMETER_CFG_TRANSPORT()->retx_interval, 0);

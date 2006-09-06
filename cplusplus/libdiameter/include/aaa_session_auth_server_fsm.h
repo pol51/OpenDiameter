@@ -67,7 +67,7 @@ class DiameterSessAuthServer_RxSSAR_Discard :
    public:
       virtual void operator()(DiameterAuthSessionServerStateMachine &fsm) {
           std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
-          AAA_LOG(LM_INFO, "(%P|%t) Message sent in invalid session state, discarding\n");
+          AAA_LOG((LM_INFO, "(%P|%t) Message sent in invalid session state, discarding\n"));
           DiameterMsgHeaderDump::Dump(*msg);
       }
 };
@@ -88,7 +88,7 @@ class DiameterSessAuthServer_TxSSAA_Discard :
    public:
       virtual void operator()(DiameterAuthSessionServerStateMachine &fsm) {
           std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
-          AAA_LOG(LM_INFO, "(%P|%t) Message received in invalid session state, discarding\n");
+          AAA_LOG((LM_INFO, "(%P|%t) Message received in invalid session state, discarding\n"));
           DiameterMsgHeaderDump::Dump(*msg);
       }
 };
@@ -109,13 +109,13 @@ class DiameterSessAuthServer_TxSSA :
                   AAA_AUTH_SESSION_GRACE_PERIOD,
                   0, DIAMETER_TIMER_TYPE_SESSION);
                   
-              AAA_LOG(LM_INFO, "(%P|%t) Server session in stateless mode, extending access time\n");
-              AAA_LOG(LM_INFO, "(%P|%t) Session Timeout: %d\n", 
-                            fsm.Attributes().SessionTimeout()());
-              AAA_LOG(LM_INFO, "(%P|%t) Auth Lifetime  : %d\n",
-                            fsm.Attributes().AuthLifetime()());
-              AAA_LOG(LM_INFO, "(%P|%t) Grace Period   : %d\n",
-                            fsm.Attributes().AuthGrace()());
+              AAA_LOG((LM_INFO, "(%P|%t) Server session in stateless mode, extending access time\n"));
+              AAA_LOG((LM_INFO, "(%P|%t) Session Timeout: %d\n", 
+                            fsm.Attributes().SessionTimeout()()));
+              AAA_LOG((LM_INFO, "(%P|%t) Auth Lifetime  : %d\n",
+                            fsm.Attributes().AuthLifetime()()));
+              AAA_LOG((LM_INFO, "(%P|%t) Grace Period   : %d\n",
+                            fsm.Attributes().AuthGrace()()));
               fsm.Session().Success();
           }
       }
@@ -137,13 +137,13 @@ class DiameterSessAuthServer_TxSSAA_GrantAccess :
               AAA_AUTH_SESSION_GRACE_PERIOD,
               0, DIAMETER_TIMER_TYPE_AUTH);
               
-          AAA_LOG(LM_INFO, "(%P|%t) Server session in open state\n");
-          AAA_LOG(LM_INFO, "(%P|%t) Session Timeout: %d\n", 
-                            fsm.Attributes().SessionTimeout()());
-          AAA_LOG(LM_INFO, "(%P|%t) Auth Lifetime  : %d\n",
-                            fsm.Attributes().AuthLifetime()());
-          AAA_LOG(LM_INFO, "(%P|%t) Grace Period   : %d\n",
-                            fsm.Attributes().AuthGrace()());
+          AAA_LOG((LM_INFO, "(%P|%t) Server session in open state\n"));
+          AAA_LOG((LM_INFO, "(%P|%t) Session Timeout: %d\n", 
+                            fsm.Attributes().SessionTimeout()()));
+          AAA_LOG((LM_INFO, "(%P|%t) Auth Lifetime  : %d\n",
+                            fsm.Attributes().AuthLifetime()()));
+          AAA_LOG((LM_INFO, "(%P|%t) Grace Period   : %d\n",
+                            fsm.Attributes().AuthGrace()()));
           fsm.Session().Success();
       }
 };

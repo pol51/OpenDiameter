@@ -84,11 +84,11 @@ void DiameterServerAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
     if (Attributes().SessionId().IsEmpty()) {
         DiameterSessionId sid;
         if (sid.Get(*msg)) {
-            AAA_LOG(LM_DEBUG,"(%P|%t) *** Fatal, failed session id\n");
+            AAA_LOG((LM_DEBUG,"(%P|%t) *** Fatal, failed session id\n"));
             return;
         }
         Attributes().SessionId() = sid;
-        AAA_LOG(LM_DEBUG,"(%P|%t) New auth session\n");
+        AAA_LOG((LM_DEBUG,"(%P|%t) New auth session\n"));
         sid.Dump();
     }
 
@@ -100,7 +100,7 @@ void DiameterServerAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
         return;
     }
     else if (msg->hdr.code == DIAMETER_MSGCODE_ABORTSESSION) {
-        AAA_LOG(LM_DEBUG,"(%P|%t) *** ASR received in server session, discarding\n");
+        AAA_LOG((LM_DEBUG,"(%P|%t) *** ASR received in server session, discarding\n"));
         return;
     }
 
@@ -154,8 +154,8 @@ void DiameterServerAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
                Attributes().AuthSessionState().Set(DIAMETER_CFG_AUTH_SESSION()->stateful);
             }
         }
-        AAA_LOG(LM_DEBUG,"(%P|%t) Negotiated session state: %d\n", 
-                Attributes().AuthSessionState()());
+        AAA_LOG((LM_DEBUG,"(%P|%t) Negotiated session state: %d\n", 
+                Attributes().AuthSessionState()()));
     }
 
     // capture session timeout hint from client
@@ -180,8 +180,8 @@ void DiameterServerAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
         if (tout) {
             if (*tout < Attributes().SessionTimeout()()) {
                 Attributes().SessionTimeout() = *tout;
-                AAA_LOG(LM_INFO, "(%P|%t) Accepted client session timeout hint: %d\n", 
-                        Attributes().SessionTimeout()());
+                AAA_LOG((LM_INFO, "(%P|%t) Accepted client session timeout hint: %d\n", 
+                        Attributes().SessionTimeout()()));
             }
         }
     }
@@ -208,8 +208,8 @@ void DiameterServerAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
         if (tout) {
             if (*tout < Attributes().AuthLifetime()()) {
                 Attributes().AuthLifetime() = *tout;
-                AAA_LOG(LM_INFO, "(%P|%t) Accepted client auth lifetime hint: %d\n", 
-                        Attributes().AuthLifetime()());
+                AAA_LOG((LM_INFO, "(%P|%t) Accepted client auth lifetime hint: %d\n", 
+                        Attributes().AuthLifetime()()));
             }
         }
 
@@ -219,9 +219,9 @@ void DiameterServerAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
             int holder = Attributes().SessionTimeout()() - 1;
             Attributes().AuthLifetime() = (holder >= 0) ? holder : holder + 1; 
   
-            AAA_LOG(LM_INFO, "(%P|%t) !!! WARNING !!! application sets authorization lifetime\n");
-            AAA_LOG(LM_INFO, "(%P|%t)                 to be greater than session timeout, overriding to %d\n",
-                    Attributes().AuthLifetime()());
+            AAA_LOG((LM_INFO, "(%P|%t) !!! WARNING !!! application sets authorization lifetime\n"));
+            AAA_LOG((LM_INFO, "(%P|%t)                 to be greater than session timeout, overriding to %d\n",
+                    Attributes().AuthLifetime()()));
         }
     }
 
@@ -254,11 +254,11 @@ void DiameterServerAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg)
 	    }
         }
         else {
-            AAA_LOG(LM_DEBUG,"(%P|%t) *** ASA received with no ASR sent, discarding\n");
+            AAA_LOG((LM_DEBUG,"(%P|%t) *** ASA received with no ASR sent, discarding\n"));
         }
     }
     else if (msg->hdr.code == DIAMETER_MSGCODE_SESSIONTERMINATION) {
-        AAA_LOG(LM_DEBUG,"(%P|%t) *** STA received in server session, discarding\n");
+        AAA_LOG((LM_DEBUG,"(%P|%t) *** STA received in server session, discarding\n"));
     }
     else if (msg->hdr.code == DIAMETER_MSGCODE_REAUTH) {
         m_Fsm.RxRAA(*msg);
@@ -270,7 +270,7 @@ void DiameterServerAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg)
             m_Fsm.Notify(DIAMETER_SESSION_AUTH_EV_RX_RAA);
 	}
         else {
-            AAA_LOG(LM_INFO, "(%P|%t) Re-Auth answer received with no result-code\n");
+            AAA_LOG((LM_INFO, "(%P|%t) Re-Auth answer received with no result-code\n"));
             Attributes().ReAuthRequestValue().Clear();
 	}
     }
@@ -295,8 +295,8 @@ AAAReturnCode DiameterServerAuthSession::TxDelivery(std::auto_ptr<DiameterMsg> m
                 Attributes().AuthSessionState()();
     }
     else if (Attributes().AuthSessionState()() != *state) {
-        AAA_LOG(LM_INFO, "(%P|%t) !!! WARNING !!! application sending auth state\n");
-        AAA_LOG(LM_INFO, "(%P|%t)                 not matching base protocol, overriding\n");
+        AAA_LOG((LM_INFO, "(%P|%t) !!! WARNING !!! application sending auth state\n"));
+        AAA_LOG((LM_INFO, "(%P|%t)                 not matching base protocol, overriding\n"));
         *state = Attributes().AuthSessionState()();
     }
 
@@ -310,12 +310,12 @@ AAAReturnCode DiameterServerAuthSession::TxDelivery(std::auto_ptr<DiameterMsg> m
                     Attributes().SessionTimeout()();
         }
         else if (Attributes().SessionTimeout()() < *tout) {
-            AAA_LOG(LM_INFO, "(%P|%t) !!! WARNING !!! application sending session timeout\n");
-            AAA_LOG(LM_INFO, "(%P|%t)                 greater than configuration or callback, overriding\n");
+            AAA_LOG((LM_INFO, "(%P|%t) !!! WARNING !!! application sending session timeout\n"));
+            AAA_LOG((LM_INFO, "(%P|%t)                 greater than configuration or callback, overriding\n"));
             *tout = Attributes().SessionTimeout()();
         }
         else {
-            AAA_LOG(LM_INFO, "(%P|%t) Using applications session timeout settings\n");
+            AAA_LOG((LM_INFO, "(%P|%t) Using applications session timeout settings\n"));
             Attributes().SessionTimeout() = *tout;
 	}
         Attributes().SessionTimeout().IsNegotiated() = true;
@@ -331,12 +331,12 @@ AAAReturnCode DiameterServerAuthSession::TxDelivery(std::auto_ptr<DiameterMsg> m
                     Attributes().AuthLifetime()();
         }
         else if (Attributes().AuthLifetime()() < *tout) {
-            AAA_LOG(LM_INFO, "(%P|%t) !!! WARNING !!! application sending auth lifetime \n");
-            AAA_LOG(LM_INFO, "(%P|%t)                 greater than configuration or callback, overriding\n"); 
+            AAA_LOG((LM_INFO, "(%P|%t) !!! WARNING !!! application sending auth lifetime \n"));
+            AAA_LOG((LM_INFO, "(%P|%t)                 greater than configuration or callback, overriding\n")); 
             *tout = Attributes().AuthLifetime()();
         }
         else {
-            AAA_LOG(LM_INFO, "(%P|%t) Using applications auth lifetime settings\n");
+            AAA_LOG((LM_INFO, "(%P|%t) Using applications auth lifetime settings\n"));
             Attributes().AuthLifetime() = *tout;
 	}
         Attributes().AuthLifetime().IsNegotiated() = true;
@@ -352,12 +352,12 @@ AAAReturnCode DiameterServerAuthSession::TxDelivery(std::auto_ptr<DiameterMsg> m
                     Attributes().AuthGrace()();
         }
         else if (Attributes().AuthGrace()() < *tout) {
-            AAA_LOG(LM_INFO, "(%P|%t) !!! WARNING !!! application sending grace period \n");
-            AAA_LOG(LM_INFO, "(%P|%t)                 greater than configuration or callback, overriding\n");
+            AAA_LOG((LM_INFO, "(%P|%t) !!! WARNING !!! application sending grace period \n"));
+            AAA_LOG((LM_INFO, "(%P|%t)                 greater than configuration or callback, overriding\n"));
             *tout = Attributes().AuthGrace()();
         }
         else {
-            AAA_LOG(LM_INFO, "(%P|%t) Using applications auth grace period settings\n");
+            AAA_LOG((LM_INFO, "(%P|%t) Using applications auth grace period settings\n"));
             Attributes().AuthGrace() = *tout;
 	}
         Attributes().AuthGrace().IsNegotiated() = true;

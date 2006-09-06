@@ -94,7 +94,7 @@ class DiameterSessionGarbageCollector :
                 ACE_OS::sleep(obj->GracePeriod());
             }
             delete obj;
-            AAA_LOG(LM_INFO, "(%P|%t) *** Garbage collection occuring ***\n");
+            AAA_LOG((LM_INFO, "(%P|%t) *** Garbage collection occuring ***\n"));
             return (0);
 	}
 

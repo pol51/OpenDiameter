@@ -80,7 +80,7 @@ class DiameterSessionStateMachine : public AAA_StateMachineWithTimer<ARG>
          m_Debug.DumpEvent(AAA_StateMachineWithTimer<ARG>::state, ev);
 
          if (! AAA_StateMachineWithTimer<ARG>::Running()) {
-             AAA_LOG(LM_ERROR, "(%P|%t) Session not running\n");
+             AAA_LOG((LM_ERROR, "(%P|%t) Session not running\n"));
              return;
          }
 
@@ -88,11 +88,11 @@ class DiameterSessionStateMachine : public AAA_StateMachineWithTimer<ARG>
              AAA_StateMachineWithTimer<ARG>::Event(ev);
          }
          catch (DiameterBaseException &err) {
-             AAA_LOG(LM_ERROR, "(%P|%t) FSM error[%d]: %s\n",
-                        err.Code(), err.Description().data());
+             AAA_LOG((LM_ERROR, "(%P|%t) FSM error[%d]: %s\n",
+                        err.Code(), err.Description().data()));
          }
          catch (...) {
-             AAA_LOG(LM_ERROR, "(%P|%t) Unknown exception in FSM\n");
+             AAA_LOG((LM_ERROR, "(%P|%t) Unknown exception in FSM\n"));
          }
       }
       virtual void Timeout(AAA_Event ev) {

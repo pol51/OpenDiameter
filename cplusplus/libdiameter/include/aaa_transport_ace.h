@@ -178,8 +178,8 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
                  (errno == EAGAIN)) { 
                 return (0);
              }
-             AAA_LOG(LM_ERROR, "(%P|%t) Async Transport Reports: %s\n",
-                        strerror(errno));
+             AAA_LOG((LM_ERROR, "(%P|%t) Async Transport Reports: %s\n",
+                        strerror(errno)));
          }
          return (rc);
       }
@@ -190,8 +190,8 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
                  (errno == EAGAIN)) { 
                 return (0);
              }
-             AAA_LOG(LM_ERROR, "(%P|%t) Async Transport Reports: %s\n",
-                        strerror(errno));
+             AAA_LOG((LM_ERROR, "(%P|%t) Async Transport Reports: %s\n",
+                        strerror(errno)));
              rc = (-1);
          }
          else if (rc == 0) {
@@ -260,8 +260,8 @@ class Diameter_IO_SigMask : public ACE_Event_Handler
        virtual int handle_signal(int signo,
                                  siginfo_t * = 0, 
                                  ucontext_t * = 0) {
-           AAA_LOG(LM_ERROR, 
-              "(%P|%t) SIGPIPE received, closing connection\n");
+           AAA_LOG((LM_ERROR, 
+              "(%P|%t) SIGPIPE received, closing connection\n"));
 #ifndef WIN32
            errno = EPIPE;
 #endif

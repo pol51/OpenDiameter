@@ -299,9 +299,9 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                    if (error == DiameterMsgCollectorHandler::PARSING_ERROR) {
                        return; // not considered fatal for now
                    }
-                   AAA_LOG(LM_ERROR,
+                   AAA_LOG((LM_ERROR,
                              "(%P|%t) %s peer failed establishing state [%d], closing\n",
-                              io_name.data(), error);
+                              io_name.data(), error));
                    std::auto_ptr<PendingResponder> guard(this);
                    m_Acceptor.RemoveFromPendingList(*this);
                    throw(error);

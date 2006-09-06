@@ -77,8 +77,8 @@ AAAReturnCode DiameterSession<ATTRIBUTE>::TxDelivery
                m_Attributes.DestinationRealm().Set(dRealmAttr());
            }
            else if (msg->hdr.flags.r) {
-               AAA_LOG(LM_INFO, 
-               "(%P|%t) No destination realm present in message\n");
+               AAA_LOG((LM_INFO, 
+               "(%P|%t) No destination realm present in message\n"));
                return (AAA_ERR_FAILURE);
            }
        }

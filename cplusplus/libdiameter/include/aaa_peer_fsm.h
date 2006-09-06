@@ -579,7 +579,7 @@ class DiameterPeerStateMachine :
           ///  Notify(DIAMETER_PEER_EV_SEND_MESSAGE);
           if (! AAA_StateMachineWithTimer
              <DiameterPeerStateMachine>::Running()) {
-             AAA_LOG(LM_INFO, "(%P|%t) Cannot send message, statemachine not running\n");
+             AAA_LOG((LM_INFO, "(%P|%t) Cannot send message, statemachine not running\n"));
              return (-1);
           }
           switch (state) {
@@ -588,7 +588,7 @@ class DiameterPeerStateMachine :
               case DIAMETER_PEER_ST_R_OPEN:
                   return RawSend(msg, m_Data.m_IOResponder.get());
               default:
-                  AAA_LOG(LM_INFO, "(%P|%t) Discarding msg to send, peer state is not open\n");
+                  AAA_LOG((LM_INFO, "(%P|%t) Discarding msg to send, peer state is not open\n"));
                   break;
           }
           return (0);
@@ -616,7 +616,7 @@ class DiameterPeerStateMachine :
              Schedule(this);
          }
          else {
-             AAA_LOG(LM_INFO, "(%P|%t) Event not processed, statemachine not running\n");
+             AAA_LOG((LM_INFO, "(%P|%t) Event not processed, statemachine not running\n"));
          }
       }
       virtual void Notify(AAA_Event event,
@@ -630,7 +630,7 @@ class DiameterPeerStateMachine :
              Schedule(this);
          }
          else {
-             AAA_LOG(LM_INFO, "(%P|%t) Event not processed, statemachine not running\n");
+             AAA_LOG((LM_INFO, "(%P|%t) Event not processed, statemachine not running\n"));
          }
       }
       virtual void Notify(AAA_Event event,
@@ -644,7 +644,7 @@ class DiameterPeerStateMachine :
              Schedule(this);
          }
          else {
-             AAA_LOG(LM_INFO, "(%P|%t) Event not processed, statemachine not running\n");
+             AAA_LOG((LM_INFO, "(%P|%t) Event not processed, statemachine not running\n"));
          }
       }
       virtual void Notify(AAA_Event event,
@@ -660,7 +660,7 @@ class DiameterPeerStateMachine :
              Schedule(this);
          }
          else {
-             AAA_LOG(LM_INFO, "(%P|%t) Event not processed, statemachine not running\n");
+             AAA_LOG((LM_INFO, "(%P|%t) Event not processed, statemachine not running\n"));
          }
       }
       
@@ -697,11 +697,11 @@ class DiameterPeerStateMachine :
                         (m_CurrentPeerEventParam->m_Event);
          }
          catch (DiameterPeerFsmException &err) {
-             AAA_LOG(LM_ERROR, "(%P|%t) FSM error[%d]: %s\n",
-                        err.Code(), err.Description().data());
+             AAA_LOG((LM_ERROR, "(%P|%t) FSM error[%d]: %s\n",
+                        err.Code(), err.Description().data()));
          }
          catch (...) {
-             AAA_LOG(LM_ERROR, "(%P|%t) Unknown exception in FSM\n");
+             AAA_LOG((LM_ERROR, "(%P|%t) Unknown exception in FSM\n"));
          }
          DumpEvent(m_CurrentPeerEventParam->m_Event, "Post-Event");
          m_CurrentPeerEventParam.reset();
@@ -823,8 +823,8 @@ class DiameterPeerStateMachine :
                                         "DIAMETER_PEER_ST_R_OPEN",
                                         "DIAMETER_PEER_ST_CLOSING"
           };
-          AAA_LOG(LM_INFO, "(%P|%t) FSM EVENT DEBUG [state=%s, event=%s]: %s\n",
-                    stStrTable[state], evStrTable[ev], prefix);
+          AAA_LOG((LM_INFO, "(%P|%t) FSM EVENT DEBUG [state=%s, event=%s]: %s\n",
+                    stStrTable[state], evStrTable[ev], prefix));
 #endif // AAA_FSM_EVENT_DEBUG
       }
 

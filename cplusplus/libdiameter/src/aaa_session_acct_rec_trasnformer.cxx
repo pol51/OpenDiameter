@@ -87,11 +87,11 @@ AAAReturnCode DiameterAccountingXMLRecTransformer::Convert(DiameterMsg *msg)
 
 AAAReturnCode DiameterAccountingXMLRecTransformer::OutputRecord(DiameterMsg *originalMessage)
 {
-   AAA_LOG(LM_DEBUG, "(%P|%t) Server: Default output record handler\n");
+   AAA_LOG((LM_DEBUG, "(%P|%t) Server: Default output record handler\n"));
 
    if (record) {
 
-      AAA_LOG(LM_DEBUG, "(%P|%t) Server: Resetting record holder\n");
+      AAA_LOG((LM_DEBUG, "(%P|%t) Server: Resetting record holder\n"));
 
       ACE_OS::free(record);
       record = NULL;

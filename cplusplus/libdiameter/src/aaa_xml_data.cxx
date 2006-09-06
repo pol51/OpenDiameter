@@ -130,8 +130,8 @@ class DiameterXmlAcctAppIdConv :
                  vendorIdElm->Get().acctAppId = ACE_OS::atoi(ch);               
          }
          else {
-             AAA_LOG(LM_ERROR, 
-                  "acct app id has an invalid parent !!!\n");
+             AAA_LOG((LM_ERROR, 
+                  "acct app id has an invalid parent !!!\n"));
              throw;
          }
      }
@@ -157,8 +157,8 @@ class DiameterXmlAuthAppIdConv :
                  vendorIdElm->Get().authAppId = ACE_OS::atoi(ch);
          }
          else {
-             AAA_LOG(LM_ERROR, 
-                  "auth app id has an invalid parent !!!\n");
+             AAA_LOG((LM_ERROR, 
+                  "auth app id has an invalid parent !!!\n"));
              throw;
          }
      }
@@ -193,8 +193,8 @@ class DiameterXmlRouteParser :
              DIAMETER_ROUTE_TABLE()->DefaultRoute(*m_route);
          }
          else {
-             AAA_LOG(LM_ERROR, 
-                  "Route xml parser has an invalid name !!!\n");
+             AAA_LOG((LM_ERROR, 
+                  "Route xml parser has an invalid name !!!\n"));
              delete m_route;
              throw;
          }
@@ -231,8 +231,8 @@ class DiameterXmlRealmConv :
               DIAMETER_CFG_TRANSPORT()->realm = ch;
          }
          else {
-             AAA_LOG(LM_ERROR, 
-                  "realm has an invalid parent !!!\n");
+             AAA_LOG((LM_ERROR, 
+                  "realm has an invalid parent !!!\n"));
              throw;
          }
      }
@@ -258,8 +258,8 @@ class DiameterXmlPeerEntryParser :
                         m_peerInfo.tls_enabled,
                         0,
                         true)) {   
-             AAA_LOG(LM_INFO, "(%P|%t) WARING !!! - Unable to add peer: %s\n", 
-                     m_peerInfo.hostname.data());
+             AAA_LOG((LM_INFO, "(%P|%t) WARING !!! - Unable to add peer: %s\n", 
+                     m_peerInfo.hostname.data()));
          }
      	 return OD_Utl_XML_Element::endElement();
      }
@@ -402,8 +402,8 @@ class DiameterXmlVendorIdConv :
              rteAppElm->Get()->VendorId() = ACE_OS::atoi(ch);
          }
          else {
-             AAA_LOG(LM_ERROR, 
-                  "vendor id has an invalid parent !!!\n");
+             AAA_LOG((LM_ERROR, 
+                  "vendor id has an invalid parent !!!\n"));
              throw;
          }
      }
@@ -517,8 +517,8 @@ class DiameterXmlSessionTimeoutConv :
              DIAMETER_CFG_ACCT_SESSION()->sessionTm = ACE_OS::atoi(ch);
          }
          else {
-             AAA_LOG(LM_ERROR, 
-                  "session timeout has an invalid parent !!!\n");
+             AAA_LOG((LM_ERROR, 
+                  "session timeout has an invalid parent !!!\n"));
              throw;
          }
      }
@@ -669,8 +669,8 @@ void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
               std::string testAddr(*i + ":0");
 
              if (hostAddr.set(testAddr.data())) {
-                  AAA_LOG(LM_INFO, "(%P|%t) WARNING: Invalid Advertised Host IP Addr [%s], will be ignored\n",
-                                   (*i).data());
+                  AAA_LOG((LM_INFO, "(%P|%t) WARNING: Invalid Advertised Host IP Addr [%s], will be ignored\n",
+                                   (*i).data()));
                   root.transport.advertised_host_ip.erase(i);
                   i = root.transport.advertised_host_ip.begin();
              }       
@@ -699,12 +699,12 @@ void DiameterXMLConfigParser::dump()
 {
     DiameterDataRoot &root = *DIAMETER_CFG_ROOT();
 
-    AAA_LOG(LM_INFO, "(%P|%t)             Product : %s\n", 
-                  root.general.product.data());
-    AAA_LOG(LM_INFO, "(%P|%t)             Version : %d\n", 
-                  root.general.version);
-    AAA_LOG(LM_INFO, "(%P|%t)           Vendor Id : %d\n", 
-                  root.general.vendor);
+    AAA_LOG((LM_INFO, "(%P|%t)             Product : %s\n", 
+                  root.general.product.data()));
+    AAA_LOG((LM_INFO, "(%P|%t)             Version : %d\n", 
+                  root.general.version));
+    AAA_LOG((LM_INFO, "(%P|%t)           Vendor Id : %d\n", 
+                  root.general.vendor));
 
     DiameterApplicationIdLst *idList[] = { &root.general.supportedVendorIdLst,
                                        &root.general.authAppIdLst,
@@ -717,8 +717,8 @@ void DiameterXMLConfigParser::dump()
         i++) {
         DiameterApplicationIdLst::iterator x = idList[i]->begin();
         for (; x != idList[i]->end(); x++) {
-           AAA_LOG(LM_INFO, "(%P|%t)    %s : %d\n",
-                    label[i], *x);
+           AAA_LOG((LM_INFO, "(%P|%t)    %s : %d\n",
+                    label[i], *x));
         }
     }
 
@@ -726,47 +726,47 @@ void DiameterXMLConfigParser::dump()
         root.general.vendorSpecificId.begin();
     for (; n != root.general.vendorSpecificId.end(); n ++) {
   
-        AAA_LOG(LM_INFO, "(%P|%t)  Vendor Specific Id : ");
+        AAA_LOG((LM_INFO, "(%P|%t)  Vendor Specific Id : "));
         if ((*n).authAppId > 0) {
-            AAA_LOG(LM_INFO, " Auth=%d ", (*n).authAppId);
+            AAA_LOG((LM_INFO, " Auth=%d ", (*n).authAppId));
         }
         if ((*n).acctAppId > 0) {
-            AAA_LOG(LM_INFO, " Acct=%d ", (*n).acctAppId);
+            AAA_LOG((LM_INFO, " Acct=%d ", (*n).acctAppId));
         }
-        AAA_LOG(LM_INFO, "%s\n", (((*n).authAppId == 0) && 
-                ((*n).acctAppId == 0)) ? "---" : "");
+        AAA_LOG((LM_INFO, "%s\n", (((*n).authAppId == 0) && 
+                ((*n).acctAppId == 0)) ? "---" : ""));
         DiameterApplicationIdLst::iterator i = (*n).vendorIdLst.begin();
         for (; i != (*n).vendorIdLst.end(); i++) {
-            AAA_LOG(LM_INFO, "(%P|%t)                        Vendor=%d\n",
-                    (*i));
+            AAA_LOG((LM_INFO, "(%P|%t)                        Vendor=%d\n",
+                    (*i)));
         }
     }
 
-    AAA_LOG(LM_INFO, "(%P|%t)          Dictionary : %s\n", 
-                  root.parser.dictionary.data());  
+    AAA_LOG((LM_INFO, "(%P|%t)          Dictionary : %s\n", 
+                  root.parser.dictionary.data()));  
 
-    AAA_LOG(LM_INFO, "(%P|%t)            Identity : %s\n", 
-                  root.transport.identity.data());
-    AAA_LOG(LM_INFO, "(%P|%t)               Realm : %s\n", 
-                  root.transport.realm.data());
-    AAA_LOG(LM_INFO, "(%P|%t)          TCP Listen : %d\n", 
-                  root.transport.tcp_port);
-    AAA_LOG(LM_INFO, "(%P|%t)          TLS Listen : %d\n", 
-                  root.transport.tls_port);
-    AAA_LOG(LM_INFO, "(%P|%t)   Watch-Dog timeout : %d\n", 
-                  root.transport.watchdog_timeout);
-    AAA_LOG(LM_INFO, "(%P|%t) Re-transmission Int : %d\n", 
-                  root.transport.retx_interval);
-    AAA_LOG(LM_INFO, "(%P|%t)    Max Re-trans Int : %d\n", 
-                  root.transport.retx_max_count);
-    AAA_LOG(LM_INFO, "(%P|%t) Peer Conn Retry Int : %d\n", 
-                  root.transport.retry_interval);
+    AAA_LOG((LM_INFO, "(%P|%t)            Identity : %s\n", 
+                  root.transport.identity.data()));
+    AAA_LOG((LM_INFO, "(%P|%t)               Realm : %s\n", 
+                  root.transport.realm.data()));
+    AAA_LOG((LM_INFO, "(%P|%t)          TCP Listen : %d\n", 
+                  root.transport.tcp_port));
+    AAA_LOG((LM_INFO, "(%P|%t)          TLS Listen : %d\n", 
+                  root.transport.tls_port));
+    AAA_LOG((LM_INFO, "(%P|%t)   Watch-Dog timeout : %d\n", 
+                  root.transport.watchdog_timeout));
+    AAA_LOG((LM_INFO, "(%P|%t) Re-transmission Int : %d\n", 
+                  root.transport.retx_interval));
+    AAA_LOG((LM_INFO, "(%P|%t)    Max Re-trans Int : %d\n", 
+                  root.transport.retx_max_count));
+    AAA_LOG((LM_INFO, "(%P|%t) Peer Conn Retry Int : %d\n", 
+                  root.transport.retry_interval));
                  
     std::list<std::string>::iterator i = 
          root.transport.advertised_host_ip.begin();
     for (; i != root.transport.advertised_host_ip.end(); i++) {
-         AAA_LOG(LM_INFO, "(%P|%t)        Host IP Addr : %s\n", 
-                       (*i).data());
+         AAA_LOG((LM_INFO, "(%P|%t)        Host IP Addr : %s\n", 
+                       (*i).data()));
     }
 
     // peer table
@@ -775,37 +775,37 @@ void DiameterXMLConfigParser::dump()
     // route table
     DIAMETER_ROUTE_TABLE()->Dump();
 
-    AAA_LOG(LM_INFO, "(%P|%t)            Max Sess : %d\n", 
-                 root.session.maxSessions);
+    AAA_LOG((LM_INFO, "(%P|%t)            Max Sess : %d\n", 
+                 root.session.maxSessions));
 
-    AAA_LOG(LM_INFO, "(%P|%t)  Auth Stateful Auth : %s\n", 
-                 root.session.authSessions.stateful ? "stateful" : "stateless");
-    AAA_LOG(LM_INFO, "(%P|%t)     Auth Session(T) : %d\n", 
-                 root.session.authSessions.sessionTm);
-    AAA_LOG(LM_INFO, "(%P|%t)    Auth Lifetime(T) : %d\n", 
-                 root.session.authSessions.lifetimeTm);
-    AAA_LOG(LM_INFO, "(%P|%t)       Auth Grace(T) : %d\n", 
-                 root.session.authSessions.graceTm);
-    AAA_LOG(LM_INFO, "(%P|%t)       Auth Abort(T) : %d\n", 
-                 root.session.authSessions.abortRetryTm);
+    AAA_LOG((LM_INFO, "(%P|%t)  Auth Stateful Auth : %s\n", 
+                 root.session.authSessions.stateful ? "stateful" : "stateless"));
+    AAA_LOG((LM_INFO, "(%P|%t)     Auth Session(T) : %d\n", 
+                 root.session.authSessions.sessionTm));
+    AAA_LOG((LM_INFO, "(%P|%t)    Auth Lifetime(T) : %d\n", 
+                 root.session.authSessions.lifetimeTm));
+    AAA_LOG((LM_INFO, "(%P|%t)       Auth Grace(T) : %d\n", 
+                 root.session.authSessions.graceTm));
+    AAA_LOG((LM_INFO, "(%P|%t)       Auth Abort(T) : %d\n", 
+                 root.session.authSessions.abortRetryTm));
 
-    AAA_LOG(LM_INFO, "(%P|%t)     Acct Session(T) : %d\n", 
-                 root.session.acctSessions.sessionTm);
-    AAA_LOG(LM_INFO, "(%P|%t)    Acct Interim Int : %d\n", 
-                 root.session.acctSessions.recIntervalTm);
-    AAA_LOG(LM_INFO, "(%P|%t)      Acct Real-Time : %d\n", 
-                 root.session.acctSessions.realtime);
+    AAA_LOG((LM_INFO, "(%P|%t)     Acct Session(T) : %d\n", 
+                 root.session.acctSessions.sessionTm));
+    AAA_LOG((LM_INFO, "(%P|%t)    Acct Interim Int : %d\n", 
+                 root.session.acctSessions.recIntervalTm));
+    AAA_LOG((LM_INFO, "(%P|%t)      Acct Real-Time : %d\n", 
+                 root.session.acctSessions.realtime));
 
-    AAA_LOG(LM_INFO, "(%P|%t)           Debug Log : %s\n", 
-                 root.log.flags.debug ? "enabled" : "disabled");
-    AAA_LOG(LM_INFO, "(%P|%t)           Trace Log : %s\n", 
-                 root.log.flags.trace ? "enabled" : "disabled");
-    AAA_LOG(LM_INFO, "(%P|%t)            Info Log : %s\n", 
-                 root.log.flags.info ? "enabled" : "disabled");
+    AAA_LOG((LM_INFO, "(%P|%t)           Debug Log : %s\n", 
+                 root.log.flags.debug ? "enabled" : "disabled"));
+    AAA_LOG((LM_INFO, "(%P|%t)           Trace Log : %s\n", 
+                 root.log.flags.trace ? "enabled" : "disabled"));
+    AAA_LOG((LM_INFO, "(%P|%t)            Info Log : %s\n", 
+                 root.log.flags.info ? "enabled" : "disabled"));
 
-    AAA_LOG(LM_INFO, "(%P|%t)         Console Log : %s\n", 
-                 root.log.targets.console ? "enabled" : "disabled");
-    AAA_LOG(LM_INFO, "(%P|%t)          Syslog Log : %s\n", 
-                 root.log.targets.syslog  ? "enabled" : "disabled");
+    AAA_LOG((LM_INFO, "(%P|%t)         Console Log : %s\n", 
+                 root.log.targets.console ? "enabled" : "disabled"));
+    AAA_LOG((LM_INFO, "(%P|%t)          Syslog Log : %s\n", 
+                 root.log.targets.syslog  ? "enabled" : "disabled"));
 }
 

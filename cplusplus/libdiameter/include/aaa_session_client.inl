@@ -123,7 +123,7 @@ template <class REC_COLLECTOR>
 void DiameterClientAcctSubSession<REC_COLLECTOR>::RxRequest
 (std::auto_ptr<DiameterMsg> msg) 
 {
-    AAA_LOG(LM_INFO, "(%P|%t) Service specific request msg received in client, no handlers so discarding\n");
+    AAA_LOG((LM_INFO, "(%P|%t) Service specific request msg received in client, no handlers so discarding\n"));
     DiameterMsgHeaderDump::Dump(*msg);
 }
 
@@ -133,12 +133,12 @@ void DiameterClientAcctSubSession<REC_COLLECTOR>::RxAnswer
 {
     // validate messge
     if (msg->hdr.code != DIAMETER_MSGCODE_ACCOUNTING) {
-        AAA_LOG(LM_INFO, "(%P|%t) Non-accounting answer message received, discarding\n");
+        AAA_LOG((LM_INFO, "(%P|%t) Non-accounting answer message received, discarding\n"));
         DiameterMsgHeaderDump::Dump(*msg);
         return;
     }
 
-    AAA_LOG(LM_INFO, "(%P|%t) accounting answer received\n");
+    AAA_LOG((LM_INFO, "(%P|%t) accounting answer received\n"));
     m_Fsm.RxACA(*msg);
      
     // filter record-type

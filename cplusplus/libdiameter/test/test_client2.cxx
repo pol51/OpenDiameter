@@ -96,7 +96,7 @@ class AAA_SampleClient : public DiameterClientAuthSession,
             // initiated by the server. Note that the client
             // must return a valid result-code when exiting
             // this function
-            AAA_LOG(LM_INFO, "(%P|%t) **** server re-authentication ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** server re-authentication ****\n"));
             return (AAAReturnCode)(AAA_SUCCESS);
         }
         virtual AAAReturnCode RequestMsg(DiameterMsg &msg) {
@@ -109,7 +109,7 @@ class AAA_SampleClient : public DiameterClientAuthSession,
             // a. AAA_ERR_SUCCESS - client is successfully responded
             //                      to server request
             // b. AAA_ERR_FAILURE - client failed. 
-            AAA_LOG(LM_INFO, "(%P|%t) **** Request message message received in client ****\n");
+            AAA_LOG((LM_INFO, "(%P|%t) **** Request message message received in client ****\n"));
             DiameterMsgHeaderDump::Dump(msg);
             return (AAA_ERR_SUCCESS);
         }
@@ -123,42 +123,42 @@ class AAA_SampleClient : public DiameterClientAuthSession,
         }
         virtual AAAReturnCode ErrorMsg(DiameterMsg &msg) {
             // all error messages are handled by this function.
-            AAA_LOG(LM_INFO, "(%P|%t) **** [Num:%d] Received message with error bit set ****\n",
-                    m_SessionNum);
+            AAA_LOG((LM_INFO, "(%P|%t) **** [Num:%d] Received message with error bit set ****\n",
+                    m_SessionNum));
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode Success() {
             // notification of successful auth
-            AAA_LOG(LM_INFO, "(%P|%t) **** [Num:%d] user authorized ****\n",
-                    m_SessionNum);
+            AAA_LOG((LM_INFO, "(%P|%t) **** [Num:%d] user authorized ****\n",
+                    m_SessionNum));
             m_Success = true;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode Disconnect() {
             // notification of completed STR/STA exchange
-            AAA_LOG(LM_INFO, "(%P|%t) **** [Num:%d] session disconnecting ****\n",
-                    m_SessionNum);
+            AAA_LOG((LM_INFO, "(%P|%t) **** [Num:%d] session disconnecting ****\n",
+                    m_SessionNum));
             m_Disconnected = true;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode SessionTimeout() {
             // notification of session timeout
-            AAA_LOG(LM_INFO, "(%P|%t) **** [Num:%d] session timeout ****\n",
-                    m_SessionNum);
+            AAA_LOG((LM_INFO, "(%P|%t) **** [Num:%d] session timeout ****\n",
+                    m_SessionNum));
             m_Disconnected = true;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode AuthorizationTimeout() {
             // notification of auth lifetime timeout
-            AAA_LOG(LM_INFO, "(%P|%t) **** [Num:%d] auth timeout ****\n",
-                    m_SessionNum);
+            AAA_LOG((LM_INFO, "(%P|%t) **** [Num:%d] auth timeout ****\n",
+                    m_SessionNum));
             m_Disconnected = true;
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode AbortSession() {
             // notification of completed ASR/ASA exchange
-            AAA_LOG(LM_INFO, "(%P|%t) **** [Num:%d] session aborted by server ****\n",
-                    m_SessionNum);
+            AAA_LOG((LM_INFO, "(%P|%t) **** [Num:%d] session aborted by server ****\n",
+                    m_SessionNum));
             m_Disconnected = true;
             return (AAA_ERR_SUCCESS);
         }
@@ -198,7 +198,7 @@ class AAA_SampleClientAction :
             //                         message trip exchange
             // c. AAA_ERR_FAILURE - client authentication failed
 
-            AAA_LOG(LM_INFO, "(%P|%t) Answer message received\n");
+            AAA_LOG((LM_INFO, "(%P|%t) Answer message received\n"));
 
             DiameterMsgHeaderDump::Dump(msg);
 
@@ -214,16 +214,16 @@ class AAA_SampleClientAction :
             diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
 
             if (host) {
-                AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
+                AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
             }
             if (realm) {
-                AAA_LOG(LM_INFO, "(%P|%t) From Realm: %s\n", realm->data());
+                AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
             }
             if (uname) {
-                AAA_LOG(LM_INFO, "(%P|%t) From User: %s\n", uname->data());
+                AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
             }
             if (authAppId) {
-                AAA_LOG(LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId);
+                AAA_LOG((LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId));
             }
 
             diameter_grouped_t *grouped = tunneling.GetAvp("Tunneling");
@@ -238,16 +238,16 @@ class AAA_SampleClientAction :
             diameter_utf8string_t *sep = sepAvp.GetAvp("Tunnel-Server-Endpoint");
 
             if (ttype) {
-                AAA_LOG(LM_INFO, "(%P|%t) Tunnel-Type: %d\n", *ttype);
+                AAA_LOG((LM_INFO, "(%P|%t) Tunnel-Type: %d\n", *ttype));
             }
             if (tmedium) {
-                AAA_LOG(LM_INFO, "(%P|%t) Medium: %d\n", *tmedium);
+                AAA_LOG((LM_INFO, "(%P|%t) Medium: %d\n", *tmedium));
             }
             if (sep) {
-                AAA_LOG(LM_INFO, "(%P|%t) Server EP: %s\n", sep->data());
+                AAA_LOG((LM_INFO, "(%P|%t) Server EP: %s\n", sep->data()));
             }
             if (cep) {
-                AAA_LOG(LM_INFO, "(%P|%t) Client EP: %s\n", cep->data());
+                AAA_LOG((LM_INFO, "(%P|%t) Client EP: %s\n", cep->data()));
             }
 
             if ((-- m_HowManyMsg) > 0) {
@@ -360,15 +360,15 @@ class PeerEventHandler :
 {
    public:
       virtual void PeerFsmConnected() {
-         AAA_LOG(LM_INFO, "(%P|%t) **** peer is now connected ****\n");
+         AAA_LOG((LM_INFO, "(%P|%t) **** peer is now connected ****\n"));
       }
       virtual void PeerFsmDisconnected(int cause) {
-         AAA_LOG(LM_INFO, "(%P|%t) **** peer is now disconnected: %d ****\n",
-                 cause);
+         AAA_LOG((LM_INFO, "(%P|%t) **** peer is now disconnected: %d ****\n",
+                 cause));
       }
       virtual void PeerFsmError(PFSM_EV_ERR err) {
-         AAA_LOG(LM_INFO, "(%P|%t) **** peer is now disconnected: %d ****\n",
-                 err);
+         AAA_LOG((LM_INFO, "(%P|%t) **** peer is now disconnected: %d ****\n",
+                 err));
          switch (err) {
             case PFSM_EV_ERR_CONN_NACK:
                break;

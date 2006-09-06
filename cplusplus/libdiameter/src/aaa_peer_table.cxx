@@ -117,9 +117,9 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
         i++) {
        if (cmdCode[i] == query.Code()) {           
            if (! MsgIdRxMessage(*msg) && ! query.IsRequest()) {
-               AAA_LOG(LM_INFO,
+               AAA_LOG((LM_INFO,
                    "(%P|%t) Msg[%d] Invalid hop-by-hop or end-to-end id\
-                    in answer message\n", query.Code());
+                    in answer message\n", query.Code()));
                return;
            }
            switch (state) {
@@ -153,9 +153,9 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
                    }
                    // fall through
                default:
-                   AAA_LOG(LM_DEBUG,
+                   AAA_LOG((LM_DEBUG,
                              "(%P|%t) Message [%d,%d] in unlikely state [%d], discarding\n",
-                              cmdCode[i], query.IsRequest(), state);
+                              cmdCode[i], query.IsRequest(), state));
            }
            return;
        }
@@ -169,9 +169,9 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
            Notify(DIAMETER_PEER_EV_R_RCV_MESSAGE, msg);
            break;
        default:
-           AAA_LOG(LM_INFO,
+           AAA_LOG((LM_INFO,
                       "(%P|%t) Received session non base protocol message\
-                       in an un-opened state, discarding\n");
+                       in an un-opened state, discarding\n"));
            break;
    }
 }
@@ -184,8 +184,8 @@ void DiameterPeerEntry::Error(COLLECTOR_ERROR error,
                              "Transport disconnection",
                              "Invalid message" };
 
-   AAA_LOG(LM_DEBUG, "(%P|%t) IO [%s] reported: %s\n",
-              io_name.data(), errMsg[error-PARSING_ERROR]);
+   AAA_LOG((LM_DEBUG, "(%P|%t) IO [%s] reported: %s\n",
+              io_name.data(), errMsg[error-PARSING_ERROR]));
    
    switch (error) {
        case TRANSPORT_ERROR:

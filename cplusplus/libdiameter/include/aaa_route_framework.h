@@ -62,7 +62,7 @@ class DiameterRoutingNode
                    }
                    // fall through
                default:
-                   AAA_LOG(LM_INFO, "(%P|%t) **** Message failed to route ****\n");
+                   AAA_LOG((LM_INFO, "(%P|%t) **** Message failed to route ****\n"));
                    DiameterMsgHeaderDump::Dump(*msg);
                    break;
            }
@@ -94,16 +94,16 @@ class DiameterRoutingNode
 #if AAA_ROUTE_DEBUG
            switch (r) {
                case AAA_ROUTE_RESULT_NEXT_CHAIN:
-                   AAA_LOG(LM_INFO, "(%P|%t) Route lookup %s defer to next chain\n",
-                             m_Name.data());
+                   AAA_LOG((LM_INFO, "(%P|%t) Route lookup %s defer to next chain\n",
+                             m_Name.data()));
                    break;
                case AAA_ROUTE_RESULT_SUCCESS:
-                   AAA_LOG(LM_INFO, "(%P|%t) Route lookup %s successful, processing msg\n",
-                              m_Name.data());
+                   AAA_LOG((LM_INFO, "(%P|%t) Route lookup %s successful, processing msg\n",
+                              m_Name.data()));
                    break;
                default:
-                   AAA_LOG(LM_INFO, "(%P|%t) Route lookup %s failed, discarding msg\n",
-                              m_Name.data());
+                   AAA_LOG((LM_INFO, "(%P|%t) Route lookup %s failed, discarding msg\n",
+                              m_Name.data()));
                    break;
            }
 #endif
@@ -153,8 +153,8 @@ class DiameterDeliveryRoutingNode : public DiameterRoutingNode
                         m_Action(r);
                     }
                     else {
-                        AAA_LOG(LM_INFO, 
-                            "(%P|%t) **** Re-Transmission count exceeded, Request discarded ****\n");
+                        AAA_LOG((LM_INFO, 
+                            "(%P|%t) **** Re-Transmission count exceeded, Request discarded ****\n"));
                         delete r;
                         return (true);
                     }

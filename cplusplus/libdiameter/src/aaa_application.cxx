@@ -39,11 +39,11 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
 {
     /// sanity check
     if (! m_Task.Running()) {
-        AAA_LOG(LM_ERROR, "(%P|%t) Task MUST be running before openning core\n");
+        AAA_LOG((LM_ERROR, "(%P|%t) Task MUST be running before openning core\n"));
         return (AAA_ERR_FAILURE);
     }
 
-    AAA_LOG(LM_INFO, "(%P|%t) Starting diameter core\n");
+    AAA_LOG((LM_INFO, "(%P|%t) Starting diameter core\n"));
 
     /// parse config filename
     try {
@@ -51,8 +51,8 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
         parser.Load(m_Task, cfgfile);
     }
     catch (...) {
-        AAA_LOG(LM_INFO, "(%P|%t) % failed to parse %s\n",
-                cfgfile);
+        AAA_LOG((LM_INFO, "(%P|%t) % failed to parse %s\n",
+                cfgfile));
         return (AAA_ERR_PARSING_ERROR);
     }
 
@@ -93,7 +93,7 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
 
 AAAReturnCode DiameterApplication::Close()
 {
-    AAA_LOG(LM_INFO, "(%P|%t) Stopping diameter core\n");
+    AAA_LOG((LM_INFO, "(%P|%t) Stopping diameter core\n"));
 
     /// cancel re-transmission timer
     m_Task.CancelTimer(m_ReTxHandler.Handle(), 0);

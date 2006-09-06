@@ -269,47 +269,47 @@ void DiameterAcctSessionClientStateMachine::RxACA(DiameterMsg &msg)
     diameter_utf8string_t *errMsg = errMsgAvp.GetAvp(DIAMETER_AVPNAME_ERRORMESSAGE);
     diameter_identity_t *errHost = errHostAvp.GetAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
 
-    AAA_LOG(LM_INFO, "(%P|%t) *** Accounting answer received ***\n");
+    AAA_LOG((LM_INFO, "(%P|%t) *** Accounting answer received ***\n"));
     Attributes().MsgIdRxMessage(msg);
 
     DiameterSessionId sid;
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Host   : %s\n", host->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Host   : %s\n", host->data()));
     }
     if (realm) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Realm  : %s\n", realm->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm  : %s\n", realm->data()));
     }
     if (uname) {
-        AAA_LOG(LM_INFO, "(%P|%t) From User   : %s\n", uname->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From User   : %s\n", uname->data()));
     }
     if (subSessId) {
-        AAA_LOG(LM_INFO, "(%P|%t) Sub-Session : %d\n", *subSessId);
+        AAA_LOG((LM_INFO, "(%P|%t) Sub-Session : %d\n", *subSessId));
     }
     if (recType) {
-        AAA_LOG(LM_INFO, "(%P|%t) Rec Type    : %d\n", *recType);
+        AAA_LOG((LM_INFO, "(%P|%t) Rec Type    : %d\n", *recType));
     }
     if (recNum) {
-        AAA_LOG(LM_INFO, "(%P|%t) Rec Num     : %d\n", *recNum);
+        AAA_LOG((LM_INFO, "(%P|%t) Rec Num     : %d\n", *recNum));
     }
     if (realtime) {
-        AAA_LOG(LM_INFO, "(%P|%t) Realtime    : %d\n", *realtime);
+        AAA_LOG((LM_INFO, "(%P|%t) Realtime    : %d\n", *realtime));
     }
     if (rcode) {
-        AAA_LOG(LM_INFO, "(%P|%t) Result-Code : %d\n", *rcode);
+        AAA_LOG((LM_INFO, "(%P|%t) Result-Code : %d\n", *rcode));
     }
     if (interim) {
-        AAA_LOG(LM_INFO, "(%P|%t) Interim     : %d\n", *interim);
+        AAA_LOG((LM_INFO, "(%P|%t) Interim     : %d\n", *interim));
     }
     if (errMsg) {
         if (errHost) {
-            AAA_LOG(LM_INFO, "(%P|%t) Message from [%s]: %s\n", 
-                errHost->data(), errMsg->data());
+            AAA_LOG((LM_INFO, "(%P|%t) Message from [%s]: %s\n", 
+                errHost->data(), errMsg->data()));
         }
         else {
-            AAA_LOG(LM_INFO, "(%P|%t) Message: %s\n", 
-                errMsg->data());
+            AAA_LOG((LM_INFO, "(%P|%t) Message: %s\n", 
+                errMsg->data()));
         }
     }
 }

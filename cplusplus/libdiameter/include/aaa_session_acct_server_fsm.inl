@@ -96,29 +96,29 @@ void DiameterAcctSessionServerStateMachine<REC_COLLECTOR>::RxACR
     diameter_enumerated_t *recType = acctRecTypeAvp.GetAvp(DIAMETER_AVPNAME_ACCTREC_TYPE);
     diameter_unsigned32_t *recNum = acctRecNumAvp.GetAvp(DIAMETER_AVPNAME_ACCTREC_NUM);
 
-    AAA_LOG(LM_INFO, "(%P|%t) *** Accounting request received ***\n");
+    AAA_LOG((LM_INFO, "(%P|%t) *** Accounting request received ***\n"));
     Attributes().MsgIdRxMessage(msg);
 
     DiameterSessionId sid;
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Host: %s\n", host->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
     }
     if (realm) {
-        AAA_LOG(LM_INFO, "(%P|%t) From Realm: %s\n", realm->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
     }
     if (uname) {
-        AAA_LOG(LM_INFO, "(%P|%t) From User: %s\n", uname->data());
+        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
     }
     if (recType) {
-        AAA_LOG(LM_INFO, "(%P|%t) Rec Type : %d\n", *recType);
+        AAA_LOG((LM_INFO, "(%P|%t) Rec Type : %d\n", *recType));
     }
     if (recNum) {
-        AAA_LOG(LM_INFO, "(%P|%t) Rec Num  : %d\n", *recNum);
+        AAA_LOG((LM_INFO, "(%P|%t) Rec Num  : %d\n", *recNum));
     }
     if (realtime) {
-        AAA_LOG(LM_INFO, "(%P|%t) Realtime  : %d\n", *realtime);
+        AAA_LOG((LM_INFO, "(%P|%t) Realtime  : %d\n", *realtime));
     }
 }
 
