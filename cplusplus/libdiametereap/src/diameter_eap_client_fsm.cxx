@@ -63,7 +63,7 @@ class DiameterEapClientStateTable_S
     void operator()(DiameterEapClientStateMachine& sm)
     {
       DiameterEapClientSession& session = sm.Session();
-      AAA_LOG(LM_DEBUG, "[%N] forwarding EAP Request to passthrough.\n");
+      AAA_LOG((LM_DEBUG, "[%N] forwarding EAP Request to passthrough.\n"));
       session.SignalContinue(sm.DEA().EapPayload());
 
       // Multi round timeout value is applied per EAP Request.
@@ -77,14 +77,14 @@ class DiameterEapClientStateTable_S
   {
     void operator()(DiameterEapClientStateMachine& sm) 
     { 
-      ACE_DEBUG((LM_DEBUG, "[%N] sending DER.\n"));
+      AAA_LOG((LM_DEBUG, "[%N] sending DER.\n"));
       DER_Data& der = sm.DER();
 
       // Generate authorization AVPs.
       sm.SetDestinationRealm(der.DestinationRealm);
       if (!der.DestinationRealm.IsSet())
 	{
-	  AAA_LOG(LM_ERROR, "Failed to set destination realm.\n");
+	  AAA_LOG((LM_ERROR, "Failed to set destination realm.\n"));
 	  sm.Event(DiameterEapClientStateMachine::EvSgDisconnect);
 	  return;
 	}
@@ -92,7 +92,7 @@ class DiameterEapClientStateTable_S
       sm.SetAuthRequestType(der.AuthRequestType);
       if (!der.AuthRequestType.IsSet())
 	{
-	  AAA_LOG(LM_ERROR, "Failed to set auth request type.\n");
+	  AAA_LOG((LM_ERROR, "Failed to set auth request type.\n"));
 	  sm.Event(DiameterEapClientStateMachine::EvSgDisconnect);
 	  return;
 	}
@@ -169,7 +169,7 @@ class DiameterEapClientStateTable_S
       switch (resultCode)
 	{
 	case AAA_SUCCESS :
-	  AAA_LOG(LM_DEBUG, "[%N] AAA_SUCCESS received.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] AAA_SUCCESS received.\n"));
 	  if (sm.DER().AuthRequestType == 
 	      AUTH_REQUEST_TYPE_AUTHORIZE_AUTHENTICATE)
 	    sm.Event(DiameterEapClientStateTable_S::EvSgSuccess);
@@ -177,12 +177,12 @@ class DiameterEapClientStateTable_S
 	    sm.Event(DiameterEapClientStateTable_S::EvSgLimitedSuccess);
 	  break;
 	case AAA_MULTI_ROUND_AUTH :
-	  AAA_LOG(LM_DEBUG, "[%N] AAA_MULTI_ROUND_AUTH received.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] AAA_MULTI_ROUND_AUTH received.\n"));
 	  sm.Event(DiameterEapClientStateTable_S::EvSgContinue);
 	  break;
 	default:
-	  AAA_LOG(LM_DEBUG, "[%N] Error was received.\n");
-	  AAA_LOG(LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode);
+	  AAA_LOG((LM_DEBUG, "[%N] Error was received.\n"));
+	  AAA_LOG((LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode));
 	  sm.Event(DiameterEapClientStateTable_S::EvSgFailure);
 	  break;
 	}
@@ -197,17 +197,17 @@ class DiameterEapClientStateTable_S
       switch (resultCode)
 	{
 	case AAA_SUCCESS :
-	  AAA_LOG(LM_DEBUG, "[%N] AAA_SUCCESS received.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] AAA_SUCCESS received.\n"));
 	  sm.Event(DiameterEapClientStateTable_S::EvSgSuccess);
 	  break;
 	case AAA_AUTHORIZATION_REJECTED :
-	  AAA_LOG(LM_DEBUG, 
-		       "[%N] AAA_AUTHORIZATION_REJECTED received.\n");
+	  AAA_LOG((LM_DEBUG, 
+		       "[%N] AAA_AUTHORIZATION_REJECTED received.\n"));
 	  sm.Event(DiameterEapClientStateTable_S::EvSgFailure);
 	  break;
 	default:
-	  AAA_LOG(LM_DEBUG, "[%N] Error was received.\n");
-	  AAA_LOG(LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode);
+	  AAA_LOG((LM_DEBUG, "[%N] Error was received.\n"));
+	  AAA_LOG((LM_DEBUG, "[%N]   Result-Code=%d.\n", resultCode));
 	  sm.Event(DiameterEapClientStateTable_S::EvSgFailure);
 	  break;
 	}
@@ -369,7 +369,7 @@ class DiameterEapClientStateTable_S
   {
     void operator()(DiameterEapClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Unsupported feature.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Unsupported feature.\n"));
       sm.SendAA_Request();
     }
   };
@@ -378,7 +378,7 @@ class DiameterEapClientStateTable_S
   {
     void operator()(DiameterEapClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Reauthentication issued.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Reauthentication issued.\n"));
       sm.SignalReauthentication();
     }
   };
@@ -387,7 +387,7 @@ class DiameterEapClientStateTable_S
   {
     void operator()(DiameterEapClientStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Disconnect issued.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Disconnect issued.\n"));
       sm.SignalDisconnect();
     }
   };
@@ -513,23 +513,23 @@ DiameterEapClientStateMachine::SendDER()
     parser.parseAppToRaw();
   }
   catch (DiameterParserError) {
-    AAA_LOG(LM_ERROR, "[%N] Parsing error.\n");
+    AAA_LOG((LM_ERROR, "[%N] Parsing error.\n"));
     return;
   }
 
   AAAMessageControl msgControl(session.Self());
   if (msgControl.Send(msg) != AAA_ERR_SUCCESS) {
-    AAA_LOG(LM_ERROR, "Failed sending message.\n");
+    AAA_LOG((LM_ERROR, "Failed sending message.\n"));
   }
   else {
-    AAA_LOG(LM_DEBUG, "Sent DER Message.\n");
+    AAA_LOG((LM_DEBUG, "Sent DER Message.\n"));
   }
 }
 
 void 
 DiameterEapClientStateMachine::ForwardResponse(std::string &eapMsg)
 { 
-  AAA_LOG(LM_ERROR, "[%N] EAP-Response received from passthrough.\n");
+  AAA_LOG((LM_ERROR, "[%N] EAP-Response received from passthrough.\n"));
   derData.EapPayload = eapMsg;
   Notify(EvRxEapResponse);
 }

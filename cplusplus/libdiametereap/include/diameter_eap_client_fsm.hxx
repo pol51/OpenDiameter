@@ -608,7 +608,7 @@ class DIAMETER_EAP_CLIENT_EXPORTS DiameterEapClientStateMachine
   {
     if (!AAA_EventQueueJob::ExistBacklog())
       {
-	AAA_LOG(LM_ERROR, "%N: no backlog to serve.");
+	AAA_LOG((LM_ERROR, "%N: no backlog to serve."));
 	return 0;
       }
 

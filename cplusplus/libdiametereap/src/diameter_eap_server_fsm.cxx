@@ -62,8 +62,8 @@ class DiameterEapServerStateTable_S
   {
     void operator()(DiameterEapServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] forwarding EAP Response to authenticator.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] forwarding EAP Response to authenticator.\n"));
       sm.ForwardEapResponse(sm.DER().EapPayload());
     }
   };
@@ -72,7 +72,7 @@ class DiameterEapServerStateTable_S
   {
     void operator()(DiameterEapServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Copying DER to DEA.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Copying DER to DEA.\n"));
       if (sm.CheckDER())
 	sm.Event(DiameterEapServerStateMachine::EvSgValidDER);
       else
@@ -85,7 +85,7 @@ class DiameterEapServerStateTable_S
     void operator()(DiameterEapServerStateMachine& sm)
     {
       DiameterEapServerSession& session = sm.Session();
-      AAA_LOG(LM_DEBUG, "[%N] Sending DEA with continue result-code.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Sending DEA with continue result-code.\n"));
 
       // Set Result-Code to AAA_MULTI_ROUND_AUTH.
       DEA_Data& dea = sm.DEA();
@@ -109,7 +109,7 @@ class DiameterEapServerStateTable_S
   {
     void operator()(DiameterEapServerStateMachine& sm)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Sending DEA with a success Result-Code.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Sending DEA with a success Result-Code.\n"));
       DiameterEapServerSession& session = sm.Session();
       DEA_Data& dea = sm.Session().DEA();
 
@@ -125,8 +125,8 @@ class DiameterEapServerStateTable_S
     {
       DiameterEapServerSession& session = sm.Session();
       DEA_Data& dea = sm.Session().DEA();
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending DEA due to authentication failure.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending DEA due to authentication failure.\n"));
 
       dea.ResultCode = AAA_AUTHENTICATION_REJECTED;
       sm.SendDEA(); 
@@ -140,8 +140,8 @@ class DiameterEapServerStateTable_S
     {
       DiameterEapServerSession& session = sm.Session();
       DEA_Data& dea = sm.Session().DEA();
-      AAA_LOG(LM_DEBUG, 
-		   "[%N] Sending DEA due to authorization failure.\n");
+      AAA_LOG((LM_DEBUG, 
+		   "[%N] Sending DEA due to authorization failure.\n"));
 
       // Erase EAP payload since it may contain EAP Success message
       // when authentication is successful but authorization fails.
@@ -159,7 +159,7 @@ class DiameterEapServerStateTable_S
     {
       DiameterEapServerSession& session = sm.Session();
       DEA_Data& dea = sm.DEA();
-      AAA_LOG(LM_DEBUG, "[%N] Sending DEA due to invalid DER.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Sending DEA due to invalid DER.\n"));
 
       dea.ResultCode = AAA_INVALID_AVP_VALUE;
       session.Update(AAASession::EVENT_AUTH_CONTINUE);
@@ -305,16 +305,16 @@ DiameterEapServerStateMachine::SendDEA()
     parser.parseAppToRaw();
   }
   catch (DiameterParserError) {
-    AAA_LOG(LM_ERROR, "[%N] Parsing error.\n");
+    AAA_LOG((LM_ERROR, "[%N] Parsing error.\n"));
     return;
   }
 
   AAAMessageControl msgControl(session.Self());
   if (msgControl.Send(msg) != AAA_ERR_SUCCESS) {
-    AAA_LOG(LM_ERROR, "Failed sending message.\n");
+    AAA_LOG((LM_ERROR, "Failed sending message.\n"));
   }
   else {
-    AAA_LOG(LM_DEBUG, "Sent DEA Message.\n");
+    AAA_LOG((LM_DEBUG, "Sent DEA Message.\n"));
   }
 }
 
@@ -328,7 +328,7 @@ DiameterEapServerStateMachine::CheckDER()
   if (der.AuthRequestType() != AUTH_REQUEST_TYPE_AUTHENTICATION_ONLY &&
       der.AuthRequestType() != AUTH_REQUEST_TYPE_AUTHORIZE_AUTHENTICATE)
     {
-      AAA_LOG(LM_ERROR, "[%N] Invalid auth request type.\n");
+      AAA_LOG((LM_ERROR, "[%N] Invalid auth request type.\n"));
       return false;
     }
   dea.AuthRequestType = der.AuthRequestType;
@@ -337,7 +337,7 @@ DiameterEapServerStateMachine::CheckDER()
 
   if (!dea.AuthRequestType.IsSet())
     {
-      AAA_LOG(LM_ERROR, "[%N] Failed to set auth request type.\n");
+      AAA_LOG((LM_ERROR, "[%N] Failed to set auth request type.\n"));
       return false;
     }
 
@@ -352,7 +352,7 @@ DiameterEapServerStateMachine::CheckDER()
 	}
       if (!found)
 	{
-	  AAA_LOG(LM_ERROR, "[%N] Invalid class\n.");
+	  AAA_LOG((LM_ERROR, "[%N] Invalid class\n."));
 	  return false;
 	}
     }
@@ -362,7 +362,7 @@ DiameterEapServerStateMachine::CheckDER()
     {
       if (!ValidateUserName(der.UserName()))
 	{
-	  AAA_LOG(LM_DEBUG, "[%N] Failed to validate username.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] Failed to validate username.\n"));
 	  return false;
 	}
       dea.UserName = der.UserName;
@@ -373,7 +373,7 @@ DiameterEapServerStateMachine::CheckDER()
     {
       if (!der.State.IsSet() || !ValidateState(der.State(), dea.State()))
 	{
-	  AAA_LOG(LM_DEBUG, "[%N] Invalid State AVP.\n");
+	  AAA_LOG((LM_DEBUG, "[%N] Invalid State AVP.\n"));
 	  return false;
 	}
       else // Try to set initial state
@@ -388,7 +388,7 @@ void
 DiameterEapServerStateMachine::SignalContinue(std::string &eapMsg)
 {
   DEA_Data& dea = deaData;
-  AAA_LOG(LM_ERROR, "[%N] EAP Request received from backend.\n");
+  AAA_LOG((LM_ERROR, "[%N] EAP Request received from backend.\n"));
   dea.EapPayload = eapMsg;
   Notify(EvRxEapRequest);
 }
@@ -397,7 +397,7 @@ void
 DiameterEapServerStateMachine::SignalSuccess(std::string &eapMsg)
 {
   DEA_Data& dea = deaData;
-  AAA_LOG(LM_ERROR, "[%N] EAP Success received from backend.\n");
+  AAA_LOG((LM_ERROR, "[%N] EAP Success received from backend.\n"));
   dea.EapPayload = eapMsg;
   Notify(EvRxEapSuccess);
 }
@@ -406,7 +406,7 @@ void
 DiameterEapServerStateMachine::SignalFailure(std::string &eapMsg)
 {
   DEA_Data& dea = deaData;
-  AAA_LOG(LM_ERROR, "[%N] EAP Failure received from backend.\n");
+  AAA_LOG((LM_ERROR, "[%N] EAP Failure received from backend.\n"));
   dea.EapPayload = eapMsg;
   Notify(EvRxEapFailure);
 }
@@ -414,7 +414,7 @@ DiameterEapServerStateMachine::SignalFailure(std::string &eapMsg)
 bool
 DiameterEapServerStateMachine::Authorize()
 {
-  AAA_LOG(LM_DEBUG, "[%N] Authorizing DER.\n");
+  AAA_LOG((LM_DEBUG, "[%N] Authorizing DER.\n"));
   DEA_Data& dea = deaData;
   DER_Data& der = derData;
   bool r;
@@ -424,19 +424,19 @@ DiameterEapServerStateMachine::Authorize()
   // If AuthRequestType indicates authentication only, do nothing.
   if (dea.AuthRequestType() == AUTH_REQUEST_TYPE_AUTHENTICATION_ONLY)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Authorization totally success.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Authorization totally success.\n"));
       return true;
     }
   
   if (!AuthorizeOriginHost(der.OriginHost()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize origin host.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize origin host.\n"));
       return false;
     }
 
   if (!AuthorizeOriginRealm(der.OriginRealm()))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize origin realm.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize origin realm.\n"));
       return false;
     }
 
@@ -447,19 +447,19 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizeClass(dea.Class);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize Class.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize Class.\n"));
       return false;
     }
 
   if (!AuthorizeConfigurationToken(dea.ConfigurationToken))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize conf. token.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize conf. token.\n"));
       return false;
     }
 
   if (!AuthorizeAcctInterimInterval(dea.AcctInterimInterval))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize auth interim intvl.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize auth interim intvl.\n"));
       return false;
     }
 
@@ -469,50 +469,50 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizeServiceType(dea.ServiceType);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize service type.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize service type.\n"));
       return false;
     }
 
       
   if (!AuthorizeIdleTimeout(dea.IdleTimeout))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize idle timeout.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize idle timeout.\n"));
       return false;
     }
 
   if (!AuthorizeAuthorizationLifetime(dea.AuthorizationLifetime))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize authz lifetime.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize authz lifetime.\n"));
       return false;
     }
 
   if (!AuthorizeAuthGracePeriod(dea.AuthGracePeriod))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize auth grace period.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize auth grace period.\n"));
       return false;
     }
 
   if (!AuthorizeAuthSessionState(dea.AuthSessionState))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize auth session state.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize auth session state.\n"));
       return false;
     }
 
   if (!AuthorizeReAuthRequestType(dea.ReAuthRequestType))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize reauth req. type.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize reauth req. type.\n"));
       return false;
     }
 
   if (!AuthorizeSessionTimeout(dea.SessionTimeout))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize session timeout.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize session timeout.\n"));
       return false;
     }
 
   if (!AuthorizeFilterId(dea.FilterId))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize filter id.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize filter id.\n"));
       return false;
     }
 
@@ -522,7 +522,7 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizePortLimit(dea.PortLimit);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize port limit.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize port limit.\n"));
       return false;
     }
 
@@ -534,25 +534,25 @@ DiameterEapServerStateMachine::Authorize()
     AuthorizeCallbackNumber(dea.CallbackNumber);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize callback num.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize callback num.\n"));
       return false;
     }
 
   if (!AuthorizeFramedAppletalkLink(dea.FramedAppletalkLink))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize appletalk link.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize appletalk link.\n"));
       return false;
     }
 
   if (!AuthorizeFramedAppletalkZone(dea.FramedAppletalkZone))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize appletalk zone.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize appletalk zone.\n"));
       return false;
     }
 
   if (!AuthorizeFramedAppletalkNetwork(dea.FramedAppletalkNetwork))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize appletalk network.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize appletalk network.\n"));
       return false;
     }
 
@@ -563,7 +563,7 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizeFramedCompression(dea.FramedCompression);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed compression.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed compression.\n"));
       return false;
     }
 
@@ -574,7 +574,7 @@ DiameterEapServerStateMachine::Authorize()
     r= AuthorizeFramedInterfaceId(dea.FramedInterfaceId);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ifid.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ifid.\n"));
       return false;
     }
 
@@ -583,7 +583,7 @@ DiameterEapServerStateMachine::Authorize()
   else AuthorizeFramedIpAddress(dea.FramedIpAddress);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipaddr.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipaddr.\n"));
       return false;
     }
 
@@ -594,31 +594,31 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizeFramedIpv6Prefix(dea.FramedIpv6Prefix);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipv6prx.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipv6prx.\n"));
       return false;
     }
       
   if (!AuthorizeFramedIpv6Pool(dea.FramedIpv6Pool))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipv6 pool.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipv6 pool.\n"));
       return false;
     }
 
   if (!AuthorizeFramedPool(dea.FramedPool))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed pool.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed pool.\n"));
       return false;
     }
 
   if (!AuthorizeFramedIpv6Route(dea.FramedIpv6Route))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipv6 route.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipv6 route.\n"));
       return false;
     }
 
   if (!AuthorizeFramedRoute(dea.FramedRoute))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed route.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed route.\n"));
       return false;
     }
 
@@ -628,13 +628,13 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizeFramedIpNetmask(dea.FramedIpNetmask);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipmask.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipmask.\n"));
       return false;
     }
 
   if (!AuthorizeFramedIpxNetwork(dea.FramedIpxNetwork))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed ipx network.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed ipx network.\n"));
       return false;
     }
 
@@ -644,7 +644,7 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizeFramedMtu(dea.FramedMtu);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed mtu.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed mtu.\n"));
       return false;
     }
 
@@ -655,19 +655,19 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizeFramedProtocol(dea.FramedProtocol);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed proto.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed proto.\n"));
       return false;
     }
 
   if (!AuthorizeFramedRouting(dea.FramedRouting))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize framed routing.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize framed routing.\n"));
       return false;
     }
 
   if (!AuthorizeNasFilterRule(dea.NasFilterRule))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize nas filter rule.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize nas filter rule.\n"));
       return false;
     }
 
@@ -678,23 +678,23 @@ DiameterEapServerStateMachine::Authorize()
     r = AuthorizeTunneling(dea.Tunneling);
   if (!r)
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize tunneling.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize tunneling.\n"));
       return false;
     }
 
   if (!AuthorizeEapMasterSessionKey(dea.EapMasterSessionKey))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize MSK.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize MSK.\n"));
       return false;
     }
 
   if (!AuthorizeAccountingEapAuthMethod(dea.AccountingEapAuthMethod))
     {
-      AAA_LOG(LM_DEBUG, "[%N] Failed to authorize acct eap method.\n");
+      AAA_LOG((LM_DEBUG, "[%N] Failed to authorize acct eap method.\n"));
       return false;
     }
 
-  AAA_LOG(LM_DEBUG, "[%N] Authorization totally success.\n");
+  AAA_LOG((LM_DEBUG, "[%N] Authorization totally success.\n"));
   authorizationDone = true;
   return true;
 }

@@ -419,7 +419,7 @@ class MyInitializer
 
   void InitEap()
   {
-    ACE_DEBUG((LM_DEBUG, "[%N] EAP initialization.\n"));
+    AAA_LOG((LM_DEBUG, "[%N] EAP initialization.\n"));
     methodRegistrar.registerMethod
       (std::string("Identity"), EapType(1), 
        Authenticator, myAuthIdentityCreator);
@@ -454,7 +454,7 @@ main(int argc, char *argv[])
         exit(1);
      }
   AAAApplicationCore applicationCore;
-    ACE_DEBUG((LM_DEBUG, "[%N] Application starting\n"));
+    AAA_LOG((LM_DEBUG, "[%N] Application starting\n"));
     if (applicationCore.Open("config/server.local.xml",
                              task) != AAA_ERR_SUCCESS)
       {

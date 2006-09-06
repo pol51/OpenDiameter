@@ -58,7 +58,7 @@ DER_Parser::parseAppToRaw()
   // Obtain Command Code and Application Identifier.
   if (!dm.getCommandCode("Diameter-EAP-Request", &code, &appId))
     {
-      AAA_LOG(LM_ERROR, "[%N] Cannot find message in dictionary\n.");
+      AAA_LOG((LM_ERROR, "[%N] Cannot find message in dictionary\n."));
       throw (DIAMETER_DICTIONARY_ERROR);
     }
 
@@ -331,7 +331,7 @@ DER_Parser::parseRawToApp()
       if (EapApplicationId
 	  != (*c)[0]->dataRef(Type2Type<diameter_unsigned32_t>()))
 	{
-	  AAA_LOG(LM_ERROR, "[%N] Unexpected application id.\n");
+	  AAA_LOG((LM_ERROR, "[%N] Unexpected application id.\n"));
 	  throw (DIAMETER_PAYLOAD_ERROR);
 	}
     }

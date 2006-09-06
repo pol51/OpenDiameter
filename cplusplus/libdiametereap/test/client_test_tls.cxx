@@ -586,7 +586,7 @@ MyDiameterEapClientSession::SignalFailure(std::string &eapMsg)
     if (eapMsg.length() > 0)
       msg = AAAMessageBlock::Acquire((char*)eapMsg.data(), (ACE_UINT32)eapMsg.length());
     else
-      AAA_LOG(LM_DEBUG, "SignalFailure without EAP-Failure.\n");
+      AAA_LOG((LM_DEBUG, "SignalFailure without EAP-Failure.\n"));
 
     JobData(Type2Type<NAS_Application>()).Eap().AAA_Failure(msg);
 
@@ -664,7 +664,7 @@ class MyInitializer
 
   void InitApplicationCore()
   {
-    ACE_DEBUG((LM_DEBUG, "[%N] Application starting\n"));
+    AAA_LOG((LM_DEBUG, "[%N] Application starting\n"));
     if (applicationCore.Open("config/client.local.xml",
                              task) != AAA_ERR_SUCCESS)
       {
@@ -675,7 +675,7 @@ class MyInitializer
 
   void InitEapTask()
   {
-    ACE_DEBUG((LM_DEBUG, "[%N] EAP Task starting.\n"));
+    AAA_LOG((LM_DEBUG, "[%N] EAP Task starting.\n"));
     methodRegistrar.registerMethod
       (std::string("Identity"), EapType(1), 
        Authenticator, myAuthIdentityCreator);
