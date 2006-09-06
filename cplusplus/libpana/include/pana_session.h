@@ -161,9 +161,6 @@ class PANA_SessionAttribute {
        PANA_CfgProviderInfo &PreferedNAP() {
            return m_PreferedNAP;
        }
-       pana_octetstring_t &DhcpKey() {
-           return m_DhcpKey;
-       }
        pana_octetstring_t &LastTxNotification() {
            return m_LastTxNotification;
        }
@@ -189,7 +186,6 @@ class PANA_SessionAttribute {
        PANA_CfgPPAC m_PPAC; // Post pana address config flags
        PANA_CfgProviderInfo m_PreferedISP; // negotiated ISP information
        PANA_CfgProviderInfo m_PreferedNAP; // negotiated NAP information
-       pana_octetstring_t m_DhcpKey; // DHCP key 
        pana_octetstring_t m_LastTxNotification; // Last notification sent
        pana_octetstring_t m_LastRxNotification; // Last notification received
 };
@@ -345,7 +341,6 @@ class PANA_EXPORT PANA_SessionEventInterface
          AAAScholarAttribute<ACE_UINT32> m_Lifetime;
          AAAScholarAttribute<ACE_UINT32> m_ProtectionCapability;
          AAAScholarAttribute<PANA_DeviceIdContainer*> m_Ep;
-         AAAScholarAttribute<pana_octetstring_t> m_DhcpKey;
          AAAScholarAttribute<PANA_PMKKeyList> m_PMKKeyList;
          AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedISP;
          AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedNAP;

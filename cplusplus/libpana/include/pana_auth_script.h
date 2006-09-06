@@ -116,11 +116,6 @@ class PANA_AuthScriptCtl
             printf("Protection Cap: %d\n", args.m_ProtectionCapability());
          }
 
-         if (args.m_DhcpKey.IsSet()) {
-            FormatToString(args.m_DhcpKey(), buf, sizeof(buf));
-            ACE_DEBUG((LM_INFO, "DHCP-Key: %s\n", buf));
-         }
-
          if (args.m_PMKKeyList.IsSet()) {
             PAMA_PMKKeyListIterator i;
             for (i = args.m_PMKKeyList().begin(); 
@@ -217,12 +212,6 @@ class PANA_AuthScriptCtl
 
          if (m_Args.m_ProtectionCapability.IsSet()) {
             sprintf(buf, "%d", m_Args.m_ProtectionCapability());
-            sysCmd += buf;
-            sysCmd += " ";
-         }
-
-         if (m_Args.m_DhcpKey.IsSet()) {
-            FormatToString(m_Args.m_DhcpKey(), buf, sizeof(buf));
             sysCmd += buf;
             sysCmd += " ";
          }

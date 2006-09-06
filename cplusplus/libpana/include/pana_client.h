@@ -37,7 +37,6 @@
 #include "pana_exports.h"
 #include "pana_session.h"
 #include "pana_provider_info.h"
-#include "pana_dhcp_bootstrap.h"
 
 typedef union {
     struct {
@@ -97,9 +96,6 @@ class PANA_EXPORT PANA_Client : public PANA_Session
       PANA_ClientSupportFlags &SupportFlags() {
           return m_Flags;
       }
-      PANA_PacDhcpSecurityAssociation &DhcpBootstrap() {
-          return m_Dhcp;
-      }
       PANA_SessionTimerInterface &Timer() {
           return m_Timer;
       }
@@ -108,7 +104,6 @@ class PANA_EXPORT PANA_Client : public PANA_Session
       virtual void TxFormatAddress(PANA_Message &msg);      
 
    private:
-      PANA_PacDhcpSecurityAssociation m_Dhcp;
       PANA_ClientSupportFlags m_Flags;
 };
 

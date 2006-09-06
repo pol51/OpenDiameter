@@ -37,7 +37,6 @@
 #include "pana_exports.h"
 #include "pana_session.h"
 #include "pana_provider_info.h"
-#include "pana_dhcp_bootstrap.h"
 
 // Hard values (values specific to this implementation)
 #define PANA_CARRY_PCAP_IN_PSR   false
@@ -107,9 +106,6 @@ class PANA_EXPORT PANA_Paa : public PANA_Session
       PANA_PaaSupportFlags &SupportFlags() {
           return m_Flags;
       }
-      PANA_PaaDhcpSecurityAssociation &DhcpBootstrap() {
-          return m_Dhcp;
-      }
       PANA_SessionTimerInterface &Timer() {
           return m_Timer;
       }
@@ -118,7 +114,6 @@ class PANA_EXPORT PANA_Paa : public PANA_Session
       virtual void TxFormatAddress(PANA_Message &msg);
 
    private:
-      PANA_PaaDhcpSecurityAssociation m_Dhcp;
       PANA_PaaSupportFlags m_Flags;
 };
 

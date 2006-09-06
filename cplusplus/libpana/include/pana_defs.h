@@ -34,6 +34,8 @@
 #ifndef __PANA_DEFS_H__
 #define __PANA_DEFS_H__
 
+#include "aaa_parser_api.h"
+
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -113,7 +115,6 @@
 #define PANA_AVPNAME_PPAC             "PPAC"
 #define PANA_AVPNAME_TERMCAUSE        "Termination-Cause"
 #define PANA_AVPNAME_NOTIFICATION     "Notification"
-#define PANA_AVPNAME_DHCP             "Dhcp-Avp"
 #if defined(PANA_MPA_SUPPORT)
 #define PANA_AVPNAME_PACIP            "PAC-Ip-Address"
 #endif

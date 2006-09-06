@@ -517,9 +517,6 @@ class PANA_EXPORT PANA_PacSession : public
       virtual PANA_DeviceId &PaaDeviceId() {
          return m_PaC.PaaDeviceId();
       }
-      bool &EnableDhcpBootstrap() {
-         return m_PaC.DhcpBootstrap().Enable();
-      }
       bool &ResumePreviousSession() {
          return m_PaC.AuxVariables().SecAssociationResumed();
       }

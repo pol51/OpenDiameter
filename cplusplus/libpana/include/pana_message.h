@@ -46,58 +46,7 @@
 #endif // _MSC_VER > 1000
 
 #define PANA_DICT_PROTOCOL_ID  1
-#if 0
-// PANA DHCP AVP definitions.
-// We extend open diameter AVP containers
-typedef struct {
-    ACE_UINT32 id;
-    pana_octetstring_t nonce;
-} PANA_DhcpData_t;
 
-// Data type assignment
-#define AAA_AVP_DHCP_TYPE (AAA_AVP_CUSTOM_TYPE+1)
-
-typedef AAATypeSpecificAvpContainerEntry<PANA_DhcpData_t> 
-               AAADhcpDataAvpContainerEntry;
-
-typedef AAAAvpWidget<PANA_DhcpData_t, 
-               AAAAvpDataType(AAA_AVP_DHCP_TYPE)>
-               PANA_DhcpAvpWidget;
-
-typedef AAAAvpContainerWidget<PANA_DhcpData_t, 
-               AAAAvpDataType(AAA_AVP_DHCP_TYPE)>
-               PANA_DhcpAvpContainerWidget;
-
-// PANA DHCP AVP parser
-class PANA_DhcpDataParser : public DiameterAvpValueParser
-{
-   public:
-      void parseRawToApp() throw(DiameterErrorCode) {
-          AAAMessageBlock* aBuffer = (AAAMessageBlock*)getRawData();
-          AAAAvpContainerEntry* e = (AAAAvpContainerEntry*)getAppData();
-          PANA_DhcpData_t &dhcp = reinterpret_cast<AAADhcpDataAvpContainerEntry*>
-                                                   (e)->dataRef();
-          dhcp.id = *((ACE_UINT32*)aBuffer->base());
-          dhcp.nonce.assign(aBuffer->base() + sizeof(ACE_UINT32), 
-                            aBuffer->size() - sizeof(ACE_UINT32));
-      }
-      void parseAppToRaw() throw(DiameterErrorCode) {
-          AAAMessageBlock* aBuffer = (AAAMessageBlock*)getRawData();
-          AAAAvpContainerEntry* e = (AAAAvpContainerEntry*)getAppData();
-          PANA_DhcpData_t &dhcp = reinterpret_cast<AAADhcpDataAvpContainerEntry*>
-                                                   (e)->dataRef();
-          DiameterErrorCode st;
-          if (aBuffer->size() - (size_t)aBuffer->wr_ptr() < 
-              (dhcp.nonce.size() + sizeof(ACE_UINT32))) {
-              st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_OUT_OF_SPACE);
-              throw st;
-          }
-          *((ACE_UINT32*)aBuffer->wr_ptr()) = dhcp.id;
-          aBuffer->wr_ptr(sizeof(ACE_UINT32));
-          aBuffer->copy(dhcp.nonce.data(), dhcp.nonce.size());
-      }
-};
-#endif
 /*!
  * PANA AVP header
  */

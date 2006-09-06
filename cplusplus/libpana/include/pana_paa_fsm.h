@@ -523,9 +523,6 @@ class PANA_EXPORT PANA_PaaSession : public
       PANA_CfgProviderInfo &PreferedNAP() {
          return m_PAA.PreferedNAP();
       }
-      bool &EnableDhcpBootstrap() {
-         return m_PAA.DhcpBootstrap().Enable();
-      }
       std::string &SessionId() {
          return m_PAA.SessionId();
       }
