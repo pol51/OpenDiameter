@@ -312,7 +312,10 @@ template <class T, class LOCK = ACE_Thread_Mutex>
  }
 
   /// Overloaded by derived class's destractors.
-  virtual ~AAA_QueueJob() {}
+  virtual ~AAA_QueueJob() {
+   indexQueue.reset();
+   dataQueue.reset();
+  }
 
   /// Inherited from the base class.
   virtual int Serve()=0;
