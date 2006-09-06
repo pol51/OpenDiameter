@@ -32,6 +32,7 @@
 /* END_COPYRIGHT                                                          */
 
 #include <string>
+#include "framework.h"
 #include "od_utl_xml_sax_parser.h"
 
 class OD_UTL_XML_SAXHandler : 
@@ -124,7 +125,7 @@ class OD_UTL_XML_SAXHandler :
      // Methods inherit from ACEXML_ErrorHandler.
      virtual void error (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
          ACE_THROW_SPEC ((ACEXML_SAXException)) {
-         ACE_DEBUG ((LM_INFO, "Error %s: line: %d col: %d \n",
+         AAA_LOG ((LM_INFO, "Error %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
                      m_locator->getColumnNumber()));
@@ -133,7 +134,7 @@ class OD_UTL_XML_SAXHandler :
      }
      virtual void fatalError (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
          ACE_THROW_SPEC ((ACEXML_SAXException)) {
-         ACE_DEBUG ((LM_INFO, "Fatal error %s: line: %d col: %d \n",
+         AAA_LOG ((LM_INFO, "Fatal error %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
                      m_locator->getColumnNumber()));
@@ -142,7 +143,7 @@ class OD_UTL_XML_SAXHandler :
      }
      virtual void warning (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
          ACE_THROW_SPEC ((ACEXML_SAXException)) {
-         ACE_DEBUG ((LM_INFO, "Warning %s: line: %d col: %d \n",
+         AAA_LOG ((LM_INFO, "Warning %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
                      m_locator->getColumnNumber()));
