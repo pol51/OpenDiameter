@@ -337,7 +337,7 @@ void CPANAPacApplicationDlg::OnTimer(UINT_PTR nIDEvent)
             std::string ifname = (LPCTSTR)m_SetupDlg.AdapterName();
             if (m_APMonitor.Update(ifname) == S_OK) {
                 dwSendUpdate |= 0x0001;
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Adapter change detected: %s\n",
+                AAA_LOG((LM_ERROR, "(%P|%t) Adapter change detected: %s\n",
                            m_APMonitor.CurrentAP().data()));
             }
 
@@ -350,13 +350,13 @@ void CPANAPacApplicationDlg::OnTimer(UINT_PTR nIDEvent)
                 ((ipAddr = adapter.CurrentAddress().get_ip_address()) != 0)) {
                 char buf[32];
                 adapter.CurrentAddress().addr_to_string(buf, sizeof(buf));
-                ACE_DEBUG((LM_ERROR, "(%P|%t) IP address detected: %s\n", buf));
+                AAA_LOG((LM_ERROR, "(%P|%t) IP address detected: %s\n", buf));
                 // check for microsoft 169.254.x.x private address
                 if ((ipAddr & 0xA9FE0000) == 0xA9FE0000) {
-                    ACE_DEBUG((LM_ERROR, "(%P|%t) Win32 private address\n"));
+                    AAA_LOG((LM_ERROR, "(%P|%t) Win32 private address\n"));
                 }
                 else {
-                    ACE_DEBUG((LM_ERROR, "(%P|%t) Valid address\n"));
+                    AAA_LOG((LM_ERROR, "(%P|%t) Valid address\n"));
                     dwSendUpdate |= 0x0002;
                 }
             }
@@ -372,7 +372,7 @@ void CPANAPacApplicationDlg::OnTimer(UINT_PTR nIDEvent)
                 ACE_OS::sleep(tout);
 
                 // sending address update and notification
-                ACE_DEBUG((LM_ERROR, "(%P|%t) Sending notification\n"));
+                AAA_LOG((LM_ERROR, "(%P|%t) Sending notification\n"));
                 // PANA_CLIENT->UpdateAddress(adapter.CurrentAddress(),
                 //                            message);
 
@@ -380,7 +380,7 @@ void CPANAPacApplicationDlg::OnTimer(UINT_PTR nIDEvent)
                 std::string sysCmd = "\"" + PANA_CLIENT->Arg().m_AuthScript + "\" ";
                 sysCmd += " update NOTIFICATION: ";
                 sysCmd += message;
-                ACE_DEBUG((LM_INFO, "(%P|%t) Executing: %s\n",
+                AAA_LOG((LM_INFO, "(%P|%t) Executing: %s\n",
                            sysCmd.data()));
                 system(sysCmd.data());
             }
