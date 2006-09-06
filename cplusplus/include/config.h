@@ -55,9 +55,9 @@
 /* PANA debugging flag */
 #define PANA_DEBUG 0
 
-/* PANA dhcp key generator debugging flag */
-#define PANA_DHCP_DEBUG 0
-
 /* PANA key generator debugging flag */
 #define PANA_SA_DEBUG 0
+
+/* PANA parser debugging flag */
+#define PANA_PARSER_DEBUG 0
 
