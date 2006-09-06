@@ -93,7 +93,6 @@
            <avprule name="Algorithm" maximum="1" minimum="0" />
            <avprule name="Device-Id" maximum="100" minimum="0" />
            <avprule name="Notification" maximum="1" minimum="0" />
-           <avprule name="Dhcp-Avp" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
            <avprule name="PAC-Ip-Address" maximum="1" minimum="0" />
         </optional>
@@ -107,7 +106,6 @@
            <avprule name="Device-Id" maximum="1" minimum="0" />
            <avprule name="Key-Id" maximum="1" minimum="0" />
            <avprule name="Notification" maximum="1" minimum="0" />
-           <avprule name="Dhcp-Avp" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </answerrules>
@@ -237,7 +235,6 @@
     <typedefn type-name="Unsigned32"/>
     <typedefn type-name="Time" type-parent="Unsigned32"/>
     <typedefn type-name="Unsigned64"/>
-    <typedefn type-name="Dhcp"/>
     <!-- *********************** End Typedefns ********************** -->
 
     <!-- ***************** PANA PROTOCOL AVPS ************** -->
@@ -317,9 +314,6 @@
       <enum name="Logout" code="1"/>
       <enum name="Administrative" code="4"/>
       <enum name="Session Timeout" code="8"/>
-    </avp>
-    <avp name="Dhcp-Avp" code="100" mandatory="must">
-      <type type-name="Dhcp"/>
     </avp>
     <avp name="PAC-Ip-Address" code="101" mandatory="must">
       <type type-name="Address"/>
