@@ -73,7 +73,6 @@ PANA_SRC  = src/pana_parser.cxx \
 ##            src/pana_cookie.cxx \
 ##            src/pana_egress.cxx \
 ##            src/pana_ingress.cxx \
-##            src/pana_message.cxx \
 ##            src/pana_node.cxx \
 ##            src/pana_paa.cxx \
 ##            src/pana_paa_factory.cxx \

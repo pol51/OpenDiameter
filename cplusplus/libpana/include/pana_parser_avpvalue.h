@@ -74,7 +74,7 @@ class PANA_AnyParser :
 {
     public:
         void parseRawToApp() throw (AAAErrorCode) {
-            AAAMessageBlock* aBuffer = getRawData();
+            PANA_MessageBuffer* aBuffer = getRawData();
             PANA_StringAvpContainerEntry *e;
             getAppData(e);
             if (e->dataType() != AAA_AVP_DATA_TYPE) {
@@ -87,7 +87,7 @@ class PANA_AnyParser :
             e->dataRef().assign(aBuffer->base(), aBuffer->size());
         }
         void parseAppToRaw() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer = getRawData();
+            PANA_MessageBuffer* aBuffer = getRawData();
             PANA_StringAvpContainerEntry *e;
             getAppData(e);
             std::string& str = e->dataRef();
@@ -118,7 +118,7 @@ class PANA_Integer32Parser :
 
     public:
         void parseRawToApp() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer = getRawData();
+            PANA_MessageBuffer* aBuffer = getRawData();
             PANA_Integer32AvpContainerEntry *e;
             getAppData(e);
             if (e->dataType() != AAA_AVP_INTEGER32_TYPE && 
@@ -134,7 +134,7 @@ class PANA_Integer32Parser :
             e->dataRef() = ntohl(*((pana_integer32_t*)(aBuffer->base())));
         }
         void parseAppToRaw() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer;
+            PANA_MessageBuffer* aBuffer;
             PANA_Integer32AvpContainerEntry *e;
             getRawData(aBuffer);
             getAppData(e);
@@ -170,7 +170,7 @@ class PANA_Integer64Parser :
 
     public:
         void parseRawToApp() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer = getRawData();
+            PANA_MessageBuffer* aBuffer = getRawData();
             PANA_Integer64AvpContainerEntry *e;
             getAppData(e);
             if (e->dataType() != AAA_AVP_INTEGER64_TYPE &&
@@ -184,7 +184,7 @@ class PANA_Integer64Parser :
             e->dataRef() = AAA_NTOH_64(*((pana_integer64_t*)(aBuffer->base())));
         }
         void parseAppToRaw() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer;
+            PANA_MessageBuffer* aBuffer;
             PANA_Integer64AvpContainerEntry *e;
             getRawData(aBuffer);
             getAppData(e);
@@ -218,7 +218,7 @@ class PANA_OctetstringParser :
 
     public:
         void parseRawToApp() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer = getRawData();
+            PANA_MessageBuffer* aBuffer = getRawData();
             PANA_StringAvpContainerEntry *e;
             getAppData(e);
             if (e->dataType() != AAA_AVP_STRING_TYPE) {
@@ -232,7 +232,7 @@ class PANA_OctetstringParser :
             str.assign(aBuffer->base(), aBuffer->size());
         }
         void parseAppToRaw() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer = getRawData();
+            PANA_MessageBuffer* aBuffer = getRawData();
             PANA_StringAvpContainerEntry *e;
             getAppData(e);
             if (e->dataType() != AAA_AVP_STRING_TYPE) {
@@ -482,7 +482,7 @@ class PANA_GroupedParser :
 {
     public:
         void parseRawToApp() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer = getRawData();
+            PANA_MessageBuffer* aBuffer = getRawData();
             PANA_GroupedAvpContainerEntry *e;
             getAppData(e);
             if (e->dataType() != AAA_AVP_GROUPED_TYPE) {
@@ -492,7 +492,7 @@ class PANA_GroupedParser :
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
             }
-            PANA_DictionaryEntry *avp = getDictData();
+            AAADictionaryEntry *avp = getDictData();
             AAAAvpContainerList* acl = e->dataPtr();
             PANA_GroupedAVP* gavp;
             AAAErrorCode st;
@@ -503,14 +503,14 @@ class PANA_GroupedParser :
 #endif
 
             if ((gavp = PANA_GroupedAvpList::instance()
-                ->search(avp->m_AvpCode, avp->m_VendorId)) == NULL) {
+                ->search(avp->avpCode, avp->vendorId)) == NULL) {
                     AAA_LOG((LM_ERROR, "Grouped AVP not found."));
                     st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_UNSUPPORTED);
                     throw st;
             }
 
             do {
-                PANA_QualifiedAvpListParser qc;
+                PANA_PayloadParser qc;
                 qc.setRawData(aBuffer);
                 qc.setAppData(acl);
                 qc.setDictData(gavp);
@@ -525,7 +525,7 @@ class PANA_GroupedParser :
             } while (0);
         }
         void parseAppToRaw() throw(AAAErrorCode) {
-            AAAMessageBlock* aBuffer = getRawData();
+            PANA_MessageBuffer* aBuffer = getRawData();
             PANA_GroupedAvpContainerEntry *e;
             getAppData(e);
             if (e->dataType() != AAA_AVP_GROUPED_TYPE) {
@@ -535,20 +535,20 @@ class PANA_GroupedParser :
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
             }
-            PANA_DictionaryEntry *avp = getDictData();
+            AAADictionaryEntry *avp = getDictData();
             AAAAvpContainerList *acl = e->dataPtr();
             PANA_GroupedAVP* gavp;
             AAAErrorCode st;
 
             if ((gavp = PANA_GroupedAvpList::instance()
-                ->search(avp->m_AvpCode, avp->m_VendorId)) == NULL) {
+                ->search(avp->avpCode, avp->vendorId)) == NULL) {
                 AAA_LOG((LM_ERROR, "Grouped AVP not found"));
                 st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_UNSUPPORTED);
                 throw st;
             }
 
             do {
-                PANA_QualifiedAvpListParser qc;
+                PANA_PayloadParser qc;
                 qc.setRawData(aBuffer);
                 qc.setAppData(acl);
                 qc.setDictData(gavp);

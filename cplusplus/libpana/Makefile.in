@@ -62,7 +62,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libpana_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/pana_parser.lo src/pana_parser_avpvalue.lo \
-	src/pana_parser_dict.lo src/pana_node.lo
+	src/pana_parser_dict.lo src/pana_node.lo \
+	src/pana_config_manager.lo
 am__objects_2 =
 am_libpana_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libpana_la_OBJECTS = $(am_libpana_la_OBJECTS)
@@ -148,6 +149,7 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
 FFLAGS = @FFLAGS@
+GREP = @GREP@
 HOST_OS = @HOST_OS@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -182,12 +184,9 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
-ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_F77 = @ac_ct_F77@
-ac_ct_RANLIB = @ac_ct_RANLIB@
-ac_ct_STRIP = @ac_ct_STRIP@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -206,23 +205,30 @@ build_vendor = @build_vendor@
 compile_EAPTLS_FALSE = @compile_EAPTLS_FALSE@
 compile_EAPTLS_TRUE = @compile_EAPTLS_TRUE@
 datadir = $(prefix)/share/opendiameter/doc/pana
+datarootdir = @datarootdir@
+docdir = @docdir@
+dvidir = @dvidir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
+htmldir = @htmldir@
 includedir = $(prefix)/include/opendiameter/pana
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
+psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = $(prefix)/etc/opendiameter/pana
@@ -256,7 +262,6 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_cookie.h \
             include/pana_defs.h \
             include/pana_device_id.h \
-            include/pana_dhcp_bootstrap.h \
             include/pana_egress.h \
             include/pana_exceptions.h \
             include/pana_exports.h \
@@ -288,7 +293,8 @@ PANA_HDRS = include/pana_auth_script.h \
 PANA_SRC = src/pana_parser.cxx \
             src/pana_parser_avpvalue.cxx \
             src/pana_parser_dict.cxx \
-            src/pana_node.cxx
+            src/pana_node.cxx \
+            src/pana_config_manager.cxx
 
 include_HEADERS = $(PANA_HDRS)
 sysconf_DATA = config/config.xsd \
@@ -405,6 +411,8 @@ src/pana_parser_avpvalue.lo: src/$(am__dirstamp) \
 src/pana_parser_dict.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/pana_node.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pana_config_manager.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 libpana.la: $(libpana_la_OBJECTS) $(libpana_la_DEPENDENCIES) 
 	$(CXXLINK) -rpath $(libdir) $(libpana_la_LDFLAGS) $(libpana_la_OBJECTS) $(libpana_la_LIBADD) $(LIBS)
 
@@ -440,6 +448,8 @@ pana_test3$(EXEEXT): $(pana_test3_OBJECTS) $(pana_test3_DEPENDENCIES)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f src/pana_config_manager.$(OBJEXT)
+	-rm -f src/pana_config_manager.lo
 	-rm -f src/pana_node.$(OBJEXT)
 	-rm -f src/pana_node.lo
 	-rm -f src/pana_parser.$(OBJEXT)
@@ -456,6 +466,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_config_manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_node.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_parser_avpvalue.Plo@am__quote@

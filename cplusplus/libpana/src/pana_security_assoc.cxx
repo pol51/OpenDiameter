@@ -211,7 +211,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
 
     PANA_HeaderParser hp;
     DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
-    hp.setRawData(reinterpret_cast<AAAMessageBlock*>(rawBuf));
+    hp.setRawData(rawBuf);
     hp.setAppData(static_cast<PANA_MsgHeader*>(&msg));
     hp.setDictData(&opt);
 
@@ -219,7 +219,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
 
     // Parse the payload
     PANA_PayloadParser pp;
-    pp.setRawData(reinterpret_cast<AAAMessageBlock*>(rawBuf));
+    pp.setRawData(rawBuf);
     pp.setAppData(&(msg.avpList()));
     pp.setDictData(msg.getDictHandle());
 
@@ -272,7 +272,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         // parse the message 
         PANA_HeaderParser hp;
         DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
-        hp.setRawData(reinterpret_cast<AAAMessageBlock*>(aBuffer));
+        hp.setRawData(aBuffer);
         hp.setAppData(static_cast<PANA_MsgHeader*>(&msg));
         hp.setDictData(&opt);
 
@@ -280,7 +280,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
 
         // Parse the payload
         PANA_PayloadParser pp;
-        pp.setRawData(reinterpret_cast<AAAMessageBlock*>(aBuffer));
+        pp.setRawData(aBuffer);
         pp.setAppData(&(msg.avpList()));
         pp.setDictData(msg.getDictHandle());
 

@@ -605,6 +605,51 @@ int main(int argc, char **argv)
           task.Stop();
           USER_DB_CLOSE();
       }
+#else
+    /* --------------------- compose ------------------- */
+    boost::shared_ptr<PANA_Message> msg(new PANA_Message);
+
+    // Populate header
+    msg->type() = PANA_MTYPE_PDI;
+    msg->seq() = 0;
+
+    PANA_MessageBuffer *rawBuf = PANA_MESSAGE_POOL()->malloc();
+
+    PANA_HeaderParser hp;
+    hp.setRawData(rawBuf);
+    hp.setAppData(static_cast<PANA_MsgHeader*>(msg.get()));
+
+    hp.parseAppToRaw();
+
+    // Parse the payload
+    PANA_PayloadParser pp;
+    pp.setRawData(rawBuf);
+    pp.setAppData(&(msg->avpList()));
+    pp.setDictData(hp.getDictData());
+
+    pp.parseAppToRaw();
+
+    // Re-do the header again to set the length
+    msg->length() = rawBuf->wr_ptr() - rawBuf->base();
+    hp.parseAppToRaw();
+
+    rawBuf->wr_ptr(rawBuf->base());
+
+    /* --------------------- de-compose ------------------- */
+
+    rawBuf->size(msg->length());
+    PANA_Message pMsg;
+    hp.setRawData(rawBuf);
+    hp.setAppData(&pMsg);
+
+    hp.parseRawToApp(); // may throw exception
+
+    pp.setRawData(rawBuf);
+    pp.setAppData(&(pMsg.avpList()));
+    pp.setDictData(hp.getDictData());
+
+    pp.parseRawToApp(); // may throw exception
+
 #endif
   }
   catch (PANA_Exception &e) {

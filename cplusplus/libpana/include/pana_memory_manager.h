@@ -40,18 +40,30 @@
 #include "ace/Message_Block.h"
 #include "pana_exports.h"
 #include "pana_defs.h"
+#include "pana_exceptions.h"
 
 class PANA_EXPORT PANA_MessageBuffer : public ACE_Message_Block
 {
     public:
-       PANA_MessageBuffer() :
-           ACE_Message_Block(PANA_MAX_MESSAGE_SIZE,
-                             MB_DATA, 0, 0,
-                             AAAMemoryManager_S::instance()),
-           m_RefCount(0) {
-       }
+        PANA_MessageBuffer() :
+            ACE_Message_Block(PANA_MAX_MESSAGE_SIZE,
+                              MB_DATA, 0, 0,
+                              AAAMemoryManager_S::instance()),
+            m_RefCount(0) {
+        }
+        static PANA_MessageBuffer* Acquire(char *buf, ACE_UINT32 s) {
+            return new PANA_MessageBuffer(buf,s);
+        }
+        void Release() {
+            release();
+        }
 
         friend class PANA_MessagePoolManager;
+
+    protected:
+        PANA_MessageBuffer(char *buf, ACE_UINT32 s) {
+            init(buf, s);
+        }
 
     protected:
         ACE_Atomic_Op<ACE_Thread_Mutex, long> m_RefCount;

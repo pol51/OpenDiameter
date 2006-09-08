@@ -37,7 +37,6 @@
 
 int PANA_IngressMsgParser::Serve()
 {
-    AAAMessageBlock *aBuffer = reinterpret_cast<AAAMessageBlock*>(&m_Message);
     try {
 
        PANA_Message *parsedMsg;
@@ -50,7 +49,7 @@ int PANA_IngressMsgParser::Serve()
 
        PANA_HeaderParser hp;
        DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
-       hp.setRawData(aBuffer);
+       hp.setRawData(&m_Message);
        hp.setAppData(static_cast<PANA_MsgHeader*>(parsedMsg));
        hp.setDictData(&opt);
 

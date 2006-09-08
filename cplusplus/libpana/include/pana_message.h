@@ -188,7 +188,13 @@ class PANA_MsgHeader
        };
 
     public:
-       PANA_MsgHeader();
+       PANA_MsgHeader() {
+           m_Version = PANA_VERSION;
+           m_Length  = 0;
+           m_Type    = 0;
+           m_SeqNum  = 0;
+           ACE_OS::memset(&m_Flags, 0, sizeof(PANA_MsgHeader::Flags));
+       }
        virtual ~PANA_MsgHeader() {
        }
        inline UCHAR &version() {
@@ -206,12 +212,6 @@ class PANA_MsgHeader
        inline ACE_UINT32 &seq() {
            return m_SeqNum;
        }
-       inline AAADictionaryHandle *getDictHandle() {
-           return m_DictHandle;
-       }
-       inline void setDictHandle(AAADictionaryHandle *handle) {
-           m_DictHandle = handle;
-       }
 
     protected:
        // flat header members
@@ -220,9 +220,6 @@ class PANA_MsgHeader
        PANA_MsgHeader::Flags m_Flags;
        ACE_UINT16 m_Type;
        ACE_UINT32 m_SeqNum;
-
-       // auxillary
-       AAADictionaryHandle* m_DictHandle;
 };
 
 // PANA Message definition

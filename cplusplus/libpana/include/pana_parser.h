@@ -36,37 +36,7 @@
 
 #include "aaa_parser_api.h"
 #include "pana_message.h"
-
-/*
- *==================================================
- * The following are definitions for the pana
- * dictionary
- *==================================================
- */
-
-class PANA_DictionaryEntry
-{
-    public:
-        PANA_DictionaryEntry(PANA_AvpCode code,
-                             const char *name,
-                             AAAAvpDataType type,
-                             PANA_VendorId vid,
-                             PANA_AvpFlag flg) :
-            m_AvpName(name),
-            m_AvpType(type),
-            m_AvpCode(code),
-            m_VendorId(vid),
-            m_Flags(flg) {
-        }
-
-
-    public:
-        std::string         m_AvpName;
-        AAAAvpDataType      m_AvpType;
-        PANA_AvpCode        m_AvpCode;
-        PANA_VendorId       m_VendorId;
-        PANA_AvpFlag        m_Flags;
-};
+#include "pana_memory_manager.h"
 
 /*
  *==================================================
@@ -78,12 +48,12 @@ class PANA_DictionaryEntry
 /*
  * Diameter AVP value parser
  */
-typedef AAAParser<AAAMessageBlock*,
+typedef AAAParser<PANA_MessageBuffer*,
                   AAAAvpContainerEntry*,
-                  PANA_DictionaryEntry*> PANA_AvpValueParser;
+                  AAADictionaryEntry*> PANA_AvpValueParser;
 
 /*  Parsing starts from the current read pointer of the raw data,
- *  i.e., AAAMessageBlock.  When parsing is successful, the read
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the read
  *  pointer will proceed to one octet after the last octet of the
  *  AVP value.  When parsing fails, an error status is thrown.  A
  *  non-null dictionary data must be specified.
@@ -91,7 +61,7 @@ typedef AAAParser<AAAMessageBlock*,
 template<> void PANA_AvpValueParser::parseRawToApp();
 
 /* Parsing starts from the current write pointer of the raw data,
- *  i.e., AAAMessageBlock.  When parsing is successful, the write
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the write
  *  pointer will proceed to one octet after the last octet of the
  *  AVP value.  When parsing fails, an error status is thrown.  A
  *  non-null dictionary data must be specified.
@@ -159,8 +129,7 @@ class PANA_AvpTypeList_S :
         PANA_AvpTypeList_S(void) {
             DefaultTypes();
         }
-        virtual ~PANA_AvpTypeList_S(void) {
-        }
+        virtual ~PANA_AvpTypeList_S(void);
         void DefaultTypes();
 };
 
@@ -182,8 +151,8 @@ class PANA_AvpContainerEntryManager :
 typedef class AAAAvpContainerMngr PANA_AvpContainerManager;
 
 #define PANA_AVP_HEADER_LEN(avp) \
-  (avp->m_AvpCode == 0 ? 0 : \
-  (avp->m_Flags & PANA_AVP_FLAG_VENDOR_SPECIFIC ? 12 : 8))
+  (avp->avpCode == 0 ? 0 : \
+  (avp->flags & PANA_AVP_FLAG_VENDOR_SPECIFIC ? 12 : 8))
 
 class PANA_AvpList_S :
     public AAAAvpList
@@ -239,13 +208,22 @@ class PANA_CommandList_S :
     public AAACommandList<PANA_Command>
 {
         friend class ACE_Singleton<PANA_CommandList_S, ACE_Recursive_Thread_Mutex>;
-#if 0
     public:
-        PANA_Command* search(const char*name) {
-            return AAACommandList<PANA_Command>::search(name);
+        PANA_Command* search(PANA_AvpCode code) {
+            mutex.acquire();
+            iterator c = this->begin();
+            for (; c != this->end(); c++) {
+                if ((*c)->code == code) {
+                    mutex.release();
+                    return *c;
+                }
+            }
+            mutex.release();
+            return NULL;
         }
-#endif
+
     private:
+
         virtual ~PANA_CommandList_S() {
             for (iterator i=begin(); i!=end(); i++) {
                 delete (*i)->m_Fixed;
@@ -301,18 +279,110 @@ class PANA_AvpHeaderList :
     public:
         PANA_AvpHeaderList() {
         }
-        void create(AAAMessageBlock *aBuffer) throw(AAAErrorCode);
+        void create(PANA_MessageBuffer *aBuffer) throw(AAAErrorCode);
+};
+
+class PANA_AvpRawData
+{
+    public:
+        union {
+            PANA_MessageBuffer *msg;
+            PANA_AvpHeaderList *ahl;
+        };
 };
 
 /*
- * Diameter Qualified AVP value parser
+ * AVP header parser
  */
-typedef AAAParser<AAAMessageBlock*,
-                  AAAAvpContainerList*,
-                  PANA_Dictionary*> PANA_QualifiedAvpListParser;
+typedef AAAParser<PANA_AvpRawData*,
+                  PANA_AvpHeader*,
+                  AAADictionaryEntry*>
+                  PANA_AvpHeaderParser;
 
-// PANA Message Header parser
-typedef AAAParser<AAAMessageBlock*,
-                  PANA_MsgHeader*> PANA_HeaderParser;
+/*  Parsing starts from the current read pointer of the raw data,
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the read
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_AvpHeaderParser::parseRawToApp();
+
+/* Parsing starts from the current write pointer of the raw data,
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the write
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_AvpHeaderParser::parseAppToRaw();
+
+/*
+ * AVP parser
+ */
+typedef AAAParser<PANA_AvpRawData*,
+                  AAAAvpContainer*,
+                  AAADictionaryEntry*>
+                  PANA_AvpParser;
+
+/*  Parsing starts from the current read pointer of the raw data,
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the read
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_AvpParser::parseRawToApp();
+
+/* Parsing starts from the current write pointer of the raw data,
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the write
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_AvpParser::parseAppToRaw();
+
+/*
+ * PANA Message Header parser
+ */
+typedef AAAParser<PANA_MessageBuffer*,
+                  PANA_MsgHeader*,
+                  PANA_Dictionary*> PANA_HeaderParser;
+
+/*  Parsing starts from the current read pointer of the raw data,
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the read
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_HeaderParser::parseRawToApp();
+
+/* Parsing starts from the current write pointer of the raw data,
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the write
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_HeaderParser::parseAppToRaw();
+
+/*
+ * Payload parser definition
+ */
+typedef AAAParser<PANA_MessageBuffer*,
+                  AAAAvpContainerList*,
+                  PANA_Dictionary*> PANA_PayloadParser;
+
+/*  Parsing starts from the current read pointer of the raw data,
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the read
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_PayloadParser::parseRawToApp();
+
+/* Parsing starts from the current write pointer of the raw data,
+ *  i.e., PANA_MessageBuffer.  When parsing is successful, the write
+ *  pointer will proceed to one octet after the last octet of the
+ *  AVP value.  When parsing fails, an error status is thrown.  A
+ *  non-null dictionary data must be specified.
+ */
+template<> void PANA_PayloadParser::parseAppToRaw();
 
 #endif // __PANA_PARSER_H__

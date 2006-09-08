@@ -107,3 +107,11 @@ void PANA_AvpTypeList_S::DefaultTypes()
                     addressParserCreator, addressContainerEntryCreator));
 }
 
+PANA_AvpTypeList_S::~PANA_AvpTypeList_S(void)
+{
+  while (! empty()) {
+    PANA_AvpType *p = (PANA_AvpType*)(*(begin()));
+    delete p;
+    pop_front();
+  }
+}

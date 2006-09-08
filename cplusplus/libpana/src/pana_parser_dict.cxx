@@ -42,7 +42,7 @@
 #if PANA_PARSER_DEBUG
 #define PANAXML_DEBUG   AAA_LOG
 #else
-#define PANA_XMLDEBUG
+#define PANAXML_DEBUG(x)
 #endif
 
 class PANAXML_Element;
@@ -579,8 +579,8 @@ class PANAXML_AvpRuleElement :
 
         PANAXML_PositionElement *posElm = (PANAXML_PositionElement*)Parent();
         if (posElm->IsSkipped()) {
-            PANAXML_DEBUG_LOG((LM_DEBUG, " Avp Rule [name = %s] is skipped\n",
-                               Name().c_str()));
+            PANAXML_DEBUG((LM_DEBUG, " Avp Rule [name = %s] is skipped\n",
+                           Name().c_str()));
             return true;
         }
 
@@ -632,8 +632,8 @@ class PANAXML_AvpRuleElement :
         qavp->qual.min = min;
         qavp->qual.max = max;
         posElm->AvpList()->add(qavp);
-        PANAXML_DEBUG_LOG((LM_DEBUG, " Avp Rule [name = %s, min = %d, max = %d]\n",
-                           avpName.c_str(), min, max));
+        PANAXML_DEBUG((LM_DEBUG, " Avp Rule [name = %s, min = %d, max = %d]\n",
+                       avpName.c_str(), min, max));
         return true;
      }
 };
