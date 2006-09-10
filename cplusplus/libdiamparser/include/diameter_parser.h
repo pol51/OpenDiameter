@@ -1012,114 +1012,39 @@ class DiameterGroupedVectorAttribute :
         }
 };
 
-/*! \brief Generic AVP widget allocator
- *
- *  This template class is a wrapper class format
- *  the most common AVP operations. Users should
- *  use this class for manipulating AVP containers.
- */
-template<class D, AAAAvpDataType t>
-class DiameterAvpWidget {
-    public:
-        DiameterAvpWidget(char *name) {
-            DiameterAvpContainerManager cm;
-            m_cAvp = cm.acquire(name);
-        }
-        DiameterAvpWidget(char *name, D &value) {
-            DiameterAvpContainerManager cm;
-            m_cAvp = cm.acquire(name);
-            Get() = value;
-        }
-        DiameterAvpWidget(AAAAvpContainer *avp) :
-            m_cAvp(avp) {
-        }
-        ~DiameterAvpWidget() {
-        }
-        D &Get() {
-            DiameterAvpContainerEntryManager em;
-            AAAAvpContainerEntry *e = em.acquire(t);
-            m_cAvp->add(e);
-            return e->dataRef(Type2Type<D>());
-        }
-        AAAAvpContainer *operator()() {
-            return m_cAvp;
-        }
-        bool empty() {
-            return (m_cAvp->size() == 0);
-        }
-
-    private:
-        AAAAvpContainer *m_cAvp;
-};
-
-/*! \brief Generic AVP widget lookup and parser
- *
- *  Assist in adding, deleting and modifying AVP's
- *  contained in a message list.
- *
- *  This template class is a wrapper class format
- *  the most common AVP operations. Users should
- *  use this class for manipulating AVP containers.
- */
-template<class D, AAAAvpDataType t>
-class DiameterAvpContainerWidget
-{
-    public:
-       DiameterAvpContainerWidget(AAAAvpContainerList &lst) :
-           list(lst) {
-       }
-       D *GetAvp(char *name, unsigned int index=0) {
-          AAAAvpContainer* c = list.search(name);
-          if (c && (index < c->size())) {
-              AAAAvpContainerEntry *e = (*c)[index];
-              return e->dataPtr(Type2Type<D>());
-          }
-          return (0);
-       }
-       D &AddAvp(char *name, bool append = false) {
-          AAAAvpContainer* c = list.search(name);
-          if (! c) {
-              DiameterAvpWidget<D, t> avpWidget(name);
-              list.add(avpWidget());
-              return avpWidget.Get();
-          }
-          else if ((c->size() == 0) || append) {
-              DiameterAvpWidget<D, t> avpWidget(c);
-              return avpWidget.Get();
-          }
-          else {
-              return (*c)[0]->dataRef(Type2Type<D>());
-          }
-       }
-       void AddAvp(DiameterAvpContainerWidget<D, t> &avp) {
-           list.add(avp());
-       }
-       void DelAvp(char *name) {
-          std::list<AAAAvpContainer*>::iterator i;
-          for (i=list.begin(); i!=list.end();i++) {
-              AAAAvpContainer *c = *i;
-              if (ACE_OS::strcmp(c->getAvpName(), name) == 0) {
-                  list.erase(i);
-                  DiameterAvpContainerManager cm;
-                  cm.release(c);
-                  break;
-              }
-          }
-       }
-       unsigned int GetAvpCount(char *name) {
-          AAAAvpContainer* c = list.search(name);
-          return (c) ? c->size() : 0;
-       }
-
-    private:
-       AAAAvpContainerList &list;
-};
-
 /*!
  *==================================================
  * Predefined diameter widget types
  *==================================================
  */
+
+/* Overrides from generic definition */
+template<typename D, AAAAvpDataType t>
+class DiameterAvpWidget :
+    public AAAAvpWidget<D, t, DiameterAvpContainerEntryManager>
+{
+    public:
+        DiameterAvpWidget(char *name) :
+            AAAAvpWidget<D, t, DiameterAvpContainerEntryManager>(name) {
+        }
+        DiameterAvpWidget(char *name, D &value) :
+            AAAAvpWidget<D, t, DiameterAvpContainerEntryManager>(name, value) {
+        }
+        DiameterAvpWidget(AAAAvpContainer *avp) :
+            AAAAvpWidget<D, t, DiameterAvpContainerEntryManager>(avp) {
+        }
+};
+
+/* Overrides from generic definition */
+template<typename D, AAAAvpDataType t>
+class DiameterAvpContainerWidget :
+    public AAAAvpContainerWidget<D, t, DiameterAvpContainerEntryManager>
+{
+    public:
+       DiameterAvpContainerWidget(AAAAvpContainerList &lst) :
+           AAAAvpContainerWidget<D, t, DiameterAvpContainerEntryManager>(lst) {
+       }
+};
 
 /*! \brief Type specific AVP widget classes
  *
