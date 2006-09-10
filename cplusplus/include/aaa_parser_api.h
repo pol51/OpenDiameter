@@ -696,6 +696,109 @@ class AAAAvpContainerMngr
         }
 };
 
+/*! \brief Generic AVP widget allocator
+ *
+ *  This template class is a wrapper class format
+ *  the most common AVP operations. Users should
+ *  use this class for manipulating AVP containers.
+ */
+template<typename D, AAAAvpDataType t, typename EM>
+class AAAAvpWidget {
+    public:
+        AAAAvpWidget(char *name) {
+            AAAAvpContainerMngr cm;
+            m_cAvp = cm.acquire(name);
+        }
+        AAAAvpWidget(char *name, D &value) {
+            AAAAvpContainerMngr cm;
+            m_cAvp = cm.acquire(name);
+            Get() = value;
+        }
+        AAAAvpWidget(AAAAvpContainer *avp) :
+            m_cAvp(avp) {
+        }
+        virtual ~AAAAvpWidget() {
+        }
+        D &Get() {
+            EM em;
+            AAAAvpContainerEntry *e = em.acquire(t);
+            m_cAvp->add(e);
+            return e->dataRef(Type2Type<D>());
+        }
+        AAAAvpContainer *operator()() {
+            return m_cAvp;
+        }
+        bool empty() {
+            return (m_cAvp->size() == 0);
+        }
+
+    private:
+        AAAAvpContainer *m_cAvp;
+};
+
+/*! \brief Generic AVP widget lookup and parser
+ *
+ *  Assist in adding, deleting and modifying AVP's
+ *  contained in a message list.
+ *
+ *  This template class is a wrapper class format
+ *  the most common AVP operations. Users should
+ *  use this class for manipulating AVP containers.
+ */
+template<typename D, AAAAvpDataType t, typename EM>
+class AAAAvpContainerWidget
+{
+    public:
+       AAAAvpContainerWidget(AAAAvpContainerList &lst) :
+           list(lst) {
+       }
+       D *GetAvp(char *name, unsigned int index=0) {
+          AAAAvpContainer* c = list.search(name);
+          if (c && (index < c->size())) {
+              AAAAvpContainerEntry *e = (*c)[index];
+              return e->dataPtr(Type2Type<D>());
+          }
+          return (0);
+       }
+       D &AddAvp(char *name, bool append = false) {
+          AAAAvpContainer* c = list.search(name);
+          if (! c) {
+              AAAAvpWidget<D, t, EM> avpWidget(name);
+              list.add(avpWidget());
+              return avpWidget.Get();
+          }
+          else if ((c->size() == 0) || append) {
+              AAAAvpWidget<D, t, EM> avpWidget(c);
+              return avpWidget.Get();
+          }
+          else {
+              return (*c)[0]->dataRef(Type2Type<D>());
+          }
+       }
+       void AddAvp(AAAAvpContainerWidget<D, t, EM> &avp) {
+           list.add(avp());
+       }
+       void DelAvp(char *name) {
+          std::list<AAAAvpContainer*>::iterator i;
+          for (i=list.begin(); i!=list.end();i++) {
+              AAAAvpContainer *c = *i;
+              if (ACE_OS::strcmp(c->getAvpName(), name) == 0) {
+                  list.erase(i);
+                  AAAAvpContainerMngr cm;
+                  cm.release(c);
+                  break;
+              }
+          }
+       }
+       unsigned int GetAvpCount(char *name) {
+          AAAAvpContainer* c = list.search(name);
+          return (c) ? c->size() : 0;
+       }
+
+    private:
+       AAAAvpContainerList &list;
+};
+
 /*!
  *==================================================
  * This section defines the generic parsing template
