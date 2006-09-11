@@ -37,26 +37,26 @@ void PANA_ProviderInfoTool::Add(pana_grouped_t &grp, PANA_CfgProviderInfo &pInfo
 {
    // Add the Provider Id to group
    if (pInfo.m_Id > 0) {
-      DiameterUInt32AvpWidget providerIdAvp(PANA_AVPNAME_PROVIDERID);
+      PANA_UInt32AvpWidget providerIdAvp(PANA_AVPNAME_PROVIDERID);
       providerIdAvp.Get() = ACE_HTONL(pInfo.m_Id);
       grp.add(providerIdAvp());
    }
 
    // Add the Provider name to group
-   AAAUtf8AvpWidget providerNameAvp(PANA_AVPNAME_PROVIDERNAME);
+   PANA_Utf8AvpWidget providerNameAvp(PANA_AVPNAME_PROVIDERNAME);
    providerNameAvp.Get() = pInfo.m_Name;
    grp.add(providerNameAvp());
 }
 
 void PANA_ProviderInfoTool::Extract(pana_grouped_t &grp, PANA_CfgProviderInfo &pInfo)
 {
-   DiameterUtf8AvpContainerWidget providerNameAvp(grp);
+   PANA_Utf8AvpContainerWidget providerNameAvp(grp);
    pana_utf8string_t *name = providerNameAvp.GetAvp(PANA_AVPNAME_PROVIDERNAME);
    if (name) {
       pInfo.m_Name.assign(name->data(), name->length());
    }
 
-   DiameterUInt32AvpContainerWidget providerIdAvp(grp);
+   PANA_UInt32AvpContainerWidget providerIdAvp(grp);
    pana_unsigned32_t *id = providerIdAvp.GetAvp(PANA_AVPNAME_PROVIDERID);
    if (id) {
       pInfo.m_Id = ACE_NTOHL(*id);

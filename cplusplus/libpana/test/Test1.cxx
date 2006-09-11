@@ -610,8 +610,55 @@ int main(int argc, char **argv)
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PDI;
-    msg->seq() = 0;
+    msg->type() = PANA_MTYPE_PSR;
+    msg->flags().request = true;
+    msg->flags().separate = true;
+
+    // adjust serial num
+    msg->seq() = 10000;
+
+    // add paa nonce
+    pana_octetstring_t nonce = "This is the nounce";
+    PANA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
+    nonceAvp.Get().assign(nonce.data(), nonce.size());
+    msg->avpList().add(nonceAvp());
+
+    // add eap payload
+    PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+    pana_octetstring_t eapPkt = "This is the eap packet";
+    eapAvp.Get().assign(eapPkt.data(), eapPkt.size());
+    msg->avpList().add(eapAvp());
+    msg->flags().separate = false;
+
+    // add ppac
+    PANA_UInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
+    ppacAvp.Get() = 1;
+    msg->avpList().add(ppacAvp());
+
+    // add protection capability
+    PANA_UInt32AvpWidget pcapAvp(PANA_AVPNAME_PROTECTIONCAP);
+    pcapAvp.Get() = 2;
+    msg->avpList().add(pcapAvp());
+
+    // add nap information
+    PANA_GroupedAvpWidget napAvp(PANA_AVPNAME_NAPINFO);
+    PANA_ProviderInfoTool infoTool;
+    PANA_CfgProviderInfo preferedNAP;
+    preferedNAP.m_Id = 10;
+    preferedNAP.m_Name = "This is the NAP name";
+    infoTool.Add(napAvp.Get(), preferedNAP);
+    msg->avpList().add(napAvp());
+
+    // add ISP information
+    PANA_CfgProviderList::iterator i;
+    PANA_GroupedAvpWidget ispAvp(PANA_AVPNAME_ISPINFO);
+    for (i = PANA_CFG_PAA().m_IspInfo.begin();
+        i != PANA_CFG_PAA().m_IspInfo.end();
+        i++) {
+        PANA_ProviderInfoTool infoTool;
+        infoTool.Add(ispAvp.Get(), *(*i));
+    }
+    msg->avpList().add(ispAvp());
 
     PANA_MessageBuffer *rawBuf = PANA_MESSAGE_POOL()->malloc();
 
@@ -633,8 +680,6 @@ int main(int argc, char **argv)
     msg->length() = rawBuf->wr_ptr() - rawBuf->base();
     hp.parseAppToRaw();
 
-    rawBuf->wr_ptr(rawBuf->base());
-
     /* --------------------- de-compose ------------------- */
 
     rawBuf->size(msg->length());
@@ -650,7 +695,33 @@ int main(int argc, char **argv)
 
     pp.parseRawToApp(); // may throw exception
 
+    PANA_UInt32AvpContainerWidget ppac(msg->avpList());
+    pana_unsigned32_t *ppacValue = ppac.GetAvp(PANA_AVPNAME_PPAC, 0);
+    std::cout << "PPAC = " << *ppacValue << std::endl;
+
+    PANA_UInt32AvpContainerWidget prot(msg->avpList());
+    pana_unsigned32_t *protValue = prot.GetAvp(PANA_AVPNAME_PROTECTIONCAP, 0);
+    std::cout << "Prot = " << *protValue << std::endl;
+
+    PANA_GroupedAvpContainerWidget ispInfo(msg->avpList());
+    pana_grouped_t *grouped = ispInfo.GetAvp(PANA_AVPNAME_NAPINFO, 0);
+    for (int ndx=1; grouped; ndx++) {
+        PANA_UInt32AvpContainerWidget gId(*grouped);
+        PANA_StringAvpContainerWidget gname(*grouped);
+
+        pana_unsigned32_t *uint32 = gId.GetAvp(PANA_AVPNAME_PROVIDERID, 0);
+        if (uint32) {
+            std::cout << "Id = " << ACE_NTOHL(*uint32) << std::endl;
+        }
+
+        pana_octetstring_t *name = gname.GetAvp(PANA_AVPNAME_PROVIDERNAME);
+        if (name) {
+            std::cout << "Name = " << *name << std::endl;
+        }
+        grouped = ispInfo.GetAvp(PANA_AVPNAME_NAPINFO, ndx);
+    }
 #endif
+    std::cout << "Done" << std::endl;
   }
   catch (PANA_Exception &e) {
       std::cout << "PANA exception: " << e.description() << std::endl;

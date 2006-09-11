@@ -177,7 +177,7 @@ void PANA_Client::IspSelection(PANA_Message *psr)
     PANA_CfgProviderList ispList;
     PANA_CfgProviderInfo *ispInfo;
     PANA_CfgProviderInfo *ispChoice = NULL;
-    DiameterGroupedAvpContainerWidget ispAvp(psr->avpList());
+    PANA_GroupedAvpContainerWidget ispAvp(psr->avpList());
     pana_grouped_t *isp = ispAvp.GetAvp(PANA_AVPNAME_ISPINFO);
     if (isp) {
         for (int ndx=1; isp; ndx++) {
@@ -267,7 +267,7 @@ void PANA_Client::RxPSR()
                msg.flags().separate, msg.flags().nap, msg.seq()));
 
     // update paa nonce
-    DiameterStringAvpContainerWidget nonceAvp(msg.avpList());
+    PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
     pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && ! SecurityAssociation().PaaNonce().IsSet()) {
         SecurityAssociation().PaaNonce().Set(*nonce);
@@ -277,7 +277,7 @@ void PANA_Client::RxPSR()
     ProcessNotification(msg);
 
     // update nap information
-    DiameterGroupedAvpContainerWidget napAvp(msg.avpList());
+    PANA_GroupedAvpContainerWidget napAvp(msg.avpList());
     pana_grouped_t *nap = napAvp.GetAvp(PANA_AVPNAME_NAPINFO);
     if (nap) {
        PANA_ProviderInfoTool infoTool;
@@ -296,7 +296,7 @@ void PANA_Client::RxPSR()
     }
 
     // PSR.exist_avp("EAP-Payload")
-    DiameterStringAvpContainerWidget eapAvp(msg.avpList());
+    PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {    
        AuxVariables().SeparateAuthentication() = false;
@@ -366,7 +366,7 @@ void PANA_Client::TxPSA(PANA_Message *psr)
         SecurityAssociation().PacNonce().Generate();
         
         pana_octetstring_t &nonce = SecurityAssociation().PacNonce().Get();
-        DiameterStringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
+        PANA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
         nonceAvp.Get().assign(nonce.data(), nonce.size());
         msg->avpList().add(nonceAvp());
     }
@@ -375,13 +375,13 @@ void PANA_Client::TxPSA(PANA_Message *psr)
     
         // add eap payload
         PANA_MsgBlockGuard guard(AuxVariables().TxEapMessageQueue().Dequeue());
-        DiameterStringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+        PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
         eapAvp.Get().assign(guard()->base(), guard()->size());
         msg->avpList().add(eapAvp());
 
         // add prefered isp information if any
         if (PreferedISP().m_Name.size() > 0) {
-            DiameterGroupedAvpWidget choosenIsp(PANA_AVPNAME_ISPINFO);
+            PANA_GroupedAvpWidget choosenIsp(PANA_AVPNAME_ISPINFO);
             PANA_ProviderInfoTool infoTool;
             infoTool.Add(choosenIsp.Get(), PreferedISP());
             msg->avpList().add(choosenIsp());
@@ -397,11 +397,11 @@ void PANA_Client::TxPSA(PANA_Message *psr)
         return;
     }
 
-    DiameterStringAvpContainerWidget cookieAvp(psr->avpList());
+    PANA_StringAvpContainerWidget cookieAvp(psr->avpList());
     pana_octetstring_t *cookie = cookieAvp.GetAvp(PANA_AVPNAME_COOKIE);
     if (cookie) {
         // add cookie
-        DiameterStringAvpWidget psaCookieAvp(PANA_AVPNAME_COOKIE);
+        PANA_StringAvpWidget psaCookieAvp(PANA_AVPNAME_COOKIE);
         psaCookieAvp.Get().assign(cookie->data(), cookie->size());
         msg->avpList().add(psaCookieAvp());
     }
@@ -409,7 +409,7 @@ void PANA_Client::TxPSA(PANA_Message *psr)
     if (AuxVariables().SecAssociationResumed()) {
 
         // add session id
-        AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+        PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
         sessionIdAvp.Get() = SessionId();
         msg->avpList().add(sessionIdAvp());
 
@@ -435,7 +435,7 @@ void PANA_Client::TxPSA(PANA_Message *psr)
        IspSelection(psr);
 
        // add prefered isp information
-       DiameterGroupedAvpWidget choosenIsp(PANA_AVPNAME_ISPINFO);
+       PANA_GroupedAvpWidget choosenIsp(PANA_AVPNAME_ISPINFO);
        PANA_ProviderInfoTool infoTool;
        infoTool.Add(choosenIsp.Get(), PreferedISP());
        msg->avpList().add(choosenIsp());
@@ -520,14 +520,14 @@ void PANA_Client::RxPAR(bool eapReAuth)
     }
 
     // update paa nonce
-    DiameterStringAvpContainerWidget nonceAvp(msg.avpList());
+    PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
     pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && ! SecurityAssociation().PaaNonce().IsSet()) {
         SecurityAssociation().PaaNonce().Set(*nonce);
     }
     
     // PAR.exist_avp("EAP-Payload")
-    DiameterStringAvpContainerWidget eapAvp(msg.avpList());
+    PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapRequest(*payload);
@@ -608,7 +608,7 @@ void PANA_Client::TxPAR()
     msg->flags().nap = AuxVariables().NapAuthentication();
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -617,7 +617,7 @@ void PANA_Client::TxPAR()
        
     // eap payload
     PANA_MsgBlockGuard guard(AuxVariables().TxEapMessageQueue().Dequeue());
-    DiameterStringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+    PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
     eapAvp.Get().assign(guard()->base(), guard()->length());
     msg->avpList().add(eapAvp());
 
@@ -662,7 +662,7 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
     msg->flags().nap = AuxVariables().NapAuthentication();
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -672,7 +672,7 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
         SecurityAssociation().PacNonce().Generate();
         
         pana_octetstring_t &nonce = SecurityAssociation().PacNonce().Get();
-        DiameterStringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
+        PANA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
         nonceAvp.Get().assign(nonce.data(), nonce.size());
         msg->avpList().add(nonceAvp());
     }
@@ -683,7 +683,7 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
        
        // eap payload
        PANA_MsgBlockGuard guard(AuxVariables().TxEapMessageQueue().Dequeue());
-       DiameterStringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+       PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
        eapAvp.Get().assign(guard()->base(), guard()->length());
        msg->avpList().add(eapAvp());
     }
@@ -747,7 +747,7 @@ void PANA_Client::RxPFER()
     AuxVariables().NapAuthentication() = msg.flags().nap;
 
     // result code checks
-    DiameterUInt32AvpContainerWidget rcodeAvp(msg.avpList());
+    PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
     pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
     if (rcode == NULL) {
         throw (PANA_Exception(PANA_Exception::FAILED, 
@@ -756,7 +756,7 @@ void PANA_Client::RxPFER()
     AuxVariables().FirstEapResult() = ACE_NTOHL(*rcode);
 
     // eap paylaod checks
-    DiameterStringAvpContainerWidget eapAvp(msg.avpList());
+    PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapRequest(*payload);
@@ -768,7 +768,7 @@ void PANA_Client::RxPFER()
     }
 
     // update key id
-    DiameterUInt32AvpContainerWidget keyIdAvp(msg.avpList());
+    PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
     pana_unsigned32_t *keyId = keyIdAvp.GetAvp(PANA_AVPNAME_KEYID);
     if (keyId) {
         SecurityAssociation().UpdateKeyId1(ACE_NTOHL(*keyId));
@@ -810,7 +810,7 @@ void PANA_Client::RxPBR()
     m_Flags.p = 0;
     
     // lookup result code
-    DiameterUInt32AvpContainerWidget rcodeAvp(msg.avpList());
+    PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
     pana_unsigned32_t *pRcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
     if (pRcode == NULL) {
         throw (PANA_Exception(PANA_Exception::FAILED, 
@@ -820,7 +820,7 @@ void PANA_Client::RxPBR()
 
     // update ep device id's
     bool epIdPresent = false;
-    DiameterAddressAvpContainerWidget epIdAvp(msg.avpList());
+    PANA_AddressAvpContainerWidget epIdAvp(msg.avpList());
     pana_address_t *epId = epIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
     if (epId) {
         epIdPresent = true;
@@ -832,14 +832,14 @@ void PANA_Client::RxPBR()
     }
 
     // update session lifetime
-    DiameterUInt32AvpContainerWidget slAvp(msg.avpList());
+    PANA_UInt32AvpContainerWidget slAvp(msg.avpList());
     pana_unsigned32_t *sl = slAvp.GetAvp(PANA_AVPNAME_SESSIONLIFETIME);
     if (sl) {
         SessionLifetime() = ACE_NTOHL(*sl);
     }
 
     // update protection capability
-    DiameterUInt32AvpContainerWidget pcapAvp(msg.avpList());
+    PANA_UInt32AvpContainerWidget pcapAvp(msg.avpList());
     pana_unsigned32_t *pcap = pcapAvp.GetAvp(PANA_AVPNAME_PROTECTIONCAP);
     if (pcap && PANA_RCODE_SUCCESS(rcode)) {
         if (ACE_NTOHL(*pcap) != PANA_CFG_GENERAL().m_ProtectionCap) {
@@ -851,7 +851,7 @@ void PANA_Client::RxPBR()
     }
 
     // update post pana address config
-    DiameterUInt32AvpContainerWidget ppacAvp(msg.avpList());
+    PANA_UInt32AvpContainerWidget ppacAvp(msg.avpList());
     pana_unsigned32_t *ppac = ppacAvp.GetAvp(PANA_AVPNAME_PPAC);
     if (ppac && PANA_RCODE_SUCCESS(rcode)) {
         if (! (PPAC().common(ACE_NTOHL(*ppac)))) {
@@ -866,7 +866,7 @@ void PANA_Client::RxPBR()
     AuxVariables().NapAuthentication() = msg.flags().nap;
 
 #if defined(PANA_MPA_SUPPORT)
-    DiameterAddressAvpContainerWidget pacIpAvp(msg.avpList());
+    PANA_AddressAvpContainerWidget pacIpAvp(msg.avpList());
     pana_address_t *pacIp = epIdAvp.GetAvp(PANA_AVPNAME_PACIP);
      
     if (pacIp) {
@@ -883,7 +883,7 @@ void PANA_Client::RxPBR()
 #endif
 
     // extract eap
-    DiameterStringAvpContainerWidget eapAvp(msg.avpList());
+    PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
 
     if (AuxVariables().FirstEapResult() == 0) {
@@ -902,7 +902,7 @@ void PANA_Client::RxPBR()
                 }
                 else {
                     // session resumption verification
-                    DiameterStringAvpContainerWidget nonceAvp(msg.avpList());
+                    PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
                     pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
                     if (! nonce) {
                         throw (PANA_Exception(PANA_Exception::FAILED, 
@@ -917,7 +917,7 @@ void PANA_Client::RxPBR()
                         throw (PANA_Exception(PANA_Exception::FAILED, 
                                "Session resumption failed, invalid AUTH received"));
                     }
-                    DiameterUInt32AvpContainerWidget keyIdAvp(msg.avpList());
+                    PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
                     pana_unsigned32_t *keyid = keyIdAvp.GetAvp(PANA_AVPNAME_KEYID);
                     if (! keyid) {
                         throw (PANA_Exception(PANA_Exception::FAILED, 
@@ -962,7 +962,7 @@ void PANA_Client::RxPBR()
         m_Flags.i.BindSuccess = 1;
         
         // key id update
-        DiameterUInt32AvpContainerWidget keyIdAvp(msg.avpList());
+        PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
         pana_unsigned32_t *keyId = keyIdAvp.GetAvp(PANA_AVPNAME_KEYID);
         if (keyId) {
             SecurityAssociation().UpdateKeyId2(ACE_NTOHL(*keyId));
@@ -999,19 +999,19 @@ void PANA_Client::TxPBA(bool close)
     msg->flags().nap = AuxVariables().NapAuthentication();
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
     if (! close) {
        // add ppac
-       DiameterUInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
+       PANA_UInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
        ppacAvp.Get() = ACE_HTONL(PPAC()());
        msg->avpList().add(ppacAvp());
 
        // add device-id
        if (AuxVariables().CarryDeviceId()) {
-           DiameterAddressAvpWidget deviceAvp(PANA_AVPNAME_DEVICEID);
+           PANA_AddressAvpWidget deviceAvp(PANA_AVPNAME_DEVICEID);
            deviceAvp.Get() = PacDeviceId()();
            msg->avpList().add(deviceAvp());
        }
@@ -1074,7 +1074,7 @@ void PANA_Client::TxPFEA(bool closed)
     }
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -1131,7 +1131,7 @@ void PANA_Client::TxPRAR()
             PANA_CFG_GENERAL().m_SeparateAuth;
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 

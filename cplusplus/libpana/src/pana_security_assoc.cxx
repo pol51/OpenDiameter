@@ -189,7 +189,7 @@ bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
     else {
         return (false);
     }
-    DiameterUInt32AvpWidget keyIdAvp(PANA_AVPNAME_KEYID);
+    PANA_UInt32AvpWidget keyIdAvp(PANA_AVPNAME_KEYID);
     keyIdAvp.Get() = ACE_HTONL(keyId);
     msg.avpList().add(keyIdAvp());
     return (true);
@@ -198,7 +198,7 @@ bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
 bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
 {
     // add auth-avp
-    DiameterStringAvpWidget authAvp(PANA_AVPNAME_AUTH);
+    PANA_StringAvpWidget authAvp(PANA_AVPNAME_AUTH);
     pana_octetstring_t &auth = authAvp.Get();
     msg.avpList().add(authAvp());
 
@@ -210,7 +210,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
     PANA_MessageBuffer *rawBuf = PANA_MESSAGE_POOL()->malloc();
 
     PANA_HeaderParser hp;
-    DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
+    PANA_DictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
     hp.setRawData(rawBuf);
     hp.setAppData(static_cast<PANA_MsgHeader*>(&msg));
     hp.setDictData(&opt);
@@ -242,7 +242,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
 bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
 {
     try {
-        DiameterStringAvpContainerWidget authAvp(msg.avpList());
+        PANA_StringAvpContainerWidget authAvp(msg.avpList());
         pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
         if (auth == NULL) {
             throw (PANA_Exception(PANA_Exception::FAILED, 
@@ -271,7 +271,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
 
         // parse the message 
         PANA_HeaderParser hp;
-        DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
+        PANA_DictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
         hp.setRawData(aBuffer);
         hp.setAppData(static_cast<PANA_MsgHeader*>(&msg));
         hp.setDictData(&opt);
@@ -321,7 +321,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         }
         AAA_LOG((LM_ERROR, "(%P|%t) AUTH value is invalid\n"));
     }
-    catch (DiameterErrorCode &st) {
+    catch (PANA_ErrorCode &st) {
         AAA_LOG((LM_ERROR, "(%P|%t) Parsing error is session transmitter\n"));
     }  
     catch (PANA_Exception &e) {

@@ -67,7 +67,8 @@ PANA_SRC  = src/pana_parser.cxx \
             src/pana_parser_avpvalue.cxx \
             src/pana_parser_dict.cxx \
             src/pana_node.cxx \
-            src/pana_config_manager.cxx
+            src/pana_config_manager.cxx \
+            src/pana_provider_info.cxx
 ##            src/pana_client.cxx \
 ##            src/pana_client_fsm.cxx \
 ##            src/pana_cookie.cxx \
@@ -80,7 +81,6 @@ PANA_SRC  = src/pana_parser.cxx \
 ##            src/pana_pac_ep_key.cxx \
 ##            src/pana_pmk_bootstrap.cxx \
 ##            src/pana_prf_plus.cxx \
-##            src/pana_provider_info.cxx \
 ##            src/pana_psk_bootstrap.cxx \
 ##            src/pana_security_assoc.cxx \
 ##            src/pana_session.cxx

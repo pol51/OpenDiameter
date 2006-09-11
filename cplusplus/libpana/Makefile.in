@@ -63,7 +63,7 @@ libpana_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/pana_parser.lo src/pana_parser_avpvalue.lo \
 	src/pana_parser_dict.lo src/pana_node.lo \
-	src/pana_config_manager.lo
+	src/pana_config_manager.lo src/pana_provider_info.lo
 am__objects_2 =
 am_libpana_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libpana_la_OBJECTS = $(am_libpana_la_OBJECTS)
@@ -294,7 +294,8 @@ PANA_SRC = src/pana_parser.cxx \
             src/pana_parser_avpvalue.cxx \
             src/pana_parser_dict.cxx \
             src/pana_node.cxx \
-            src/pana_config_manager.cxx
+            src/pana_config_manager.cxx \
+            src/pana_provider_info.cxx
 
 include_HEADERS = $(PANA_HDRS)
 sysconf_DATA = config/config.xsd \
@@ -413,6 +414,8 @@ src/pana_parser_dict.lo: src/$(am__dirstamp) \
 src/pana_node.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/pana_config_manager.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_provider_info.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 libpana.la: $(libpana_la_OBJECTS) $(libpana_la_DEPENDENCIES) 
 	$(CXXLINK) -rpath $(libdir) $(libpana_la_LDFLAGS) $(libpana_la_OBJECTS) $(libpana_la_LIBADD) $(LIBS)
 
@@ -458,6 +461,8 @@ mostlyclean-compile:
 	-rm -f src/pana_parser_avpvalue.lo
 	-rm -f src/pana_parser_dict.$(OBJEXT)
 	-rm -f src/pana_parser_dict.lo
+	-rm -f src/pana_provider_info.$(OBJEXT)
+	-rm -f src/pana_provider_info.lo
 	-rm -f test/Test1.$(OBJEXT)
 	-rm -f test/Test2.$(OBJEXT)
 	-rm -f test/Test3.$(OBJEXT)
@@ -471,6 +476,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_parser_avpvalue.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_parser_dict.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_provider_info.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/Test1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/Test2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/Test3.Po@am__quote@

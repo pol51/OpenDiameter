@@ -54,6 +54,27 @@ static PANA_AvpValueParser* PANA_CreateAvpValueParser(AAAAvpDataType type)// thr
     return p;
 }
 
+static int PANA_CheckFlags(PANA_AvpHeader::Flags flag, AAAAVPFlag flags)
+{
+    if (flag.mandatory == 0 && (flags & PANA_AVP_FLAG_MANDATORY)) {
+        AAA_LOG((LM_ERROR, "M-flag must be set\n"));
+        return -1;
+    }
+    if (flag.mandatory == 1 && (flags & PANA_AVP_FLAG_MANDATORY) == 0) {
+        AAA_LOG((LM_ERROR, "M-flag must not be set\n"));
+        return -1;
+    }
+    if (flag.vendor == 0 && (flags & PANA_AVP_FLAG_VENDOR_SPECIFIC)) {
+        AAA_LOG((LM_ERROR, "V-flag needs to be set\n"));
+        return -1;
+    }
+    if (flag.vendor == 1 && (flags & PANA_AVP_FLAG_VENDOR_SPECIFIC) == 0) {
+        AAA_LOG((LM_ERROR, "V-flag must not be set\n"));
+        return -1;
+    }
+    return 0;
+}
+
 PANA_AvpList_S::PANA_AvpList_S()
 {
     this->add(&PANA_CatchAllAvp);
@@ -74,13 +95,12 @@ void PANA_AvpHeaderList::create(PANA_MessageBuffer *aBuffer)
 
     for (char *cavp = start; cavp < end; cavp += adjust_word_boundary(h.m_Length)) {
         char *p = cavp;
-
         h.m_Code = ACE_NTOHS(*((ACE_UINT16*)p)); p += 2;
         h.m_Flags.vendor = (*((ACE_UINT16*)p) & PANA_AVP_FLAG_VENDOR_SPECIFIC) ? 1 : 0;
         h.m_Flags.mandatory = (*((ACE_UINT16*)p) & PANA_AVP_FLAG_MANDATORY) ? 1 : 0;
         p += 2;
 
-        h.m_Length = ACE_NTOHL(*((ACE_UINT16*)p)); p += 4;
+        h.m_Length = ACE_NTOHS(*((ACE_UINT16*)p)); p += 4;
         if (h.m_Length == 0 || h.m_Length > (ACE_UINT32)(end-cavp)) {
             AAAErrorCode st;
             AAA_LOG((LM_ERROR, "invalid message length\n"));
@@ -376,6 +396,7 @@ template<> void PANA_AvpParser::parseRawToApp()// throw(DiameterErrorCode)
         PANA_AvpValueParser *vp;
         AAAAvpContainerEntry* e;
         PANA_AvpHeader h;
+        h.m_ParseType = c->ParseType();
 
         /* header check */
         PANA_AvpHeaderParser hp;
@@ -499,34 +520,69 @@ template<> void PANA_AvpParser::parseAppToRaw()// throw(DiameterErrorCode)
 template<>
 void PANA_AvpHeaderParser::parseRawToApp()
 {
-    PANA_AvpRawData *data = getRawData();
-    char *p = data->msg->rd_ptr();
+    PANA_AvpRawData *rawData = getRawData();
     PANA_AvpHeader *h = getAppData();
+    AAADictionaryEntry *avp = getDictData();
 
-    if (data->ahl->empty()) {
-        AAAErrorCode st;
+    AAAErrorCode st;
+    PANA_AvpHeaderList *ahl = rawData->ahl;
+    PANA_AvpHeaderList::iterator i;
+    AAAAvpParseType parseType = h->m_ParseType;
+
+    if (! avp) {
+        AAA_LOG((LM_ERROR, "AVP dictionary cannot be null."));
+        st.set(AAA_PARSE_ERROR_TYPE_BUG,
+            AAA_PARSE_ERROR_MISSING_AVP_DICTIONARY_ENTRY);
+        throw st;
+    }
+    if (ahl->empty()) {
         st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_MISSING_AVP);
         throw st;
     }
 
-    ACE_OS::memset(h, 0, sizeof(*h));
+    if (parseType == AAA_PARSE_TYPE_FIXED_HEAD) {
+        if (avp->avpCode == 0) {
+            AAA_LOG((LM_ERROR, "Wildcard AVP cannot be a fixed AVP."));
+            st.set(AAA_PARSE_ERROR_TYPE_BUG,
+                AAA_PARSE_ERROR_INVALID_CONTAINER_PARAM);
+            throw st;
+        }
+        i = ahl->begin();
+        if ((*i).m_Code == avp->avpCode) {
+            *h = *i; ahl->erase(i);
+            h->m_pValue += PANA_AVP_HEADER_LEN(avp);  // restore original value_p
+            return;
+        }
+    } else {
+        for (i=ahl->begin(); i!=ahl->end(); i++) {
+            // Wildcard AVPs match any AVPs.
+            if (avp->avpCode != 0) {
+                // For non-wildcard AVPs, strict checking on v-flag, Vencor-Id
+                // and AVP code is performed.
+                if ((*i).m_Flags.vendor !=
+                    ((avp->flags & PANA_AVP_FLAG_VENDOR_SPECIFIC) ? 1 : 0)) {
+                    continue;
+                }
+                if ((*i).m_Vendor != avp->vendorId) {
+                    continue;
+                }
+                if ((*i).m_Code != avp->avpCode) {
+                    continue;
+                }
+            }
 
-    h->m_Code = ACE_NTOHS(*((ACE_UINT16*)p)); p+=2;
-    h->m_Flags.vendor = (*p & PANA_AVP_FLAG_VENDOR_SPECIFIC) ? 1 : 0;
-    h->m_Flags.mandatory = (*p & PANA_AVP_FLAG_MANDATORY) ? 1 : 0;
-    p +=2;
+            *h = *i; ahl->erase(i);
+            if (avp->avpCode > 0 && PANA_CheckFlags(h->m_Flags, avp->flags) != 0) {
+                st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_AVP_BITS);
+                throw st;
+            }
+            h->m_pValue += PANA_AVP_HEADER_LEN(avp);  // restore original value_p
+            return;
+        }
+    }
 
-    h->m_Length = ACE_NTOHS(*((ACE_UINT16*)p)); p+=4;
-    if (h->m_Length == 0 || h->m_Length > (ACE_UINT32)p) {
-        AAAErrorCode st;
-        AAA_LOG((LM_ERROR, "invalid message length\n"));
-        st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_INVALID_MESSAGE_LENGTH);
-        throw st;
-    }
-    if (h->m_Flags.vendor == 1) {
-        h->m_Vendor = ACE_NTOHL(*((ACE_UINT32*)p)); p+=4;
-    }
-    h->m_pValue = p;
+    st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_MISSING_AVP);
+    throw st;
 }
 
 template<>
@@ -548,7 +604,7 @@ void PANA_AvpHeaderParser::parseAppToRaw()
     }
     p+=2;
 
-    *((ACE_UINT16*)p) |= ACE_NTOHS(h->m_Length);
+    *((ACE_UINT16*)p) = ACE_NTOHS(h->m_Length);
     p+=2;
     *((ACE_UINT16*)p) = 0;
     p+=2;

@@ -74,6 +74,7 @@ class PANA_AvpHeader
         ACE_UINT16                 m_Length;     // AVP length
         ACE_UINT32                 m_Vendor;     // Vendor code
         char*                      m_pValue;     // Value
+        AAAAvpParseType            m_ParseType;  // Positional parse type
 }; 
 
 /*

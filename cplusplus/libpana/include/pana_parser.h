@@ -1,9 +1,9 @@
 /* BEGIN_COPYRIGHT                                                        */
 /*                                                                        */
-/* Open Diameter: Open-source software for the Diameter and               */
-/*                Diameter related protocols                              */
+/* Open PANA_: Open-source software for the PANA_ and               */
+/*                PANA_ related protocols                              */
 /*                                                                        */
-/* Copyright (C) 2002-2006 Open Diameter Project                          */
+/* Copyright (C) 2002-2006 Open PANA_ Project                          */
 /*                                                                        */
 /* This library is free software; you can redistribute it and/or modify   */
 /* it under the terms of the GNU Lesser General Public License as         */
@@ -46,7 +46,7 @@
  */
 
 /*
- * Diameter AVP value parser
+ * PANA_ AVP value parser
  */
 typedef AAAParser<PANA_MessageBuffer*,
                   AAAAvpContainerEntry*,
@@ -147,8 +147,6 @@ class PANA_AvpContainerEntryManager :
             AAAAvpContainerEntryMngr(*PANA_AvpTypeList::instance()) {
         }
 };
-
-typedef class AAAAvpContainerMngr PANA_AvpContainerManager;
 
 #define PANA_AVP_HEADER_LEN(avp) \
   (avp->avpCode == 0 ? 0 : \
@@ -384,5 +382,106 @@ template<> void PANA_PayloadParser::parseRawToApp();
  *  non-null dictionary data must be specified.
  */
 template<> void PANA_PayloadParser::parseAppToRaw();
+
+/*
+ *==================================================
+ * Predefined diameter widget types
+ *==================================================
+ */
+
+/* Overrides from generic definition */
+template<typename D, AAAAvpDataType t>
+class PANA_AvpWidget :
+    public AAAAvpWidget<D, t, PANA_AvpContainerEntryManager>
+{
+    public:
+        PANA_AvpWidget(char *name) :
+            AAAAvpWidget<D, t, PANA_AvpContainerEntryManager>(name) {
+        }
+        PANA_AvpWidget(char *name, D &value) :
+            AAAAvpWidget<D, t, PANA_AvpContainerEntryManager>(name, value) {
+        }
+        PANA_AvpWidget(AAAAvpContainer *avp) :
+            AAAAvpWidget<D, t, PANA_AvpContainerEntryManager>(avp) {
+        }
+};
+
+/* Overrides from generic definition */
+template<typename D, AAAAvpDataType t>
+class PANA_AvpContainerWidget :
+    public AAAAvpContainerWidget<D, t, PANA_AvpContainerEntryManager>
+{
+    public:
+       PANA_AvpContainerWidget(AAAAvpContainerList &lst) :
+           AAAAvpContainerWidget<D, t, PANA_AvpContainerEntryManager>(lst) {
+       }
+};
+
+/*! \brief Type specific AVP widget classes
+ *
+ *  This template class is a wrapper class format
+ *  the most common AVP operations. Users should
+ *  use this class for manipulating AVP containers.
+ */
+typedef PANA_AvpWidget<pana_address_t,
+                       AAA_AVP_ADDRESS_TYPE> PANA_AddressAvpWidget;
+typedef PANA_AvpWidget<pana_integer32_t,
+                       AAA_AVP_INTEGER32_TYPE> PANA_Int32AvpWidget;
+typedef PANA_AvpWidget<pana_unsigned32_t,
+                       AAA_AVP_UINTEGER32_TYPE> PANA_UInt32AvpWidget;
+typedef PANA_AvpWidget<pana_integer64_t,
+                       AAA_AVP_INTEGER64_TYPE> PANA_Int64AvpWidget;
+typedef PANA_AvpWidget<pana_unsigned64_t,
+                       AAA_AVP_UINTEGER64_TYPE> PANA_UInt64AvpWidget;
+typedef PANA_AvpWidget<pana_utf8string_t,
+                       AAA_AVP_UTF8_STRING_TYPE>  PANA_Utf8AvpWidget;
+typedef PANA_AvpWidget<pana_grouped_t,
+                       AAA_AVP_GROUPED_TYPE> PANA_GroupedAvpWidget;
+typedef PANA_AvpWidget<pana_octetstring_t,
+                       AAA_AVP_STRING_TYPE> PANA_StringAvpWidget;
+typedef PANA_AvpWidget<pana_enumerated_t,
+                       AAA_AVP_ENUM_TYPE> PANA_EnumAvpWidget;
+typedef PANA_AvpWidget<pana_time_t,
+                       AAA_AVP_TIME_TYPE> PANA_TimeAvpWidget;
+
+/*! \brief Type specific AVP widget lookup and parser
+ *
+ *  Assist in adding, deleting and modifying AVP's
+ *  contained in a message list.
+ *
+ *  This template class is a wrapper class format
+ *  the most common AVP operations. Users should
+ *  use this class for manipulating AVP containers.
+ */
+typedef PANA_AvpContainerWidget<pana_address_t,
+                                AAA_AVP_ADDRESS_TYPE>
+                        PANA_AddressAvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_integer32_t,
+                                AAA_AVP_INTEGER32_TYPE>
+                        PANA_Int32AvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_unsigned32_t,
+                                AAA_AVP_UINTEGER32_TYPE>
+                        PANA_UInt32AvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_integer64_t,
+                                AAA_AVP_INTEGER64_TYPE>
+                        PANA_Int64AvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_unsigned64_t,
+                                AAA_AVP_UINTEGER64_TYPE>
+                        PANA_UInt64AvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_utf8string_t,
+                                AAA_AVP_UTF8_STRING_TYPE>
+                        PANA_Utf8AvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_grouped_t,
+                                AAA_AVP_GROUPED_TYPE>
+                        PANA_GroupedAvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_octetstring_t,
+                                AAA_AVP_STRING_TYPE>
+                        PANA_StringAvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_enumerated_t,
+                                AAA_AVP_ENUM_TYPE>
+                        PANA_EnumAvpContainerWidget;
+typedef PANA_AvpContainerWidget<pana_time_t,
+                                AAA_AVP_TIME_TYPE>
+                        PANA_TimeAvpContainerWidget;
 
 #endif // __PANA_PARSER_H__
