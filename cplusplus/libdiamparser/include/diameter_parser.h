@@ -1004,12 +1004,6 @@ class DiameterGroupedVectorAttribute :
                 c.add(e);
             }
         }
-        inline DiameterGroupedVectorAttribute<T> &operator=
-            (DiameterGroupedVectorAttribute<T>& value) {
-            AAAVectorAttribute<T>::isSet = true;
-            (std::vector<T>&)(*this)=value;
-            return *this;
-        }
 };
 
 /*!
