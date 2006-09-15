@@ -207,11 +207,13 @@ class PANA_CommandList_S :
 {
         friend class ACE_Singleton<PANA_CommandList_S, ACE_Recursive_Thread_Mutex>;
     public:
-        PANA_Command* search(PANA_AvpCode code) {
+        PANA_Command* search(PANA_AvpCode code,
+                             PANA_MsgHeader::Flags &flg) {
             mutex.acquire();
             iterator c = this->begin();
             for (; c != this->end(); c++) {
-                if ((*c)->code == code) {
+                if (((*c)->code == code) &&
+                    (flg.request == (*c)->flags.request)) {
                     mutex.release();
                     return *c;
                 }
