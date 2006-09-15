@@ -446,7 +446,7 @@ void PANA_Paa::TxPAR()
     }
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -522,7 +522,7 @@ void PANA_Paa::TxPBR(pana_unsigned32_t rcode,
     msg->seq() = LastTxSeqNum().Value();
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -692,7 +692,7 @@ void PANA_Paa::TxPFER(pana_unsigned32_t rcode,
     msg->seq() = LastTxSeqNum().Value();
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -883,7 +883,7 @@ void PANA_Paa::TxPAN()
     }
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
@@ -1031,7 +1031,7 @@ void PANA_Paa::TxPRAA()
     msg->seq() = LastRxSeqNum().Value();
 
     // add session id
-    AAAUtf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
+    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 

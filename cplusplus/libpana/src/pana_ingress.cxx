@@ -34,6 +34,7 @@
 
 #include "pana_ingress.h"
 #include "pana_exceptions.h"
+#include "pana_parser.h"
 
 int PANA_IngressMsgParser::Serve()
 {
@@ -48,17 +49,15 @@ int PANA_IngressMsgParser::Serve()
        }
 
        PANA_HeaderParser hp;
-       DiameterDictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
        hp.setRawData(&m_Message);
-       hp.setAppData(static_cast<PANA_MsgHeader*>(parsedMsg));
-       hp.setDictData(&opt);
+       hp.setAppData(parsedMsg);
 
        hp.parseRawToApp(); // may throw exception
 
        PANA_PayloadParser pp;
-       pp.setRawData(aBuffer);
+       pp.setRawData(&m_Message);
        pp.setAppData(&(parsedMsg->avpList()));
-       pp.setDictData(parsedMsg->getDictHandle());
+       pp.setDictData(hp.getDictData());
 
        pp.parseRawToApp(); // may throw exception
 
@@ -68,7 +67,7 @@ int PANA_IngressMsgParser::Serve()
 
        (*m_MsgHandler)(*parsedMsg);
     }
-    catch (DiameterErrorCode &st) {
+    catch (AAAErrorCode &st) {
        AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, PARSING] parsing error\n"));
     }
     catch (PANA_Exception &e) {
@@ -81,7 +80,7 @@ int PANA_IngressMsgParser::Serve()
     // release the raw buffer and device id containers
     PANA_MESSAGE_POOL()->free(&m_Message);
     delete &m_SrcDevices;
-    
+
     Release(2);
     return (0);
 }

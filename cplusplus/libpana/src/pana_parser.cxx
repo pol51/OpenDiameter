@@ -145,7 +145,7 @@ template<> void PANA_HeaderParser::parseRawToApp()
     p += sizeof(ACE_UINT16);
 
     // validate if type is present
-    setDictData(PANA_CommandList::instance()->search(h->type()));
+    setDictData(PANA_CommandList::instance()->search(h->type(), h->flags()));
     if (getDictData() == NULL) {
         AAAErrorCode st;
         AAA_LOG((LM_ERROR, "Message type [%d] not present in the dictionary\n", h->type()));
@@ -168,7 +168,7 @@ template<> void PANA_HeaderParser::parseAppToRaw()
                                             (getAppData());
 
     // validate if type is present
-    setDictData(PANA_CommandList::instance()->search(h->type()));
+    setDictData(PANA_CommandList::instance()->search(h->type(), h->flags()));
     if (getDictData() == NULL) {
         AAAErrorCode st;
         AAA_LOG((LM_ERROR, "Message type [%d] not present in the dictionary\n", h->type()));
@@ -407,6 +407,16 @@ template<> void PANA_AvpParser::parseRawToApp()// throw(DiameterErrorCode)
             hp.parseRawToApp();
         }
         catch (AAAErrorCode &st) {
+            int code;
+            AAA_PARSE_ERROR_TYPE type;
+            st.get(type, code);
+            if (i > 0 &&
+                type == AAA_PARSE_ERROR_TYPE_NORMAL &&
+                code == AAA_MISSING_AVP) {
+                // return if no more entry is found once after getting
+                // at lease one entry received.
+                return;
+            }
             throw st;
         }
 

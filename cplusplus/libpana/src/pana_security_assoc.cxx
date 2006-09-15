@@ -35,6 +35,7 @@
 #include "pana_security_assoc.h"
 #include "pana_exceptions.h"
 #include "pana_memory_manager.h"
+#include "pana_parser.h"
 
 void PANA_AuthKey::Generate(PANA_Nonce &pac,
                             PANA_Nonce &paa,
@@ -210,10 +211,8 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
     PANA_MessageBuffer *rawBuf = PANA_MESSAGE_POOL()->malloc();
 
     PANA_HeaderParser hp;
-    PANA_DictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
     hp.setRawData(rawBuf);
-    hp.setAppData(static_cast<PANA_MsgHeader*>(&msg));
-    hp.setDictData(&opt);
+    hp.setAppData(&msg);
 
     hp.parseAppToRaw();
 
@@ -221,7 +220,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
     PANA_PayloadParser pp;
     pp.setRawData(rawBuf);
     pp.setAppData(&(msg.avpList()));
-    pp.setDictData(msg.getDictHandle());
+    pp.setDictData(hp.getDictData());
 
     pp.parseAppToRaw();
 
@@ -271,10 +270,8 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
 
         // parse the message 
         PANA_HeaderParser hp;
-        PANA_DictionaryOption opt(PARSE_STRICT, PANA_DICT_PROTOCOL_ID);
         hp.setRawData(aBuffer);
-        hp.setAppData(static_cast<PANA_MsgHeader*>(&msg));
-        hp.setDictData(&opt);
+        hp.setAppData(&msg);
 
         hp.parseAppToRaw();
 
@@ -282,7 +279,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         PANA_PayloadParser pp;
         pp.setRawData(aBuffer);
         pp.setAppData(&(msg.avpList()));
-        pp.setDictData(msg.getDictHandle());
+        pp.setDictData(hp.getDictData());
 
         pp.parseAppToRaw();
 
@@ -321,7 +318,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         }
         AAA_LOG((LM_ERROR, "(%P|%t) AUTH value is invalid\n"));
     }
-    catch (PANA_ErrorCode &st) {
+    catch (AAAErrorCode &st) {
         AAA_LOG((LM_ERROR, "(%P|%t) Parsing error is session transmitter\n"));
     }  
     catch (PANA_Exception &e) {
