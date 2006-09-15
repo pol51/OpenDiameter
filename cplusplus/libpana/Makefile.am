@@ -63,27 +63,26 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_sid_generator.h \
             include/pana_udp_transport.h
 
-PANA_SRC  = src/pana_parser.cxx \
+PANA_SRC  = src/pana_config_manager.cxx \
+            src/pana_client.cxx \
+            src/pana_client_fsm.cxx \
+            src/pana_cookie.cxx \
+            src/pana_egress.cxx \
+            src/pana_ingress.cxx \
+            src/pana_node.cxx \
+            src/pana_paa.cxx \
+            src/pana_paa_factory.cxx \
+            src/pana_paa_fsm.cxx \
+            src/pana_pac_ep_key.cxx \
+            src/pana_parser.cxx \
             src/pana_parser_avpvalue.cxx \
             src/pana_parser_dict.cxx \
-            src/pana_node.cxx \
-            src/pana_config_manager.cxx \
-            src/pana_provider_info.cxx
-##            src/pana_client.cxx \
-##            src/pana_client_fsm.cxx \
-##            src/pana_cookie.cxx \
-##            src/pana_egress.cxx \
-##            src/pana_ingress.cxx \
-##            src/pana_node.cxx \
-##            src/pana_paa.cxx \
-##            src/pana_paa_factory.cxx \
-##            src/pana_paa_fsm.cxx \
-##            src/pana_pac_ep_key.cxx \
-##            src/pana_pmk_bootstrap.cxx \
-##            src/pana_prf_plus.cxx \
-##            src/pana_psk_bootstrap.cxx \
-##            src/pana_security_assoc.cxx \
-##            src/pana_session.cxx
+            src/pana_pmk_bootstrap.cxx \
+            src/pana_prf_plus.cxx \
+            src/pana_provider_info.cxx \
+            src/pana_psk_bootstrap.cxx \
+            src/pana_security_assoc.cxx \
+            src/pana_session.cxx
 
 includedir = $(prefix)/include/opendiameter/pana
 include_HEADERS = $(PANA_HDRS)
@@ -107,8 +106,8 @@ libpana_la_LDFLAGS = -version-info 1:0:0
 libpana_la_AR = $(AR) -qcs
 
 LDADD = @L_LIBS@ \
-        libpana.la \
-	$(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libpana/libpana.la \
+	$(top_builddir)/libodutl/libodutl.la
 
 noinst_PROGRAMS = pana_test1 pana_test2 pana_test3
 

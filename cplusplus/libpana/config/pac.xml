@@ -14,7 +14,7 @@
     
         <!-- Name of interface to use for PANA
              messages -->
-        <interface_name>eth0</interface_name>
+        <interface_name>eth1</interface_name>
     
         <!-- Flag to indicate that this library
              will try to use IPv6 stack 

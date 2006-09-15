@@ -340,7 +340,6 @@ class PeerChannel : public PANA_ClientEventInterface
               MyPeerSwitchStateMachine &s,
               ACE_Semaphore &sem) :
       eap(s), pana(n, *this), semaphore(sem) {
-      pana.EnableDhcpBootstrap() = true;
   }
   virtual ~PeerChannel() {
   }
@@ -461,7 +460,6 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
                            MyPassThroughAuthSwitchStateMachine &s) :
        paaSession(ch, *this), eap(s),
        backendTxChannel(s) {
-       paaSession.EnableDhcpBootstrap() = true;
    }
    virtual ~PassThroughAuthChannel() {
    }

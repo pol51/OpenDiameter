@@ -61,9 +61,15 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpana_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/pana_parser.lo src/pana_parser_avpvalue.lo \
-	src/pana_parser_dict.lo src/pana_node.lo \
-	src/pana_config_manager.lo src/pana_provider_info.lo
+am__objects_1 = src/pana_config_manager.lo src/pana_client.lo \
+	src/pana_client_fsm.lo src/pana_cookie.lo src/pana_egress.lo \
+	src/pana_ingress.lo src/pana_node.lo src/pana_paa.lo \
+	src/pana_paa_factory.lo src/pana_paa_fsm.lo \
+	src/pana_pac_ep_key.lo src/pana_parser.lo \
+	src/pana_parser_avpvalue.lo src/pana_parser_dict.lo \
+	src/pana_pmk_bootstrap.lo src/pana_prf_plus.lo \
+	src/pana_provider_info.lo src/pana_psk_bootstrap.lo \
+	src/pana_security_assoc.lo src/pana_session.lo
 am__objects_2 =
 am_libpana_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libpana_la_OBJECTS = $(am_libpana_la_OBJECTS)
@@ -290,12 +296,26 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_sid_generator.h \
             include/pana_udp_transport.h
 
-PANA_SRC = src/pana_parser.cxx \
+PANA_SRC = src/pana_config_manager.cxx \
+            src/pana_client.cxx \
+            src/pana_client_fsm.cxx \
+            src/pana_cookie.cxx \
+            src/pana_egress.cxx \
+            src/pana_ingress.cxx \
+            src/pana_node.cxx \
+            src/pana_paa.cxx \
+            src/pana_paa_factory.cxx \
+            src/pana_paa_fsm.cxx \
+            src/pana_pac_ep_key.cxx \
+            src/pana_parser.cxx \
             src/pana_parser_avpvalue.cxx \
             src/pana_parser_dict.cxx \
-            src/pana_node.cxx \
-            src/pana_config_manager.cxx \
-            src/pana_provider_info.cxx
+            src/pana_pmk_bootstrap.cxx \
+            src/pana_prf_plus.cxx \
+            src/pana_provider_info.cxx \
+            src/pana_psk_bootstrap.cxx \
+            src/pana_security_assoc.cxx \
+            src/pana_session.cxx
 
 include_HEADERS = $(PANA_HDRS)
 sysconf_DATA = config/config.xsd \
@@ -315,8 +335,8 @@ libpana_la_SOURCES = $(PANA_SRC) $(PANA_HDRS) $(PLATFORM_SRC)
 libpana_la_LDFLAGS = -version-info 1:0:0 
 libpana_la_AR = $(AR) -qcs
 LDADD = @L_LIBS@ \
-        libpana.la \
-	$(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libpana/libpana.la \
+	$(top_builddir)/libodutl/libodutl.la
 
 pana_test1_SOURCES = test/Test1.cxx test/user_db.cxx
 pana_test1_LDADD = $(top_builddir)/libeap/libeap.la \
@@ -406,16 +426,37 @@ src/$(am__dirstamp):
 src/$(DEPDIR)/$(am__dirstamp):
 	@$(mkdir_p) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/pana_config_manager.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_client.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pana_client_fsm.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_cookie.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pana_egress.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pana_ingress.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pana_node.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pana_paa.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pana_paa_factory.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_paa_fsm.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pana_pac_ep_key.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/pana_parser.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/pana_parser_avpvalue.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/pana_parser_dict.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/pana_node.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/pana_config_manager.lo: src/$(am__dirstamp) \
+src/pana_pmk_bootstrap.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_prf_plus.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/pana_provider_info.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_psk_bootstrap.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_security_assoc.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_session.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 libpana.la: $(libpana_la_OBJECTS) $(libpana_la_DEPENDENCIES) 
 	$(CXXLINK) -rpath $(libdir) $(libpana_la_LDFLAGS) $(libpana_la_OBJECTS) $(libpana_la_LIBADD) $(LIBS)
 
@@ -451,18 +492,46 @@ pana_test3$(EXEEXT): $(pana_test3_OBJECTS) $(pana_test3_DEPENDENCIES)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f src/pana_client.$(OBJEXT)
+	-rm -f src/pana_client.lo
+	-rm -f src/pana_client_fsm.$(OBJEXT)
+	-rm -f src/pana_client_fsm.lo
 	-rm -f src/pana_config_manager.$(OBJEXT)
 	-rm -f src/pana_config_manager.lo
+	-rm -f src/pana_cookie.$(OBJEXT)
+	-rm -f src/pana_cookie.lo
+	-rm -f src/pana_egress.$(OBJEXT)
+	-rm -f src/pana_egress.lo
+	-rm -f src/pana_ingress.$(OBJEXT)
+	-rm -f src/pana_ingress.lo
 	-rm -f src/pana_node.$(OBJEXT)
 	-rm -f src/pana_node.lo
+	-rm -f src/pana_paa.$(OBJEXT)
+	-rm -f src/pana_paa.lo
+	-rm -f src/pana_paa_factory.$(OBJEXT)
+	-rm -f src/pana_paa_factory.lo
+	-rm -f src/pana_paa_fsm.$(OBJEXT)
+	-rm -f src/pana_paa_fsm.lo
+	-rm -f src/pana_pac_ep_key.$(OBJEXT)
+	-rm -f src/pana_pac_ep_key.lo
 	-rm -f src/pana_parser.$(OBJEXT)
 	-rm -f src/pana_parser.lo
 	-rm -f src/pana_parser_avpvalue.$(OBJEXT)
 	-rm -f src/pana_parser_avpvalue.lo
 	-rm -f src/pana_parser_dict.$(OBJEXT)
 	-rm -f src/pana_parser_dict.lo
+	-rm -f src/pana_pmk_bootstrap.$(OBJEXT)
+	-rm -f src/pana_pmk_bootstrap.lo
+	-rm -f src/pana_prf_plus.$(OBJEXT)
+	-rm -f src/pana_prf_plus.lo
 	-rm -f src/pana_provider_info.$(OBJEXT)
 	-rm -f src/pana_provider_info.lo
+	-rm -f src/pana_psk_bootstrap.$(OBJEXT)
+	-rm -f src/pana_psk_bootstrap.lo
+	-rm -f src/pana_security_assoc.$(OBJEXT)
+	-rm -f src/pana_security_assoc.lo
+	-rm -f src/pana_session.$(OBJEXT)
+	-rm -f src/pana_session.lo
 	-rm -f test/Test1.$(OBJEXT)
 	-rm -f test/Test2.$(OBJEXT)
 	-rm -f test/Test3.$(OBJEXT)
@@ -471,12 +540,26 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_client.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_client_fsm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_config_manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_cookie.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_egress.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_ingress.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_node.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_paa.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_paa_factory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_paa_fsm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_pac_ep_key.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_parser_avpvalue.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_parser_dict.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_pmk_bootstrap.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_prf_plus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_provider_info.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_psk_bootstrap.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_security_assoc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_session.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/Test1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/Test2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/Test3.Po@am__quote@

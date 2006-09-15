@@ -580,10 +580,9 @@ int main(int argc, char **argv)
   ACE_Semaphore semaphore(0);
 
   task.Start(5);
-  
+
   try {
       PANA_Node node(task, cfgfile);
-#if 0
       if (b_client) {
           PANA_Node node(task, cfgfile);
           PeerApplication peer(node, semaphore);
@@ -605,7 +604,7 @@ int main(int argc, char **argv)
           task.Stop();
           USER_DB_CLOSE();
       }
-#else
+#if 0
     /* --------------------- compose ------------------- */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
