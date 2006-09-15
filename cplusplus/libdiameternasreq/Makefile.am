@@ -44,10 +44,10 @@ sysconf_DATA = config/client.local.xml \
                config/server.local.xml
 
 LDADD = @L_LIBS@ \
-        libdiameternasreq.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libdiameternasreq/libdiameternasreq.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 
 noinst_PROGRAMS = client_test server_test
 

@@ -86,9 +86,9 @@ sysconf_DATA = config/agent.local.xml \
                config/nas3.local.xml
 
 LDADD = @L_LIBS@ \
-        libdiameter.la \
-        $(top_srcdir)/libdiamparser/libdiamparser.la \
-        $(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libdiameter/libdiameter.la \
+        $(top_builddir)/libdiamparser/libdiamparser.la \
+        $(top_builddir)/libodutl/libodutl.la
 noinst_PROGRAMS = aaa_test_client1 aaa_test_server1 \
                   aaa_test_client2 aaa_test_server2 \
                   aaa_test_client3 aaa_test_server3 \

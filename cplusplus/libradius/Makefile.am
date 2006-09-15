@@ -26,19 +26,19 @@ libradius_la_SOURCES = $(RADIUS_SRC) $(RADIUS_HDRS) $(PLATFORM_SRC)
 libradius_la_LDFLAGS = -version-info 1:0:0 
 libradius_la_AR = $(AR) -qcs
 
-LDADD = @L_LIBS@ libradius.la
+LDADD = @L_LIBS@ $(top_builddir)/libradius/libradius.la
 
 noinst_PROGRAMS = radius_parser_test radius_dict_test
 
 radius_dict_test_SOURCES = test/DictTest.cxx
 radius_dict_test_LDADD = @L_LIBS@ \
-                         libradius.la \
+                         $(top_builddir)/libradius/libradius.la \
 			 $(top_srcdir)/libdiamparser/libdiamparser.la \
 			 $(top_srcdir)/libodutl/libodutl.la
 
 radius_parser_test_SOURCES = test/ParserTest.cxx 
 radius_parser_test_LDADD = @L_LIBS@ \
-                           libradius.la \
+                           $(top_builddir)/libradius/libradius.la \
 			   $(top_srcdir)/libdiamparser/libdiamparser.la \
 			   $(top_srcdir)/libodutl/libodutl.la
 

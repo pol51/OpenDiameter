@@ -22,21 +22,21 @@ endif
 
 pacd_SOURCES = pacd.cxx pacd_config.cxx pacd_config.h
 pacd_LDADD = @L_LIBS@ \
-             $(top_srcdir)/libpana/libpana.la \
-             $(top_srcdir)/libeap/libeap.la \
-             $(top_srcdir)/libeap/libeaparchie.la \
-             $(top_srcdir)/libdiamparser/libdiamparser.la \
-             $(top_srcdir)/libodutl/libodutl.la
+             $(top_builddir)/libpana/libpana.la \
+             $(top_builddir)/libeap/libeap.la \
+             $(top_builddir)/libeap/libeaparchie.la \
+             $(top_builddir)/libdiamparser/libdiamparser.la \
+             $(top_builddir)/libodutl/libodutl.la
 
 if compile_EAPTLS
 client_pana_eaptls_SOURCES = pac_eaptls/client_pana_eap-tls.cxx
 client_pana_eaptls_LDADD = @L_LIBS@ \
-             $(top_srcdir)/libpana/libpana.la \
-             $(top_srcdir)/libeap/libeap.la \
-             $(top_srcdir)/libeap/libeaparchie.la \
-             $(top_srcdir)/libeap/libeaptls.la \
-             $(top_srcdir)/libdiamparser/libdiamparser.la \
-             $(top_srcdir)/libodutl/libodutl.la
+             $(top_builddir)/libpana/libpana.la \
+             $(top_builddir)/libeap/libeap.la \
+             $(top_builddir)/libeap/libeaparchie.la \
+             $(top_builddir)/libeap/libeaptls.la \
+             $(top_builddir)/libdiamparser/libdiamparser.la \
+             $(top_builddir)/libodutl/libodutl.la
 
 endif
 

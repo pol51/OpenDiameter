@@ -130,28 +130,37 @@ PROGRAMS = $(noinst_PROGRAMS)
 am_archie_test_OBJECTS = tests/archie_test.$(OBJEXT)
 archie_test_OBJECTS = $(am_archie_test_OBJECTS)
 archie_test_LDADD = $(LDADD)
-@compile_EAPTLS_FALSE@archie_test_DEPENDENCIES = libeap.la \
-@compile_EAPTLS_FALSE@	libeaparchie.la
-@compile_EAPTLS_TRUE@archie_test_DEPENDENCIES = libeap.la \
-@compile_EAPTLS_TRUE@	libeaparchie.la libeaptls.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libdiamparser/libdiamparser.la
+@compile_EAPTLS_FALSE@archie_test_DEPENDENCIES =  \
+@compile_EAPTLS_FALSE@	$(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_FALSE@	$(top_builddir)/libeap/libeaparchie.la
+@compile_EAPTLS_TRUE@archie_test_DEPENDENCIES =  \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeaparchie.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeaptls.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libdiamparser/libdiamparser.la
 am_md5_test_OBJECTS = tests/md5_test.$(OBJEXT)
 md5_test_OBJECTS = $(am_md5_test_OBJECTS)
 md5_test_LDADD = $(LDADD)
-@compile_EAPTLS_FALSE@md5_test_DEPENDENCIES = libeap.la \
-@compile_EAPTLS_FALSE@	libeaparchie.la
-@compile_EAPTLS_TRUE@md5_test_DEPENDENCIES = libeap.la libeaparchie.la \
-@compile_EAPTLS_TRUE@	libeaptls.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libdiamparser/libdiamparser.la
+@compile_EAPTLS_FALSE@md5_test_DEPENDENCIES =  \
+@compile_EAPTLS_FALSE@	$(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_FALSE@	$(top_builddir)/libeap/libeaparchie.la
+@compile_EAPTLS_TRUE@md5_test_DEPENDENCIES =  \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeaparchie.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeaptls.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libdiamparser/libdiamparser.la
 am__tls_test_SOURCES_DIST = tests/tls_test.cxx
 @compile_EAPTLS_TRUE@am_tls_test_OBJECTS = tests/tls_test.$(OBJEXT)
 tls_test_OBJECTS = $(am_tls_test_OBJECTS)
 tls_test_LDADD = $(LDADD)
-@compile_EAPTLS_FALSE@tls_test_DEPENDENCIES = libeap.la \
-@compile_EAPTLS_FALSE@	libeaparchie.la
-@compile_EAPTLS_TRUE@tls_test_DEPENDENCIES = libeap.la libeaparchie.la \
-@compile_EAPTLS_TRUE@	libeaptls.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libdiamparser/libdiamparser.la
+@compile_EAPTLS_FALSE@tls_test_DEPENDENCIES =  \
+@compile_EAPTLS_FALSE@	$(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_FALSE@	$(top_builddir)/libeap/libeaparchie.la
+@compile_EAPTLS_TRUE@tls_test_DEPENDENCIES =  \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeaparchie.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeaptls.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libdiamparser/libdiamparser.la
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -408,14 +417,14 @@ libeaparchie_la_AR = $(AR) -qcs
 @compile_EAPTLS_TRUE@libeaptls_la_LDFLAGS = -version-info 1:0:0 
 @compile_EAPTLS_TRUE@libeaptls_la_AR = $(AR) -qcs
 @compile_EAPTLS_FALSE@LDADD = @L_LIBS@ \
-@compile_EAPTLS_FALSE@        libeap.la \
-@compile_EAPTLS_FALSE@        libeaparchie.la
+@compile_EAPTLS_FALSE@        $(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_FALSE@        $(top_builddir)/libeap/libeaparchie.la
 
 @compile_EAPTLS_TRUE@LDADD = @L_LIBS@ \
-@compile_EAPTLS_TRUE@        libeap.la \
-@compile_EAPTLS_TRUE@        libeaparchie.la \
-@compile_EAPTLS_TRUE@        libeaptls.la \
-@compile_EAPTLS_TRUE@        $(top_srcdir)/libdiamparser/libdiamparser.la
+@compile_EAPTLS_TRUE@        $(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_TRUE@        $(top_builddir)/libeap/libeaparchie.la \
+@compile_EAPTLS_TRUE@        $(top_builddir)/libeap/libeaptls.la \
+@compile_EAPTLS_TRUE@        $(top_builddir)/libdiamparser/libdiamparser.la
 
 md5_test_SOURCES = tests/md5_test.cxx
 archie_test_SOURCES = tests/archie_test.cxx 

@@ -305,10 +305,10 @@ sysconf_DATA = config/aaas_s.local.xml \
                config/server.local.xml
 
 LDADD = @L_LIBS@ \
-        libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 
 hac_test_SOURCES = test/hac_test.cxx \
 	           test/xyz_ha_client_session.hxx

@@ -117,14 +117,14 @@ if compile_EAPTLS
 libeaptls_la_LDFLAGS = -version-info 1:0:0 
 libeaptls_la_AR = $(AR) -qcs
 LDADD = @L_LIBS@ \
-        libeap.la \
-        libeaparchie.la \
-        libeaptls.la \
-        $(top_srcdir)/libdiamparser/libdiamparser.la
+        $(top_builddir)/libeap/libeap.la \
+        $(top_builddir)/libeap/libeaparchie.la \
+        $(top_builddir)/libeap/libeaptls.la \
+        $(top_builddir)/libdiamparser/libdiamparser.la
 else
 LDADD = @L_LIBS@ \
-        libeap.la \
-        libeaparchie.la
+        $(top_builddir)/libeap/libeap.la \
+        $(top_builddir)/libeap/libeaparchie.la
 endif
 
 if compile_EAPTLS

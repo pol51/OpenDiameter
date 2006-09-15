@@ -48,7 +48,7 @@ sysconfdir = $(prefix)/etc/opendiameter/diameter
 sysconf_DATA = config/dictionary.xml \
                config/dictionary.dtd
 
-LDADD = @L_LIBS@ libdiamparser.la
+LDADD = @L_LIBS@ $(top_builddir)/libdiamparser/libdiamparser.la
 noinst_PROGRAMS = parser_test1 parser_test2 \
                   parser_test3 parser_test4 \
                   parser_test5

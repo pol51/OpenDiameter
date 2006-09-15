@@ -66,10 +66,10 @@ sysconf_DATA = config/aaas_s.local.xml \
                config/server.local.xml
 
 LDADD = @L_LIBS@ \
-        libdiametermip4.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libdiametermip4/libdiametermip4.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 
 noinst_PROGRAMS = hac_test aaas_server_test has_test fac_test
 

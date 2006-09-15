@@ -174,9 +174,9 @@ class PeerChannel : public PANA_ClientEventInterface,
        void Failure() {
           m_PaC.EapFailure();
        }
-       void Notification(diameter_octetstring_t &msg) {
+       void Notification(pana_octetstring_t &msg) {
        }
-        void Notification(diameter_octetstring_t &msg, 
+        void Notification(pana_octetstring_t &msg, 
                           PANA_DeviceId &pacId) {
             char display[64];
             ACE_INET_Addr addr;
@@ -206,7 +206,7 @@ class PeerChannel : public PANA_ClientEventInterface,
           ACE_Time_Value delay(PACD_CONFIG().m_AuthPeriod, 0);
           m_TimerHandle = m_Task.ScheduleTimer(this, 0, delay);
        }
-       virtual bool IsKeyAvailable(diameter_octetstring_t &key) {
+       virtual bool IsKeyAvailable(pana_octetstring_t &key) {
           if (m_Eap.KeyAvailable()) {
               std::cout << "Assigning key" << std::endl;
               key.assign(m_Eap.KeyData().data(), m_Eap.KeyData().size());

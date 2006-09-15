@@ -9,13 +9,13 @@ MISC = $(top_srcdir)/docs/msvc-solution-usage.txt \
        $(top_srcdir)/docs/libdiameternasreq \
        $(top_srcdir)/docs/libdiametermip4 \
        $(top_srcdir)/docs/libeap \
+       $(top_srcdir)/docs/libpana \
        $(top_srcdir)/docs/nasreq \
        $(top_srcdir)/tools/getopt.patch \
        $(top_srcdir)/tools/getopt1.patch \
        $(top_srcdir)/RELEASE \
        $(top_srcdir)/README 
 
-##       $(top_srcdir)/docs/libpana \
 
 EXTRA_DIST = $(MISC)
 
@@ -27,9 +27,9 @@ SUBDIRS_LIBS = libodutl \
 	       libdiameter \
 	       libdiametermip4 \
 	       libeap \
+	       libpana \
 	       libdiametereap \
 	       libdiameternasreq
-##	       libpana \
 
 SUBDIRS_APPS = applications
 

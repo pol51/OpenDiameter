@@ -50,19 +50,19 @@ sysconf_DATA = config/client.eap-tls.xml \
 
 if compile_EAPTLS
 LDADD = @L_LIBS@ \
-        libdiametereap.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libeap/libeap.la \
-	$(top_srcdir)/libeap/libeaptls.la \
-	$(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libeap/libeap.la \
+	$(top_builddir)/libeap/libeaptls.la \
+	$(top_builddir)/libodutl/libodutl.la
 else
 LDADD = @L_LIBS@ \
-        libdiametereap.la \
-	$(top_srcdir)/libdiameter/libdiameter.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libeap/libeap.la \
-	$(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libdiametereap/libdiametereap.la \
+	$(top_builddir)/libdiameter/libdiameter.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libeap/libeap.la \
+	$(top_builddir)/libodutl/libodutl.la
 endif
 
 if compile_EAPTLS

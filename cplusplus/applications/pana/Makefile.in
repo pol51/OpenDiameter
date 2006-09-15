@@ -53,19 +53,19 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @compile_EAPTLS_TRUE@	pac_eaptls/client_pana_eap-tls.$(OBJEXT)
 client_pana_eaptls_OBJECTS = $(am_client_pana_eaptls_OBJECTS)
 @compile_EAPTLS_TRUE@client_pana_eaptls_DEPENDENCIES =  \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libpana/libpana.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libeap/libeap.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libeap/libeaparchie.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libeap/libeaptls.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libdiamparser/libdiamparser.la \
-@compile_EAPTLS_TRUE@	$(top_srcdir)/libodutl/libodutl.la
+@compile_EAPTLS_TRUE@	$(top_builddir)/libpana/libpana.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeaparchie.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libeap/libeaptls.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libdiamparser/libdiamparser.la \
+@compile_EAPTLS_TRUE@	$(top_builddir)/libodutl/libodutl.la
 am_pacd_OBJECTS = pacd.$(OBJEXT) pacd_config.$(OBJEXT)
 pacd_OBJECTS = $(am_pacd_OBJECTS)
-pacd_DEPENDENCIES = $(top_srcdir)/libpana/libpana.la \
-	$(top_srcdir)/libeap/libeap.la \
-	$(top_srcdir)/libeap/libeaparchie.la \
-	$(top_srcdir)/libdiamparser/libdiamparser.la \
-	$(top_srcdir)/libodutl/libodutl.la
+pacd_DEPENDENCIES = $(top_builddir)/libpana/libpana.la \
+	$(top_builddir)/libeap/libeap.la \
+	$(top_builddir)/libeap/libeaparchie.la \
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -218,20 +218,20 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
 AM_LDFLAGS = @L_LDFLAGS@
 pacd_SOURCES = pacd.cxx pacd_config.cxx pacd_config.h
 pacd_LDADD = @L_LIBS@ \
-             $(top_srcdir)/libpana/libpana.la \
-             $(top_srcdir)/libeap/libeap.la \
-             $(top_srcdir)/libeap/libeaparchie.la \
-             $(top_srcdir)/libdiamparser/libdiamparser.la \
-             $(top_srcdir)/libodutl/libodutl.la
+             $(top_builddir)/libpana/libpana.la \
+             $(top_builddir)/libeap/libeap.la \
+             $(top_builddir)/libeap/libeaparchie.la \
+             $(top_builddir)/libdiamparser/libdiamparser.la \
+             $(top_builddir)/libodutl/libodutl.la
 
 @compile_EAPTLS_TRUE@client_pana_eaptls_SOURCES = pac_eaptls/client_pana_eap-tls.cxx
 @compile_EAPTLS_TRUE@client_pana_eaptls_LDADD = @L_LIBS@ \
-@compile_EAPTLS_TRUE@             $(top_srcdir)/libpana/libpana.la \
-@compile_EAPTLS_TRUE@             $(top_srcdir)/libeap/libeap.la \
-@compile_EAPTLS_TRUE@             $(top_srcdir)/libeap/libeaparchie.la \
-@compile_EAPTLS_TRUE@             $(top_srcdir)/libeap/libeaptls.la \
-@compile_EAPTLS_TRUE@             $(top_srcdir)/libdiamparser/libdiamparser.la \
-@compile_EAPTLS_TRUE@             $(top_srcdir)/libodutl/libodutl.la
+@compile_EAPTLS_TRUE@             $(top_builddir)/libpana/libpana.la \
+@compile_EAPTLS_TRUE@             $(top_builddir)/libeap/libeap.la \
+@compile_EAPTLS_TRUE@             $(top_builddir)/libeap/libeaparchie.la \
+@compile_EAPTLS_TRUE@             $(top_builddir)/libeap/libeaptls.la \
+@compile_EAPTLS_TRUE@             $(top_builddir)/libdiamparser/libdiamparser.la \
+@compile_EAPTLS_TRUE@             $(top_builddir)/libodutl/libodutl.la
 
 all: all-am
 

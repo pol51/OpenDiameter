@@ -377,9 +377,9 @@ sysconf_DATA = config/agent.local.xml \
                config/nas3.local.xml
 
 LDADD = @L_LIBS@ \
-        libdiameter.la \
-        $(top_srcdir)/libdiamparser/libdiamparser.la \
-        $(top_srcdir)/libodutl/libodutl.la
+        $(top_builddir)/libdiameter/libdiameter.la \
+        $(top_builddir)/libdiamparser/libdiamparser.la \
+        $(top_builddir)/libodutl/libodutl.la
 
 aaa_test_client1_SOURCES = test/test_client1.cxx test/test_client1.h
 aaa_test_server1_SOURCES = test/test_server1.cxx test/test_server1.h

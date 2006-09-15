@@ -19,7 +19,7 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
               -I$(srcdir)/include \
               -I@top_srcdir@/include \
               -I@top_srcdir@/libodutl/include \
-              -I@top_srcdir@/libdiamparser \
+              -I@top_srcdir@/libdiamparser/include \
               -I@top_srcdir@/libeap/include \
               -I@top_srcdir@/libpana/include \
               -I@top_srcdir@/libdiameter/include \
@@ -45,14 +45,14 @@ nobase_sysconf_DATA = config/nasd.xml \
 
 nasd_SOURCES = $(SRC) $(HDR)
 nasd_LDADD = @L_LIBS@ \
-             $(top_srcdir)/libpana/libpana.la \
-             $(top_srcdir)/libeap/libeap.la \
-             $(top_srcdir)/libeap/libeaparchie.la \
-             $(top_srcdir)/libdiamparser/libdiamparser.la \
-             $(top_srcdir)/libdiameter/libdiameter.la \
-             $(top_srcdir)/libdiameternasreq/libdiameternasreq.la \
-             $(top_srcdir)/libdiametereap/libdiametereap.la \
-             $(top_srcdir)/libodutl/libodutl.la
+             $(top_builddir)/libpana/libpana.la \
+             $(top_builddir)/libeap/libeap.la \
+             $(top_builddir)/libeap/libeaparchie.la \
+             $(top_builddir)/libdiameter/libdiameter.la \
+             $(top_builddir)/libdiameternasreq/libdiameternasreq.la \
+             $(top_builddir)/libdiametereap/libdiametereap.la \
+             $(top_builddir)/libdiamparser/libdiamparser.la \
+             $(top_builddir)/libodutl/libodutl.la
 
 EXTRA_DIST = config scripts
 

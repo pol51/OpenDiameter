@@ -73,23 +73,28 @@ PROGRAMS = $(noinst_PROGRAMS)
 am_parser_test1_OBJECTS = test/aaa_test1.$(OBJEXT)
 parser_test1_OBJECTS = $(am_parser_test1_OBJECTS)
 parser_test1_LDADD = $(LDADD)
-parser_test1_DEPENDENCIES = libdiamparser.la
+parser_test1_DEPENDENCIES =  \
+	$(top_builddir)/libdiamparser/libdiamparser.la
 am_parser_test2_OBJECTS = test/aaa_test2.$(OBJEXT)
 parser_test2_OBJECTS = $(am_parser_test2_OBJECTS)
 parser_test2_LDADD = $(LDADD)
-parser_test2_DEPENDENCIES = libdiamparser.la
+parser_test2_DEPENDENCIES =  \
+	$(top_builddir)/libdiamparser/libdiamparser.la
 am_parser_test3_OBJECTS = test/aaa_test3.$(OBJEXT)
 parser_test3_OBJECTS = $(am_parser_test3_OBJECTS)
 parser_test3_LDADD = $(LDADD)
-parser_test3_DEPENDENCIES = libdiamparser.la
+parser_test3_DEPENDENCIES =  \
+	$(top_builddir)/libdiamparser/libdiamparser.la
 am_parser_test4_OBJECTS = test/aaa_test1.$(OBJEXT)
 parser_test4_OBJECTS = $(am_parser_test4_OBJECTS)
 parser_test4_LDADD = $(LDADD)
-parser_test4_DEPENDENCIES = libdiamparser.la
+parser_test4_DEPENDENCIES =  \
+	$(top_builddir)/libdiamparser/libdiamparser.la
 am_parser_test5_OBJECTS = test/aaa_test5.$(OBJEXT)
 parser_test5_OBJECTS = $(am_parser_test5_OBJECTS)
 parser_test5_LDADD = $(LDADD)
-parser_test5_DEPENDENCIES = libdiamparser.la
+parser_test5_DEPENDENCIES =  \
+	$(top_builddir)/libdiamparser/libdiamparser.la
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -278,7 +283,7 @@ include_HEADERS = $(PARSER_HDR)
 sysconf_DATA = config/dictionary.xml \
                config/dictionary.dtd
 
-LDADD = @L_LIBS@ libdiamparser.la
+LDADD = @L_LIBS@ $(top_builddir)/libdiamparser/libdiamparser.la
 parser_test1_SOURCES = test/aaa_test1.cxx
 parser_test2_SOURCES = test/aaa_test2.cxx
 parser_test3_SOURCES = test/aaa_test3.cxx
