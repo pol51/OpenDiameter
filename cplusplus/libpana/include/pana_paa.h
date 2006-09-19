@@ -55,12 +55,7 @@ class PANA_EXPORT PANA_PaaEventInterface : public PANA_SessionEventInterface
 {
    public:
       virtual bool IsUserAuthorized() = 0;
-      virtual void EapResponse(AAAMessageBlock *request, bool nap) = 0;
-#if defined(PANA_MPA_SUPPORT)
-      virtual bool IsPacIpAddressAvailable(PANA_DeviceId &ip,
-                                           PANA_DeviceId &local,
-                                           ACE_INET_Addr &remote) = 0;
-#endif
+      virtual void EapResponse(AAAMessageBlock *request) = 0;
 };
 
 class PANA_EXPORT PANA_Paa : public PANA_Session
@@ -91,8 +86,6 @@ class PANA_EXPORT PANA_Paa : public PANA_Session
       virtual void TxPAR();
       virtual void TxPBR(pana_unsigned32_t rcode,
                          EAP_EVENT ev);
-      virtual void TxPFER(pana_unsigned32_t rcode,
-                          EAP_EVENT ev);
       virtual void TxPAN();
       virtual void TxPRAA();
 

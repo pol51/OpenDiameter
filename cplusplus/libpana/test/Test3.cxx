@@ -343,18 +343,17 @@ class PeerChannel : public PANA_ClientEventInterface
   }
   virtual ~PeerChannel() {
   }
-  void Discover() {
-      pana.Start(); // discovery
+  void Initialize() {
+      pana.Start(); // initialize
   }
-  void EapStart(bool &nap) {
+  void EapStart() {
       eap.Stop();
       eap.Start();
   }
   void ChooseISP(const PANA_CfgProviderList &list,
                  PANA_CfgProviderInfo *&choice) {
   }
-  void EapRequest(AAAMessageBlock *request,
-                  bool nap) {
+  void EapRequest(AAAMessageBlock *request) {
       eap.Receive(request);
   }
   void EapAltReject() {
@@ -463,12 +462,11 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
    }
    virtual ~PassThroughAuthChannel() {
    }
-   virtual void EapStart(bool &nap) {
+   virtual void EapStart() {
       eap.Stop(); 
       eap.Start();
    }
-   virtual void EapResponse(AAAMessageBlock *response, 
-                            bool nap) {
+   virtual void EapResponse(AAAMessageBlock *response) {
       eap.Receive(response);
    }
    void EapAltReject() {
@@ -949,7 +947,7 @@ int main(int argc, char **argv)
      if (b_client) {
          ACE_Semaphore semaphore(0);
          PeerApplication peerApp(task, semaphore);
-	 peerApp.Channel().Discover();
+	 peerApp.Channel().Initialize();
          semaphore.acquire();
          task.Stop();
      }

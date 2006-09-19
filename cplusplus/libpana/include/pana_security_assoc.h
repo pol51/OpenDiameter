@@ -106,14 +106,7 @@ class PANA_EXPORT PANA_SecurityAssociation :
     public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
-        typedef enum {
-            SINGLE,
-            DOUBLE
-        } TYPE;
-
-    public:
-        PANA_SecurityAssociation() : 
-            m_Type(SINGLE) {
+        PANA_SecurityAssociation() {
         }
         PANA_Nonce &PacNonce() {
             return m_PacNonce;
@@ -121,35 +114,18 @@ class PANA_EXPORT PANA_SecurityAssociation :
         PANA_Nonce &PaaNonce() {
             return m_PaaNonce;
         }
-        TYPE &Type() {
-            return m_Type;
-        }
         void Reset() {
-            m_AAAKey1.Reset();
-            m_AAAKey2.Reset();
+            m_AAAKey.Reset();
             m_AuthKey.Reset();
-            m_Type = SINGLE;
         }
-        void UpdateKeyId1(ACE_UINT32 keyId) {
-            m_AAAKey1.Id() = keyId;
-        }
-        void UpdateKeyId2(ACE_UINT32 keyId) {
-            m_AAAKey2.Id() = keyId;
-        }
-        void UpdateAAAKey1(pana_octetstring_t &key) {
-            m_AAAKey1.Set(key);
-        }
-        void UpdateAAAKey2(pana_octetstring_t &key) {
-            m_AAAKey2.Set(key);
+        void UpdateKeyId(ACE_UINT32 keyId) {
+            m_AAAKey.Id() = keyId;
         }
         void UpdateAAAKey(pana_octetstring_t &key) {
-            Set(key);
+            m_AAAKey.Set(key);
         }
-        PANA_AAAKey &AAAKey1() {
-            return m_AAAKey1;
-        }
-        PANA_AAAKey &AAAKey2() {
-            return m_AAAKey2;
+        PANA_AAAKey &AAAKey() {
+            return m_AAAKey;
         }
 
         void GenerateAuthKey(pana_utf8string_t &sessionId);
@@ -163,12 +139,10 @@ class PANA_EXPORT PANA_SecurityAssociation :
                                 pana_octetstring_t &authValue);
 
     private:
-        TYPE         m_Type;
         PANA_AuthKey m_AuthKey;
         PANA_Nonce   m_PacNonce;
         PANA_Nonce   m_PaaNonce;
-        PANA_AAAKey  m_AAAKey2;
-        PANA_AAAKey  m_AAAKey1;
+        PANA_AAAKey  m_AAAKey;
 };
 
 #endif /* __PANA_SECURITY_ASSOC_H__ */

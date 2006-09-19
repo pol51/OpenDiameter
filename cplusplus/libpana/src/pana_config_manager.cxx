@@ -272,10 +272,6 @@ void PANA_CfgManager::open(std::string &cfg_file)
                                    "dictionary_filename", parser);
     OD_Utl_XML_UInt32Element gen06(m_Data.m_General.m_MobilityEnabled, 
                                    "mobility", parser);
-    OD_Utl_XML_UInt32Element gen07(m_Data.m_General.m_SeparateAuth, 
-                                   "separate", parser);
-    OD_Utl_XML_UInt32Element gen08(m_Data.m_General.m_AbortOnFirstEapFailure, 
-                                   "abort_on_first_eap_failure", parser);
     OD_Utl_XML_UInt32Element gen09(m_Data.m_General.m_EapPiggyback, 
                                    "eap_piggyback", parser);
     OD_Utl_XML_UInt32Element gen10(m_Data.m_General.m_KeepAliveInterval, 
@@ -407,8 +403,6 @@ void PANA_CfgManager::dump()
     AAA_LOG((LM_INFO, "          Protection Cap  : %d\n", m_Data.m_General.m_ProtectionCap));
     AAA_LOG((LM_INFO, "          Dictionary      : %s\n", m_Data.m_General.m_Dictionary.data()));
     AAA_LOG((LM_INFO, "          Mobility        : %d\n", m_Data.m_General.m_MobilityEnabled));
-    AAA_LOG((LM_INFO, "          Separate NAP/ISP: %d\n", m_Data.m_General.m_SeparateAuth));
-    AAA_LOG((LM_INFO, "          Abort on 1st EAP: %d\n", m_Data.m_General.m_AbortOnFirstEapFailure));
     AAA_LOG((LM_INFO, "          EAP Piggyback   : %d\n", m_Data.m_General.m_EapPiggyback));
     AAA_LOG((LM_INFO, "          EAP Piggyback   : %d\n", m_Data.m_General.m_EapPiggyback));
     AAA_LOG((LM_INFO, "          Re-Transmission\n"));

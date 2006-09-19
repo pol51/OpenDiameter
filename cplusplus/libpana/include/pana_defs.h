@@ -75,8 +75,8 @@
 #define UCHAR unsigned char
 #endif
 
-// Message type definition based on draft 11
-#define PANA_MTYPE_PDI         0x01
+// Message type definition based on draft 12
+#define PANA_MTYPE_PCI         0x01
 #define PANA_MTYPE_PSR         0x02
 #define PANA_MTYPE_PSA         0x02
 #define PANA_MTYPE_PAR         0x03
@@ -91,10 +91,8 @@
 #define PANA_MTYPE_PTA         0x07
 #define PANA_MTYPE_PER         0x08
 #define PANA_MTYPE_PEA         0x08
-#define PANA_MTYPE_PFER        0x09
-#define PANA_MTYPE_PFEA        0x09
-#define PANA_MTYPE_PUR         0x0A
-#define PANA_MTYPE_PUA         0x0A
+#define PANA_MTYPE_PUR         0x09
+#define PANA_MTYPE_PUA         0x09
 
 // AVP names
 #define PANA_AVPNAME_ALGORITHM        "Algorithm"

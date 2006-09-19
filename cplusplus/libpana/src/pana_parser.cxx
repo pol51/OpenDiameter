@@ -135,8 +135,7 @@ template<> void PANA_HeaderParser::parseRawToApp()
 
     // flags
     h->flags().request = *((AAAUInt8*)(p)) & 0x80 ? 1 : 0;
-    h->flags().separate = *((AAAUInt8*)(p)) & 0x40 ? 1 : 0;
-    h->flags().nap = *((AAAUInt8*)(p)) & 0x20 ? 1 : 0;
+    h->flags().stateless = *((AAAUInt8*)(p)) & 0x40 ? 1 : 0;
     h->flags().reserved = 0;
     p += sizeof(ACE_UINT16);
 
@@ -192,8 +191,7 @@ template<> void PANA_HeaderParser::parseAppToRaw()
     // flags
     *((ACE_UINT16*)(p)) = 0;
     *((AAAUInt8*)(p)) |= h->flags().request ? 0x80 : 0x0;
-    *((AAAUInt8*)(p)) |= h->flags().separate ? 0x40 : 0x0;
-    *((AAAUInt8*)(p)) |= h->flags().nap ? 0x20 : 0x0;
+    *((AAAUInt8*)(p)) |= h->flags().stateless ? 0x40 : 0x0;
     p += sizeof(ACE_UINT16);
 
     // type

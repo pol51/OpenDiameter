@@ -100,7 +100,7 @@ class PANA_PaaEventVariable
         void EnableFlag_Separate(bool set = true) {
             m_Event.i.m_Flag_Separate = set;
         }
-        void Result_FirstEap(PANA_EAP_RESULT event) {
+        void Result_FirstEap(PANA_RESULT_CODE event) {
             m_Event.i.m_Result_FirstEap = event;
         }
         void Do_AbortOnFirstEap(bool set = true) {
@@ -262,23 +262,6 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
               p.TxPBR(PANA_SUCCESS, PANA_Paa::EAP_TIMEOUT);
           }
       };
-      class PaaExitActionTxPFEREapSuccess : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.TxPFER(PANA_SUCCESS, PANA_Paa::EAP_SUCCESS);
-          }
-      };
-      class PaaExitActionTxPFEREapFail : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.TxPFER(PANA_AUTHENTICATION_REJECTED,
-                       PANA_Paa::EAP_FAILURE);
-          }
-      };
-      class PaaExitActionTxPFEREapTimeout : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.TxPFER(PANA_AUTHENTICATION_REJECTED,
-                       PANA_Paa::EAP_TIMEOUT);
-          }
-      };
       class PaaExitActionTxPER : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) { 
               p.TxPER(PANA_UNABLE_TO_COMPLY);
@@ -302,16 +285,6 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
       class PaaWaitPEAExitActionRxPEA : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) { 
               p.RxPEA(true);
-          }
-      };
-      class PaaWaitPFEAExitActionRxPFEASuccess : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPFEA(true);
-          }
-      };
-      class PaaWaitPFEAExitActionRxPFEAFail : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPFEA(false);
           }
       };
       class PaaExitActionRxPBASuccess : public AAA_Action<PANA_Paa> {
@@ -418,17 +391,12 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
       PaaExitActionTxPBREapFailSuccess        m_PaaExitActionTxPBREapFailSuccess;
       PaaExitActionTxPBREapTimeout            m_PaaExitActionTxPBREapTimeout;
       PaaExitActionTxPBREapTimeoutSuccess     m_PaaExitActionTxPBREapTimeoutSuccess;
-      PaaExitActionTxPFEREapSuccess           m_PaaExitActionTxPFEREapSuccess;
       PaaExitActionTxPBREapSuccessFail        m_PaaExitActionTxPBREapSuccessFail;
-      PaaExitActionTxPFEREapFail              m_PaaExitActionTxPFEREapFail;
-      PaaExitActionTxPFEREapTimeout           m_PaaExitActionTxPFEREapTimeout;
       PaaExitActionTxPER                      m_PaaExitActionTxPER;
       PaaExitActionTxPERMissingAvp            m_PaaExitActionTxPERMissingAvp;
       PaaExitActionTxPEA                      m_PaaExitActionTxPEA;
       PaaExitActionRxPER                      m_PaaExitActionRxPER;
       PaaWaitPEAExitActionRxPEA               m_PaaWaitPEAExitActionRxPEA;
-      PaaWaitPFEAExitActionRxPFEASuccess      m_PaaWaitPFEAExitActionRxPFEASuccess;
-      PaaWaitPFEAExitActionRxPFEAFail         m_PaaWaitPFEAExitActionRxPFEAFail;
       PaaExitActionRxPBASuccess               m_PaaExitActionRxPBASuccess;
       PaaExitActionRxPBAFail                  m_PaaExitActionRxPBAFail;
       PaaOpenExitActionRxPPR                  m_PaaOpenExitActionRxPPR;

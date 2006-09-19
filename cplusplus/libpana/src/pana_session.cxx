@@ -41,10 +41,10 @@ bool PANA_SessionTimerInterface::ScheduleTxRetry()
    /*
      9.  Retransmission Timers
 
-        The PANA protocol provides retransmissions for the PANA-PAA-Discover
+        The PANA protocol provides retransmissions for the PANA-Client-Initiliaze
         message and all request messages, with the exception that the PANA-
         Start-Answer message is retransmitted instead of the PANA-Start-
-        Request message in stateless PAA discovery.
+        Request message in stateless PAA handshake.
 
         PANA retransmission timers are based on the model used in DHCPv6
         [RFC3315].  Variables used here are also borrowed from this
@@ -223,8 +223,7 @@ void PANA_Session::TxPUR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPUR: S-flag %d, N-flag=%d, seq=%d\n",
-               msg->flags().separate, msg->flags().nap, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPUR: seq=%d\n", msg->seq()));
 
     SendReqMsg(msg);
 }
@@ -262,8 +261,7 @@ void PANA_Session::TxPUA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPUA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg->flags().separate, msg->flags().nap, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPUA: seq=%d\n", msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -305,8 +303,7 @@ void PANA_Session::TxPPR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPPR: S-flag %d, N-flag=%d, seq=%d\n",
-               msg->flags().separate, msg->flags().nap, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPPR: seq=%d\n", msg->seq()));
 
     SendReqMsg(msg);
 }
@@ -329,8 +326,7 @@ void PANA_Session::RxPUA()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPUA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPUA: seq=%d\n", msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -357,8 +353,7 @@ void PANA_Session::RxPPR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPPR: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPPR: seq=%d\n", msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -385,8 +380,7 @@ void PANA_Session::RxPUR()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPUR: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPUR: seq=%d\n", msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -427,8 +421,7 @@ void PANA_Session::TxPPA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPPA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg->flags().separate, msg->flags().nap, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPPA: seq=%d\n", msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -451,8 +444,7 @@ void PANA_Session::RxPPA()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPPA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPPA: seq=%d\n", msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -503,8 +495,7 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPTR: S-flag %d, N-flag=%d, seq=%d\n",
-               msg->flags().separate, msg->flags().nap, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPTR: seq=%d\n", msg->seq()));
 
     // session timer
     m_Timer.CancelSession();
@@ -531,8 +522,7 @@ void PANA_Session::RxPTR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPTR: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPTR: seq=%d\n", msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -583,8 +573,7 @@ void PANA_Session::TxPTA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPTA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg->flags().separate, msg->flags().nap, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPTA: seq=%d\n", msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -607,8 +596,7 @@ void PANA_Session::RxPTA()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPTA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPTA: seq=%d\n", msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -662,8 +650,7 @@ void PANA_Session::TxPER(pana_unsigned32_t rcode)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPER: [RCODE=%d] S-flag %d, N-flag=%d, seq=%d\n",
-               rcode, msg->flags().separate, msg->flags().nap, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPER: [RCODE=%d] seq=%d\n", msg->seq()));
 
     SendReqMsg(msg);
 }
@@ -688,8 +675,7 @@ void PANA_Session::RxPER()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPER: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPER: seq=%d\n", msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -735,8 +721,7 @@ void PANA_Session::TxPEA()
     // add notification if any       
     AddNotification(*msg);
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPEA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg->flags().separate, msg->flags().nap, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPEA: seq=%d\n", msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -759,8 +744,7 @@ void PANA_Session::RxPEA(bool fatal)
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPEA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPEA: seq=%d\n", msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -957,12 +941,7 @@ void PANA_Session::Error(ACE_UINT32 resultCode)
 
 void PANA_AuxillarySessionVariables::Reset() 
 {
-   m_SeparateAuth = PANA_CFG_GENERAL().m_SeparateAuth;
-   m_NapAuth = false;
-   m_FirstEapResult = 0;
    m_SessionResumed = false;
-   m_AbortOnFirstEapFailure = PANA_CFG_GENERAL().
-       m_AbortOnFirstEapFailure;
    m_Authorized = false;
    m_AlgorithmIsSet = false;
    m_CarryDeviceId = (PANA_CFG_PAA().m_CarryDeviceId != 0) ? 

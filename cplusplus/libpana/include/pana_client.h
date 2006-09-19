@@ -53,13 +53,8 @@ class PANA_EXPORT PANA_ClientEventInterface : public PANA_SessionEventInterface
    public:
       virtual void ChooseISP(const PANA_CfgProviderList &list,
                              PANA_CfgProviderInfo *&choice) = 0;
-      virtual void EapRequest(AAAMessageBlock *request, bool nap) = 0;
+      virtual void EapRequest(AAAMessageBlock *request) = 0;
       virtual bool ResumeSession() = 0;
-#if defined(PANA_MPA_SUPPORT)
-      virtual void PacIpAddress(PANA_DeviceId &ip, 
-                                PANA_DeviceId &oldip, 
-                                PANA_DeviceId &remoteip) = 0;
-#endif
 };
 
 class PANA_EXPORT PANA_Client : public PANA_Session
@@ -75,21 +70,19 @@ class PANA_EXPORT PANA_Client : public PANA_Session
       virtual void NotifyEapRestart();
       virtual void NotifyAuthorization();
       virtual void NotifyEapRequest(pana_octetstring_t &payload);
-      
+
       virtual bool IsSessionResumed();
 
-      virtual void TxPDI();
+      virtual void TxPCI();
       virtual void TxPSA(PANA_Message *psr);
       virtual void TxPAR();
       virtual void TxPAN(bool eapPiggyBack);
-      virtual void TxPFEA(bool closed);
       virtual void TxPBA(bool close);
       virtual void TxPRAR();
 
       virtual void RxPSR();
       virtual void RxPAR(bool eapReAuth);
       virtual void RxPAN();
-      virtual void RxPFER();
       virtual void RxPBR();
       virtual void RxPRAA();
 

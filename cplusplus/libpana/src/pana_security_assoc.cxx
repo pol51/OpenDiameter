@@ -175,23 +175,8 @@ void PANA_SecurityAssociation::GenerateAuthAvpValue
 
 bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
 {
-    ACE_UINT32 keyId;
-    if (m_Type == DOUBLE) {
-        if (! m_AAAKey1.IsSet()) {
-            return (false);
-        }
-        else if (! m_AAAKey2.IsSet()) {
-            keyId = m_AAAKey1.Id();
-        }
-        else {
-            keyId = m_AAAKey2.Id();
-        }
-    }
-    else {
-        return (false);
-    }
     PANA_UInt32AvpWidget keyIdAvp(PANA_AVPNAME_KEYID);
-    keyIdAvp.Get() = ACE_HTONL(keyId);
+    keyIdAvp.Get() = ACE_HTONL(m_AAAKey.Id());
     msg.avpList().add(keyIdAvp());
     return (true);
 }

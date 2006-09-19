@@ -79,108 +79,91 @@ class PANA_AvpHeader
 
 /*
 
-6.2  PANA Header
+    6.2.  PANA Header
 
-   A summary of the PANA header format is shown below.  The fields are
-   transmitted in network byte order.
-
-
-          0                   1                   2                   3
-       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |    Version    |   Reserved    |        Message Length         |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |            Flags              |         Message Type          |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                      Sequence Number                          |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |  AVPs ...
-      +-+-+-+-+-+-+-+-+-+-+-+-+-
+    A summary of the PANA header format is shown below.  The fields are
+    transmitted in network byte order.
 
 
-   Version
+        0                   1                   2                   3
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |    Version    |   Reserved    |        Message Length         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |            Flags              |         Message Type          |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                      Sequence Number                          |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |  AVPs ...
+    +-+-+-+-+-+-+-+-+-+-+-+-+-
 
-      This Version field MUST be set to 1 to indicate PANA Version 1.
+    Version
 
-   Reserved
+        This Version field MUST be set to 1 to indicate PANA Version 1.
 
-      This 8-bit field is reserved for future use, and MUST be set to
-      zero, and ignored by the receiver.
+    Reserved
 
-   Message Length
+        This 8-bit field is reserved for future use, and MUST be set to
+        zero, and ignored by the receiver.
 
-      The Message Length field is three octets and indicates the length
-      of the PANA message including the header fields.
+    Message Length
 
-   Flags
+        The Message Length field is two octets and indicates the length of
+        the PANA message including the header fields.
 
-      The Flags field is eight bits.  The following bits are assigned:
+    Flags
 
-       0                   1
-       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |R S N r r r r r r r r r r r r r|
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        The Flags field is two octets.  The following bits are assigned:
 
+        0                   1
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |R L r r r r r r r r r r r r r r|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-      R(equest)
+        R(equest)
 
-         If set, the message is a request.  If cleared, the message is
-         an answer.
+            If set, the message is a request.  If cleared, the message is
+            an answer.
 
-      S(eparate)
+        L(stateLess handshake)
 
-         When the S-flag is set in a PANA-Start-Request message it
-         indicates that PAA is willing to offer separate EAP
-         authentications for NAP and ISP.  When the S-flag is set in a
-         PANA-Start-Answer message it indicates that PaC accepts on
-         performing separate EAP authentications for NAP and ISP.  When
-         the S-flag is set in a PANA-Auth-Request/Answer,
-         PANA-FirstAuth-End-Request/Answer and PANA-Bind-Request/Answer
-         messages it indicates that separate authentications are being
-         performed in the authentication phase.
+            When the L-flag is set in a PANA-Start-Request message it
+            indicates that the PAA is performing stateless handshake.
+            Cookie AVP MUST be included in both the PANA-Start-Request and
+            the PANA-Start-Answer messages when performing stateless
+            handshake.
 
-      N(AP authentication)
+        r(eserved)
 
-         When the N-flag is set in a PANA-Auth-Request message, it
-         indicates that PAA is performing NAP authentication.  When the
-         N-flag is unset in a PANA-Auth-Request message, it indicates
-         that PAA is performing ISP authentication.  PaC MUST copy the
-         value of the flag in its requests from the last received
-         request of the PAA.  The value of the flag on an answer MUST be
-         copied from the request.  The N-flag MUST NOT be set when
-         S-flag is not set.
+            These flag bits are reserved for future use, and MUST be set to
+            zero, and ignored by the receiver.
 
-      r(eserved)
+    Message Type
 
-         these flag bits are reserved for future use, and MUST be set to
-         zero, and ignored by the receiver.
+        The Message Type field is two octets, and is used in order to
+        communicate the message type with the message.  The 16-bit address
+        space is managed by IANA [ianaweb].  PANA uses its own address
+        space for this field.
 
-   Message Type
+    Sequence Number
 
-      The Message Type field is two octets, and is used in order to
-      communicate the message type with the message.  The 16-bit address
-      space is managed by IANA [ianaweb].  PANA uses its own address
-      space for this field.
+        The Sequence Number field contains a 32 bit value.
 
-   Sequence Number
+    AVPs
 
-      The Sequence Number field contains a 32 bit value.
+        AVPs are a method of encapsulating information relevant to the
+        PANA message.  See section Section 6.3 for more information on
+        AVPs.
 
-   AVPs
-
-      AVPs are a method of encapsulating information relevant to the
-      PANA message.  See section Section 6.3 for more information on
-      AVPs.
  */
 class PANA_MsgHeader
 {
     public:
        typedef struct {
           ACE_UINT16 request   : 1;  // Request flag
-          ACE_UINT16 separate  : 1;  // Separate flag
-          ACE_UINT16 nap       : 1;  // Nap flag
-          ACE_UINT16 reserved  : 13;
+          ACE_UINT16 stateless : 1;  // Stateless flag
+          ACE_UINT16 reserved  : 14;
        } Flags;
 
        // Default header length definition 

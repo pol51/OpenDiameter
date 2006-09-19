@@ -295,18 +295,17 @@ class PeerChannel : public PANA_ClientEventInterface
   }
   virtual ~PeerChannel() {
   }
-  void Discover() {
-      pana.Start(); // discovery
+  void Initialize() {
+      pana.Start(); // init
   }
-  void EapStart(bool &nap) {
+  void EapStart() {
       eap.Stop();
       eap.Start();
   }
   void ChooseISP(const PANA_CfgProviderList &list,
                  PANA_CfgProviderInfo *&choice) {
   }
-  void EapRequest(AAAMessageBlock *request,
-                  bool nap) {
+  void EapRequest(AAAMessageBlock *request) {
       eap.Receive(request);
   }
   void EapAltReject() {
@@ -402,11 +401,11 @@ class StandAloneAuthChannel : public PANA_PaaEventInterface
   }
   virtual ~StandAloneAuthChannel() {
   }
-  void EapStart(bool &nap) {
+  void EapStart() {
      eap.Stop(); 
      eap.Start();
   }
-  void EapResponse(AAAMessageBlock *response, bool nap) {
+  void EapResponse(AAAMessageBlock *response) {
      eap.Receive(response);
   }
   void EapAltReject() {
@@ -757,7 +756,7 @@ int main(int argc, char **argv)
   try {
      if (b_client) {
          PeerApplication peerApp(task, semaphore);
-	 peerApp.Channel().Discover();
+	 peerApp.Channel().Initialize();
          semaphore.acquire();
          task.Stop();
      }

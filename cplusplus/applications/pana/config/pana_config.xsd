@@ -66,8 +66,6 @@
            <xs:element name="protection_capability" type="xs:unsignedInt" />
            <xs:element name="dictionary_filename" type="xs:string" />
            <xs:element name="mobility" type="xs:unsignedInt" />
-           <xs:element name="separate" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
-           <xs:element name="abort_on_first_eap_failure" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
            <xs:element name="eap_piggyback" type="xs:unsignedInt" minOccurs="1" maxOccurs="1" />
            <xs:element name="retransmission_param" type="reTransmissionParamType" />
            <xs:element name="ppac_config" type="ppacType" />

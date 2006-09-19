@@ -67,8 +67,8 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
                 "factory received invalid request message"));
       }
       switch (msg.type()) {
-         case PANA_MTYPE_PDI: 
-             RxPDI(msg); 
+         case PANA_MTYPE_PCI:
+             RxPCI(msg);
              break;
          case PANA_MTYPE_PSA: 
              try {
@@ -104,8 +104,8 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
    if (PANA_CFG_PAA().m_UseCookie) {
        ///////////////////////////////////////////////////////////////
        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-       // - - - - - - - - - - - (Stateless discovery) - - - - - - - -
-       // (Rx:PDI ||             if (SEPARATE==Set)         OFFLINE
+       // - - - - - - - - - - - (Stateless handshake) - - - - - - - -
+       // (Rx:PCI ||             if (SEPARATE==Set)         OFFLINE
        // PAC_FOUND) &&             PSR.S_flag=1;
        // USE_COOKIE==Set          PSR.insert_avp
        //                           ("Cookie");
@@ -125,13 +125,13 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
    }
    else {
        ///////////////////////////////////////////////////////////////
-       // - - - - - - - - - - - (Stateful discovery)- - - - - - - - -
-       // (Rx:PDI ||             EAP_Restart();             WAIT_EAP_MSG_
+       // - - - - - - - - - - - (Stateful handshake)- - - - - - - - -
+       // (Rx:PCI ||             EAP_Restart();             WAIT_EAP_MSG_
        // PAC_FOUND) &&                                      IN_DISC
        // USE_COOKIE==Unset &&
        // EAP_PIGGYBACK==Set
        // 
-       // (Rx:PDI ||             if (SEPARATE==Set)         STATEFUL_DISC
+       // (Rx:PCI ||             if (SEPARATE==Set)         STATEFUL_DISC
        //  PAC_FOUND) &&           PSR.S_flag=1;
        //  USE_COOKIE==Unset &&  if (CARRY_NAP_INFO==Set)
        //  PIGGYBACK==Unset        PSR.insert_avp
@@ -157,7 +157,7 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
        }
 
        // add to pending db
-       AAA_LOG((LM_INFO, "(%P|%t) New session created [stateful discovery]\n"));  
+       AAA_LOG((LM_INFO, "(%P|%t) New session created [stateful handshake]\n"));  
        pana_address_t id;
        PANA_AddrConverter::ToAAAAddress(addr, id);
        m_PendingDb.Add(id.value, *session);
@@ -180,28 +180,28 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
    }
 }
 
-void PANA_PaaSessionFactory::RxPDI(PANA_Message &msg)
+void PANA_PaaSessionFactory::RxPCI(PANA_Message &msg)
 {
    /*
-     7.1  PANA-PAA-Discover (PDI)
+        7.1.  PANA-Client-Initiation (PCI)
 
-       The PANA-PAA-Discover (PDI) message is used to discover the address
-       of PAA(s).  The sequence number in this message is always set to zero
-       (0).
+        The PANA-Client-Initiation (PCI) message is used for PaC-initiated
+        handshake.  The sequence number in this message is always set to zero
+        (0).
 
-       PANA-PAA-Discover ::= < PANA-Header: 1 >
-                             [ Notification ]
-                          *  [ AVP ]
+        PANA-Client-Initiation ::= < PANA-Header: 1 >
+                            [ Notification ]
+                            *  [ AVP ]
 
    */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPDI: S-flag %d, seq=%d\n",
+   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: S-flag %d, seq=%d\n",
              msg.flags().separate, msg.seq()));
 
    // validate sequence number
    if (msg.seq() != 0) {
       throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
-             "Received PDI with non-zero seq num"));
+             "Received PCI with non-zero seq num"));
    }
    // extract PaC IP address
    PANA_DeviceId *ipId = PANA_DeviceIdConverter::GetIpOnlyAddress
@@ -209,7 +209,7 @@ void PANA_PaaSessionFactory::RxPDI(PANA_Message &msg)
                                (bool)PANA_CFG_GENERAL().m_IPv6Enabled);
    if (ipId == NULL) {
        throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
-              "PDI has no IP address assigned to packet"));
+              "PCI has no IP address assigned to packet"));
    }
 
    PANA_StringAvpContainerWidget NotificationAvp(msg.avpList());
@@ -253,7 +253,6 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
     msg->type() = PANA_MTYPE_PSR;
     msg->seq() = PANA_SerialNumber::GenerateISN();
     msg->flags().request = true;
-    msg->flags().separate = PANA_CFG_GENERAL().m_SeparateAuth;
 
     // add cookie
     pana_octetstring_t cookie;
@@ -299,36 +298,12 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
         msg->avpList().add(ispAvp());
     }
 
-   /*
-     Protection-Capability and Post-PANA-Address-Configuration AVPs MAY be
-     optionally included in the PANA-Start-Request in order to indicate
-     required and available capabilities for the network access.  These
-     AVPs MAY be used by the PaC for assessing the capability match even
-     before the authentication takes place.  But these AVPs are provided
-     during the insecure discovery phase, there are certain security risks
-     involved in using the provided information.  See Section 9 for
-     further discussion on this.
-
-     ...
-     ...
-
-     In networks where lower-layers are not secured prior to running PANA,
-     the capability discovery enabled through inclusion of
-     Protection-Capability and Post-PANA-Address-Configuration AVPs in a
-     PANA-Start-Request message is susceptible to spoofing leading to
-     denial-of service attacks.  Therefore, usage of these AVPs during the
-     discovery and initial handshake phase in such insecure networks is
-     NOT RECOMMENDED.  The same AVPs are delivered via an
-     integrity-protected PANA-Bind-Request upon successful authentication.
-    */
-
     PANA_DeviceId ipId;
     PANA_DeviceIdConverter::PopulateFromAddr(addr, ipId);
     msg->srcDevices().clone(ipId);
     msg->srcPort() = addr.get_port_number();
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: Stateless, S-flag=%d, seq=%d\n",
-               msg->flags().separate, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: seq=%d\n", msg->seq()));
 
     m_UdpChannel.Send(msg);
 }
@@ -351,8 +326,7 @@ void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
                          *  [ AVP ]
     */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPSA: Stateless, S-flag %d, seq=%d\n",
-                       msg.flags().separate, msg.seq()));
+   AAA_LOG((LM_INFO, "(%P|%t) RxPSA: Stateless, seq=%d\n", msg.seq()));
 
    PANA_DeviceId *ipId = PANA_DeviceIdConverter::GetIpOnlyAddress
                               (msg.srcDevices(),
@@ -385,7 +359,7 @@ void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
       throw (PANA_Exception(PANA_Exception::NO_MEMORY, 
                            "Failed to auth agent session"));
    }
-   AAA_LOG((LM_INFO, "(%P|%t) New session created [stateless discovery]\n"));  
+   AAA_LOG((LM_INFO, "(%P|%t) New session created [stateless handshake]\n"));  
 
    // save address of PaC       
    session->m_PAA.PacDeviceId() = *ipId;

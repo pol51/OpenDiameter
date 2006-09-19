@@ -71,7 +71,7 @@ class PANA_EXPORT PANA_PaaSessionFactory : public PANA_PaaSessionChannel
       virtual void Receive(PANA_Message &msg);
 
    private:
-      virtual void RxPDI(PANA_Message &msg);
+      virtual void RxPCI(PANA_Message &msg);
       virtual void StatelessTxPSR(ACE_INET_Addr &addr);
       virtual void StatelessRxPSA(PANA_Message &msg);
       virtual bool ValidateCookie(PANA_Message &msg);

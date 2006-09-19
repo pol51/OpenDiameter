@@ -7,7 +7,7 @@
                         mobility, separate, abort_on_first_eap_failure,
                         eap_piggyback, retransmission_param, ppac_config,
                         keep_alive_interval, wpa_bootstrap)>
-                        
+
      <!ELEMENT thread_count (#PCDATA)>
      <!ELEMENT listen_port (#PCDATA)>
      <!ELEMENT interface_name (#PCDATA)>
@@ -15,10 +15,8 @@
      <!ELEMENT protection_capability (#PCDATA)>
      <!ELEMENT dictionary_filename (#PCDATA)>
      <!ELEMENT mobility (#PCDATA)>
-     <!ELEMENT separate (#PCDATA)>
-     <!ELEMENT abort_on_first_eap_failure (#PCDATA)>
      <!ELEMENT eap_piggyback (#PCDATA)>
-     
+
      <!ELEMENT retransmission_param (initial_rt_timeout, max_rt_count,
                                      max_rt_timeout, max_rt_duration)>
      <!ELEMENT ppac_config (dhcpv4, dhcpv6, autoconfv6, dhcpv4_ipsec, ikev2)>

@@ -44,10 +44,10 @@
 class PANA_EXPORT PANA_IngressJob : public AAA_Job
 {
    public:
-      PANA_IngressJob(AAA_GroupedJob &g, const char *name = "") : 
-          m_Group(g), 
-          m_MsgHandler(0), 
-          m_Name(name) { 
+      PANA_IngressJob(AAA_GroupedJob &g, const char *name = "") :
+          m_Group(g),
+          m_MsgHandler(0),
+          m_Name(name) {
       }
       virtual int Schedule(AAA_Job* job, unsigned int backlogSize=1) { 
           return m_Group.Schedule(job);
@@ -56,10 +56,10 @@ class PANA_EXPORT PANA_IngressJob : public AAA_Job
           return m_Group.Schedule(this);
       }
       void RegisterHandler(OD_Utl_CbFunction1<PANA_Message&> &h) { 
-          m_MsgHandler = h.clone(); 
+          m_MsgHandler = h.clone();
       }
-      void RemoveHandler() { 
-          delete m_MsgHandler; 
+      void RemoveHandler() {
+          delete m_MsgHandler;
           m_MsgHandler = NULL;
       }
       std::string &Name() {

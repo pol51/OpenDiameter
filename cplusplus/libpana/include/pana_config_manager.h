@@ -158,9 +158,7 @@ typedef struct  {
     ACE_UINT32 m_ListenPort;
     ACE_UINT32 m_IPv6Enabled;
     ACE_UINT32 m_ProtectionCap;
-    ACE_UINT32 m_SeparateAuth;
     ACE_UINT32 m_EapPiggyback;
-    ACE_UINT32 m_AbortOnFirstEapFailure;
     ACE_UINT32 m_MobilityEnabled;
     ACE_UINT32 m_KeepAliveInterval;
     ACE_UINT32 m_WPASupport;

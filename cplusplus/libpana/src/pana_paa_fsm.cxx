@@ -47,8 +47,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
 
     /////////////////////////////////////////////////////////////////
     // ------------------------+--------------------------+------------
-    // - - - - - - - - - - - - - (Stateful discovery)- - - - - - - - -
-    // (Rx:PDI ||               EAP_Restart();             WAIT_EAP_MSG_
+    // - - - - - - - - - - - - - (Stateful handshake)- - - - - - - - -
+    // (Rx:PCI ||               EAP_Restart();             WAIT_EAP_MSG_
     //  PAC_FOUND) &&                                      IN_DISC
     //  USE_COOKIE==Unset &&
     //  PIGGYBACK==Set
@@ -61,8 +61,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
 
     /////////////////////////////////////////////////////////////////
     // ------------------------+--------------------------+------------
-    // - - - - - - - - - - - - - (Stateful discovery)- - - - - - - - -
-    // (Rx:PDI ||               if (SEPARATE==Set)         STATEFUL_DISC
+    // - - - - - - - - - - - - - (Stateful handshake)- - - - - - - - -
+    // (Rx:PCI ||               if (SEPARATE==Set)         STATEFUL_DISC
     //  PAC_FOUND) &&             PSR.S_flag=1;
     //  USE_COOKIE==Unset &&    if (CARRY_NAP_INFO==Set)
     //  PIGGYBACK==Unset          PSR.insert_avp
@@ -182,7 +182,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // Exit Condition           Action                     Next-State
     // ------------------------+--------------------------+------------
-    // - - - - - - - - - - - - - (Stateful discovery)- - - - - - - - -
+    // - - - - - - - - - - - - - (Stateful handshake)- - - - - - - - -
     // Rx:PSA                   if (SEPARATE==Set &&       WAIT_EAP_MSG
     //                          PSA.S_flag==0)
     //                             SEPARATE=Unset;
@@ -307,7 +307,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
                        m_PaaExitActionTxPBREapFail);
@@ -335,7 +335,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     ev.Do_Authorize();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_SUCC_PBA, 
@@ -355,7 +355,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
                        m_PaaExitActionTxPBREapSuccessFail);
@@ -368,7 +368,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_PEA, 
                        m_PaaExitActionTxPER);
@@ -388,7 +388,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_PFEA, 
@@ -406,7 +406,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     ev.Do_Separate();
     ev.Do_AbortOnFirstEap();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
@@ -430,7 +430,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_PFEA, 
@@ -448,7 +448,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_PFEA, 
@@ -465,7 +465,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     ev.Do_Separate();
     ev.Do_AbortOnFirstEap();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
@@ -486,7 +486,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     // 
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
-    ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
+    ev.Result_FirstEap(PANA_RESULT_CODE_FAIL);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
@@ -518,7 +518,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
-    ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
+    ev.Result_FirstEap(PANA_RESULT_CODE_SUCCESS);
     ev.Do_Separate();
     ev.Do_Authorize();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
@@ -538,7 +538,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     // 
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
-    ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
+    ev.Result_FirstEap(PANA_RESULT_CODE_SUCCESS);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
@@ -570,7 +570,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
+    ev.Result_FirstEap(PANA_RESULT_CODE_SUCCESS);
     ev.Do_Separate();
     ev.Do_Authorize();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
@@ -593,7 +593,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
+    ev.Result_FirstEap(PANA_RESULT_CODE_SUCCESS);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
@@ -625,7 +625,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
+    ev.Result_FirstEap(PANA_RESULT_CODE_FAIL);
     ev.Do_Separate();
     ev.Do_Authorize();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
@@ -645,7 +645,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     // 
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
+    ev.Result_FirstEap(PANA_RESULT_CODE_FAIL);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
@@ -662,7 +662,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
+    ev.Result_FirstEap(PANA_RESULT_CODE_FAIL);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
@@ -692,7 +692,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
+    ev.Result_FirstEap(PANA_RESULT_CODE_SUCCESS);
     ev.Do_Separate();
     ev.Do_Authorize();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
@@ -710,7 +710,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
+    ev.Result_FirstEap(PANA_RESULT_CODE_SUCCESS);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
@@ -1455,7 +1455,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     AddStateTableEntry(PANA_ST_WAIT_PAN_OR_PAR, ev.Get(), 
                        PANA_ST_WAIT_PEA, 
                        m_PaaExitActionTxPER);
@@ -1473,7 +1473,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_PAN_OR_PAR, ev.Get(), 
                        PANA_ST_WAIT_PFEA, 
@@ -1490,7 +1490,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
+    ev.Result_FirstEap(PANA_RESULT_CODE_UNSET);
     ev.Do_Separate();
     ev.Do_AbortOnFirstEap();
     AddStateTableEntry(PANA_ST_WAIT_PAN_OR_PAR, ev.Get(), 
@@ -1509,7 +1509,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
+    ev.Result_FirstEap(PANA_RESULT_CODE_FAIL);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_PAN_OR_PAR, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
@@ -1539,7 +1539,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     // 
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
+    ev.Result_FirstEap(PANA_RESULT_CODE_SUCCESS);
     ev.Do_Separate();
     ev.Do_Authorize();
     AddStateTableEntry(PANA_ST_WAIT_PAN_OR_PAR, ev.Get(), 
@@ -1557,7 +1557,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
+    ev.Result_FirstEap(PANA_RESULT_CODE_SUCCESS);
     ev.Do_Separate();
     AddStateTableEntry(PANA_ST_WAIT_PAN_OR_PAR, ev.Get(), 
                        PANA_ST_WAIT_FAIL_PBA, 
@@ -1865,10 +1865,10 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     InitialState(PANA_ST_OFFLINE);
 }
 
-class PANA_PsmRxPDI : public PANA_ServerRxStateFilter
+class PANA_PsmRxPCI : public PANA_ServerRxStateFilter
 {
    public:
-      PANA_PsmRxPDI(PANA_Paa &a, PANA_PaaSession &s) : 
+      PANA_PsmRxPCI(PANA_Paa &a, PANA_PaaSession &s) : 
           PANA_ServerRxStateFilter(a, s) {
           static PANA_ST validStates[] = { PANA_ST_OFFLINE };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
@@ -1877,18 +1877,18 @@ class PANA_PsmRxPDI : public PANA_ServerRxStateFilter
           // first level validation
           if (msg.flags().request) {
              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
-                    "PDI message with request flag set, invalid message"));
+                    "PCI message with request flag set, invalid message"));
           }
           // second level validation
           m_arg.RxValidateMsg(msg);
           // resolve the event
           PANA_PaaEventVariable ev;
-          ev.MsgType(PANA_EV_MTYPE_PDI);
+          ev.MsgType(PANA_EV_MTYPE_PCI);
           m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
           m_Session.Notify(ev.Get()); 
       }
       virtual PANA_ServerRxStateFilter *clone() { 
-          return (new PANA_PsmRxPDI(*this)); 
+          return (new PANA_PsmRxPCI(*this)); 
       }
 };
 
@@ -2213,8 +2213,8 @@ class PANA_PsmRxPE : public PANA_ServerRxStateFilter
 
 void PANA_PaaSession::InitializeMsgMaps()
 {
-   PANA_PsmRxPDI PDI(m_PAA, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PDI, PDI);
+   PANA_PsmRxPCI PCI(m_PAA, *this);
+   m_MsgHandlers.Register(PANA_MTYPE_PCI, PCI);
 
    PANA_PsmRxPSA PSA(m_PAA, *this);
    m_MsgHandlers.Register(PANA_MTYPE_PSA, PSA);
@@ -2246,7 +2246,7 @@ void PANA_PaaSession::InitializeMsgMaps()
 
 void PANA_PaaSession::FlushMsgMaps()
 {
-   m_MsgHandlers.Remove(PANA_MTYPE_PDI);
+   m_MsgHandlers.Remove(PANA_MTYPE_PCI);
    m_MsgHandlers.Remove(PANA_MTYPE_PSA);
    m_MsgHandlers.Remove(PANA_MTYPE_PFEA);
    m_MsgHandlers.Remove(PANA_MTYPE_PAN);
@@ -2283,28 +2283,8 @@ void PANA_PaaSession::EapSuccess(AAAMessageBlock *req)
     }
     PANA_PaaEventVariable ev;
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    if (m_PAA.AuxVariables().SeparateAuthentication()) {
-        ev.Do_Separate();
-        if (m_PAA.AuxVariables().FirstEapResult() > 0) {
-            if (PANA_RCODE_SUCCESS(m_PAA.AuxVariables().FirstEapResult())) {
-                ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
-            }
-            else {
-                ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
-            }
-            if (m_PAA.IsUserAuthorized()) {
-                ev.Do_Authorize();
-            }
-        }
-        else {
-            ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
-        }
-    }
-    else {
-        ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
-        if (m_PAA.IsUserAuthorized()) {
-            ev.Do_Authorize();
-        }
+    if (m_PAA.IsUserAuthorized()) {
+        ev.Do_Authorize();
     }
     Notify(ev.Get());
 }
@@ -2317,27 +2297,6 @@ void PANA_PaaSession::EapFailure(AAAMessageBlock *req)
     }
     PANA_PaaEventVariable ev;
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
-    if (m_PAA.AuxVariables().SeparateAuthentication()) {
-        ev.Do_Separate();
-        if (PANA_RCODE_SUCCESS(m_PAA.AuxVariables().FirstEapResult())) {
-            ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
-            if (m_PAA.IsUserAuthorized()) {
-                ev.Do_Authorize();
-            }
-        }
-        else if (m_PAA.AuxVariables().FirstEapResult() > 0) {
-            ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
-        }
-        else {
-            ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
-            if (m_PAA.AuxVariables().AbortOnFirstEapFailure()) {
-                ev.Do_AbortOnFirstEap();
-            }
-        }
-    }
-    else {
-        ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
-    }
     Notify(ev.Get());
 }
 
@@ -2348,27 +2307,6 @@ void PANA_PaaSession::EapTimeout()
     if ((state == PANA_ST_WAIT_EAP_MSG_IN_DISC) ||
         (state == PANA_ST_STATEFUL_DISC)) {
         return;
-    }
-    if (m_PAA.AuxVariables().SeparateAuthentication()) {
-        ev.Do_Separate();
-        if (m_PAA.AuxVariables().FirstEapResult() == 0) {
-            ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
-            if (m_PAA.AuxVariables().AbortOnFirstEapFailure()) {
-                ev.Do_AbortOnFirstEap();
-            }
-        }
-        else if (PANA_RCODE_SUCCESS(m_PAA.AuxVariables().FirstEapResult())) {
-            ev.Result_FirstEap(PANA_EAP_RESULT_SUCCESS);
-            if (m_PAA.IsUserAuthorized()) {
-                ev.Do_Authorize();
-            }
-        }
-        else {
-            ev.Result_FirstEap(PANA_EAP_RESULT_FAIL);
-        }
-    }
-    else {
-        ev.Result_FirstEap(PANA_EAP_RESULT_UNSET);
     }
     Notify(ev.Get());
  }

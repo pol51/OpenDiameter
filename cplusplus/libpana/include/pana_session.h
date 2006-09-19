@@ -59,17 +59,8 @@ class PANA_AuxillarySessionVariables {
         virtual ~PANA_AuxillarySessionVariables() {
             Reset();
         }
-        bool &NapAuthentication() {
-            return m_NapAuth;
-        }
-        bool &SeparateAuthentication() {
-            return m_SeparateAuth;
-        }
         bool &SecAssociationResumed() {
             return m_SessionResumed;
-        }
-        bool &AbortOnFirstEapFailure() {
-            return m_AbortOnFirstEapFailure;
         }
         bool &Authorized() {
             return m_Authorized;
@@ -80,9 +71,6 @@ class PANA_AuxillarySessionVariables {
         bool &AlgorithmIsSet() {
             return m_AlgorithmIsSet;
         }
-        ACE_UINT32 &FirstEapResult() {
-            return m_FirstEapResult;
-        }
         PANA_MsgQueue &RxMsgQueue() {
             return m_RxMessageQueue;
         }
@@ -92,14 +80,10 @@ class PANA_AuxillarySessionVariables {
         virtual void Reset();
 
     private:
-        bool m_NapAuth; // NAP authorization in progress
-        bool m_SeparateAuth; // negotiated separate NAP & ISP auth
         bool m_SessionResumed; // Set to true if this session is resumed
-        bool m_AbortOnFirstEapFailure; // Set to true 1st EAP failure
         bool m_Authorized; // Set to true if authorize() returns true
         bool m_CarryDeviceId; // Set to true if device-id avp is sent
         bool m_AlgorithmIsSet; // Set to true if algorithm avp is agreed upon
-        ACE_UINT32 m_FirstEapResult; // First EAP result
         PANA_MsgQueue m_RxMessageQueue; // Receive message queue
         PANA_BufferQueue m_TxEapMessageQueue; // EAP Tx message queue
 };
@@ -352,7 +336,7 @@ class PANA_EXPORT PANA_SessionEventInterface
       } PANA_AuthorizationArgs;
 
    public:
-      virtual void EapStart(bool &nap) = 0;
+      virtual void EapStart() = 0;
       virtual void Authorize(PANA_AuthorizationArgs &args) = 0;
       virtual bool IsKeyAvailable(pana_octetstring_t &key) = 0;
       virtual void Notification(pana_octetstring_t &msg) = 0;
