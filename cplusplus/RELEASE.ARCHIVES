@@ -1,0 +1,1526 @@
+Open Diameter: Open-source software for the Diameter 
+               and Diameter related protocols
+
+Copyright (C) 2002-2006 Open Diameter Project
+
+Plese read the accompanying COPYING file for the terms and conditions
+of the licences applied to this software.
+
+RELEASE NOTES
+-------------
+
+This release notes pertain to Open Diameter releases from
+version 1.0.7-h and older. For new releases, please read
+the file RELEASE.
+
+Contents
+--------
+    1. Release Version 1.0.7-h
+        1.1 Diameter Bug Fixes
+        1.2 Diameter API Changes
+        1.3 Diameter Performance Enhancements
+        1.4 PANA library updates
+    2. Release Version 1.0.7-g
+        2.1 Diameter Bug Fixes
+        2.2 PANA library updates
+    3. Release Version 1.0.7-f
+        3.1 Diameter Critical Fixes
+        3.2 Diameter MIP4 library
+        3.3 Diameter Server Deamon (ALPHA version)
+        3.4 NAS Deamon (ALPHA version)
+    4. Release Version 1.0.7-e
+        4.1 PANA Draft6 Critical Fixes
+        4.2 Parser Critical Fixes
+        4.3 Diameter Critical Fixes
+        4.4 New Parser API Wrappers
+        4.5 New Diameter session management module
+    5. Release Version 1.0.7-d
+        5.1 PANA Draft6 Critical Fixes
+    6. Release Version 1.0.7-c
+        6.1 PANA Draft6 Support
+        6.2 Shared library support
+        6.3 Bug fixes
+        6.4 Utility library addition
+        6.5 WPA key installer for Windows XP
+    7. Release Version 1.0.7-b
+        7.1 PANA IPv6 Support for Windows XP
+        7.2 Support for Bootstrapping RFC3118 using PANA
+        7.3 Bug Fixes
+    8. Release Version 1.0.7-a
+        8.1 PANA IPv6 Support for Linux/FreeBSD
+        8.2 Bug Fixes
+        8.3 Distribution Fixes for Release 1.0.7 
+    9. Release Version 1.0.7
+        9.1 Diameter NASREQ library
+        9.2 PANA ID-3 Support
+        9.3 Diameter Transport Re-Architecture
+        9.4 EAP-TLS library
+        9.5 Diameter Parser Multi-protocol support
+        9.6 PANA windows client
+        9.7 Available Documentation 
+        9.8 License Migration
+    10. Release Version 1.0.6
+        10.1 Diameter EAP library
+        10.2 PANA ID-2 Support
+        10.3 Framework API (DIAMETER, PANA and EAP API changes)
+        10.4 Bug Fixes
+    11. Release Version 1.0.5
+        11.1 PANA library
+        11.2 EAP-Archie library
+        11.3 Microsoft VC++ 8.1 Support
+        11.4 Bug fixes
+    12. Release Version 1.0.4
+        12.1 EAP library             
+        12.2 Diameter accounting support
+            12.2.1 Accounting API
+            12.2.2 XML transformer model
+            12.2.3 mySQL support
+        12.3 Parser Refinements
+            12.3.1 Templatized Container Entry and Creator
+            12.3.2 Container List
+            12.3.3 Generic AAAParser base class
+        12.4 Windows support
+        12.5 Optimizations
+            12.5.1 Memory Manager
+            12.5.2 Buffer Overcopying
+            12.5.3 Boost library
+            12.5.4 System Abstraction using ACE
+        12.6 Bug fixes
+    13. Release Version 1.0.3
+        13.1 Configuration file consolidation            
+        13.2 Virtual diameter node support
+        13.3 Memory optimizations
+            13.3.1 Memory pool for messages
+            13.3.2 Smart Heap 
+            13.3.4 Smart message
+        13.4 FreeBSD support
+        13.5 IPv6 support
+        13.6 Optimizations
+            13.6.1 Message routing table re-write
+            13.6.2 Peer table re-write
+        13.7 Bug fixes
+    14. Release Version 1.0.2
+        14.1 Enhanced version of the C++ Open Diameter API 
+            Library
+        14.2 Deprecation AAAMessageBuffer
+        14.3 Autoconfig
+        14.4 Sample Code
+        14.5 Doxygen C++ API documentation
+    15. Release Version 1.0.1
+        15.1 Release of C++ Open Diameter API Library
+        15.2 libutl compnent has been deprecated 
+        15.3 Initial documentation
+        15.4 Configuration files
+
+
+1. Release Version 1.0.7-h
+   Release Date    : 04/21/2006
+   
+    This is the next interim release for 1.0.7 that concentrates
+    on fixing outstanding issues on the Diameter library and
+    updates on the PANA library. This release does not cover
+    all the open issues listed in the bug tracking database. 
+    The remaining issues are still being addressed. 
+    
+    1.1 Diameter Bug Fixes
+
+      The following are a list of fixes included in this 
+      release. Note that a summary has been skipped since 
+      the list is too long. You can view the summary of 
+      the bugs in the open diameter sourceforge website.
+    
+        1181206
+        1238287
+        1240453
+        1284006
+        1292373
+        1296439
+        1296449
+        1298700
+        1308840
+        1315871
+        1338402
+        1340095
+        1346255
+        1356772
+        1379462
+        1400113
+        1404491
+        1404570
+        1416482
+        1446074
+        1447451
+        1452353
+        1455420
+        1457772
+        1459734
+        1460294
+        1464373
+        1465587
+        1470140
+
+     1.2 Diameter API Changes
+
+     There are two(2) changes to the API in the 1.0.7-h version.
+     The changes does not affect any of the class or method
+     signatures and therefore should not cause any compile issues
+     with existing applications. However, some behavioral issues
+     introduced by the API may impact existing applications. 
+
+     1.2.1 UpdateAcctRespose(AAAMessage &aca) method has been 
+           added as some people have requested. Applications can 
+           add/remove/change any AVP in the ACA message prior
+           to being sent to the accounting client. Note that
+           test/sample_server4.cxx shows and example usage of
+           this method.
+     1.2.2 [ClientAuthSession]::End() now relies on Disconnect()
+           event to be called properly. In previous version,
+           calling End() would block the session indefinitely
+           until the session completes. However, this has caused
+           some race condition. Therefore, in the new version,
+           it becomes the applications responsibility to call
+           End() method properly only after a Disconnect() event
+           has occured. See the main() function of test/sample_client2.cxx.
+           For accounting client sessions, End() method should be
+           called only after a Success() event for STOP record
+           has been received. The Success() event will be called
+           for all successuflly exchanged ACRs sent by the client.
+     
+     1.3 Diameter Performance Enhancements
+
+     A re-architecture of the diameter threading model has been
+     introduced. This new model has obsoleted the threading model
+     in existing documentation. To reduced backloging on AAA_Task,
+     both responder/initiator IO and acceptor/connector factory
+     now reside in thier own thread. This free's up a lot of 
+     un-necessary queuing to the AAA_Task job queue which causes
+     responsiveness problems.
+
+     1.4 PANA library updates
+     
+     The PANA library has been updated to the latest 
+     draft (draft-ietf-pana-pana-11.txt). No API changes
+     has been introduced and majority of the fixes was
+     the result of inter-operability testing with Samsung
+     PANA implementation. General overview (not a thorough
+     list):
+         1. PPAC value not up to spec
+         2. PCAP checking introduced in statemachine
+         3. Notification AVP not up to spec
+         4. MAC AVP formatting not up to spec
+         5. byte ordering of 32-bit values are not up to spec
+     
+2. Release Version 1.0.7-g
+   Release Date    : 09/14/2005
+   
+    This is the next interim release for 1.0.7 that concentrates
+    on fixing outstanding issues on the Diameter library and
+    updates on the PANA library. This release does not cover
+    all the open issues listed in the bug tracking database. 
+    The remaining issues are still being addressed. 
+    
+    2.1 Diameter Bug Fixes
+    
+      The following are a list of fixes included in this 
+      release. Note that a summary has been skipped since 
+      the list is too long.
+    
+        1. 1289901
+        2. 1285192
+        3. 1284926
+        4. 1277685
+        5. 1275715
+        6. 1271209
+        7. 1267446
+        8. 1264406
+        9. 1256844
+        10. 1252544
+        11. 1243170
+        12. 1243149
+        13. 1240533
+        13. 1240530
+        14. 1240111
+        15. 1238383
+        16. 1238288
+        17. 1238284
+        18. 1229350
+        19. 1226978
+        20. 1218247
+        21. 1218248
+        22. 1205373
+        23. 1181206
+        24. 1196548
+        25. 1188154
+        26. 1180869
+        27. 1180688
+        28. 1180681
+        29. 1173543
+        30. 1173318
+
+     2.2 PANA library updates
+     
+     The PANA library has been updated to the latest 
+     draft (draft-ietf-pana-pana-10.txt). Changes to
+     the PANA API has also been made to accomodate some
+     of the message changes in Notification and POPA
+     configuration. See API docs for details.
+     
+3. Release Version 1.0.7-f
+   Release Date    : 04/06/2005
+
+    This release is the next interim release for version 1.0.7
+    and covers critical fixes to memory issues, an alpha 
+    release of two(2) Open Diameter based deamon programs and
+    the release of Diameter MIP4 library. Note that the primary 
+    intent is to propagate critical fixes as well as release
+    the Diameter MIP4 library. The secondary intent is to garner 
+    feedback for the initial version of the deamon programs. 
+    Note that the deamons have limited scope in terms of 
+    functionality at least for this release. Succeeding release
+    will feature incremental updates and fixes to the deamon
+    programs as demand for it increases.
+    
+        3.1 Diameter Critical Fixes
+            
+            The following critical fixes have been applied to
+            this release (for specifics, see details on the
+            bug# at sourceforet.net):
+
+            a. 1178837 - Autoconf installation problems
+            b. 1159135 - Segmentation fault on Integer64 
+                         parser,etc.
+            c. 1153616 - Session deletion uses the local Id
+                         and not peer
+            d. 1149892 - No reset on pending transport interface
+                         member for connector
+            e. 1120089 - Transport disconnection on unknown
+                         host
+            f. 1120029 - Segmentation fault when running long
+                         test
+            g. 1108482 - Size limit on sent messages
+            h. 1104511 - Only the first EP id is sent by PAA
+                         to PaC on PBR
+            i. 1101218 - Shallow copy done by PANA in passing
+                         EAP payload to EAP lib
+            j. 1099710 - Change validation rules for negotiation
+                         timeouts
+
+       3.2 Diameter MIP4 library is now available
+
+            A diameter MIP4 library is now available. The C++ 
+            API's has been published under libdiametermip4
+            directory. It supports linux and freebsd.
+            Test code and sample application can be found under 
+            libdiametermip4/test. Detailed documentation can 
+            be found in http://www.opendiameter.org.
+
+        3.3 Diameter Server Deamon (ALPHA version)
+
+            This is an alpha version of a Diameter server
+            deamon which runs on Linux. At the moment, the
+            only application it supports it Diameter EAP.
+            This application only supports EAP methods 
+            that are available in libeap. Current only
+            MD5 and archie are implemented though this
+            will start to increase in succeeding releases.
+ 
+            The design of the server deamon allows for 
+            very easy accomodations of any additional
+            diameter applications. At this moment, we 
+            are discussing next candidate applications
+            that should be added/implemented.
+
+            Note that this deamon is in it's early stages
+            and subsequent releases will contain pre-packaged
+            binaries as well as configuration files for 
+            all supported systems. For this release, this
+            deamon is an alpha version and is still subject
+            to a lot of changes. Further details of the 
+            architecture can be found in http://www.opendiamter.org
+
+        3.4 NAS Deamon (ALPHA version)
+
+            This is an alpha version of a NAS (network
+            access server) deamon. It provides access
+            protocol functionality on the public side 
+            of the network and AAA functionality on the
+            internal/administered side. Currently, it
+            supports PANA and Diameter EAP. It's situation
+            is the same as the diameter server. It is in
+            the early stages but is designed to accomodate
+            new access protocols. Note that the anchor
+            protocol (internal protocol that is used by
+            NAS and will not change) is EAP.
+
+            Also, pre-packaged binaries and configuration
+            files for all supported systems will be available
+            in succeeding releases. Further details about
+            design and architecture can be found in http://
+            www.opendiameter.org.
+
+4. Release Version 1.0.7-e
+   Release Date    : 12/30/2004
+
+    This release is the next interim release for version 1.0.7
+    and covers critical fixes to performance, memory issues and
+    diameter session management design.
+
+        4.1 PANA Draft6 Critical Fixes
+
+            The following critical fixes to the PANA library
+            that is addressed by this release:
+
+            a. Bug #10687198 - PMK key derivation result in 512 bits
+            b. Bug #1058887  - Only the first ISP information is
+                               sent in the ISP AVP of PSR during
+                               network selection.
+
+        4.2 Parser Critical Fixes
+
+            The following critical fixes to the generic parser
+            library that is addressed by this release:
+
+            a. Bug #1081368 - AAATypeSepcificAvpContainerEntry memory leak
+            b. Bug #1074008 - AAAAvpContainerEntry causing memory leak 
+                              and performace issues
+            c. Bug #1071214 - Potential double deletion in AAA_AvpWidget
+
+        4.3 Diameter Critical Fixes
+
+            a. Bug #1074009 - Missing AVP's in peer transmission
+            b. Bug #1071695 - General framework bug, statemachine should
+                              default to in-active during construction
+            c. Bug #1063335 - Memory leak in libdiameter's pending request
+                              queue
+            d. Bug #1036153 - HandleDisconnect() called twice
+            e. Bug #1033331 - STR/STA message not properly handled by
+                              clients
+
+        4.4 New Parser API Wrappers
+
+            A new set of template classes has been introduced to simplify
+            usage of libdiamparser for composing and decomposing AAA
+            (or any messages). The new set of classes is documented in
+            the OpenDiameter's documentation page. Usage information about
+            the new API's can also be found in libdiamparser/test5.cxx.
+            These classes allows easier use of the parser.
+
+        4.5 New Diameter session management module
+
+            The libdiameter session management module has been re-designed
+            to solve most of the stability issues that exists with the
+            previous architecture. The following are the design elements
+            introduced in the new architecture:
+
+            a. Remove all localized AAA_Job methods in session management.
+               These methods increases latency and are highly un-managed.
+            b. Cleanup the session management API so that it provides a
+               cleaner, simplier set of classes for creating client, server
+               and proxy/agent sessions. The design is based on policy classes
+               that are aggregated to form client, server and proxy/agent
+               session objects.
+            c. Migrate all the session state machine into framework FSM.
+            d. Optimization changes introduced by using a single event queue
+               present in the FSM.
+            e. Deal with stability issue within the design itself.
+
+            The resulting set of API's is very flexible. The usage can be
+            seen the a new set of test code:
+
+            a. test/sample_client2.cxx and test/sample_server2.cxx shows
+               the very basic usage of AAA sessions.
+            b. test/sample_client3.cxx and test/sample_server3.cxx shows
+               the use of message multiplexers
+            d. test/sample_client4.cxx and test/sample_server4.cxx shows
+               the use of accounting sessions
+            e. test/sample_client5.cxx and test/sample_server5.cxx shows
+               the use of combined auth and accouting sessions
+            f. test/sample_client1.cxx and test/sample_server1.cxx is the
+               old/original set of API's provided for backward compatibility.
+               
+            To accomodate existing applications, the old API set's are 
+            maintained as wrappers to the new set of API's. It is recommended
+            that newer applications refrain from using the old API's. Also,
+            a change in the old API's had to be made so that it can be used
+            with the new session module. The following change is:
+
+            a. AAAServerSessionClassFactory's constructor has a new signature.
+               It now require's:
+                   
+                 AAAServerSessionClassFactory(AAAApplicationCore &c,
+                                              diamter_unsigned32_t appId)
+
+            Note that a more formal set of documentation for these API's
+            are present in OpenDiameter's documentation page.
+
+5. Release Version 1.0.7-d
+   Release Date    : 11/01/2004
+
+    This release is the next interim release for version 1.0.7
+    and covers only critical fixes related to PANA. This is a
+    supplemental release to 1.0.7-c. No new features has been
+    added to this release and all library functionalities are
+    identical to 1.0.7-c.
+
+        5.1 PANA Draft6 Critical Fixes
+
+            The following critical fixes to the PANA library
+            that is addressed by this release:
+
+            a. Bug #1058367 - PMK key derivation was using PAA Device
+                              Id parameter instead of the EP device Id
+            b. Bug #1058331 - Device Id type parameter in PANA_DeviceId 
+                              class constructor is shadowed by a class
+                              member.
+
+            Additional comments has been added to <ep_id> configuration
+            entry in all existing sample configuration file. Note that
+            the type value of a device id is taken from IANA address
+            family assignments.
+
+6. Release Version 1.0.7-c
+   Release Date    : 10/03/2004
+
+    This release is the next interim release for version 1.0.8. 
+    It is in support of incremental features that are ready for
+    distribution and critical fixes from the last major release.
+    
+        6.1 PANA Draft6 Support
+        
+            PANA has been update to support the latest upcomming
+            version of the PANA draft (draft-ietf-pana-pana-06.txt). 
+            The new implementation is also based on the PANA state 
+            machine draft (draft-ohba-pana-statemachine-01.txt) 
+            which is soon to be a working group item. Because of
+            these updates, the libpana API has had major API changes.
+            The details of these changes are documented in the updated
+            PANA API docs. Thier usage can also be seen in the test
+            code.
+              
+        6.2 Shared library support
+        
+            Libtool support has been added to configure scripts
+            which allows all Open Diameter libraries to be built
+            as shared library. Note that with libtool, shared library
+            builds can be made optional and platform dependent 
+            checking is done the configure scripts to see if 
+            support for shared libs is possible. Also, libtool
+            is now required to be installed in the host machine.
+            See readme for other tool requirements. Shared library
+	    builds are disabled by default since some libraries
+	    are not fully tested in this mode. To enable shared
+	    library builds, use '--enable-shared' option during 
+	    while running configure.
+            
+        6.3 Bug fixes
+        
+            The following bug fixes has also been included in
+            this release. These issues are referenced with
+            Open Diameter sourceforge bug tracking number:
+            
+              a. Bug #1038477 - Hop-to-Hop and End-to-End ID's in
+                                CER/CEA exchange
+              b. Bug #1033347 - Segmentation fault when a destructor 
+                                of AAASession class objects are
+                                called
+              c. Bug #1033335 - Session Timer restart
+              d. Bug #1027380 - The cost time of OpenDiameter message 
+                                increases gradually
+              e. Bug #1019028 - Client or the server usually crashes 
+                                after 500-600 messages
+              f. Bug #1012631 - Default route not handled in new 
+                                routing engine
+              g. Bug #1003032 - Assigning values to 
+                                AAA_GroupedVectorAttribute()
+              h. Bug #1040031 - Pending Request not being cleaned
+              i. Bug #1056939 - PANA IPv4 Multicast IF not being
+                                set
+              j. Bug #1053191 - NAS-Filter-Rule AVP case mis-match
+                                in the dictionary
+              k. Bug #1047797 - Memory leak fixes reported by
+                                purify
+              l. Bug #1011411 - Server factory lookup issue
+              m. Bug #1034535 - Server factory lookup issue
+
+	6.4 Utility library addition
+
+	     Utility classes and functions common to some libraries
+	     has been migrated into it's own utility library to 
+	     enable better re-use. The library, libodutl (Open Diameter
+	     Utility) curretly contains XML parsing routines and
+	     basic crypt classes such as SHA1. These classes are
+	     also available to users.
+        
+      6.5 WPA key installer for Windows XP
+
+           The latest version of the PANA library supports the 
+           derivation of a PMK from the AAA-Key (See Sec. 14.3.2 of
+           draft-ietf-pana-framework-02.txt). A WPA key installer
+           command line tool (wpactl.exe) allows a windows XP PANA 
+           client to install a PMK key into an XP wireless adapter.
+           For details, see ReadMe.txt of WPACtl VC++ project 
+           file (Open Diameter Windows SDK Release).
+
+7. Release Version 1.0.7-b
+   Release Date    : 08/12/2004
+
+    This release is an interim release for version 1.0.8. It is
+    in support of incremental features that are ready for
+    distribution and critical fixes from the last major release.
+
+        7.1 PANA IPv6 Support for Windows XP
+
+            PANA now supports IPv6 for Windows XP. The Windows XP
+            platform has to have SP1 and above that has supports
+            Microsoft IPv6 Protocol. In general, to compile libpana
+            with IPv6 support on any platform, the ACE package must
+            also be compiled with IPv6 support (enable ACE_HAS_IPV6 
+            macro in config.h). The ACE-INSTALL document provides 
+            more details on enabling IPv6 support. The PANA library 
+            relies on this macro as well. There is also a sample IPv6 
+            config file present in libpana/config directory for both 
+            the Pac test code (pac6.xml) and Paa test code (paa6.xml).
+            All platforms can use these sample code. However, one 
+            important item to note is that the <interface> entry is
+            platform specific. On linux and freebsd this is normally
+            the interface name (i.e. eth0, lnc0 ... etc). For windows
+            this is the adapter description (i.e. Intel(R) Pro/1000).
+
+        7.2 Support for Support for Bootstrapping RFC3118 using PANA
+
+            The PANA library now has support for DHCP-AVP exchange 
+            described in draft-tschofenig-pana-bootstrap-rfc3118-01.txt.
+            The generated key is passed to the authentication script
+            upon successful authentication. The PANA API exposes a
+            function to enable or disable this feature on a per-session
+            basis.
+        
+        7.3 Bug Fixes
+
+            The following are major fixes introduced in this 
+            iterim release:
+
+               a. PANA session database now uses the device
+                  id of the PaC as an index instead of the
+                  session id.
+               b. Revisions have been made to the PANA API
+                  for EAP restart procedures.
+               c. Authentication scripts are now supported
+                  and gets invoked during successful authenticaiton.
+               d. Fixes to diameter base protocol message
+                  initialization routines. Continuation of
+                  previous fixes from 1.0.7-a. Now the fix
+                  is for accounting.
+
+8. Release Version 1.0.7-a
+   Release Date    : 07/18/2004
+
+    This release is an interim release for version 1.0.8. It is
+    in support of incremental features that are ready for
+    distribution and critical fixes from the last major release.
+
+        8.1 PANA IPv6 Support for Linux/FreeBSD
+
+            PANA now supports IPv6 for FreeBSD and Linux platforms
+            only. PANA/IPv6 has been tested with FreeBSD 4.9 and
+            above. For linux platforms, the kernel must support
+            IPv6 (vanilla kernel or usagi) and must have a glibc
+            version that supports IPv6 socket interface extensions
+            (RFC 3493) and advanced socket API (RFC 2292) including
+            BSD functions, i.e. getifaddrs(3). To compile libpana 
+            with IPv6, the ACE package must also be compiled with 
+            IPv6 support (enable ACE_HAS_IPV6 macro in config.h). 
+            The ACE-INSTALL document provides more details on 
+            enabling IPv6 support. The PANA library relies on 
+            this macro as well. There is also a sample IPv6 config
+            file present in libpana/config directory for both the
+            Pac test code (pac6.xml) and Paa test code (paa6.xml).
+
+        8.2 Bug Fixes
+
+            The following are major fixes introduced in this 
+            iterim release:
+
+               a. Fixed a race condition in the PANA statmachine 
+                  event function.
+               b. Added race condition protection in the diameter
+                  state machine protection.
+               c. Fixes to diameter header vendor specific flag 
+                  checks in libdiamparser.
+               d. Fixes to diameter base protocol message
+                  initialization routines.
+
+        8.3 Distribution Fixes for Release 1.0.7 
+
+            The 1.0.7 distribution file (opendiameter-1.0.8.tar.gz)
+            should have included EAP-TLS library but it does not.
+            This interim releases fixes this issue and includes
+            sources for EAP-TLS library.
+
+9. Release Version 1.0.7
+   Release Date    : 06/24/2004
+
+    The main features for this release are as follows:
+
+        9.1 Diameter NASREQ library
+
+            A diameter NASREQ library is now available. It is an
+            implementation of draft-ietf-aaa-diameter-nasreq-17.txt.
+            Additional notes about the library can be found in the
+            "Open Diameter NASREQ Application API"            
+ 
+        9.2 PANA ID-3 Support
+
+            The PANA implementation has been upgraded to support
+            draft-ietf-pana-pana-03.txt. PANA/EP integration 
+            functions as well as other event handlers has been 
+            added to the API. The implementation is also compliant
+            with the Open Diameter Framework Architecture. Additional 
+            notes can be found in "Open Diameter PANA Documentation".
+
+        9.3 Diameter Transport Re-Architecture
+
+            The re-architecture of the Diameter base protocol's
+            transport module is now complete. The major changes
+            includes reimplementation of the peer state machine, 
+            addition of a new routing engine and support for
+            modular transport. Additional notes can be found in
+            the "Open Diameter Software Architecture" and "Open
+            Diameter Routing Architecture". Major changes have 
+            also been made to the configuration files but the 
+            structure has remained intact so it should be relatively 
+            easy to migrate existing configuration files.
+
+            Warning: Parts of the new code has had limited
+            testing only. This includes re-direct and proxy
+            functionality. Pls be aware that these functions
+            are considered in 'aplpha' development. 
+
+        9.4 EAP-TLS library
+
+            A EAP-TLS library has been added to the EAP library
+            suite. The API is present under the libeap include
+            directory along with MD5 and Archie. Additional 
+            documentation will be provided as soon as they are
+            available. Pls check the Open Diameter sourceforge 
+            documentation for it's availability.
+
+        9.5 Diameter Parser Multi-protocol support
+
+            The diameter parser now supports multiple protocols
+            within the same dictionary file. An additional 
+            'protocol' attribute has been added to the <dictionary>
+            tag to define which protocol that dictionary section
+            belongs to. Pls see the "General Diameter Parser 
+            Library Notes" in the README files for details on
+            protocol assignments.    
+
+        9.6 PANA windows client
+
+            An enhanced PANA Windows Client Tester has been
+            added to allow for PANA test in the windows environment.
+            Currently, this is used for experimental purposes only
+            as the actual PANA PAA deamon is still under testing
+            stages. However, this client can be used for interoperability
+            testing. Further details can be found in the README file
+            of this program.
+
+        9.7 Available Documentation
+
+            All the available documentation related to each library
+            as well as general documentation has now been included
+            in the release file. They are located in the docs directroy
+            of the distribution. Note that these documentation are
+            in the form of doxygen source files. You can run doxygen
+            to generate html and latex outputs of these files. 
+
+        9.8 License Migration
+
+            To accomodate integration of other libraries and
+            applications that contain source code licensed under GPL
+            and developed outside the Open Diameter project as well as
+            all applications (i.e., daemon software) developed
+            purely inside the Open Diameter project (all such
+            applications are licensed under GPL in the project),
+            licensing for release 1.0.7 has been migrated from using
+            LGPL-only to using a combination of LGPL and GPL. That is,
+            different licenses may be used for different source files.
+            Please refer to each source file in Open Diameter for
+            specific licensing.
+
+10. Release Version 1.0.6
+   Release Date    : 02/06/2004
+
+    The main features for this release are as follows:
+
+       10.1 Diameter EAP library
+
+            An Diameter EAP implementation based on 
+            draft-ietf-aaa-eap-draft-03.txt is now available.
+            It relys on the integration of Diameter and 
+            EAP implementations of Open Diameter. Additional
+            notes and documentation can be found in the 
+            accompanying documentation as well as the API 
+            the library exposes. In particular, the sample 
+            test code describes usage of the API. As with 
+            the rest of the Open Diameter libraries, Diameter-
+            EAP is available under windows and linux/unix.
+
+       10.2 PANA Draft 2 Support
+
+            The PANA library now fully supports draft 2 and
+            parts of the draft 3 PANA specification. Some of
+            the changes include NAP/ISP separation, state 
+            machine specifications, error message transmission 
+            and others. Also, unspecified IP support has now 
+            been deprecated as proposed by draft 3. This 
+            simplifies portability and also obsoletes the 
+            use of the PANAPF.SYS drivers in windows. See
+            PANA documentation for details.
+
+       10.3 Framework API (DIAMETER, PANA and EAP API changes)
+
+            This version introduces the use of a unified 
+            threading, job scheduling, timing and state table
+            framework for the majority of the libraries in 
+            Open Diameter. It includes a tasking/job class 
+            that utilized varied scheduling techniques. It 
+            also includes a generic finite state machine 
+            framework that integrates tasking and timing
+            support. Details of architecture and usage can 
+            be found in Open Daimeter framework documentation 
+            accompanying this release.
+
+            IMPORTANT: Majority of the Diameter, EAP and PANA API
+            has been modified to follow the architecture defined
+            by this framework. Because of this, a template on what
+            an Open Diameter application looks like and how it
+            behaves has changed. Currently, the formal documentation 
+            on this template is still being done. We rely on the 
+            documentation provided by the other libraries and the 
+            sample code to describe this template and how to use it.
+            
+       10.4 Bug Fixes
+
+            The following is as summary of the major bug fixes 
+            that has been applied to Open Diameter. This includes
+            only the major issues encountered by users. It is
+            provided here for the benefit of informing the state
+            of these issues to the users.
+
+            10.4.1 PANA factory message processing encounters a
+                  race condition in parsing and reception. This
+                  is fixed with the introduction of the framework
+                  API.
+            10.4.2 Fixed a memory leak in PANA message processing 
+                  when message validation fails.
+            10.4.3 Fixed logging facility problems in the diameter
+                  library. Logging flags was not be checked 
+                  properly.
+            10.4.5 Fixed problem in error collection algorithm.
+                  A buffer over-write was occuring when the rate
+                  of received messages increases.
+            10.4.6 Fixed problem on hop-to-hop and end-to-end ID
+                  not being re-generated without a specific call
+                  to SetResultCode() method. All sessions now 
+                  keep state for these ID's.
+            10.4.7 Fixed implementation of session timer and auth
+                  grace period timer. Prior implementation utilizes
+                  only a single event and handler when timer expires.
+                  Both timer values where appended into a single
+                  timeout entity.
+
+
+11. Release Version 1.0.5
+   Release Date    : 10/24/2003
+
+    The main features for this release are as follows:
+
+       11.1 PANA library
+
+            A PANA implementation based on draft-ietf-pana-pana-01.txt
+            document has now been included in the Open Diameter release.
+            The API for this library as well as accompanying documentation
+            can be found in the libpana directory. As noted in the draft,
+            PANA must be used in conjunction with EAP. The sample code
+            that comes with the PANA library shows usage information on
+            how to integrate PANA and EAP. The PANA library uses the 
+            EAP library that comes with the Open Diameter distribution.
+            However, PANA and EAP libraries does not have hard dependecies.
+            PAN can be used with other EAP implementations and vice versa.
+            Additional notes and documentation, can be found in the PANA
+            library directory. Also note that for windows, a PANA packet
+            filtering driver is required. Building and installing the
+            driver is also found in the documentations under the PANA 
+            library directory. For linux/unix, PANA is required to run
+            under priveledge (root/super user) mode since it is using
+            PF_SOCKET sockets.
+
+        11.2 EAP-Archie library
+
+            An EAP-Archie implementation as defined in draft-jwalker-eap-archie-01.txt
+            is now available under the Open Diameter umbrella. EAP-Archie 
+            defines a new EAP authentication scheme and is built on around 
+            the Open Diameter EAP library. Additional notes and documentation 
+            can be found in the libeap/eap-archie directory. In particular, 
+            the sample test code describes implementation details on EAP-Archie 
+            state machine. EAP-Archie API is exposed via the header files in
+            libeap/eap-archie directory. As with the rest of the Open Diameter
+            libraries, EAP-Archie is available under windows and linux/unix.
+
+        11.3 Microsoft VC++ 8.1 Support
+
+            Microsoft .NET 2003 support has now been added to the Open
+            Diameter distribution. A solutions file can be found in the
+            Solutions directory of the distribution. It is important to
+            note that this migration has become mandatory since there
+            has been run-time issues with Open Diameter and VC++ 7.0
+            specially with the use of the boost libraries. Targets are
+            now generated within the directory structure of the Solutions 
+            directory. Output binaries can be found in Solutions/Debug or
+            Solutions/Release directories and intermediate files as well
+            as debug databases are found within thier respective sub-
+            directories. Note also the paths to third-party libraries 
+            and include files (ACE, Xerces and boosts) needs to be set 
+            in the user options of the .NET environment. (i.e. Tools->
+            Options->Projects->VC ++ Directories). Further details about 
+            this build environment can be found in the docs directory
+            under msvc-solution-usage.txt.
+            
+
+        11.4 Bug fixes 
+
+            Note that the Open Diameter C++ API has no significant
+            change for this release (1.0.5). Concentration has 
+            been centered on fixing known issues and enhancing
+            the performance of the library.
+
+            The following is as summary of the major bug fixes 
+            that has been applied to Open Diameter. This includes
+            only the major issues encountered by users. It is
+            provided here for the benefit of informing the state
+            of these issues to the users.
+
+                11.4.1 Fixed Job-Queue resubmission problems with
+                      session manager. The queued jobs in the
+                      thread pool was not being released properly
+                      when the process is exiting.
+                11.4.2 Fixed default route entry not being initialized
+                      properly when there is no default route configured
+                      in the XML configuration file. The initialization
+                      value was undefined which causes problems when
+                      checking for the existance of a default route.
+                11.4.3 Fixed declespec(import/export) macros for windows.
+                      Proper definition of export tags has to be done
+                      depending on whether the library itself is being
+                      built or whether an application is linking to
+                      the Open Diameter set of libraries.
+                11.4.4 Fixed singleton declaration for DLL's on win32 
+                      systems. Since, singletons are template instances,
+                      there were problems of multiple instances of the
+                      singleton object when using it in a DLL context. 
+                      The proper ACE singleton macros are now being 
+                      used to fix this issue.
+            
+
+12. Release Version 1.0.4
+   Release Date    : 09/03/2003
+
+    The main features for this release are as follows:
+
+        12.1 EAP library
+
+            An EAP implemtation based on draft-vollbrecht-eap-state-04
+            document has now been included in the Open Diameter release.
+            The API for this library as well as accompanying documentation
+            can be found in the libeap directory. The README.txt file
+            provides further further references and details of the
+            coverage of this implementation. Pls refer to these
+            documents for further details.
+
+        12.2 Diameter accounting support
+
+            Diameter accounting based on the draft specification
+            has been made available in this release. Diameter
+            accounting is exposed to the user via a set of API
+            classes. A summary of the API is provided below.
+
+            12.2.1 Accounting API
+
+                The accounting session model is derived from 
+                the current session model. However, an
+                authentication session and accounting session
+                are independent of each other it. As with 
+                authentication, the accounting session has 
+                sepcializations for client and server models. 
+                In addition, the accounting model provides message 
+                transmissions for accounting request as well as 
+                acknowledgements for any type of sessions (client 
+                or server sessions). In addition, the 
+                accounting API provides an interim record handlers 
+                that can be used by client sessions to collect 
+                accounting data. The interim handler method is 
+                invoked based on the settings made by a call to 
+                SetInterimRecordInterval method. For server 
+                sessions, a record transformer object has been
+                introduced (AAAAccountingRecTransformer). This 
+                allows server sessions to provide user extensible 
+                record processing to support specific billing 
+                systems. Further details of the API's can be found
+                in the API documentation and the accompanying 
+                sample code.
+
+            12.2.2 XML Transformer model
+
+                The current accounting release provides a default 
+                transformer object AAAAccountingXMLRecTransformer. 
+                This default object transforms Open Diameter based 
+                AAAMessage classes into XML data stream. The XML 
+                tree structure enumerates AVP's and their values 
+                as XML nodes. The resulting data stream is passed 
+                on to the session via OutputRecord method. See
+                the API documentation for further details.
+
+            12.2.3 mySQL support
+
+                A transformer class that supports mySQL output is 
+                partially available in this release. It extends 
+                AAAAccountingRecTransformer class and implements
+                mySQL access within OutputRecord handler. This 
+                allows users of this transformer to dump received 
+                client accounting records into a mySQL database. 
+                It is important to note that the defined mySQL 
+                transformers included in the current API are subject
+                to further refinements and is not recommended for 
+                use till the next release. This support is noted
+                here as initial step to full-pledge support this 
+                feature as well as a short note to the presence 
+                of this transformer in the API. Hence, Diameter 
+                configuration notes as it relates to mySQL will 
+                not be included in this release.
+
+        12.3 Parser Refinements
+
+            There are major refinements to the parser API in this
+            release. The core change is related to redefinition of
+            the base parser which is more generic. It also allows 
+            for user defined AVP entry types to be defined and
+            registered to the parser at runtime. This allows the 
+            parser to be more extensible in ecapsulating any data 
+            type into an AVP. A summary of these changes as well 
+            as other refinements is enumerated below.
+
+            12.3.1 Templatized Container Entry and Creator
+
+                AAAAvpContainerEntry in conjuction with the new
+                template class AAATypeSpecificAvpContainerEntry
+                allows data abstraction and encapsulation to the 
+                parser. It provides both reference and pointer 
+                access to underlying data types. It also uses the 
+                exposed memory manager singleton AAAMemoryManager_S
+                to allocate default and user defined types. 
+                AAAAvpContainerEntry provides the base absraction
+                features for a type while AAATypeSpecificAvpContainerEntry 
+                extends AAAAvpContainerEntry to allow any type
+                allocation/de-allocation and abstraction. For details
+                on how this is used in conjuction with user defined
+                data types, see sec 12.2.3. 
+
+            12.3.2 Container List
+
+                The AAAAvpContainer which is a container entry list
+                as well as its parent container AAAAvpContainerList
+                now derives directly from the STL data structure list<>. 
+                This deprecates the use of AAAAvpContainerListIterator.
+                The AAAAvpContainer class still provides the same 
+                functionality as previous definitions but all method 
+                implementations are inline. It still provides the 
+                overall AVP encapsulation functionality wrapping an
+                AVP instance.
+                               
+            12.3.3 Generic AAAParser base class
+
+                The AAAParser class is now a template class that
+                allows generic dictionary, application and raw
+                data payloads. The new HeaderParser and PayloadParser
+                objects are specialized classes of this template class. 
+                It does not change the usage or functionality of both 
+                classes. The parsing capabilities (ParseAppToRaw and 
+                ParseRawToApp) for both classes are implementations 
+                of the virtual methods defined in the AAAParser base 
+                class. 
+
+                In addition to Diameter header and payload parsers,
+                AVP data value parsers also use the AAAParser template.
+                This allows users to define new AVP value parser
+                extending the parsing shceme to include user defined
+                data types. All an application requires is a new data
+                specific parser class derived from an AAAAvpValueParse
+                and has it's own implementation of ParseAppToRaw and 
+                ParseRawToApp methods. Once defined, an instance of 
+                the new parser object merely has to be registered to 
+                the singleton AVP type list. A simple example is shown 
+                below defines a new AVP data type which is a user 
+                defined structure:
+
+                // This is a user defined type that 
+                // can be emebedded in an AVP value
+                typedef struct {
+                    int myInfo;
+                    diameter_octetstring_t moreInfo;
+                } myData;
+
+                // user application has to implement
+                // a parsing scheme that has knowledge
+                // of myData structure as well as how
+                // to parse it.                
+                class myDataParser : public AAAAvpValueParser {
+                    public:
+                       void parserAppToRaw() { ... implement parsing scheme for myData }
+                       void parserRawToApp() { ... implement parsing scheme for myData }
+                };
+
+                // As noted in Sec 12.2.1, a container entry
+                // that encapsulates the new data type within
+                // an AAAMessage is required. Hence we define
+                // a container entry for our new data type using
+                // the template class AAATypeSpecificAvpContainerEntry
+                typedef AAATypeSpecificAvpContainerEntry<myData> 
+                                AAAmyDataAvpContainerEntry;
+
+
+                // Then an instance of the container entry creator
+                // now has to be registered with the type list. As
+                // with the container entry itself, the creator is
+                // a template class.
+                static AvpContainerEntryCreator<AAAmyDataAvpContainerEntry> 
+                                myDataContainerEntryCreator;
+
+                // We now create an instance of our data parser
+                // creator. This creator allows the Open Diameter
+                // parser to have a generic list of creators for
+                // any type.
+                static AvpValueParserCreator<myDataParser> myDataParserCreator;
+
+                // Finally the instance of the myDataParser parser
+                // and entry creator has to be registered to the singleton
+                // typelist via the AVpType template holders.
+                AvpTypeList::instance()->add(new AvpType("myData", 
+                                                         MYDATA_AVP_CODE, 
+                                                         0,
+                                                         myDataParserCreator, 
+                                                         myDataContainerEntryCreator));
+                
+                Note that in addition to this new parsing code, the new
+                AVP has to be defined in the dictionary file so further
+                AVP attributes are defined. This is the most significant 
+                departure from the previous version of the Diameter parser. 
+                Allowing extensible data type parsing is in direct support 
+                of Diameter applications that requires more complex AVP data 
+                values.                
+                
+        12.4 Windows support
+
+            Windows 2000/XP support is now available for this 
+            release. The Open Diameter set of libraries has now
+            been ported to windows. The libraries are built as
+            separate DLL's with the API's exported to applications.
+            Note that currently, the sample applications are direct 
+            port from unix/linux meaning that there are now windows 
+            based GUI for them. They are compiled as win32 console
+            applications. Note also that the project files and
+            source code has been compile with Visual C++ 7.0 SP5.
+            It has not been ported to Visual Studion 8.0 but there
+            should not be major issues with this effort. Future plans 
+            calls for the library set to be implemented as services
+            within COM/DCOM objects. With this in mind, further
+            refinements to the API maybe needed in order to define
+            a more proper IDL to accomodate COM. 
+
+            The current windows port can be built via the accompanying 
+            project workspace files. However, as the README file
+            suggest, the EAP library has not been completely ported
+            and is has not been tested to work under windows. It
+            is therefore recommended that the project files for EAP
+            be ignored for windows.
+
+            Note that mySQL accounting support is present only on 
+            linux systems. Future plans includes ODBC accounting
+            support under windows systems.
+
+        12.5 Optimizations
+
+            12.5.1 Memory Manager
+
+                The internal AAAMemoryManager object has now 
+                been exposed as a singleton. This memory manager 
+                provides a more efficient memory allocation and 
+                management scheme. On startup, it pre-allocates
+                memory resource from the OS. Then allocation calls
+                made via the manager returns a portion of this pre-
+                allocated memory. Memory free calls return those
+                portions back to the manager. If memory needs
+                exceeds the current allocations, more will be
+                requested from the OS. This scheme minimizes 
+                system allocation calls.
+
+            12.5.2 Buffer Overcopying
+
+                Another significant change is to pass pre-parsed
+                header information the ingress path of the open
+                diameter message reception. In previous versions,
+                more than one header and payload parsing had to
+                occur when receiving diameter messages. This pre-
+                parsing scheme eliminate this need by pre-parsing
+                the header and portions of the payload and passing
+                this information along with the message to other
+                modules in the library.
+
+            12.5.3 Boost library
+
+                The boost set of libraries encompasses a diverse 
+                solution set. Currently, we use the spirit library 
+                provided by boost as a replacement to the very 
+                restrictive flex/bison parser generator. This solves
+                a lot of platform and tools compatability issues.
+                In addition to spirit, we also use the functor 
+                headers included with boost.
+                
+            12.5.4 System Abstraction using ACE
+
+                Most OS and compiler depencies like basic data type
+                definitions, OS specific system calls, logging 
+                facilities .. etc are now abstracted via ACE.
+                we are relying more and more on ACE for platform 
+                to provide platform independence. As more features
+                are added and current ones refined, we will be 
+                relying heavily on other ACE supplied algorithms
+                and patterns.
+
+        12.6 Bug fixes
+
+            The following is as summary of the major bug fixes 
+            that has been applied to Open Diameter. This includes
+            only the major issues encountered by users. It is
+            provided here for the benefit of informing the state
+            of these issues to the users.
+
+                12.6.1 Strict XML validation support introduced due
+                      to recuring bugs caused by improper XML file
+                      definitions. A stricter error checking as well
+                      extensive error reporting of XML issues is now
+                      in place.
+                12.6.2 IPv6 bug fixes to support proper network interface
+                      address loading. This has to do with Host-IP AVP
+                      address for IPv6 systems which is not being read
+                      properly.
+                12.6.3 Watchdog timer segmentation fault caused by
+                      improper setting of peer task objects when
+                      watchdog timer elapses.
+                12.6.4 Updated the dictionary file to come up to the 
+                      latest draft specification. To older file was
+                      outdated which made some of the AVP definition
+                      unusable.
+                12.6.5 Client session segmentation fault caused by the
+                      parent reference being set to NULL after the
+                      session object constructor has been called.
+                12.6.6 Clean up of the circular dependecies between
+                      parser and base protocol libraries which has
+                      been causing link issues in windows.
+
+13. Release Version : 1.0.3
+   Release Date    : 05/30/2003
+
+    The main features for this release are as follows:
+
+        13.1 Configuration file consolidation
+
+            The local configuration, routing table and peer 
+            table configuration file has been consolidated 
+            into a single easy to use file. The original design
+            was anticipating for an increase in the number of 
+            configuration parameters and hence there was a 
+            segregation of logical section each confined to its 
+            own configuration file. However, this increase never 
+            materialized and the separate configuration file has 
+            become cumbersome. This latest release consolidates 
+            these files into a single easy to use XML format. 
+            Additional configuration parameters has also been 
+            added including configurable diameter connect and 
+            receive ports (support for virtual diameter node). 
+            Also, detailed configuration notes has been added 
+            to the configuration file explaining the role of 
+            each configuration parameter as well as possible, 
+            recommended and default values. Pls. see 
+            configuration.xml for details.
+           
+        13.2 Virtual diameter node support
+ 
+            As a consequence of changes to the configuration 
+            modules within open diameter, support for virtual 
+            diameter nodes within a single host has become 
+            possible. Since the configuration file dictates 
+            the identity, realm, connect and receive ports for 
+            each running diameter application it has become 
+            possible to create multiple diameter nodes based 
+            on different configuration files running within 
+            a single host. This allows the diameter processes 
+            running in a multi-homed host to employ sets of 
+            interfaces divided among them. This effectively 
+            creates virtual diameter domain boundaries since 
+            they are able to connect to other diameter entities 
+            outside of the host as wells as to each other.
+
+        13.3 Memory optimizations
+
+            Optimization was made with regards to memory allocations 
+            and handling. The optimization relates to three(3)
+            different areas where memory is required. These are 
+            the following:
+
+            13.3.1 Memory pool for messages
+
+                  To optimize the allocation and de-allocation 
+                  of AAAMessages a pool of fixed size message 
+                  buffer based on ACE_Message_Blocks has been
+                  pre-allocated on startup.  A message buffer 
+                  is requested from this pool to store an AAAMessage 
+                  that has just been read from a socket. An allocated 
+                  message buffer is also used when formatting an 
+                  AAAMessage and sending out via a socket. Using a 
+                  pre-allocated pool greatly minimized frequent 
+                  system calls to allocate memory. The memory pool
+                  is also dynamic. It will increase in the number
+                  of message buffer in the pool if allocation demand
+                  reaches a certain threshold.
+
+            13.3.2 Smart Heap 
+
+                  In addition to message buffers, the library also 
+                  needs persistent memory for general use, i.e. 
+                  allocation of route and peer entry structures,
+                  charater strings, etc. These are heap memory that 
+                  needs to be allocated and persist within a certain 
+                  context. A smart heap was introduced to provide 
+                  memory allocators for general use. As with memory 
+                  pools, a pre-allocated memory is requested from the 
+                  OS at startup. Open diameter modules request variable
+                  size memory from the smart heap and releases it back 
+                  when done. Internally, all allocation and release 
+                  request are implemented by adjusting pointers, 
+                  offsets and usage fields. This is a more optimized 
+                  solution than incurring system calls for every 
+                  allocation and release request.
+
+             13.3.4 Smart message collection
+
+                  A specialized memory optimization was introduced 
+                  specifically for reading data off a socket. The 
+                  objective is to avoid memory allocation request 
+                  for every call to recv(). A circular buffer was 
+                  introduced to temporarily store data read from 
+                  the socket until enough data has been collected 
+                  to form a complete AAAMessage. Once a complete 
+                  message has been collected it can then be copied 
+                  to a message buffer allocated from the pool in 13.3.1.
+                  This is necessary since a recv() call can read a 
+                  partial message or more than one full message at 
+                  a time. Since we utilize a circular buffer, only 
+                  offset calculations are necessary to mark the 
+                  boundaries of each message in the circular buffer.
+                  A smart message collector exists per each peer 
+                  thread.
+
+        13.4 FreeBSD support
+
+            FreeBSD 5.0 is now officially supported. The build
+            process is similar to Linux though there are slight 
+            differences in tools support. Details can be found 
+            in the README file. We have chosen this platform since 
+            we are early adapters for FreeBSD 5.0. This also allows 
+            us robust IPv6 test platform. It is quite possible to 
+            compile and run opendiameter on 4.8 and the steps should
+            be the same. Note that our testbed is FreeBSD 5.0 with 
+            the latest to libc_r.so. Since, 5.0 is a fairly recent 
+            platform, it's thread support is not as stable. Details
+            of this issues is tracked in FreeBSD's users forum. For
+            those who prefer a more stable platform, we recommend
+            building in 4.9
+
+        13.5 IPv6 support
+
+            IPv6 is officially supported under Linux and FreeBSD. 
+            Note that open diameter is heavily dependent on ACE 
+            abstractions to IPv4 and IPv6. All configuration 
+            parameters releating to peer addresses MUST be in 
+            the form of hostnames to allow for seemless switching 
+            between IPv4 and IPv6. Since ACE is used as an abtraction 
+            layer, IPv6 support MUST be enabled in your ACE builds. 
+            Obviously, you also need to make sure that IPv6 is enable 
+            in your kernel (for Linux) or the IPv6 digraph module is 
+            loaded (for FreeBSD). Further IPv6 configuration details 
+            are beyond the scope of this document.
+
+        13.6 Optimizations
+
+            The following are large scale optimizations introduced
+            into this release:
+
+            13.6.1 Message routing table re-write. The transport 
+                  modules message xrouting table has been replace 
+                  with a red-black search tree to minimized search 
+                  times. Simplification of the route entry and 
+                  reference counting of each entry has been 
+                  introduced.  Note that future versions may 
+                  employ a cache table in addition to this 
+                  search tree for further optimization.
+            
+            13.6.2 Peer table re-write. The transport module peer 
+                  table has also been replaced by a red-black 
+                  search tree to decrease search times.
+
+        13.7 Bug fixes
+
+            The following are a brief synopsys of major bug fixes
+            in this current release. Those listed here are only
+            the most relevant bugs and significantly affects 
+            usability. Note that bug tracking numbers have been 
+            omitted for the purpose of clarity:
+
+                13.8.1. Race condition in the session module in the 
+                       client session destructor. Access to session 
+                       handle was still being done even though the 
+                       object is already deleted. 
+                13.8.2. Peer disconnection issue. When a peer abruptly 
+                       shutsdown with no possible re-route, the peer
+                       state still remains open.
+                13.8.3. Memory leak in peer entry loading. Old loader 
+                       was eternally allocating entries.
+                13.8.4. Memory leak in transport module if CER is 
+                       received and local processing failed because 
+                       of an unknown peer or if peer is already 
+                       connected or if CER failed to parse message.
+                13.8.5. Memory leak in transport module packet reception. 
+                       This will eventually exhaust memory. Fixed with 
+                       the introduction of smart message collection.
+
+            As a side note, we have used open source tools like 
+            ElectricFence, dmalloc and itrace to filter the most
+            obvious memory issues with this library. However, these 
+            tools does NOT encompass all possible memory issues 
+            and hence user reports and comments is essential.
+                
+
+14. Release Version : 1.0.2
+   Release Date    : 03/13/2003
+
+    The main features for this release are as follows:
+
+        14.1 Enhanced version of the C++ Open Diameter API Library
+
+            This second release of the C++ Open Diameter API is
+            and enhancement and optimization of the initila release. 
+            This release, however, is not covered by the IETF draft 
+            Diameter C++ API: 
+
+            http://www.ietf.org/internet-drafts/
+                   draft-ohba-aaa-diameter-cxxapi-00.txt
+
+            The C++ API in this release contains significant 
+            modifications to the event handling interface 
+            presented in the original API. In particular, event
+            handling for messages, termination, aborts and timeouts 
+            are on a per session basis. This is unlike the original 
+            API in which the event handlers are globally bounded to
+            the application core. This allows applications to receive
+            and process events specific within a session (via a 
+            sessions event handler) giving the application immediate 
+            access to custom session data. Also, the methology on 
+            AAASession usage has been modified so users inherits an 
+            AAASession allowing for further customization. A class 
+            factory for AAASession on applications acting as servers
+            has also been provided. The introduction of this class 
+            factory pattern releases the diameter application from 
+            handling the details of server session instatiation 
+            and binding. 
+
+        14.2 Deprecation AAAMessageBuffer
+
+            The AAAMessageBuffer class in the libdiamparser library
+            has been deprecated and replace by AAAMessageBlock class.
+            This new class derives directly from ACE_Message_Block
+            and applications MUST be aware of its behavior espcially
+            allocation and de-allocation. The new class does not expose
+            any offset or data member variable but relies extensively 
+            on wr_ptr(), rd_ptr(), base() and size() methods of 
+            ACE_Message_Block. As a consequence, application 
+            programmers utilizing the offset member variable 
+            needs to modify thier code as follows:
+
+               offset value = pBuffer.wr_ptr() - pBuffer.base();
+            
+        14.3 Autoconfig
+
+            Autoconfiguration has been added to provide build 
+            configuration and management.
+
+        14.4 Sample Code
+
+            The sample code for the original C++ API has been
+            deprecated for obvious reasons. The new sample code
+            reflects the usage scenarios for the new API. Samples 
+            code can be found under 
+            $(OPEN DIAMETER ROOT)/libdiameter/test.
+
+        14.5 Doxygen C++ API documentation
+
+            As noted in 8.1, the new C++ API is not covered under 
+            the IETF draft specification so a doxygen generated pdf 
+            documentations of the API is included in this release. 
+            If you wish to re-generate the documentation in html 
+            format, you may run doxygen from the docs directory.
+
+15. Release Version : 1.0.1
+    Release Date    : 01/23/2002
+
+    The main features for this release are as follows:
+
+        15.1 Release of C++ Open Diameter API Library
+
+            This is the initial release of the C++ Open Diameter API 
+            library. The C++ interfaces are implementations of the 
+            IETF draft Diameter C++ API (http://www.ietf.org/internet
+            -drafts/draft-ohba-aaa-diameter-cxxapi-00.txt) Note also 
+            that the architectural documents "Open Diameter Software 
+            Architecture" posted in the Open Diameter project hosted
+            by sourceforge fully reflects this implementation. The 
+            IETF draft documentation contains descriptions as well 
+            as usage information about this API set.
+
+        15.2 libutl compnent has been deprecated 
+
+            The generalized utility library, libutl, present on
+            release 1.0.0 has been deprecated since it duplicates
+            the features already present in ACE. This release
+            represents the complete migration to ACE.
+
+        15.3 Initial documentation
+
+            In addition to the architectural documents and draft
+            documents, other support documents has been added
+            under docs directory. testing_doc.txt provides 
+            details on the test results generated by the current
+            version of this library. It also provides details
+            on the test network topology. configuration.txt 
+            provides details on the XML configuration format 
+            used by the diameter library.
+
+        15.4 Configuration files
+
+            Sample configuration files are also included 
+            in this release under the configfiles directory. 
+            These XML configuration file reflects the topology 
+            specified in docs/testing_doc.txt. Of course, they 
+            are sample configuration and should be modified to
+            fit usage.
+
