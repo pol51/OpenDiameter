@@ -112,7 +112,7 @@ class NASD_PaaSession :
 
     /// Paa events
     private:
-	void EapStart(bool &nap) {
+	void EapStart() {
             NextNode()->Stop();
             NextNode()->Start();
 	}
@@ -172,7 +172,7 @@ class NASD_PaaSession :
             addr.addr_to_string(display, sizeof(display));
             std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
         }
-	void EapResponse(AAAMessageBlock *request, bool nap) {
+	void EapResponse(AAAMessageBlock *request) {
             SendIngress(*request);
 	}
         void EapAltReject() {

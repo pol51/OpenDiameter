@@ -89,7 +89,7 @@ class PANA_PacEventVariable
         void EnableCfg_EapPiggyback(bool set = true) {
             m_Event.i.m_Cfg_EapPiggyback = set;
         }
-        void Flag_StatelessHandshake(boot set = true) {
+        void Flag_StatelessHandshake(bool set = true) {
             m_Event.i.m_Flag_StatelessHandshake = set;
         }
         void Do_ResumeSession(bool set = true) {
@@ -142,13 +142,11 @@ class PANA_PacEventVariable
             return m_Event.p;
         }
         void DumpEvent() {
-            AAA_LOG((LM_DEBUG, "Event01: "));
+            AAA_LOG((LM_DEBUG, "Event: "));
             if (m_Event.i.m_Type_Msg)
                 AAA_LOG((LM_DEBUG, "Msg[%d] ", m_Event.i.m_Type_Msg));
             if (m_Event.i.m_Event_App)
                 AAA_LOG((LM_DEBUG, "App[%d] ", m_Event.i.m_Event_App));
-            if (m_Event.i.m_Flag_SAResumed)
-                AAA_LOG((LM_DEBUG, "SA resumed "));
             if (m_Event.i.m_Cfg_EapPiggyback)
                 AAA_LOG((LM_DEBUG, "EapPiggy "));
             if (m_Event.i.m_Do_ResumeSession)
@@ -174,7 +172,7 @@ class PANA_PacEventVariable
             if (m_Event.i.m_AvpExist_EapPayload)
                 AAA_LOG((LM_DEBUG, "EapPayload "));
             if (m_Event.i.m_Event_Eap)
-                AAA_LOG((LM_DEBUG, "Eap[%d] ", m_Event.e02.i.m_Event_Eap));
+                AAA_LOG((LM_DEBUG, "Eap[%d] ", m_Event.i.m_Event_Eap));
             if (m_Event.i.m_NotSupported_Pcap)
                 AAA_LOG((LM_DEBUG, "NoPcap "));
             if (m_Event.i.m_NotSupported_Ppac)
@@ -234,8 +232,10 @@ class PANA_EXPORT PANA_ClientStateTable :
            }
        };
        class PacWaitEapMsgExitActionTxPANTout : public AAA_Action<PANA_Client> {
-           virtual void operator()(PANA_Client &c) { 
-               c.TxPAN(false);
+           virtual void operator()(PANA_Client &c) {
+               if (PANA_CFG_GENERAL().m_EapPiggyback) {
+                   c.TxPAN(false);
+               }
            }
        };
        class PacWaitEapResultExitActionEapOpen : public AAA_Action<PANA_Client> {

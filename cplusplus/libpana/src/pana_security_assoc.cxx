@@ -42,23 +42,18 @@ void PANA_AuthKey::Generate(PANA_Nonce &pac,
                             pana_octetstring_t &aaaKey,
                             pana_utf8string_t &sessionId)
 {
-    //
-    // The PANA_AUTH_Key is used to integrity protect PANA messages and
-    // derived from AAA-Key(s).  When two AAA-Keys (AAA-Key1 and AAA-Key2)
-    // are generated as a result of double EAP authentication (see Section
-    // 4.3) the compound AAA-Key can be computed as follows ('|' indicates
-    // concatenation):
-    //
-    //    AAA-Key = AAA-Key1 | AAA-Key2
-    //
-    //    PANA_AUTH_KEY = The first N bits of
-    //              HMAC_SHA1(AAA-Key, PaC_nonce | PAA_nonce | Session-ID)
-    //
-    // where the value of N depends on the integrity protection algorithm in
-    // use, i.e., N=160 for HMAC-SHA1.  The length of AAA-Key MUST be N bits
-    // or longer.  See Section Section 4.1.6 for the detailed usage of the
-    // PANA_AUTH_KEY.
-    //
+   // The PANA_AUTH_KEY is derived from the available MSK and it is used to
+   // integrity protect PANA messages.  The PANA_AUTH_KEY is computed in
+   // the following way:
+   //
+   //   PANA_AUTH_KEY = prf+(MSK, PaC_nonce | PAA_nonce | Session-ID)
+   //
+   // where the prf+ function is defined in IKEv2 [RFC4306].  The pseudo-
+   // random function to be used for the prf+ function is specified in the
+   // Algorithm AVP in a PANA-Bind-Request message.  The length of
+   // PANA_AUTH_KEY depends on the integrity algorithm in use.  See
+   // Section 5.4 for the detailed usage of the PANA_AUTH_KEY.
+
 #if PANA_SA_DEBUG
     printf("AAA key[%d]: ", aaaKey.size());
     for (size_t i=0; i<aaaKey.size(); i++) {
@@ -103,22 +98,10 @@ void PANA_AuthKey::Generate(PANA_Nonce &pac,
 void PANA_SecurityAssociation::GenerateAuthKey
     (pana_utf8string_t &sessionId) 
 {
-    if (m_Type == DOUBLE) {
-        pana_octetstring_t combinedKey;
-        if (! m_AAAKey1.IsSet()) {
-            throw (PANA_Exception(PANA_Exception::FAILED, 
-                   "Auth key generation failed, no keys present"));
-        }
-        combinedKey = m_AAAKey1.Get();
-        if (m_AAAKey2.IsSet()) {
-            combinedKey += m_AAAKey2.Get();
-        }
-        Set(combinedKey);
-    }
     m_AuthKey.Generate(m_PacNonce,
-                      m_PaaNonce,
-                      m_Value,
-                      sessionId);
+                       m_PaaNonce,
+                       m_Value,
+                       sessionId);
 }
 
 void PANA_SecurityAssociation::GenerateAuthAvpValue

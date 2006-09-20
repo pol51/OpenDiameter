@@ -94,7 +94,7 @@ class PANA_EXPORT PANA_Client : public PANA_Session
       }
 
    private:
-      virtual void TxFormatAddress(PANA_Message &msg);      
+      virtual void TxFormatAddress(PANA_Message &msg);
 
    private:
       PANA_ClientSupportFlags m_Flags;

@@ -156,8 +156,7 @@ void PANA_Paa::NotifyEapResponse(pana_octetstring_t &payload)
     if (block) {
         block->copy((char*)payload.data(), payload.size());
         block->wr_ptr(block->base());
-        static_cast<PANA_PaaEventInterface&>
-                     (m_Event).EapResponse(block, false));
+        static_cast<PANA_PaaEventInterface&>(m_Event).EapResponse(block);
         block->Release();
     }
 }
@@ -300,7 +299,7 @@ void PANA_Paa::RxPSA()
     PANA_Message &msg = *cleanup;
 
     AAA_LOG((LM_INFO, "(%P|%t) RxPSA: L-flag=%d seq=%d\n",
-               msg->flags().stateless, msg->seq()));
+               msg.flags().stateless, msg.seq()));
 
     // update pac nonce
     PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
@@ -654,7 +653,7 @@ void PANA_Paa::RxPAR()
     PANA_Message &msg = *cleanup;
 
     AAA_LOG((LM_INFO, "(%P|%t) RxPAR: L-flag %d, seq=%d\n",
-               msg->flags().stateless, msg->seq()));
+               msg.flags().stateless, msg.seq()));
 
     // process notification
     ProcessNotification(msg);
@@ -691,7 +690,7 @@ void PANA_Paa::RxPAN()
     PANA_Message &msg = *cleanup;
 
     AAA_LOG((LM_INFO, "(%P|%t) RxPAN: L-flag %d, seq=%d\n",
-               msg->flags().stateless, msg->seq()));
+               msg.flags().stateless, msg.seq()));
 
     // process notification
     ProcessNotification(msg);

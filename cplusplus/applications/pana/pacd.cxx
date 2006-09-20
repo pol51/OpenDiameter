@@ -156,7 +156,7 @@ class PeerChannel : public PANA_ClientEventInterface,
        void SendEapResponse(AAAMessageBlock *msg) {
           m_PaC.EapSendResponse(msg);
        }
-       void EapStart(bool &nap) {
+       void EapStart() {
           m_Eap.Stop();
           m_Eap.Start();
        }
@@ -164,8 +164,7 @@ class PeerChannel : public PANA_ClientEventInterface,
                       PANA_CfgProviderInfo *&choice) {
           // TBD: choose ISP here
        }
-       void EapRequest(AAAMessageBlock *request,
-                       bool nap) {
+       void EapRequest(AAAMessageBlock *request) {
           m_Eap.Receive(request);
        }
        void Success() {

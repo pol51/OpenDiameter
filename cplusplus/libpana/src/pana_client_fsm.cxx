@@ -542,20 +542,27 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacWaitEapMsgExitActionTxPAR);
 
     /////////////////////////////////////////////////////////////////
-    // EAP_RESP_TIMEOUT       if (key_available())       WAIT_EAP_MSG
-    //                          PAN.insert_avp("AUTH");
+    // EAP_RESP_TIMEOUT &&    if (key_available())       WAIT_PAA
+    // eap_piggyback()          PAN.insert_avp("AUTH");
     //                        Tx:PAN();
+    //
+    // Also included in this transition:
+    //
+    // (EAP_RESP_TIMEOUT &&   None();                    WAIT_PAA
+    //  !eap_piggyback())
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
-                       PANA_ST_WAIT_EAP_MSG, 
+    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
+                       PANA_ST_WAIT_PAA,
                        m_PacWaitEapMsgExitActionTxPANTout);
 
     /////////////////////////////////////////////////////////////////
     // EAP_INVALID_MSG ||       None();                    WAIT_PAA
     // EAP_SUCCESS ||
-    // EAP_FAILURE
+    // EAP_FAILURE ||
+    // (EAP_RESP_TIMEOUT &&
+    //  !eap_piggyback())
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
@@ -1309,26 +1316,24 @@ class PANA_CsmRxPSR : public PANA_ClientRxStateFilter
          // verify if protection capability is present and supported
          PANA_UInt32AvpContainerWidget pcapAvp(msg.avpList());
          pana_unsigned32_t *pcap = pcapAvp.GetAvp(PANA_AVPNAME_PROTECTIONCAP);
-         if (pcap) {
-             if (ACE_NTOHL(*pcap) != PANA_CFG_GENERAL().m_ProtectionCap)) {
-                 AAA_LOG((LM_INFO, "(%P|%t) Supplied protection-capability [0x%x] is not supported, session will close\n",
-                         *pcap));
-                 throw (PANA_Exception(PANA_Exception::FAILED,
-                         "PSA recevied, unsupported protection-capability"));
-             }
+         if (pcap && (ACE_NTOHL(*pcap) != PANA_CFG_GENERAL().m_ProtectionCap)) {
+            AAA_LOG((LM_INFO, "(%P|%t) Supplied protection-capability [0x%x] is not supported, session will close\n",
+                    *pcap));
+            throw (PANA_Exception(PANA_Exception::FAILED,
+                    "PSA recevied, unsupported protection-capability"));
          }
 
          // resolve the event
          PANA_PacEventVariable ev;
          ev.MsgType(PANA_EV_MTYPE_PSR);
-         if (msg.Flags().stateless) {
+         if (msg.flags().stateless) {
              ev.Flag_StatelessHandshake();
          }
 
          PANA_StringAvpContainerWidget eapAvp(msg.avpList());
          if (eapAvp.GetAvp(PANA_AVPNAME_EAP)) {
              ev.AvpExist_EapPayload();
-             if (msg.Flags().stateless) {
+             if (msg.flags().stateless) {
                  AAA_LOG((LM_INFO, "(%P|%t) PSA advertizing stateless message with EAP-payload\n"));
                  throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                          "PSA recevied, invalid message"));
@@ -1337,7 +1342,7 @@ class PANA_CsmRxPSR : public PANA_ClientRxStateFilter
          else {
              PANA_StringAvpContainerWidget cookieAvp(msg.avpList());
              if (cookieAvp.GetAvp(PANA_AVPNAME_COOKIE)) {
-                 if (!msg.Flags().stateless) {
+                 if (!msg.flags().stateless) {
                      AAA_LOG((LM_INFO, "(%P|%t) PSA advertizing stateful message with cookie present\n"));
                      throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                              "PSA recevied, invalid message"));
@@ -1755,6 +1760,7 @@ void PANA_PacSession::EapTimeout()
 {
    PANA_PacEventVariable ev;
    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
+   ev.EnableCfg_EapPiggyback(PANA_CFG_GENERAL().m_EapPiggyback ? 1 : 0);
    Notify(ev.Get());
 }
 

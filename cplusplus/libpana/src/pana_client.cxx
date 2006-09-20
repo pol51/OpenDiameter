@@ -142,8 +142,7 @@ void PANA_Client::NotifyEapRequest(pana_octetstring_t &payload)
     if (block) {
         block->copy((char*)payload.data(), payload.size());
         block->wr_ptr(block->base());
-        static_cast<PANA_ClientEventInterface&>
-                    (m_Event).EapRequest(block, false);
+        static_cast<PANA_ClientEventInterface&>(m_Event).EapRequest(block);
         block->Release();
     }
 }
@@ -384,7 +383,7 @@ void PANA_Client::TxPSA(PANA_Message *psr)
     }
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPSA: L-flag %d, seq=%d\n",
-               msg.flags().stateless, msg.seq()));
+               msg->flags().stateless, msg->seq()));
 
     // add notification if any
     AddNotification(*msg);
@@ -561,7 +560,7 @@ void PANA_Client::TxPAR()
     }
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPAR: L-flag %d, seq=%d\n",
-                   msg.flags().stateless, msg.seq()));
+                   msg->flags().stateless, msg->seq()));
 
     SendReqMsg(msg);
 }
@@ -605,11 +604,11 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
         nonceAvp.Get().assign(nonce.data(), nonce.size());
         msg->avpList().add(nonceAvp());
     }
-    
+
     if (eapPiggyBack) {
        // stop eap response timer
        m_Timer.CancelEapResponse();
-       
+
        // eap payload
        PANA_MsgBlockGuard guard(AuxVariables().TxEapMessageQueue().Dequeue());
        PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
@@ -617,7 +616,7 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
        msg->avpList().add(eapAvp());
     }
 
-    // add notification if any       
+    // add notification if any
     AddNotification(*msg);
 
     // add SA if any
@@ -627,7 +626,7 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
     }
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPAN: L-flag %d, seq=%d\n",
-                   msg.flags().stateless, msg.seq()));
+                   msg->flags().stateless, msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -826,7 +825,7 @@ void PANA_Client::TxPBA(bool close)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPBA: seq=%d\n", msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPBA: seq=%d\n", msg->seq()));
 
     SendAnsMsg(msg);
 }
