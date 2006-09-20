@@ -40,13 +40,15 @@
 
 // Hard values (values specific to this implementation)
 #define PANA_CARRY_PCAP_IN_PSR   false
+#define PANA_CARRY_ALGO_IN_PSR   false
 #define PANA_CARRY_PCAP_IN_PBR   true
 
 typedef union {
     struct {
         ACE_UINT32 CarryPcapInPSR   :  1;
+        ACE_UINT32 CarryAlgoInPSR   :  1;
         ACE_UINT32 CarryPcapInPBR   :  1;
-        ACE_UINT32 Reserved         : 30;
+        ACE_UINT32 Reserved         : 29;
     } i;
     ACE_UINT32 p;
 } PANA_PaaSupportFlags;
@@ -91,7 +93,6 @@ class PANA_EXPORT PANA_Paa : public PANA_Session
 
       virtual void RxPSA();
       virtual void RxPBA(bool success);
-      virtual void RxPFEA(bool success);
       virtual void RxPAR();
       virtual void RxPAN();
       virtual void RxPRAR();

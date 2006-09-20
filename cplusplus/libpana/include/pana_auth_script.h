@@ -82,18 +82,6 @@ class PANA_AuthScriptCtl
             AAA_LOG((LM_INFO, "PaC Device Id: %s\n", buf));
          }
 
-#if defined(PANA_MPA_SUPPORT)
- 	 if (args.m_PacIPaddr.IsSet()) {        
-             FormatToString(args.m_PacIPaddr(), buf, sizeof(buf));
-             AAA_LOG((LM_INFO, "PaC IP addr: %s\n", buf));
-         }
- 
-         if (args.m_PaaIPaddr.IsSet()) {        
-             FormatToString(args.m_PaaIPaddr(), buf, sizeof(buf));
-             AAA_LOG((LM_INFO, "PAA IP addr: %s\n", buf));
-         }
-#endif
-
          if (args.m_Paa.IsSet()) {        
             FormatToString(args.m_Paa(), buf, sizeof(buf));
             AAA_LOG((LM_INFO, "PAA Device Id: %s\n", buf));
@@ -131,18 +119,6 @@ class PANA_AuthScriptCtl
 	              args.m_PreferedISP().m_Name.data()));
          }
 
-#if defined(PANA_MPA_SUPPORT)
-         if (args.m_PSKKeyList.IsSet()) {
-             PANA_PACEPKeyListIterator i;
-             for (i = args.m_PSKKeyList().begin(); 
-                  i != args.m_PSKKeyList().end(); 
-                  i ++ ) {
-                 FormatToString((*i), buf, sizeof(buf));
-                 AAA_LOG((LM_INFO, "PSK-Key: %s\n", buf));
-             }
-         }
-#endif
- 
          if (args.m_PreferedNAP.IsSet()) {
             AAA_LOG((LM_INFO, "Prefered NAP: %s\n", 
 		      args.m_PreferedNAP().m_Name.data()));

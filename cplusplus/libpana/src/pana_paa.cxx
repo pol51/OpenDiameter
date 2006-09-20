@@ -68,28 +68,23 @@ PANA_Paa::PANA_Paa(PANA_SessionTxInterface &tp,
     //
     // Initialization Action:
     //
-    //  USE_COOKIE=Set|Unset;
-    //  PIGGYBACK=Set|Unset;
-    //  SEPARATE=Set|Unset;
-    //  if (PIGGYBACK==Set)
-    //    SEPARATE=Unset;
-    //  MOBILITY=Set|Unset;
-    //  1ST_EAP=Unset;
-    //  ABORT_ON_1ST_EAP_FAILURE=Set|Unset;
-    //  CARRY_LIFETIME=Set|Unset;
-    //  CARRY_EP_DEVICE_ID=Set|Unset;
-    //  CARRY_NAP_INFO=Set|Unset;
-    //  CARRY_ISP_INFO=Set|Unset;
-    //  CARRY_PPAC=Set|Unset;
-    //  PROTECTION_CAP_IN_PSR=Set|Unset;
-    //  PROTECTION_CAP_IN_PBR=Set|Unset;
-    //  if (PROTECTION_CAP_IN_PBR==UnSet)
-    //      PROTECTION_CAP_IN_PSR=Unset
-    //  else
-    //      CARRY_DEVICE_ID=Set;
-    //  NAP_AUTH=Unset;
-    //  RTX_COUNTER=0;
-    //  RtxTimerStop();
+    // USE_COOKIE=Set|Unset;
+    // EAP_PIGGYBACK=Set|Unset;
+    // CARRY_LIFETIME=Set|Unset;
+    // CARRY_DEVICE_ID=Set|Unset;
+    // CARRY_NAP_INFO=Set|Unset;
+    // CARRY_ISP_INFO=Set|Unset;
+    // CARRY_PPAC=Set|Unset;
+    // PROTECTION_CAP_IN_PSR=Set|Unset;
+    // PROTECTION_CAP_IN_PBR=Set|Unset;
+    // if (PROTECTION_CAP_IN_PBR=Unset)
+    //   PROTECTION_CAP_IN_PSR=Unset;
+    // else
+    //   CARRY_DEVICE_ID=Set;
+    // RTX_COUNTER=0;
+    // FIRST_AUTH_EXCHG=Set;
+    // STATELESS_HANDSHAKE=Set|Unset;
+    // RtxTimerStop();
     Reset();
 
     // generate a new session id 
@@ -103,10 +98,12 @@ PANA_Paa::PANA_Paa(PANA_SessionTxInterface &tp,
 
     m_Flags.p = 0;
     m_Flags.i.CarryPcapInPSR = PANA_CARRY_PCAP_IN_PSR;
+    m_Flags.i.CarryAlgoInPSR = PANA_CARRY_ALGO_IN_PSR;
     m_Flags.i.CarryPcapInPBR = (PANA_CFG_GENERAL().m_ProtectionCap >= 0) ?
                                   true : PANA_CARRY_PCAP_IN_PBR;
     if (! m_Flags.i.CarryPcapInPBR) {
         m_Flags.i.CarryPcapInPSR = false;
+        m_Flags.i.CarryAlgoInPSR = false;
     }
     else {
         AuxVariables().CarryDeviceId() = true;
@@ -120,19 +117,6 @@ void PANA_Paa::NotifyAuthorization()
     args.m_Pac.Set(PacDeviceId());
     args.m_Paa.Set(PaaDeviceId());
 
-#if defined(PANA_MPA_SUPPORT)
-    args.m_PaaIPaddr.Set(PaaDeviceId());
-    ACE_UINT16 type = AAA_ADDR_FAMILY_RESERVED;
-    std::string pacipstr= PacIpAddress().get_host_addr();
-
-    PANA_DeviceId PacIpAddr(type,pacipstr);
-    args.m_PacIPaddr.Set(PacIpAddr);
-
-    std::string paaipstr = PacIpAddress().get_host_addr();
-    PANA_DeviceId PaaIpAddr(type,paaipstr);
-    args.m_PaaIPaddr.Set(PaaIpAddr);
-#endif
-
     if (SecurityAssociation().IsSet()) {
         args.m_Key.Set(SecurityAssociation().Get());
         if (PANA_CFG_GENERAL().m_WPASupport &&
@@ -145,18 +129,9 @@ void PANA_Paa::NotifyAuthorization()
                                 PacDeviceId().value,
                                 epId->value);
                 args.m_PMKKeyList().push_back(pmk.Key());
-#if defined(PANA_MPA_SUPPORT)
-		PANA_PAC_EP_Key pac_epkey(SecurityAssociation().Get(),
-                                SecurityAssociation().AAAKey2().Id(),
-                                SessionId(),epId->value);
-		args.m_PSKKeyList().push_back(pac_epkey.Key());
-#endif
             }
             if (PANA_CFG_PAA().m_EpIdList.size() > 0) {
                 args.m_PMKKeyList.IsSet() = true;
-#if defined(PANA_MPA_SUPPORT)
-		args.m_PSKKeyList.IsSet() = true;
-#endif
             }
         }
     }
@@ -232,6 +207,7 @@ void PANA_Paa::TxPSR()
     // Populate header
     msg->type() = PANA_MTYPE_PSR;
     msg->flags().request = true;
+    msg->flags().stateless = false; // This TxPSR is for stateful handshake only
 
     // adjust serial num
     ++ LastTxSeqNum();
@@ -250,7 +226,6 @@ void PANA_Paa::TxPSR()
         PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
         eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
         msg->avpList().add(eapAvp());
-        msg->flags().separate = false;
     }
 
     // add ppac
@@ -265,6 +240,13 @@ void PANA_Paa::TxPSR()
         PANA_UInt32AvpWidget pcapAvp(PANA_AVPNAME_PROTECTIONCAP);
         pcapAvp.Get() = ACE_HTONL(PANA_CFG_GENERAL().m_ProtectionCap);
         msg->avpList().add(pcapAvp());
+    }
+
+    // add algorithm
+    if (m_Flags.i.CarryAlgoInPSR) {
+        PANA_UInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
+        algoAvp.Get() = ACE_HTONL(PANA_AUTH_ALGORITHM());
+        msg->avpList().add(algoAvp());
     }
 
     // add nap information
@@ -288,7 +270,7 @@ void PANA_Paa::TxPSR()
         msg->avpList().add(ispAvp());
     }
 
-    // add notification if any       
+    // add notification if any
     AddNotification(*msg);
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPSR: L-flag=%d seq=%d\n",
@@ -327,7 +309,7 @@ void PANA_Paa::RxPSA()
         ! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Set(*nonce);
     }
-    
+
     // process notification
     ProcessNotification(msg);
 
@@ -409,14 +391,14 @@ void PANA_Paa::TxPAR()
     if (! SecurityAssociation().PaaNonce().IsSet()) {
         // generate nouce
         SecurityAssociation().PaaNonce().Generate();
-        
+
         pana_octetstring_t &nonce = SecurityAssociation().PaaNonce().Get();
         PANA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
         nonceAvp.Get().assign(nonce.data(), nonce.size());
         msg->avpList().add(nonceAvp());
     }
 
-    // add notification if any       
+    // add notification if any
     AddNotification(*msg);
 
     // auth avp if any
@@ -524,20 +506,6 @@ void PANA_Paa::TxPBR(pana_unsigned32_t rcode,
             }
             msg->avpList().add(deviceAvp());
         }
-
-#if defined(PANA_MPA_SUPPORT)
-        // add PaC address piggyback if present
-        PANA_DeviceId ip;
-	PANA_DeviceIdContainer &localAddrs = m_TxChannel.GetLocalAddress();
-	PANA_DeviceId *local =(localAddrs.search(AAA_ADDR_FAMILY_IPV4));
-        if (local != NULL)
-            if (static_cast<PANA_PaaEventInterface&>(m_Event).
-                IsPacIpAddressAvailable(ip,*local,PacIpAddress())) {
-            PANA_AddressAvpWidget pacIpAvp(PANA_AVPNAME_PACIP);
-            pacIpAvp.Get() = ip();
-            msg->avpList().add(pacIpAvp());
-        }
-#endif
     }
 
     // update the aaa key's
@@ -550,7 +518,7 @@ void PANA_Paa::TxPBR(pana_unsigned32_t rcode,
                 // TBD: need to make sure algo value is ok
                 PANA_UInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
                 algoAvp.Get() = ACE_HTONL(PANA_AUTH_ALGORITHM());
-                msg->avpList().add(algoAvp());   
+                msg->avpList().add(algoAvp());
                 AuxVariables().AlgorithmIsSet() = true;
             }
             SecurityAssociation().AddKeyIdAvp(*msg);
@@ -621,39 +589,6 @@ void PANA_Paa::RxPBA(bool success)
     }
 }
 
-void PANA_Paa::RxPFEA(bool success)
-{
-    /*
-      7.17  PANA-FirstAuth-End-Answer (PFEA)
-
-       The PANA-FirstAuth-End-Answer (PFEA) message is sent by the PaC to
-       the PAA in response to a PANA-FirstAuth-End-Request message.
-
-        PANA-FirstAuth-End-Answer ::= < PANA-Header: 9, REQ [,SEP] [,NAP] >
-                                      < Session-Id >
-                                      [ Key-Id ]
-                                      [ Notification ]
-                                   *  [ AVP ]
-                                  0*1 < AUTH >
-     */
-    std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
-    PANA_Message &msg = *cleanup;
-
-    AAA_LOG((LM_INFO, "(%P|%t) RxPFEA: S-flag %d, N-flag=%d, seq=%d\n",
-               msg.flags().separate, msg.flags().nap, msg.seq()));
-
-    // process notification
-    ProcessNotification(msg);
-
-    if (success && msg.flags().separate) {
-        m_Timer.CancelTxRetry();
-        m_Event.EapStart();
-    }
-    else {
-        Disconnect();
-    }
-}
-
 void PANA_Paa::TxPAN()
 {
     /*
@@ -683,7 +618,7 @@ void PANA_Paa::TxPAN()
     sessionIdAvp.Get() = SessionId();
     msg->avpList().add(sessionIdAvp());
 
-    // add notification if any       
+    // add notification if any
     AddNotification(*msg);
 
     // add SA if any
@@ -770,7 +705,7 @@ void PANA_Paa::RxPAN()
         ! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Set(*nonce);
     }
-    
+
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {

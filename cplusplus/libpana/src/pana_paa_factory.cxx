@@ -84,7 +84,7 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
                  s->Notify(ev.Get());
                  break;
              }
-             catch (PANA_SessionDb::DB_ERROR e) {                
+             catch (PANA_SessionDb::DB_ERROR e) {
                  ACE_UNUSED_ARG(e);
                  if (PANA_SessionDb::ENTRY_NOT_FOUND) {
                     StatelessRxPSA(msg); 
@@ -99,57 +99,62 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
    }
 }
 
-void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr) 
+void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
 {
    if (PANA_CFG_PAA().m_UseCookie) {
        ///////////////////////////////////////////////////////////////
-       // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-       // - - - - - - - - - - - (Stateless handshake) - - - - - - - -
-       // (Rx:PCI ||             if (SEPARATE==Set)         OFFLINE
-       // PAC_FOUND) &&             PSR.S_flag=1;
-       // USE_COOKIE==Set          PSR.insert_avp
-       //                           ("Cookie");
-       //                        if (CARRY_NAP_INFO==Set)
-       //                          PSR.insert_avp
-       //                          ("NAP-Information");
-       //                        if (CARRY_ISP_INFO==Set)
-       //                          PSR.insert_avp
-       //                          ("ISP-Information");
-       //                        if (CARRY_PPAC==Set)
-       //                          PSR.insert_avp
-       //                          ("Post-PANA-Address-
-       //                            Configuration");
-       //                        Tx:PSR();
-       //
+       // - - - - - - - - - - - - - (Stateless handshake) - - - - - - - -
+       // (Rx:PCI ||               PSR.insert_avp             OFFLINE
+       // PAC_FOUND) &&             ("Cookie");
+       // USE_COOKIE==Set &&       if (CARRY_NAP_INFO==Set)
+       // STATELESS_HANDSHAKE==       PSR.insert_avp
+       //  Set                        ("NAP-Information");
+       //                          if (CARRY_ISP_INFO==Set)
+       //                             PSR.insert_avp
+       //                             ("ISP-Information");
+       //                          if (CARRY_PPAC==Set)
+       //                             PSR.insert_avp
+       //                             ("Post-PANA-Address-
+       //                               Configuration");
+       //                          if (PROTECTION_CAP_IN_PSR
+       //                               ==Set)
+       //                             PSR.insert_avp
+       //                             ("Protection-Cap.");
+       //                          PSR.L_flag=1;
+       //                          Tx:PSR();
        StatelessTxPSR(addr);
    }
    else {
        ///////////////////////////////////////////////////////////////
-       // - - - - - - - - - - - (Stateful handshake)- - - - - - - - -
-       // (Rx:PCI ||             EAP_Restart();             WAIT_EAP_MSG_
-       // PAC_FOUND) &&                                      IN_DISC
-       // USE_COOKIE==Unset &&
-       // EAP_PIGGYBACK==Set
-       // 
-       // (Rx:PCI ||             if (SEPARATE==Set)         STATEFUL_DISC
-       //  PAC_FOUND) &&           PSR.S_flag=1;
-       //  USE_COOKIE==Unset &&  if (CARRY_NAP_INFO==Set)
-       //  PIGGYBACK==Unset        PSR.insert_avp
-       //                           ("NAP-Information");
-       //                        if (CARRY_ISP_INFO==Set)
-       //                          PSR.insert_avp
-       //                           ("ISP-Information");
-       //                        if (CARRY_PPAC==Set)
-       //                          PSR.insert_avp
-       //                           ("Post-PANA-Address-
-       //                             Configuration");
-       //                        if (PROTECTION_CAP_IN_PSR
-       //                            ==Set)
-       //                           PSR.insert_avp
-       //                            ("Protection-Cap.");
-       //                        Tx:PSR();
-       //                        RtxTimerStart();
+       // - - - - - - - - - - - - - (Stateful handshake) - - - - - - - - -
+       // (Rx:PCI ||               EAP_Restart();             WAIT_EAP_MSG_
+       //  PAC_FOUND) &&                                      IN_INIT
+       //  USE_COOKIE==Unset &&
+       //  EAP_PIGGYBACK==Set &&
+       //  STATELESS_HANDSHAKE==Unset
        //
+       // (Rx:PCI ||               if (CARRY_NAP_INFO==Set)   STATEFUL_INIT
+       //  PAC_FOUND) &&             PSR.insert_avp
+       //  USE_COOKIE==Unset &&       ("NAP-Information");
+       //  EAP_PIGGYBACK==Unset &&  if (CARRY_ISP_INFO==Set)
+       //  STATELESS_HANDSHAKE==      PSR.insert_avp
+       //   Unset                     ("ISP-Information");
+       //                           if (CARRY_PPAC==Set)
+       //                             PSR.insert_avp
+       //                             ("Post-PANA-Address-
+       //                              Configuration");
+       //                           if (PROTECTION_CAP_IN_PSR
+       //                               ==Set)
+       //                             PSR.insert_avp
+       //                             ("Protection-Cap.");
+       //                           if (AUTH_ALGORITHM_IN_PSR
+       //                               ==Set)
+       //                             PSR.insert_avp
+       //                             ("Algorithm");
+       //                           PSR.insert_avp("Nonce");
+       //                           PSR.L_flag=0;
+       //                           Tx:PSR();
+       //                           RtxTimerStart();
        PANA_PaaSession *session = Create();
        if (session == NULL) {
           throw (PANA_Exception(PANA_Exception::NO_MEMORY, 
@@ -195,8 +200,7 @@ void PANA_PaaSessionFactory::RxPCI(PANA_Message &msg)
 
    */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: S-flag %d, seq=%d\n",
-             msg.flags().separate, msg.seq()));
+   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: seq=%d\n", msg.seq()));
 
    // validate sequence number
    if (msg.seq() != 0) {
@@ -219,7 +223,7 @@ void PANA_PaaSessionFactory::RxPCI(PANA_Message &msg)
        AAA_LOG((LM_INFO, "(%P|%t) NOTIFICATION: %s\n",
            note->data()));
    }
-    
+
    ACE_INET_Addr addr;
    PANA_DeviceIdConverter::FormatToAddr(*ipId, addr);
    addr.set_port_number(msg.srcPort());
@@ -253,6 +257,7 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
     msg->type() = PANA_MTYPE_PSR;
     msg->seq() = PANA_SerialNumber::GenerateISN();
     msg->flags().request = true;
+    msg->flags().stateless = true;
 
     // add cookie
     pana_octetstring_t cookie;
@@ -276,7 +281,14 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
         pcapAvp.Get() = ACE_HTONL(PANA_CFG_GENERAL().m_ProtectionCap);
         msg->avpList().add(pcapAvp());
     }
-    
+
+    // add algorithm
+    if (m_Flags.i.CarryAlgoInPSR) {
+        PANA_UInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
+        algoAvp.Get() = ACE_HTONL(PANA_AUTH_ALGORITHM());
+        msg->avpList().add(algoAvp());
+    }
+
     // add nap information
     if (PANA_CFG_PAA().m_NapInfo.m_Id > 0) {
         PANA_GroupedAvpWidget napAvp(PANA_AVPNAME_NAPINFO);
@@ -339,14 +351,10 @@ void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
    //////////////////////////////////////////////////////////////////
    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    // - - - - - - - (PSA processing without mobility support) - - - -
-   // Rx:PSA &&                if (SEPARATE==Set &&       WAIT_EAP_MSG
-   // USE_COOKIE==Set &&           PSA.S_flag==0)
-   // (!PSA.exist_avp            SEPARATE=Unset;
-   //   ("Session-Id") ||      EAP_Restart();
-   //  MOBILITY==Unset ||
-   //  (MOBILITY==Set &&
-   //  !retrieve_pana_sa
-   //    (PSA.SESSION_ID)))
+   // Rx:PSA &&                EAP_Restart();             WAIT_EAP_MSG
+   //    USE_COOKIE==Set &&
+   //    STATELESS_HANDSHAKE==
+   //     Set
 
    // first level validation
    if (! ValidateCookie(msg)) {

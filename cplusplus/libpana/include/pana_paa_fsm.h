@@ -54,12 +54,6 @@ class PANA_PaaEventVariable
                ACE_UINT32 m_Cfg_UseCookie        : 1;
                ACE_UINT32 m_Cfg_PiggyBack        : 1;
 
-               ACE_UINT32 m_Flag_Separate        : 1;
-
-               ACE_UINT32 m_Result_FirstEap      : 2;
-
-               ACE_UINT32 m_Do_AbortOnFirstEap   : 1;
-               ACE_UINT32 m_Do_Separate          : 1;
                ACE_UINT32 m_Do_RetreiveSA        : 1;
                ACE_UINT32 m_Do_Authorize         : 1;
                ACE_UINT32 m_Do_Ping              : 1;
@@ -72,8 +66,8 @@ class PANA_PaaEventVariable
                ACE_UINT32 m_Do_SessTimeout       : 1;
 
                ACE_UINT32 m_AvpExist_EapPayload  : 1;
-               
-               ACE_UINT32 m_Reserved             : 1;
+
+               ACE_UINT32 m_Reserved             : 6;
             } i;
             ACE_UINT32 p;
         } EventParams;
@@ -96,18 +90,6 @@ class PANA_PaaEventVariable
         }
         void EnableCfg_PiggyBack(bool set = true) {
             m_Event.i.m_Cfg_PiggyBack = set;
-        }
-        void EnableFlag_Separate(bool set = true) {
-            m_Event.i.m_Flag_Separate = set;
-        }
-        void Result_FirstEap(PANA_RESULT_CODE event) {
-            m_Event.i.m_Result_FirstEap = event;
-        }
-        void Do_AbortOnFirstEap(bool set = true) {
-            m_Event.i.m_Do_AbortOnFirstEap = set;
-        }
-        void Do_Separate(bool set = true) {
-            m_Event.i.m_Do_Separate = set;
         }
         void Do_RetreiveSA(bool set = true) {
             m_Event.i.m_Do_RetreiveSA = set;
@@ -162,14 +144,6 @@ class PANA_PaaEventVariable
                 AAA_LOG((LM_DEBUG, "CookieCfg "));
             if (m_Event.i.m_Cfg_PiggyBack)
                 AAA_LOG((LM_DEBUG, "EapPiggy "));
-            if (m_Event.i.m_Flag_Separate)
-                AAA_LOG((LM_DEBUG, "S-flag "));
-            if (m_Event.i.m_Result_FirstEap)
-                AAA_LOG((LM_DEBUG, "1stEAP[%d] ", m_Event.i.m_Result_FirstEap));
-            if (m_Event.i.m_Do_AbortOnFirstEap)
-                AAA_LOG((LM_DEBUG, "Abort1stEap "));
-            if (m_Event.i.m_Do_Separate)
-                AAA_LOG((LM_DEBUG, "DoSep "));
             if (m_Event.i.m_Do_RetreiveSA)
                 AAA_LOG((LM_DEBUG, "DoSA "));
             if (m_Event.i.m_Do_Authorize)
@@ -204,12 +178,12 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
 {
    public:
       class PaaExitActionPaaEapRestart : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.NotifyEapRestart(); 
+          virtual void operator()(PANA_Paa &p) {
+              p.NotifyEapRestart();
           }
       };
       class PaaExitActionTxPSR : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
+          virtual void operator()(PANA_Paa &p) {
               p.TxPSR();
           }
       };
@@ -445,7 +419,7 @@ class PANA_EXPORT PANA_PaaSessionChannel
       void RemoveHandler() {
           m_UdpChannel.RemoveHandler();
       }
-          
+
    protected:
       PANA_Node &m_Node;
       PANA_ListenerChannel m_UdpChannel;

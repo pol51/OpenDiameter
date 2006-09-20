@@ -44,9 +44,6 @@
 #include "pana_config_manager.h"
 #include "pana_serial_num.h"
 #include "pana_pmk_bootstrap.h"
-#if defined(PANA_MPA_SUPPORT)
-#include "pana_pac_ep_key.h"
-#endif
 
 typedef PANA_SimpleQueue<PANA_Message*> PANA_MsgQueue;
 typedef PANA_SimpleQueue<AAAMessageBlock*> PANA_BufferQueue;
@@ -328,11 +325,6 @@ class PANA_EXPORT PANA_SessionEventInterface
          AAAScholarAttribute<PANA_PMKKeyList> m_PMKKeyList;
          AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedISP;
          AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedNAP;
-#if defined(PANA_MPA_SUPPORT)
- 	 AAAScholarAttribute<PANA_DeviceId> m_PaaIPaddr;
-         AAAScholarAttribute<PANA_DeviceId> m_PacIPaddr;
- 	 AAAScholarAttribute<PANA_PACEPKeyList> m_PSKKeyList;
-#endif
       } PANA_AuthorizationArgs;
 
    public:

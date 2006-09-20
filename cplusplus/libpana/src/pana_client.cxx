@@ -35,9 +35,6 @@
 #include "pana_device_id.h"
 #include "pana_config_manager.h"
 #include "pana_pmk_bootstrap.h"
-#if defined(PANA_MPA_SUPPORT)
-#include "pana_pac_ep_key.h"
-#endif
 
 PANA_Client::PANA_Client(PANA_SessionTxInterface &tp,
                          PANA_SessionTimerInterface &tm,
@@ -101,15 +98,6 @@ void PANA_Client::NotifyAuthorization()
     args.m_Pac.Set(PacDeviceId());
     args.m_Paa.Set(PaaDeviceId());
 
-#if defined(PANA_MPA_SUPPORT)
-    PANA_DeviceIdContainer &localAddrs = m_TxChannel.GetLocalAddress();
-    PANA_DeviceId *id = localAddrs.search(AAA_ADDR_FAMILY_IPV4);
-    if (id != NULL) {
-       args.m_PacIPaddr.Set(*id);
-    }
-    args.m_PaaIPaddr.Set(PaaDeviceId());
-#endif
-
     if (SecurityAssociation().IsSet()) {
         args.m_Key.Set(SecurityAssociation().Get());
         if (PANA_CFG_GENERAL().m_WPASupport &&
@@ -122,18 +110,9 @@ void PANA_Client::NotifyAuthorization()
                                 PacDeviceId().value,
                                 epId->value);
                 args.m_PMKKeyList().push_back(pmk.Key());
-#if defined(PANA_MPA_SUPPORT)
-		PANA_PAC_EP_Key pac_epkey(SecurityAssociation().Get(),
-                                SecurityAssociation().AAAKey2().Id(),
-                                SessionId(),epId->value);
-		args.m_PSKKeyList().push_back(pac_epkey.Key());
-#endif
             }
             if (EpDeviceIds().size() > 0) {
                 args.m_PMKKeyList.IsSet() = true;
-#if defined(PANA_MPA_SUPPORT)
-		args.m_PSKKeyList.IsSet() = true;
-#endif
             }
         }
     }

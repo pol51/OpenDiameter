@@ -47,7 +47,7 @@ class PANA_EXPORT PANA_PaaSessionFactory : public PANA_PaaSessionChannel
 {
    public:
       PANA_PaaSessionFactory(PANA_Node &n) : PANA_PaaSessionChannel(n) { 
-          
+
          OD_Utl_SCSIAdapter1<PANA_PaaSessionFactory, 
                            void(PANA_PaaSessionFactory::*)(PANA_Message&),
                            PANA_Message&> 
@@ -55,10 +55,12 @@ class PANA_EXPORT PANA_PaaSessionFactory : public PANA_PaaSessionChannel
          PANA_PaaSessionChannel::RegisterHandler(msgHandler);
          m_Flags.p = 0;
          m_Flags.i.CarryPcapInPSR = PANA_CARRY_PCAP_IN_PSR;
+         m_Flags.i.CarryAlgoInPSR = PANA_CARRY_ALGO_IN_PSR;
          m_Flags.i.CarryPcapInPBR = (PANA_CFG_GENERAL().m_ProtectionCap >= 0) ?
                                       true : PANA_CARRY_PCAP_IN_PBR;
          if (! m_Flags.i.CarryPcapInPBR) {
              m_Flags.i.CarryPcapInPSR = false;
+             m_Flags.i.CarryAlgoInPSR = false;
          }
       }
       virtual ~PANA_PaaSessionFactory() {

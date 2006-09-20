@@ -310,17 +310,6 @@ class PeerChannel : public PANA_ClientEventInterface
   }
   void EapAltReject() {
   }
-#if defined(PANA_MPA_SUPPORT)
-  void PacIpAddress(PANA_DeviceId &ip,
-                    PANA_DeviceId &oldip,
-                    PANA_DeviceId &remoteip) {
-     char display[64];
-     ACE_INET_Addr addr;
-     PANA_DeviceIdConverter::FormatToAddr(ip, addr);
-     addr.addr_to_string(display, sizeof(display));
-     std::cout << "PAC Ip Address: " << display << std::endl;
-  }
-#endif
   void Authorize(PANA_AuthorizationArgs &args) {
      PANA_AuthScriptCtl::Print(args);
      typedef enum {
@@ -413,16 +402,6 @@ class StandAloneAuthChannel : public PANA_PaaEventInterface
   void Authorize(PANA_AuthorizationArgs &args) {
      PANA_AuthScriptCtl::Print(args);
   }
-#if defined(PANA_MPA_SUPPORT)
-  bool IsPacIpAddressAvailable(PANA_DeviceId &ip,
-                               PANA_DeviceId &local,
-                               ACE_INET_Addr &remote) {
-     ACE_INET_Addr pacIp("192.168.1.100:0");
-     std::cout << "PaC IP Address is available" << std::endl;
-     PANA_DeviceIdConverter::PopulateFromAddr(pacIp, ip);
-     return true;
-  }
-#endif
   bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {
        for (int i=0; i<32; i++)

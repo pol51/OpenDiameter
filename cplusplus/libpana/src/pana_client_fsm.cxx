@@ -1671,7 +1671,6 @@ void PANA_PacSession::FlushMsgMaps()
 {
    m_MsgHandlers.Remove(PANA_MTYPE_PSR);
    m_MsgHandlers.Remove(PANA_MTYPE_PAR);
-   m_MsgHandlers.Remove(PANA_MTYPE_PFER);
    m_MsgHandlers.Remove(PANA_MTYPE_PBR);
    m_MsgHandlers.Remove(PANA_MTYPE_PPR);
    m_MsgHandlers.Remove(PANA_MTYPE_PRAA);

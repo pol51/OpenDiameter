@@ -358,17 +358,6 @@ class PeerChannel : public PANA_ClientEventInterface
   }
   void EapAltReject() {
   }
-#if defined(PANA_MPA_SUPPORT)
-  void PacIpAddress(PANA_DeviceId &ip,
-                    PANA_DeviceId &oldip,
-                    PANA_DeviceId &remoteip) {
-     char display[64];
-     ACE_INET_Addr addr;
-     PANA_DeviceIdConverter::FormatToAddr(ip, addr);
-     addr.addr_to_string(display, sizeof(display));
-     std::cout << "PAC Ip Address: " << display << std::endl;
-  }
-#endif
   void Authorize(PANA_AuthorizationArgs &args) {
      PANA_AuthScriptCtl::Print(args);
      // send an address update request
@@ -471,15 +460,6 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
    }
    void EapAltReject() {
    }
-#if defined(PANA_MPA_SUPPORT)
-   bool IsPacIpAddressAvailable(PANA_DeviceId &ip,
-                                PANA_DeviceId &local,
-                                ACE_INET_Addr &remote) {
-      ACE_INET_Addr pacIp("192.168.1.100:0");
-      PANA_DeviceIdConverter::PopulateFromAddr(pacIp, ip);
-      return true;
-   }
-#endif
    void Authorize(PANA_AuthorizationArgs &args) {
       PANA_AuthScriptCtl::Print(args);
    }

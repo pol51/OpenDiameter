@@ -61,11 +61,6 @@
 #define PANA_MIN_MESSAGE_COUNT 100
 
 //
-// MPA support
-//
-// #define PANA_MPA_SUPPORT 1
-
-//
 // General debuggging
 //
 // #define PANA_DEBUG  1
@@ -113,9 +108,6 @@
 #define PANA_AVPNAME_PPAC             "PPAC"
 #define PANA_AVPNAME_TERMCAUSE        "Termination-Cause"
 #define PANA_AVPNAME_NOTIFICATION     "Notification"
-#if defined(PANA_MPA_SUPPORT)
-#define PANA_AVPNAME_PACIP            "PAC-Ip-Address"
-#endif
 
 // Protection capabilities
 #define PANA_PCAP_UNKNOWN               0
