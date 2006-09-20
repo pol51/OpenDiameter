@@ -142,6 +142,7 @@ class PANA_PacEventVariable
             return m_Event.p;
         }
         void DumpEvent() {
+#if PANA_DEBUG
             AAA_LOG((LM_DEBUG, "Event: "));
             if (m_Event.i.m_Type_Msg)
                 AAA_LOG((LM_DEBUG, "Msg[%d] ", m_Event.i.m_Type_Msg));
@@ -178,6 +179,7 @@ class PANA_PacEventVariable
             if (m_Event.i.m_NotSupported_Ppac)
                 AAA_LOG((LM_DEBUG, "NoPpac "));
             AAA_LOG((LM_DEBUG, "\n"));
+#endif
         }
 
     private:

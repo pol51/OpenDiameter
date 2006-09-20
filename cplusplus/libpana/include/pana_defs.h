@@ -60,11 +60,6 @@
 // files is greater than this minimum value
 #define PANA_MIN_MESSAGE_COUNT 100
 
-//
-// General debuggging
-//
-// #define PANA_DEBUG  1
-
 // Message structure and data definition
 #if !defined(ACE_WIN32)
 #define UCHAR unsigned char

@@ -132,7 +132,7 @@ class PANA_PaaEventVariable
             return m_Event.p;
         }
         void DumpEvent() {
-#if defined(PANA_DEBUG)
+#if PANA_DEBUG
             AAA_LOG((LM_DEBUG, "Event: "));
             if (m_Event.i.m_Type_Msg)
                 AAA_LOG((LM_DEBUG, "Msg[%d] ", m_Event.i.m_Type_Msg));
