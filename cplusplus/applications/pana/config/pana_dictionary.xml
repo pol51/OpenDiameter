@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd">
 
-<dictionary protocol="1">
-
-  <!-- ***************** PANA Base Protocol Definition ******************* -->
-  <base uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-pana-pana-01.txt">
-
+<dictionary>
     <!-- *********************** Message types *************************** -->
     <command name="PANA-PAA-Discover" code="1">
       <answerrules>
@@ -53,7 +49,7 @@
       <answerrules>
         <fixed>
            <avprule name="Session-Id" maximum="1" minimum="1" />
-	    </fixed>
+        </fixed>
         <optional>
            <avprule name="Nonce" maximum="1" minimum="0" />
            <avprule name="EAP-Payload" maximum="1" minimum="0" />
@@ -97,7 +93,6 @@
            <avprule name="Algorithm" maximum="1" minimum="0" />
            <avprule name="Device-Id" maximum="100" minimum="0" />
            <avprule name="Notification" maximum="1" minimum="0" />
-           <avprule name="Dhcp-Avp" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
            <avprule name="PAC-Ip-Address" maximum="1" minimum="0" />
         </optional>
@@ -111,7 +106,6 @@
            <avprule name="Device-Id" maximum="1" minimum="0" />
            <avprule name="Key-Id" maximum="1" minimum="0" />
            <avprule name="Notification" maximum="1" minimum="0" />
-           <avprule name="Dhcp-Avp" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </answerrules>
@@ -179,32 +173,7 @@
         </optional>
       </answerrules>
     </command>
-    <command name="PANA-FirstAuth-End" code="9">
-      <requestrules>
-        <fixed>
-           <avprule name="Session-Id" maximum="1" minimum="1" />
-           <avprule name="Result-Code" maximum="1" minimum="1" />
-        </fixed>
-        <optional>
-           <avprule name="EAP-Payload" maximum="1" minimum="0" />
-           <avprule name="Key-Id" maximum="1" minimum="0" />
-           <avprule name="Algorithm" maximum="1" minimum="0" />
-           <avprule name="Notification" maximum="1" minimum="0" />
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </requestrules>
-      <answerrules>
-        <fixed>
-           <avprule name="Session-Id" maximum="1" minimum="1" />
-        </fixed>
-        <optional>
-           <avprule name="Key-Id" maximum="1" minimum="0" />
-           <avprule name="Notification" maximum="1" minimum="0" />
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </answerrules>
-    </command>
-    <command name="PANA-Update" code="10">
+    <command name="PANA-Update" code="9">
       <requestrules>
         <fixed>
            <avprule name="Session-Id" maximum="1" minimum="1" />
@@ -226,7 +195,7 @@
       </answerrules>
     </command>
     <!-- ********************** End Message types ************************ -->
-    
+
     <!-- ************************ typedefn's ************************ -->
     <typedefn type-name="Any"/> <!-- Added by Ohba-->
     <typedefn type-name="OctetString"/>
@@ -241,51 +210,41 @@
     <typedefn type-name="Unsigned32"/>
     <typedefn type-name="Time" type-parent="Unsigned32"/>
     <typedefn type-name="Unsigned64"/>
-    <typedefn type-name="Dhcp"/>
     <!-- *********************** End Typedefns ********************** -->
-    
+
     <!-- ***************** PANA PROTOCOL AVPS ************** -->
     <avp name="AVP" code="0"> <!-- Added by Ohba -->
       <type type-name="Any"/>
     </avp>
-    <avp name="Algorithm" code="1" mandatory="must"
-	 protected="mustnot">
+    <avp name="Algorithm" code="1" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="AUTH" code="2" mandatory="must"
-	 protected="mustnot">
+    <avp name="AUTH" code="2" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Cookie" code="3" mandatory="must"
-	 protected="mustnot">
+    <avp name="Cookie" code="3" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Device-Id" code="4" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="Device-Id" code="4" mandatory="must">
       <type type-name="Address"/>
     </avp>
-    <avp name="EAP-Payload" code="5" mandatory="must"
-	 protected="mustnot">
+    <avp name="EAP-Payload" code="5" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Failed-AVP" code="6" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="Failed-AVP" code="6" mandatory="must">
       <grouped>
          <optional>
             <avprule name="AVP"/>
          </optional>
       </grouped>
     </avp>
-    <avp name="Provider-Identifier" code="14" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="Provider-Identifier" code="14" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Provider-Name" code="15" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="Provider-Name" code="15" mandatory="must">
       <type type-name="UTF8String"/>
     </avp>
-    <avp name="ISP-Information" code="7" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="ISP-Information" code="7" mandatory="must">
       <grouped>
          <required>
             <avprule name="Provider-Identifier" maximum="1" minimum="0" />
@@ -293,12 +252,10 @@
          </required>
       </grouped>
     </avp>
-    <avp name="Key-Id" code="8" mandatory="must"
-	 protected="mustnot">
+    <avp name="Key-Id" code="8" mandatory="must">
       <type type-name="Integer32"/>
     </avp>
-    <avp name="NAP-Information" code="9" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="NAP-Information" code="9" mandatory="must">
       <grouped>
          <required>
             <avprule name="Provider-Identifier" maximum="1" minimum="0" />
@@ -306,52 +263,34 @@
          </required>
       </grouped>
     </avp>
-    <avp name="Nonce" code="10" mandatory="must"
-	 protected="mustnot">
+    <avp name="Nonce" code="10" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Notification" code="11" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="Notification" code="11" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="PPAC" code="12" mandatory="must"
-         may-encrypt="no" protected="mustnot">
+    <avp name="PPAC" code="12" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Protection-Capability" code="13" mandatory="must"
-	 protected="mustnot">
+    <avp name="Protection-Capability" code="13" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Result-Code" code="16" mandatory="must"
-	 protected="mustnot">
+    <avp name="Result-Code" code="16" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Session-Id" code="17" mandatory="must"
-	 protected="mustnot">
+    <avp name="Session-Id" code="17" mandatory="must">
       <type type-name="UTF8String"/>
     </avp>
-    <avp name="Session-Lifetime" code="18" mandatory="must"
-	 protected="mustnot">
+    <avp name="Session-Lifetime" code="18" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Termination-Cause" code="19" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="Termination-Cause" code="19" mandatory="must">
       <type type-name="Unsigned32"/>
       <enum name="Logout" code="1"/>
       <enum name="Administrative" code="4"/>
       <enum name="Session Timeout" code="8"/>
     </avp>
-    <avp name="Dhcp-Avp" code="100" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
-      <type type-name="Dhcp"/>
-    </avp>
-    <avp name="PAC-Ip-Address" code="101" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+    <avp name="PAC-Ip-Address" code="101" mandatory="must">
       <type type-name="Address"/>
     </avp>
-
-    <!-- ************** PANA PROTOCOL AVPS ************* -->
-
-  </base>
-        
 </dictionary>

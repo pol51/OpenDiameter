@@ -236,6 +236,7 @@ class PANA_EXPORT PANA_ClientStateTable :
                if (PANA_CFG_GENERAL().m_EapPiggyback) {
                    c.TxPAN(false);
                }
+               c.Timer().CancelEapResponse();
            }
        };
        class PacWaitEapResultExitActionEapOpen : public AAA_Action<PANA_Client> {

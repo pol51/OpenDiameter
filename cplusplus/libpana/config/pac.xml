@@ -65,7 +65,7 @@
              message retranmission -->
         <retransmission_param>
            <!-- Initial retransmission timeout -->
-           <initial_rt_timeout>3</initial_rt_timeout>
+           <initial_rt_timeout>10</initial_rt_timeout>
 
            <!-- Maximum retransmission count -->
            <max_rt_count>3</max_rt_count>

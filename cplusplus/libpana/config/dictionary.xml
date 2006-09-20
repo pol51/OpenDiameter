@@ -173,32 +173,7 @@
         </optional>
       </answerrules>
     </command>
-    <command name="PANA-FirstAuth-End" code="9">
-      <requestrules>
-        <fixed>
-           <avprule name="Session-Id" maximum="1" minimum="1" />
-           <avprule name="Result-Code" maximum="1" minimum="1" />
-        </fixed>
-        <optional>
-           <avprule name="EAP-Payload" maximum="1" minimum="0" />
-           <avprule name="Key-Id" maximum="1" minimum="0" />
-           <avprule name="Algorithm" maximum="1" minimum="0" />
-           <avprule name="Notification" maximum="1" minimum="0" />
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </requestrules>
-      <answerrules>
-        <fixed>
-           <avprule name="Session-Id" maximum="1" minimum="1" />
-        </fixed>
-        <optional>
-           <avprule name="Key-Id" maximum="1" minimum="0" />
-           <avprule name="Notification" maximum="1" minimum="0" />
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </answerrules>
-    </command>
-    <command name="PANA-Update" code="10">
+    <command name="PANA-Update" code="9">
       <requestrules>
         <fixed>
            <avprule name="Session-Id" maximum="1" minimum="1" />

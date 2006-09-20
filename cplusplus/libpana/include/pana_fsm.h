@@ -39,7 +39,7 @@
 #include "pana_session.h"
 #include "pana_channel.h"
 
-// #define PANA_FSM_DEBUG 0
+// #define PANA_FSM_DEBUG 1
 
 typedef enum {
   PANA_ST_OFFLINE = 1,
@@ -243,6 +243,7 @@ class PANA_EXPORT PANA_StateMachine :
          try {
 #if PANA_FSM_DEBUG
              int prevState = AAA_StateMachineWithTimer<ARG>::state;
+             AAA_LOG((LM_DEBUG, "(%P|%t) Event: %d occurring\n", ev));
 #endif
 
              AAA_MutexScopeLock guard(m_FsmLock);
