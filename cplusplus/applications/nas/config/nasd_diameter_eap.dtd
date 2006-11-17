@@ -20,18 +20,19 @@
 
      <!ELEMENT dictionary(#PCDATA)>
 
-     <!ELEMENT transport_mngt (identity, realm, tcp_port,
-                                      tls_port, watchdog_timeout,
-                                      retry_interval, request_retransmission_interval,
-                                      max_request_retransmission_count, advertised_host_ip*,
-                                      peer_table, route_table)>
+     <!ELEMENT transport_mngt (identity, realm, tcp_listen_port, sctp_listen_port, use_ipv6,
+                               port, watchdog_timeout, reconnect_interval, reconnect_max,
+                               request_retransmission_interval, max_request_retransmission_count, 
+                               advertised_host_ip*, peer_table, route_table)>
 
      <!ELEMENT identity (#PCDATA)>
      <!ELEMENT realm (#PCDATA)>
-     <!ELEMENT  tcp_port (#PCDATA)>
-     <!ELEMENT tls_port (#PCDATA)>
+     <!ELEMENT tcp_listen_port (#PCDATA)>
+     <!ELEMENT sctp_listen_port (#PCDATA)>
+     <!ELEMENT use_ipv6 (#PCDATA)>
      <!ELEMENT watchdog_timeout (#PCDATA)>
-     <!ELEMENT retry_interval (#PCDATA)>
+     <!ELEMENT reconnect_interval (#PCDATA)>
+     <!ELEMENT reconnect_max (#PCDATA)>
      <!ELEMENT request_retransmission_interval (#PCDATA)>
      <!ELEMENT max_request_retransmission_count (#PCDATA)>
      <!ELEMENT advertised_host_ip (#PCDATA)>
