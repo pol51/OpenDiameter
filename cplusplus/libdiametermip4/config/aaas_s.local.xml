@@ -32,10 +32,12 @@
    <transport_mngt>
       <identity>aaaserver.homedomain.com</identity>
       <realm>homedomain.com</realm>
-      <tcp_port>1802</tcp_port>
-      <tls_port>0</tls_port>
+      <tcp_listen_port>1802</tcp_listen_port>
+      <sctp_listen_port>1803</sctp_listen_port>
+      <use_ipv6>0</use_ipv6>
       <watchdog_timeout>4</watchdog_timeout>
-      <retry_interval>30</retry_interval>
+      <reconnect_interval>30</reconnect_interval>
+      <reconnect_max>3</reconnect_max>
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
       <advertised_host_ip>192.168.1.100</advertised_host_ip>

@@ -80,7 +80,7 @@
       <!-- Path and filename of dictionary file. The path MUST be
            a full path or relative to the location of this configuration
            file -->
-      <dictionary>..\..\..\configfiles\dictionary.xml</dictionary>
+      <dictionary>config\dictionary.xml</dictionary>
    </parser>
 
    <!-- Transport management section. This section contains 
@@ -107,14 +107,57 @@
            to for peer connection request. When using virtual
            domains, make sure each entity listens to different
            port numbers -->
-      <tcp_port>1812</tcp_port>
+      <tcp_listen_port>1812</tcp_listen_port>
 
-      <!-- Diameter TLS listening port. Port number to listen
+      <!-- Diameter SCTP listening port. Port number to listen
            to for peer connection request. When using virtual
            domains, make sure each entity listens to different
            port numbers -->
-      <tls_port>1912</tls_port>
+      <sctp_listen_port>1813</sctp_listen_port>
 
+      <!-- Enables or disables IPv6 support for this stack -->
+      <use_ipv6>0</use_ipv6>
+
+      <!-- Watchdog timeout. Interval between watchdog messages 
+           -->
+      <watchdog_timeout>0</watchdog_timeout>
+
+      <!-- Retry connection interval. Amount of time in between
+           attempts to reconnect to a disconnected peer. If the
+           value is 0, then no retry attempt will be made.
+           -->
+      <reconnect_interval>30</reconnect_interval>
+
+      <!-- Max re-connection attempt. Number of times a reconnection
+           attempt will be made until it gives up. If the
+           value is 0, then no retry attempt will be made.
+           -->
+      <reconnect_max>30</reconnect_max>
+
+      <!-- Request retransmission interval. Retransmission of
+           pending request will be done until max_request_retransmission
+           is exceeded. Care should be taken in defining this
+           value. A high value (>60) will slow down retransmission,
+           a low value (<5) will cause performance issues. If the
+           value is 0, then no retransmission attempt will be made.
+           -->
+      <request_retransmission_interval>10</request_retransmission_interval>
+
+      <!-- Max request retransmission. Maximum number of pending
+           request retransmission. Care should be taken in defining this
+           value. A high value (>10) will cause too much traffic.
+           If the value is 0, then no retransmission attempt will be made.
+           -->
+      <max_request_retransmission_count>3</max_request_retransmission_count>
+
+      <!-- Provides a customized list of local host IP 
+           addresses that will be advertised to other
+           peers during CER/CEA exchange. 
+           -->
+      <advertised_host_ip>192.168.1.100</advertised_host_ip>
+      <advertised_host_ip>192.168.1.101</advertised_host_ip>
+      <advertised_host_ip>192.168.1.102</advertised_host_ip>
+      
       <!-- Peer table lists peers that this open diameter 
            application will attempt to connect to on startup.
            Each peer entry contains host, port and tls
@@ -122,7 +165,7 @@
            are currently configure statically using this section. 
            No dynamic learning is currently available -->
       <peer_table>
-          <! -- This defines the expiration time for dynamically
+          <!-- This defines the expiration time for dynamically
                 learned peers -->
           <expiration_time>1</expiration_time>
           <peer>
@@ -154,7 +197,7 @@
                realm AVP's. For more information on diameter
                routing, pls see "Open Diameter Routing Architecture" -->
           <route>
-             <! -- Realm that this route serves. MUST be unique to
+             <!-- Realm that this route serves. MUST be unique to
                    this table --> 
              <realm>other.research.org</realm>
 
@@ -166,6 +209,30 @@
                    2 (proxy)    - application acting as proxy server
                    3 (redirect) - application acting as redirect agent -->
              <role>0</role> 
+
+             <!-- Re-direct host usage. This provides a hint to
+                  the receiver of the redirect indication on what
+                  to do with the request. If this route is acting
+                  as a redirect agent, the Redirect-Host-Usage AVP
+                  sent in the redirect indication will have this value.
+                  Note that this is valid only if <role> is set to
+                  redirect(3). Valid values are:
+                    0  DONT_CACHE  - redirect host should not be cached.
+                    1  ALL_SESSION - All messages within the same session id
+                                     MAY be sent to the redirect host
+                    2  ALL_REALM   - All messages destined for the realm
+                                     MAY be sent to the redirect host
+                    3  REALM_AND_APPLICATION - All messages for the application
+                                     requested to the realm specified MAY be
+                                     sent to the redirect host
+                    4  ALL_APPLICATION - All messages for the application
+                                     requested MAY be sent to the redirect host
+                    5  ALL_HOST    - All messages that would be sent to the
+                                     host that generated the Redirect-Host 
+                                     MAY be sent to the redirect host
+                    6  ALL_USER    - All messages for the user requested MAY 
+                                     be sent to the redirect host -->
+             <redirect_usage>0</redirect_usage>
 
              <!-- For each route, there is a set of applications
                   that are supported. This is used by the base
@@ -226,7 +293,7 @@
              </application>
           </route>
 
-          <! -- The definition of a default route is the same
+          <!-- The definition of a default route is the same
                 as for any other route. The existance of a
                 default route means that all no-match queries
                 will result in a default route return -->
@@ -271,36 +338,100 @@
 
       <!-- Dictates the maximum number of concurrent
            sessions that will be maintained by open
-           diameter. -->
+           diameter. These include both auth and acct
+           sessions -->
       <max_sessions>10000</max_sessions>
 
-      <!-- Stateful session flag. If set to 1, then
-           server will enforce stateful sessions and
-           clients will hint for stateful sessions. If
-           set to 0 or if missing then stateless sessions -->
-      <stateful>1</stateful>
+      <!-- The following dictates default values for
+           auth sessions -->
+      <auth_sessions>
 
-      <!-- The following are default timers that are
-           maintained for each active session. -->
-      <timers>
+         <!-- Stateful session flag. If set to 1, then
+              server will enforce stateful sessions and
+              clients will hint for stateful sessions. If
+              set to 0 or if missing then stateless sessions.
+
+              The value of auth-session state can actually 
+              negotiated between client and server. So for 
+              the server, auth-session-state is used as follows:
+
+              1. If the request message sent by the client 
+                 contains an auth-session-state, the server 
+                 check's it's own configuration. If the values 
+                 are equal then the server uses that value to 
+                 determine statefulness. If the values are not 
+                 equal and the server's configuration is set to 
+                 AAA_SESSION_STATE_MAINTAINED, then the client's 
+                 value determines the statefulness of the session. 
+                 If the values are not equal and the server's 
+                 configuration is NOT AAA_SESSION_STATE_MAINTAINED 
+                 then the server's configuration determines the 
+                 statefulness.
+              2. If the request message sent by the client does 
+                 not contain an auth-session-state, the server 
+                 check's the settings of SetAuthSessionState() 
+                 function. If SetAuthSessionState() returns a 
+                 value, it is used to determine the statefulness 
+                 of the session otherwise the configuration value 
+                 is used.
+
+              Based on the above policy, the server will return 
+              an auth-session-state avp in answer message.
+
+              For the client:
+
+              1. The initial request sent by the client can contain 
+                 an auth-session-state value as a hint to the server. 
+                 This value is taken from the settings of SetAuthSessionState() 
+                 function. If SetAuthSessionState() returns a value, 
+                 it is used to as a hint value otherwise the configuration 
+                 value is used.
+              2. If the answer message sent by the server contains 
+                 an auth-session-state, then that value will be used 
+                 by the client. If no auth-session-state avp is sent, 
+                 then the hint sent in (1) is used.
+           -->
+         <stateful>1</stateful>
 
          <!-- Timeout in seconds before a session requires 
               re-authentication -->
-         <session>30</session>
+         <session_timeout>30</session_timeout>
 
          <!-- Timeout in seconds before a session is 
               terminated regardless of wether it has
               been re-authenticated -->
-         <lifetime>360</lifetime>
+         <lifetime_timeout>360</lifetime_timeout>
 
          <!-- Grace period after lifetime timeout before
               full termination -->
-         <grace>30</grace>
+         <grace_period_timeout>30</grace_period_timeout>
 
          <!-- Timeout before subsequent ASR messages
               are sent if the inital attempt fails -->
-         <abort_retry>20</abort_retry>
-      </timers>
+         <abort_retry_timeout>20</abort_retry_timeout>
+
+      </auth_sessions>
+
+      <!-- The following dictates default values for
+           acct sessions -->
+      <acct_sessions>
+
+         <!-- Timeout in seconds before a session requires 
+              re-authentication -->
+         <session_timeout>30</session_timeout>
+
+         <!-- Record interim interval dictated to the client
+              if this entity is a server or hint to the server
+              if this is a client -->
+         <interim_interval>5</interim_interval>
+
+         <!-- Realtime required value dictated to the client
+              if this entity is a server or hint to the server
+              if this is a client -->
+         <realtime>1</realtime>
+
+      </acct_sessions>
+
    </session_mngt>
 
    <!-- Log section dictates the verbose levels that
