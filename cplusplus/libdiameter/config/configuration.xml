@@ -107,23 +107,32 @@
            to for peer connection request. When using virtual
            domains, make sure each entity listens to different
            port numbers -->
-      <tcp_port>1812</tcp_port>
+      <tcp_listen_port>1812</tcp_listen_port>
 
-      <!-- Diameter TLS listening port. Port number to listen
+      <!-- Diameter SCTP listening port. Port number to listen
            to for peer connection request. When using virtual
            domains, make sure each entity listens to different
            port numbers -->
-      <tls_port>1912</tls_port>
+      <sctp_listen_port>1813</sctp_listen_port>
+
+      <!-- Enables or disables IPv6 support for this stack -->
+      <use_ipv6>0</use_ipv6>
 
       <!-- Watchdog timeout. Interval between watchdog messages 
            -->
       <watchdog_timeout>0</watchdog_timeout>
 
-      <!-- Retry connection interval. Interval on when to retry
-           a connection attempt to a disconnected peer. If the
+      <!-- Retry connection interval. Amount of time in between
+           attempts to reconnect to a disconnected peer. If the
            value is 0, then no retry attempt will be made.
            -->
-      <retry_interval>30</retry_interval>
+      <reconnect_interval>30</reconnect_interval>
+
+      <!-- Max re-connection attempt. Number of times a reconnection
+           attempt will be made until it gives up. If the
+           value is 0, then no retry attempt will be made.
+           -->
+      <reconnect_max>30</reconnect_max>
 
       <!-- Request retransmission interval. Retransmission of
            pending request will be done until max_request_retransmission

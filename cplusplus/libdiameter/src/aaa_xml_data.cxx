@@ -84,9 +84,9 @@ class DiameterXmlVendorAppIdParser :
                               OD_Utl_XML_SaxParser &parser) :
          OD_Utl_XML_RegisteredElement
               <DiameterVendorSpecificIdLst,
-               OD_Utl_XML_ContentConvNull<DiameterVendorSpecificIdLst> > 
+               OD_Utl_XML_ContentConvNull<DiameterVendorSpecificIdLst> >
                   (arg, "vendor_specific_application_id", parser) {
-     }        
+     }
      virtual bool startElement(ACEXML_Attributes *atts) {
      	 if (! OD_Utl_XML_Element::startElement(atts)) {
      	 	 return false;
@@ -105,18 +105,18 @@ class DiameterXmlVendorAppIdParser :
      DiameterDataVendorSpecificApplicationId &Get() {
      	 return m_Id;
      }
-     
+
     private:
          DiameterDataVendorSpecificApplicationId m_Id;
 };
-               
+
 class DiameterXmlAcctAppIdConv :
    public DiameterXmlContentConvNull
 {
   public:
      DiameterXmlAcctAppIdConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -127,7 +127,7 @@ class DiameterXmlAcctAppIdConv :
          else if (m_element->Parent()->Name() == std::string("vendor_specific_application_id")) {
               DiameterXmlVendorAppIdParser *vendorIdElm = 
                  (DiameterXmlVendorAppIdParser*)m_element->Parent();
-                 vendorIdElm->Get().acctAppId = ACE_OS::atoi(ch);               
+                 vendorIdElm->Get().acctAppId = ACE_OS::atoi(ch);
          }
          else {
              AAA_LOG((LM_ERROR, 
@@ -143,7 +143,7 @@ class DiameterXmlAuthAppIdConv :
   public:
      DiameterXmlAuthAppIdConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -176,7 +176,7 @@ class DiameterXmlRouteParser :
                OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
                   (m_unused, name, parser),
                    m_route(NULL) {
-     }        
+     }
      virtual bool startElement(ACEXML_Attributes *atts) {
      	 if (! OD_Utl_XML_Element::startElement(atts)) {
      	 	 return false;
@@ -204,19 +204,19 @@ class DiameterXmlRouteParser :
      DiameterRouteEntry *Get() {
      	 return m_route;
      }
-     
+
     private:
         DiameterRouteEntry *m_route;
         diameter_unsigned32_t m_unused;
 };
-               
+
 class DiameterXmlRealmConv :
    public DiameterXmlContentConvNull
 {
   public:
      DiameterXmlRealmConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -250,7 +250,7 @@ class DiameterXmlPeerEntryParser :
                OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
                   (m_unused, "peer", parser),
                m_task(task) {
-     }        
+     }
      virtual bool endElement() {
          DiameterPeerManager mngr(m_task);
          if (! mngr.Add(m_peerInfo.hostname,
@@ -266,7 +266,7 @@ class DiameterXmlPeerEntryParser :
      DiameterDataPeer &Get() {
      	 return m_peerInfo;
      }
-     
+
   private:
      AAA_Task &m_task;
      DiameterDataPeer m_peerInfo;
@@ -279,7 +279,7 @@ class DiameterXmlHostnameConv :
   public:
      DiameterXmlHostnameConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -296,7 +296,7 @@ class DiameterXmlPortConv :
   public:
      DiameterXmlPortConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -313,7 +313,7 @@ class DiameterXmlTlsEnabledConv :
   public:
      DiameterXmlTlsEnabledConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -330,7 +330,7 @@ class DiameterXmlRoleConv :
   public:
      DiameterXmlRoleConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -353,12 +353,12 @@ class DiameterXmlRouteApplicationParser :
                OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
                   (m_unused, "application", parser),
                    m_routeApp(NULL) {
-     }        
+     }
      virtual bool startElement(ACEXML_Attributes *atts) {
      	 if (! OD_Utl_XML_Element::startElement(atts)) {
      	 	 return false;
      	 }
-         ACE_NEW_NORETURN(m_routeApp, DiameterRouteApplication);   
+         ACE_NEW_NORETURN(m_routeApp, DiameterRouteApplication);
          return true;
      }
      virtual bool endElement() {
@@ -371,19 +371,19 @@ class DiameterXmlRouteApplicationParser :
      DiameterRouteApplication *Get() {
      	 return m_routeApp;
      }
-     
+
     private:
         DiameterRouteApplication *m_routeApp;
         diameter_unsigned32_t m_unused;
 };
-               
+
 class DiameterXmlVendorIdConv :
    public DiameterXmlContentConvNull
 {
   public:
      DiameterXmlVendorIdConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -415,7 +415,7 @@ class DiameterXmlRteApplicationIdConv :
   public:
      DiameterXmlRteApplicationIdConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -438,7 +438,7 @@ class DiameterXmlRouteServerEntryParser :
                OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
                   (m_unused, "peer_entry", parser),
                    m_routeServer(NULL) {
-     }        
+     }
      virtual bool startElement(ACEXML_Attributes *atts) {
      	 if (! OD_Utl_XML_Element::startElement(atts)) {
              return false;
@@ -459,19 +459,19 @@ class DiameterXmlRouteServerEntryParser :
      DiameterRouteServerEntry *Get() {
      	 return m_routeServer;
      }
-     
+
     private:
         DiameterRouteServerEntry *m_routeServer;
         diameter_unsigned32_t m_unused;
 };
-               
+
 class DiameterXmlRteServerConv :
    public DiameterXmlContentConvNull
 {
   public:
      DiameterXmlRteServerConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -488,7 +488,7 @@ class DiameterXmlRteServerMetricConv :
   public:
      DiameterXmlRteServerMetricConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -505,7 +505,7 @@ class DiameterXmlSessionTimeoutConv :
   public:
      DiameterXmlSessionTimeoutConv(OD_Utl_XML_Element *element) :
          DiameterXmlContentConvNull(element) {
-     }        
+     }
      void content(const ACEXML_Char *ch,
                   int start,
                   int length,
@@ -556,53 +556,57 @@ void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
     // Transport Section
     OD_Utl_XML_StringElement trans01(root.transport.identity, 
                                    "identity", parser);
-    OD_Utl_XML_UInt32Element trans02(root.transport.tcp_port, 
-                                   "tcp_port", parser);
-    OD_Utl_XML_UInt32Element trans03(root.transport.tls_port, 
-                                   "tls_port", parser);
-    OD_Utl_XML_UInt32Element trans04(root.transport.watchdog_timeout, 
+    OD_Utl_XML_UInt32Element trans02(root.transport.tcp_listen_port,
+                                   "tcp_listen_port", parser);
+    OD_Utl_XML_UInt32Element trans03(root.transport.sctp_listen_port,
+                                   "sctp_listen_port", parser);
+    OD_Utl_XML_UInt32Element trans04(root.transport.use_ipv6,
+                                   "use_ipv6", parser);
+    OD_Utl_XML_UInt32Element trans05(root.transport.watchdog_timeout, 
                                    "watchdog_timeout", parser);
-    OD_Utl_XML_UInt32Element trans05(root.transport.retry_interval, 
-                                   "retry_interval", parser);
-    OD_Utl_XML_UInt32Element trans06(root.transport.retx_interval, 
+    OD_Utl_XML_UInt32Element trans06(root.transport.reconnect_interval, 
+                                   "reconnect_interval", parser);
+    OD_Utl_XML_UInt32Element trans07(root.transport.reconnect_max,
+                                   "reconnect_max", parser);
+    OD_Utl_XML_UInt32Element trans08(root.transport.retx_interval, 
                                    "request_retransmission_interval", parser);
-    OD_Utl_XML_UInt32Element trans07(root.transport.retx_max_count, 
+    OD_Utl_XML_UInt32Element trans09(root.transport.retx_max_count, 
                                    "max_request_retransmission_count", parser);
-    DiameterXmlStringListElement trans08(root.transport.advertised_host_ip,
+    DiameterXmlStringListElement trans10(root.transport.advertised_host_ip,
                                    "advertised_host_ip", parser);
 
     // Peer table
-    OD_Utl_XML_UInt32Element trans09((ACE_UINT32&)DIAMETER_PEER_TABLE()->ExpirationTime(), 
+    OD_Utl_XML_UInt32Element trans11((ACE_UINT32&)DIAMETER_PEER_TABLE()->ExpirationTime(), 
                                    "expiration_time", parser);
-    DiameterXmlPeerEntryParser trans10(task, parser);
+    DiameterXmlPeerEntryParser trans12(task, parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlHostnameConv> 
-               trans11(m_unused, "hostname", parser);
+               trans13(m_unused, "hostname", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlPortConv> 
-               trans12(m_unused, "port", parser);
+               trans14(m_unused, "port", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlTlsEnabledConv> 
-               trans13(m_unused, "tls_enabled", parser);
-    
+               trans15(m_unused, "tls_enabled", parser);
+
     // Route table
     ACE_UINT32 transp_01 = 0;
-    OD_Utl_XML_UInt32Element trans14(transp_01, "expire_time", parser);
-    DiameterXmlRouteParser trans15("route", parser);
-    DiameterXmlRouteParser trans16("default_route", parser);
+    OD_Utl_XML_UInt32Element trans16(transp_01, "expire_time", parser);
+    DiameterXmlRouteParser trans17("route", parser);
+    DiameterXmlRouteParser trans18("default_route", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRoleConv> 
-               trans17(m_unused, "role", parser);
+               trans19(m_unused, "role", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRealmConv> 
-               trans18(m_unused, "realm", parser);
+               trans20(m_unused, "realm", parser);
 
     // Application table
-    DiameterXmlRouteApplicationParser trans19(parser);
+    DiameterXmlRouteApplicationParser trans21(parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteApplicationIdConv> 
-               trans20(m_unused, "application_id", parser);
+               trans22(m_unused, "application_id", parser);
 
    // Server entry
-   DiameterXmlRouteServerEntryParser trans21(parser);
+   DiameterXmlRouteServerEntryParser trans23(parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteServerConv> 
-               trans22(m_unused, "server", parser);
+               trans24(m_unused, "server", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteServerMetricConv> 
-               trans23(m_unused, "metric", parser);
+               trans25(m_unused, "metric", parser);
 
     // Session management
     OD_Utl_XML_UInt32Element sess01(root.session.maxSessions,
@@ -750,18 +754,18 @@ void DiameterXMLConfigParser::dump()
     AAA_LOG((LM_INFO, "(%P|%t)               Realm : %s\n", 
                   root.transport.realm.data()));
     AAA_LOG((LM_INFO, "(%P|%t)          TCP Listen : %d\n", 
-                  root.transport.tcp_port));
-    AAA_LOG((LM_INFO, "(%P|%t)          TLS Listen : %d\n", 
-                  root.transport.tls_port));
+                  root.transport.tcp_listen_port));
+    AAA_LOG((LM_INFO, "(%P|%t)         SCTP Listen : %d\n", 
+                  root.transport.sctp_listen_port));
     AAA_LOG((LM_INFO, "(%P|%t)   Watch-Dog timeout : %d\n", 
                   root.transport.watchdog_timeout));
+    AAA_LOG((LM_INFO, "(%P|%t)            Use IPv6 : %d\n", 
+                  root.transport.use_ipv6));
     AAA_LOG((LM_INFO, "(%P|%t) Re-transmission Int : %d\n", 
                   root.transport.retx_interval));
     AAA_LOG((LM_INFO, "(%P|%t)    Max Re-trans Int : %d\n", 
                   root.transport.retx_max_count));
-    AAA_LOG((LM_INFO, "(%P|%t) Peer Conn Retry Int : %d\n", 
-                  root.transport.retry_interval));
-                 
+
     std::list<std::string>::iterator i = 
          root.transport.advertised_host_ip.begin();
     for (; i != root.transport.advertised_host_ip.end(); i++) {

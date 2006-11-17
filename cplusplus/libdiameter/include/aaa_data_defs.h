@@ -205,10 +205,12 @@ typedef struct {
 typedef struct {
    std::string identity;                 // local hostname
    std::string realm;                    // local realm
-   diameter_unsigned32_t tcp_port;       // TCP listening port
-   diameter_unsigned32_t tls_port;       // TLS listening port
+   diameter_unsigned32_t tcp_listen_port; // TCP listening port
+   diameter_unsigned32_t sctp_listen_port; // SCTP listening port
+   diameter_unsigned32_t use_ipv6;       // TLS listening port
    diameter_unsigned32_t watchdog_timeout; // Watchdog timeout
-   diameter_unsigned32_t retry_interval; // Retry interval
+   diameter_unsigned32_t reconnect_interval; // ReConnect interval
+   diameter_unsigned32_t reconnect_max; // ReConnect max
    diameter_unsigned32_t retx_interval;  // Req ReTx interval
    diameter_unsigned32_t retx_max_count; // Req ReTx max count
    std::list<std::string> advertised_host_ip; // List of host ip

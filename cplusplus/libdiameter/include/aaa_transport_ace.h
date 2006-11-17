@@ -36,8 +36,8 @@
 
 #include "ace/SOCK_Connector.h"
 #include "ace/SOCK_Acceptor.h"
-#include "ace/SSL/SSL_SOCK_Connector.h"
-#include "ace/SSL/SSL_SOCK_Acceptor.h"
+#include "ace/SOCK_SEQPACK_Acceptor.h"
+#include "ace/SOCK_SEQPACK_Connector.h"
 #include "ace/Signal.h"
 #include "ace/Handle_Set.h"
 #include "aaa_transport_interface.h"
@@ -47,16 +47,13 @@
 // lower layer is connection oriented
 template<class ACE_ACCEPTOR,
          class ACE_CONNECTOR,
-         class ACE_STREAM>
+         class ACE_STREAM,
+         class ACE_ADDRESS,
+         int IP_PROTOCOL>
 class Diameter_ACE_Transport : public DiameterTransportInterface
 {
    public:
-      typedef enum {
-          ACCEPTOR_TIMEOUT = 4,  // accept blocking call timeout
-      };
-
-   public:
-      Diameter_ACE_Transport() : m_PendingStream(0) { 
+      Diameter_ACE_Transport() : m_PendingStream(0) {
       }
       virtual ~Diameter_ACE_Transport() {
          if (m_PendingStream) {
@@ -69,15 +66,15 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
       int Connect(std::string &hostname, int port) {
          if (! m_PendingStream) {
              m_PendingStream = new Diameter_ACE_Transport
-                 <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>;
+                  <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM, ACE_ADDRESS, IP_PROTOCOL>;
              ACE_Time_Value tm(0, 0);
-             ACE_INET_Addr dest(port, hostname.data());
+             ACE_ADDRESS dest(port, hostname.data());
              int rc = m_Connector.connect(m_PendingStream->Stream(),
-                                          dest, &tm);
+                                          dest, &tm, ACE_Addr::sap_any, true);
              return AceAsynchResults(rc);
          }
          return (-1);
-      }    
+      }
       int Complete(DiameterTransportInterface *&iface) {
          iface = 0; 
          if (m_PendingStream) {
@@ -97,30 +94,22 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
       int Listen(int port) {
          if (! m_PendingStream) {
              m_PendingStream = new Diameter_ACE_Transport
-                 <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>;
-#ifdef ACE_HAS_IPV6
-             ACE_INET_Addr localAddr(port, "::", AF_INET6); 
-#else
-             ACE_INET_Addr localAddr(port);
-#endif // ACE_HAS_IPV6
-             return AceAsynchResults(m_Acceptor.open(localAddr, true));
+                 <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM, ACE_ADDRESS, IP_PROTOCOL>;
+             ACE_ADDRESS localAddr(port, LocalHostAddressToUse());
+             return AceAsynchResults(m_Acceptor.open(localAddr, true, AddressFamilyToUse(),
+                                                     ACE_DEFAULT_BACKLOG, IP_PROTOCOL));
          }
          return (-1);
       }
       virtual int Accept(DiameterTransportInterface *&iface) {
          iface = 0;
          if (m_PendingStream) {
-            ACE_Time_Value tout(ACCEPTOR_TIMEOUT);
-            int rc = m_Acceptor.accept(m_PendingStream->Stream(),
-                                   NULL,
-                                   &tout,
-                                   0,
-                                   0);
+            int rc = m_Acceptor.accept(m_PendingStream->Stream());
             if (rc == 0) {
                 HandOverStream(iface, (DiameterTransportInterface*&)
                                m_PendingStream);
                 m_PendingStream = new Diameter_ACE_Transport
-                     <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>;
+                     <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM, ACE_ADDRESS, IP_PROTOCOL>;
             }
             else if (AceAsynchResults(rc) < 0) {
                 ResetStream((DiameterTransportInterface*&)
@@ -162,9 +151,13 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
       ACE_STREAM     m_Stream;
       ACE_ACCEPTOR   m_Acceptor;
       ACE_CONNECTOR  m_Connector;
-      
+
       // pending stream
-      Diameter_ACE_Transport<ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM>*
+      Diameter_ACE_Transport<ACE_ACCEPTOR,
+                             ACE_CONNECTOR,
+                             ACE_STREAM,
+                             ACE_ADDRESS,
+                             IP_PROTOCOL>*
                      m_PendingStream;
 
       // mutext protection for sender
@@ -210,6 +203,20 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
          src = NULL;
          return (1);
       }
+      int inline AddressFamilyToUse() {
+#ifdef ACE_HAS_IPV6
+         return (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET;
+#else /* ! ACE_HAS_IPV6 */
+         return AF_INET;
+#endif /* ! ACE_HAS_IPV6 */
+      }
+      inline const char* LocalHostAddressToUse() {
+#ifdef ACE_HAS_IPV6
+         return (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? ACE_IPV6_LOCALHOST : ACE_LOCALHOST;
+#else /* ! ACE_HAS_IPV6 */
+         return ACE_LOCALHOST;
+#endif /* ! ACE_HAS_IPV6 */
+      }
 };
 
 class Diameter_ACE_TransportAddress :
@@ -221,7 +228,7 @@ class Diameter_ACE_TransportAddress :
          return ACE::get_ip_interfaces
              (count, addrs);
       }
-      virtual void *GetAddressPtr(ACE_INET_Addr &addr) {          
+      virtual void *GetAddressPtr(ACE_INET_Addr &addr) {
 #if defined (ACE_HAS_IPV6)
          if (addr.get_type() == AF_INET6) {
             sockaddr_in6 *in = (sockaddr_in6*)addr.get_addr();

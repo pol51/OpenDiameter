@@ -207,20 +207,20 @@ class DiameterPeerConnector
 };
 
 class DiameterPeerAcceptor : public DiameterTcpAcceptor,
-                                DiameterTlsAcceptor
+                                    DiameterSctpAcceptor
 {
    public:
       void Start(int ports[DIAMETER_PEER_TTYPE_MAX]) {
           if (ports[DIAMETER_PEER_TTYPE_TCP] > 0) {
               DiameterTcpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_TCP]);
           }
-          if (ports[DIAMETER_PEER_TTYPE_TLS] > 0) {
-              DiameterTlsAcceptor::Open(ports[DIAMETER_PEER_TTYPE_TLS]);
+          if (ports[DIAMETER_PEER_TTYPE_SCTP] > 0) {
+              DiameterSctpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_SCTP]);
           }
       }
       void Stop() {
           DiameterTcpAcceptor::Close();
-          DiameterTlsAcceptor::Close();
+          DiameterSctpAcceptor::Close();
       }
 
    protected:

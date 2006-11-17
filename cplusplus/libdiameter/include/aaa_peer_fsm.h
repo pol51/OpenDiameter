@@ -131,7 +131,7 @@ class DiameterPeer_Cleanup : public AAA_Action<DiameterPeerStateMachine> {
       virtual void operator()(DiameterPeerStateMachine &fsm);
 };
 
-class DiameterPeer_Retry : public AAA_Action<DiameterPeerStateMachine> {
+class DiameterPeer_ReConnect : public AAA_Action<DiameterPeerStateMachine> {
    public:
       virtual void operator()(DiameterPeerStateMachine &fsm);
 };
@@ -535,7 +535,7 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
       DiameterPeerI_SendCER            m_acISendCER;
       DiameterPeer_ConnNack            m_acConnNack;
       DiameterPeer_Cleanup             m_acCleanup;
-      DiameterPeer_Retry               m_acRetry;
+      DiameterPeer_ReConnect           m_acRetry;
       DiameterPeerR_Accept             m_acRAccept;
       DiameterPeer_Error               m_acError;
       DiameterPeer_ProcessCEA          m_acProcessCEA;
@@ -569,10 +569,10 @@ class DiameterPeerStateMachine :
    public:
       DiameterPeerData &Data() { 
          return m_Data; 
-      }          
+      }
       AAA_GroupedJob &Job() {
           return *m_GroupedJob.get();
-      }    
+      }
       virtual int Send(std::auto_ptr<DiameterMsg> &msg) {
           ///  If using ASYNC SEND
           ///  EnqueueSendMsg(msg);
@@ -592,7 +592,7 @@ class DiameterPeerStateMachine :
                   break;
           }
           return (0);
-      }      
+      }
 
    private: // Event Queue
 
@@ -663,18 +663,19 @@ class DiameterPeerStateMachine :
              AAA_LOG((LM_INFO, "(%P|%t) Event not processed, statemachine not running\n"));
          }
       }
-      
+
    protected: // Constructor/Destructor
- 
+
       DiameterPeerStateMachine(AAA_Task &t) :
           AAA_StateMachineWithTimer<DiameterPeerStateMachine>
              (*this, m_StateTable, *t.reactor()),
              m_GroupedJob(&t.Job()) {
+          m_ReconnectAttempt = 0;
       }
       virtual ~DiameterPeerStateMachine() {
           WaitOnCleanup();
           AAA_StateMachine<DiameterPeerStateMachine>::Stop();
-      }    
+      }
 
    protected: // Notifications
       virtual void PeerFsmConnected() {
@@ -683,7 +684,7 @@ class DiameterPeerStateMachine :
       }
       virtual void PeerFsmDisconnected(int cause) {
       }
-      
+
    protected: // Job servicing
 
       ACE_Mutex m_EventFsmMtx;
@@ -727,7 +728,7 @@ class DiameterPeerStateMachine :
       virtual void SendCER();
       virtual void SendCEA(diameter_unsigned32_t rcode,
                            std::string &message);
-    
+
       void AssembleCE(DiameterMsg &msg,
                       bool request = true);
       void DisassembleCE(DiameterMsg &msg);
@@ -739,11 +740,11 @@ class DiameterPeerStateMachine :
       virtual void SendDWR();
       virtual void SendDWA(diameter_unsigned32_t rcode,
                            std::string &message);
-    
+
       void AssembleDW(DiameterMsg &msg,
                       bool request = true);
       void DisassembleDW(DiameterMsg &msg);
-    
+
    protected: // Disconnection
 
       virtual void SendDPR(bool initiator);
@@ -758,17 +759,25 @@ class DiameterPeerStateMachine :
 
       void MsgIdTxMessage(DiameterMsg &msg);
       bool MsgIdRxMessage(DiameterMsg &msg);
-   
+
+   protected:  // Re-connection logic
+
+      int m_ReconnectAttempt;
+
+      void DoReConnect();
+      void StopReConnect();
+
    protected: // Auxillary
 
       void Elect();
-    
+
       typedef enum {
           CLEANUP_IO_I = 0x00000001,
           CLEANUP_IO_R = 0x00000002,
           CLEANUP_FSM  = 0x00000004,
           CLEANUP_ALL  = 0xffffffff
-      } CLEANUP_FLG;    
+      } CLEANUP_FLG;
+
       virtual void Cleanup(unsigned int flags = CLEANUP_ALL);
 
       bool m_CleanupEvent;
@@ -780,9 +789,9 @@ class DiameterPeerStateMachine :
              ACE_OS::sleep(tv);
          } while (! m_CleanupEvent);
       }
-    
+
    protected:
-    
+
       void DumpPeerCapabilities();
       void DumpEvent(AAA_Event ev, char *prefix) {
 #if AAA_FSM_EVENT_DEBUG
@@ -835,6 +844,7 @@ class DiameterPeerStateMachine :
       friend class DiameterPeer_ConnNack;
       friend class DiameterPeerR_Accept;
       friend class DiameterPeer_Error;
+      friend class DiameterPeer_ReConnect;
       friend class DiameterPeer_ProcessCEA;
       friend class DiameterPeerR_AcceptElect;
       friend class DiameterPeer_Disconnect;

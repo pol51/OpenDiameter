@@ -51,13 +51,13 @@ class DiameterTransportInterface
    public:
       virtual int Open() = 0;
       virtual int Close() = 0;
-    
+
       virtual int Connect(std::string &hostname, int port) = 0;
       virtual int Complete(DiameterTransportInterface *&iface) = 0;
-    
+
       virtual int Listen(int port) = 0;
       virtual int Accept(DiameterTransportInterface *&iface) = 0;
-    
+
       virtual int Send(void *data, size_t length) = 0;
       virtual int Receive(void *data, size_t length,
                        int timeout = 0) = 0;
@@ -87,7 +87,7 @@ class Diameter_IO_RxHandler
                            size_t length) = 0;
       virtual void Error(int error,
                          const Diameter_IO_Base *io) = 0;
-    
+
    protected:
       Diameter_IO_RxHandler() { }
       virtual ~Diameter_IO_RxHandler() { }

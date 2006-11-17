@@ -33,12 +33,12 @@
 
 #include "aaa_peer_table.h"
 
-void DiameterPeerEntry::Start() throw (AAA_Error)
+void DiameterPeerEntry::Start(bool useSctp) throw (AAA_Error)
 {
    Notify(DIAMETER_PEER_EV_START);
    m_PeerInitiator.Connect(PeerData().m_Identity,
                            PeerData().m_Port,
-                           PeerData().m_TLS);
+                           useSctp);
 }
 
 void DiameterPeerEntry::Stop(DIAMETER_DISCONNECT_CAUSE cause)
@@ -115,7 +115,7 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
    for (unsigned int i=0;
         i<sizeof(cmdCode)/sizeof(diameter_unsigned32_t);
         i++) {
-       if (cmdCode[i] == query.Code()) {           
+       if (cmdCode[i] == query.Code()) {
            if (! MsgIdRxMessage(*msg) && ! query.IsRequest()) {
                AAA_LOG((LM_INFO,
                    "(%P|%t) Msg[%d] Invalid hop-by-hop or end-to-end id\
@@ -133,7 +133,7 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
                           requestREv[i] : answerREv[i],
                           msg);
                    break;
-               case DIAMETER_PEER_ST_CLOSING:                   
+               case DIAMETER_PEER_ST_CLOSING:
                    if (PeerData().m_IOInitiator.get()) {
                        Notify(query.IsRequest() ?
                               requestIEv[i] : answerIEv[i], msg);

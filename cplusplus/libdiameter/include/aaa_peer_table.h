@@ -61,10 +61,10 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
       virtual ~DiameterPeerEntry() {
           DiameterPeerStateMachine::Stop();
       }
-    
-      void Start() throw (AAA_Error);
+
+      void Start(bool useSctp = true) throw (AAA_Error);
       void Stop(DIAMETER_DISCONNECT_CAUSE cause);
-    
+
       bool IsOpen() {
           return ((state == DIAMETER_PEER_ST_I_OPEN) ||
                   (state == DIAMETER_PEER_ST_R_OPEN)) ?
@@ -85,13 +85,13 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
                   PeerData().m_Port, 
                   PeerData().m_TLS));
       }
-    
-   protected:      
+
+   protected:
       void Message(std::auto_ptr<DiameterMsg> msg);
       void Error(COLLECTOR_ERROR error, std::string &io_name);
 
       class PeerInitiator : public DiameterTcpConnector,
-                                   DiameterTlsConnector
+                                   DiameterSctpConnector
       {
           public:
              PeerInitiator(DiameterPeerEntry &e) :
@@ -99,13 +99,13 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
              }
              int Connect(std::string &host,
                          int port,
-                         bool tls = false) {
-                 return (tls) ?
-                     DiameterTlsConnector::Open(host, port) :
+                         bool useSctp) {
+                 return (useSctp) ?
+                     DiameterSctpConnector::Open(host, port) :
                      DiameterTcpConnector::Open(host, port);
              }
              int Stop() {
-                 DiameterTlsConnector::Close();
+                 DiameterSctpConnector::Close();
                  DiameterTcpConnector::Close();
                  return (0);
              }
@@ -120,7 +120,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
                  m_Entry.ConnectionRequestFailed();
                  return (0);
              }
-          
+
           private:
              DiameterPeerEntry &m_Entry;
       };

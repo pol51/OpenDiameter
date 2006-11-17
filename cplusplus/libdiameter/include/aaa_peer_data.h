@@ -40,16 +40,20 @@
 
 typedef Diameter_ACE_Transport<ACE_SOCK_Acceptor,
                                ACE_SOCK_Connector,
-                               ACE_SOCK_Stream> DiameterTransportTCP;
-typedef Diameter_ACE_Transport<ACE_SSL_SOCK_Acceptor,
-                               ACE_SSL_SOCK_Connector,
-                               ACE_SSL_SOCK_Stream> DiameterTransportTLS;
+                               ACE_SOCK_Stream,
+                               ACE_INET_Addr,
+                               IPPROTO_TCP> DiameterTransportTCP;
+typedef Diameter_ACE_Transport<ACE_SOCK_SEQPACK_Acceptor,
+                               ACE_SOCK_SEQPACK_Connector,
+                               ACE_SOCK_SEQPACK_Association,
+                               ACE_Multihomed_INET_Addr,
+                               IPPROTO_SCTP> DiameterTransportSCTP;
 
 typedef Diameter_IO_Connector<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpConnector;
-typedef Diameter_IO_Connector<DiameterTransportTLS, DiameterMsgCollector> DiameterTlsConnector;
+typedef Diameter_IO_Connector<DiameterTransportSCTP, DiameterMsgCollector> DiameterSctpConnector;
 
 typedef Diameter_IO_Acceptor<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpAcceptor;
-typedef Diameter_IO_Acceptor<DiameterTransportTLS, DiameterMsgCollector> DiameterTlsAcceptor;
+typedef Diameter_IO_Acceptor<DiameterTransportSCTP, DiameterMsgCollector> DiameterSctpAcceptor;
 
 typedef Diameter_ACE_TransportAddress DiameterIpAddress;
 
@@ -60,7 +64,7 @@ typedef enum {
 } DIAMETER_PEER_CONN;
 
 typedef enum {
-    DIAMETER_PEER_TTYPE_TLS = 0,
+    DIAMETER_PEER_TTYPE_SCTP = 0,
     DIAMETER_PEER_TTYPE_TCP,
     DIAMETER_PEER_TTYPE_MAX
 } DIAMETER_PEER_TTYPE;
