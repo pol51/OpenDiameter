@@ -50,7 +50,7 @@ void DiameterPeerEntry::Stop(DIAMETER_DISCONNECT_CAUSE cause)
 }
 
 void DiameterPeerEntry::IncommingConnectionRequest(std::auto_ptr<Diameter_IO_Base> io,
-                                               std::auto_ptr<DiameterMsg> cer)
+                                                   std::auto_ptr<DiameterMsg> cer)
 {
    DiameterMsgCollector *h = reinterpret_cast<DiameterMsgCollector*>(io->Handler());
    h->RegisterHandler(*this);
@@ -176,9 +176,9 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
    }
 }
 
-void DiameterPeerEntry::Error(COLLECTOR_ERROR error, 
+void DiameterPeerEntry::Error(COLLECTOR_ERROR error,
                           std::string &io_name)
-{   
+{
    static char *errMsg[] = { "Parsing error",
                              "Allocation failure",
                              "Transport disconnection",
@@ -186,7 +186,7 @@ void DiameterPeerEntry::Error(COLLECTOR_ERROR error,
 
    AAA_LOG((LM_DEBUG, "(%P|%t) IO [%s] reported: %s\n",
               io_name.data(), errMsg[error-PARSING_ERROR]));
-   
+
    switch (error) {
        case TRANSPORT_ERROR:
            if (io_name == std::string(AAA_IO_ACCEPTOR_NAME)) {

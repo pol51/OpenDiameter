@@ -40,12 +40,15 @@
 #include "aaa_data_defs.h"
 #include "ace/Atomic_Op.h"
 
-#define AAA_IO_ACCEPTOR_NAME  "Acceptor"
 #define AAA_IO_CONNECTOR_NAME "Connector"
+#define AAA_IO_ACCEPTOR_NAME  "Acceptor"
+
+typedef std::list<diameter_address_t*> DiameterHostIpLst;
 
 // interface implemented by transport
 // specific (lower layer) methods. Assumes
 // lower layer is connection oriented
+template<class ADDR_TYPE>
 class DiameterTransportInterface
 {
    public:
@@ -53,14 +56,17 @@ class DiameterTransportInterface
       virtual int Close() = 0;
 
       virtual int Connect(std::string &hostname, int port) = 0;
-      virtual int Complete(DiameterTransportInterface *&iface) = 0;
+      virtual int Complete(DiameterTransportInterface<ADDR_TYPE> *&iface) = 0;
 
-      virtual int Listen(int port) = 0;
-      virtual int Accept(DiameterTransportInterface *&iface) = 0;
+      virtual int Listen(int port, ADDR_TYPE addrToBind) = 0;
+      virtual int Accept(DiameterTransportInterface<ADDR_TYPE> *&iface) = 0;
 
       virtual int Send(void *data, size_t length) = 0;
       virtual int Receive(void *data, size_t length,
                        int timeout = 0) = 0;
+
+      virtual int IPProtocolInUse() = 0;
+
       virtual ~DiameterTransportInterface() { }
 };
 
@@ -100,6 +106,7 @@ class Diameter_IO_Base : public ACE_Task<ACE_MT_SYNCH>
       virtual int Open() = 0;
       virtual int Send(AAAMessageBlock *data) = 0;
       virtual int Close() = 0;
+      virtual int IPProtocolInUse() = 0;
       virtual Diameter_IO_RxHandler *Handler() = 0;
       std::string &Name() {
           return m_Name;
@@ -155,6 +162,9 @@ class Diameter_IO : public Diameter_IO_Base
                                        data->length());
          data->Release();
          return bytes;
+      }
+      int IPProtocolInUse() {
+         return m_Transport->IPProtocolInUse();
       }
       int Close() {
          m_Running = false;
@@ -304,20 +314,18 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
 };
 
 // acceptor model for upper layer IO
-template<class TX_IF, class RX_HANDLER>
+template<class TX_IF, class ADDR_TYPE, class RX_HANDLER>
 class Diameter_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 {
    public:
       Diameter_IO_Acceptor() :
-          Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_ACCEPTOR_NAME) { 
+          Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_ACCEPTOR_NAME) {
               Diameter_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = true;
       }
-      int Open(int port) {
+      int Open(int port, ADDR_TYPE addrToBind) {
           if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::Open() >= 0) {
               if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Listen
-                  (port) >= 0) {
-                  AAA_LOG((LM_ERROR, "(%P|%t) Listening at %d\n",
-                          port));
+                  (port, addrToBind) >= 0) {
                   return Diameter_IO_Factory<TX_IF, RX_HANDLER>::Activate();
               }
           }
@@ -332,17 +340,17 @@ class Diameter_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
    protected:
       int Create(TX_IF *&newTransport) {
           return Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Accept
-              (reinterpret_cast<DiameterTransportInterface*&>(newTransport));
+              (reinterpret_cast<DiameterTransportInterface<ADDR_TYPE> *&>(newTransport));
       }
 };
 
 // connector model for upper layer IO
-template<class TX_IF, class RX_HANDLER>
+template<class TX_IF, class ADDR_TYPE, class RX_HANDLER>
 class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 {
    public:
       Diameter_IO_Connector() :
-          Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_CONNECTOR_NAME) { 
+          Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_CONNECTOR_NAME) {
               Diameter_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = false;
       }
       int Open(std::string &hostname, int port) {
@@ -360,7 +368,7 @@ class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
    protected:
       int Create(TX_IF *&newTransport) {
           return Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Complete
-                 ((DiameterTransportInterface*&)newTransport);
+                 ((DiameterTransportInterface<ADDR_TYPE> *&)newTransport);
       }
 };
 

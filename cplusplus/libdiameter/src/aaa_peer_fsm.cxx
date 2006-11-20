@@ -89,7 +89,7 @@ void DiameterPeerR_ISendConnReq::operator()(DiameterPeerStateMachine &fsm)
 
 void DiameterPeerR_AcceptSendCEA::operator()(DiameterPeerStateMachine &fsm)
 {
-    fsm.PeerData().m_IOResponder = fsm.m_CurrentPeerEventParam->m_IO;    
+    fsm.PeerData().m_IOResponder = fsm.m_CurrentPeerEventParam->m_IO;
     std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
 
     fsm.DisassembleCE(*cer);
@@ -137,7 +137,7 @@ void DiameterPeer_Cleanup::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeer_ReConnect::operator()(DiameterPeerStateMachine &fsm)
 {
     AAA_LOG((LM_INFO,
-            "(%P|%t) Retrying peer connection\n"));
+            "(%P|%t) Retrying peer connection for the %d time\n", fsm.m_ReconnectAttempt));
 
     fsm.StopReConnect();
     reinterpret_cast<DiameterPeerEntry*>(&fsm)->Start(fsm.m_ReconnectAttempt % 2);
@@ -245,9 +245,9 @@ void DiameterPeerR_SendCEA::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeerR_SendCEAOpen::operator()(DiameterPeerStateMachine &fsm)
 {
     std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
-   
+
     fsm.DisassembleCE(*cer);
-    
+
     std::string message;
     diameter_unsigned32_t rcode;
     if (! fsm.ValidatePeer(rcode, message)) {
@@ -269,7 +269,7 @@ void DiameterPeerR_DisconnectResp::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeerR_DisconnectIOpen::operator()(DiameterPeerStateMachine &fsm)
 {
     std::auto_ptr<DiameterMsg> cea = fsm.m_CurrentPeerEventParam->m_Msg;
-    
+
     DiameterMsgResultCode rcode(*cea);
     if (rcode.InterpretedResultCode() ==
         DiameterMsgResultCode::RCODE_SUCCESS) {
@@ -292,7 +292,7 @@ void DiameterPeerR_DisconnectIOpen::operator()(DiameterPeerStateMachine &fsm)
                  "(%P|%t) Peer returned an error on CEA: %s\n",
                       strMsg->data()));
        }
-       fsm.Cleanup();       
+       fsm.Cleanup();
     }
 }
 
@@ -524,37 +524,40 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
    originRealm.Get() = DIAMETER_CFG_TRANSPORT()->realm;
    firmware.Get() = DIAMETER_CFG_GENERAL()->version;
    inbandSecId.Get() = m_Data.m_TLS;
-  
+
    // Host-IP-Address
    DiameterIpAddress tool;
-   if (DIAMETER_CFG_TRANSPORT()->advertised_host_ip.size() > 0) {
-       std::list<std::string>::iterator i = 
-           DIAMETER_CFG_TRANSPORT()->advertised_host_ip.begin();
-       for (; i != DIAMETER_CFG_TRANSPORT()->advertised_host_ip.end(); 
-            i++) {
-           ACE_INET_Addr hostAddr((*i).data());           
-           diameter_address_t &ipAvp = hostIp.Get();
-           ipAvp.type = AAA_ADDRESS_IP;
-           ipAvp.value.assign((char*)tool.GetAddressPtr(hostAddr),
-                              tool.GetAddressSize(hostAddr));
-       }
-   }
-   else {
-       size_t count;
-       ACE_INET_Addr *addrs;
-       if (tool.GetLocalAddresses(count, addrs) == 0) {
-           for(size_t i = 0; i < count; i++) {
-               diameter_address_t &ipAvp = hostIp.Get();
-               ipAvp.type = AAA_ADDRESS_IP;
-               ipAvp.value.assign((char*)tool.GetAddressPtr(addrs[i]),
-                                   tool.GetAddressSize(addrs[i]));
+   ACE_INET_Addr identityAddr(0, DIAMETER_CFG_TRANSPORT()->identity.data(),
+#ifdef ACE_HAS_IPV6
+                              (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET);
+#else /* ! ACE_HAS_IPV6 */
+                               AF_INET);
+#endif /* ! ACE_HAS_IPV6 */
+   diameter_address_t &ipAvp = hostIp.Get();
+   ipAvp.type = AAA_ADDRESS_IP;
+   ipAvp.value.assign((char*)tool.GetAddressPtr(identityAddr),
+                      tool.GetAddressSize(identityAddr));
+
+   if (IPProtocolInUse() == IPPROTO_SCTP) {
+       if (DIAMETER_CFG_TRANSPORT()->advertised_hostname.size() > 0) {
+           std::list<std::string>::iterator i = 
+               DIAMETER_CFG_TRANSPORT()->advertised_hostname.begin();
+           for (; i != DIAMETER_CFG_TRANSPORT()->advertised_hostname.end(); i++) {
+               if (! identityAddr.set(0, (*i).data(),
+#ifdef ACE_HAS_IPV6
+                                   (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET)) {
+#else /* ! ACE_HAS_IPV6 */
+                                   AF_INET) {
+#endif /* ! ACE_HAS_IPV6 */
+                   ipAvp = hostIp.Get();
+                   ipAvp.type = AAA_ADDRESS_IP;
+                   ipAvp.value.assign((char*)tool.GetAddressPtr(identityAddr),
+                                      tool.GetAddressSize(identityAddr));
+               }
            }
-	   if (count > 0) {
-               delete[] addrs;
-	   }
        }
    }
-   
+
    vendorId.Get() = DIAMETER_CFG_GENERAL()->vendor;
    product.Get() = DIAMETER_CFG_GENERAL()->product;
    originStateId.Get() = DIAMETER_CFG_RUNTIME()->originStateId;
@@ -621,7 +624,7 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
 {
    int ndx; 
    DiameterPeerCapabilities &cap = m_Data.m_PeerCapabilities;
-   
+
    DiameterIdentityAvpContainerWidget originHost(msg.acl);
    DiameterIdentityAvpContainerWidget originRealm(msg.acl);
    DiameterAddressAvpContainerWidget hostIp(msg.acl);
@@ -638,18 +641,17 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
    diameter_identity_t *identity = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
    cap.m_Host.assign((identity) ? identity->data() : "",
                      (identity) ? identity->length() : 0);
-   
+
    identity = originRealm.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
    cap.m_Realm.assign((identity) ? identity->data() : "",
                       (identity) ? identity->length() : 0);
-              
 
    while (! cap.m_HostIpLst.empty()) {
        diameter_address_t *ip = cap.m_HostIpLst.front();
        cap.m_HostIpLst.pop_front();
        delete ip;
    }
-   
+
    diameter_address_t *address = hostIp.GetAvp(DIAMETER_AVPNAME_HOSTIP);
    for (ndx=1; address; ndx++) {
        diameter_address_t *newAddr = new diameter_address_t;
@@ -664,16 +666,16 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
    diameter_utf8string_t *utf8str = product.GetAvp(DIAMETER_AVPNAME_PRODUCTNAME);
    cap.m_ProductName.assign((utf8str) ? utf8str->data() : "",
                             (utf8str) ? utf8str->length() : 0);
-   
+
    uint32 = originState.GetAvp(DIAMETER_AVPNAME_ORIGINSTATEID);
    cap.m_OriginStateId = (uint32) ? *uint32 : 0;
-   
+
    uint32 = firmware.GetAvp(DIAMETER_AVPNAME_FIRMWAREREV);
    cap.m_FirmwareRevision = (uint32) ? *uint32 : 0;
-   
+
    uint32 = inbandSecId.GetAvp(DIAMETER_AVPNAME_INBANDSECID);
    cap.m_InbandSecurityId = (uint32) ? *uint32 : 0;
-   
+
    DiameterApplicationIdLst *idList[] = {
        &cap.m_SupportedVendorIdLst,
        &cap.m_AuthAppIdLst,
@@ -705,7 +707,7 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
            uint32 = widgets[i]->GetAvp(avpNames[i], ndx);
        }
    }
-   
+
    while (! cap.m_VendorSpecificId.empty()) {
        DiameterVendorSpecificIdLst::iterator x =
            cap.m_VendorSpecificId.begin();
@@ -727,7 +729,7 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
            vsid.vendorIdLst.push_back(*uint32);
            uint32 = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID, p);
        }
-       
+
        uint32 = gAuthId.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
        vsid.authAppId = (uint32) ? *uint32 : 0;
        uint32 = gAcctId.GetAvp(DIAMETER_AVPNAME_ACCTAPPID);
@@ -770,7 +772,7 @@ void DiameterPeerStateMachine::DisassembleDW(DiameterMsg &msg)
 {
    diameter_identity_t Host;
    diameter_identity_t Realm;
-   
+
    DiameterIdentityAvpContainerWidget originHost(msg.acl);
    DiameterIdentityAvpContainerWidget originRealm(msg.acl);
    DiameterUInt32AvpContainerWidget originState(msg.acl);
@@ -778,14 +780,14 @@ void DiameterPeerStateMachine::DisassembleDW(DiameterMsg &msg)
    diameter_identity_t *identity = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
    Host.assign((identity) ? identity->data() : "",
                (identity) ? identity->length() : 0);
-   
+
    identity = originRealm.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
    Realm.assign((identity) ? identity->data() : "",
                 (identity) ? identity->length() : 0);
-              
+
    diameter_unsigned32_t *uint32 = originState.GetAvp(DIAMETER_AVPNAME_ORIGINSTATEID);
    diameter_unsigned32_t OriginStateId = (uint32) ? *uint32 : 0;
-   
+
    AAA_LOG((LM_INFO, "(%P|%t) Watchdog msg from [%s.%s], state=%d, time=%d\n",
              Host.data(), Realm.data(), OriginStateId, time(0)));
 }
@@ -818,14 +820,14 @@ void DiameterPeerStateMachine::DisassembleDP(DiameterMsg &msg)
 {
    diameter_identity_t Host;
    diameter_identity_t Realm;
-   
+
    DiameterIdentityAvpContainerWidget originHost(msg.acl);
    DiameterIdentityAvpContainerWidget originRealm(msg.acl);
 
    diameter_identity_t *identity = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
    Host.assign((identity) ? identity->data() : "",
                (identity) ? identity->length() : 0);
-   
+
    identity = originRealm.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
    Realm.assign((identity) ? identity->data() : "",
                 (identity) ? identity->length() : 0);
@@ -850,7 +852,7 @@ void DiameterPeerStateMachine::SendCER()
           Address AVP for each potential IP address that MAY be locally used
           when transmitting Diameter messages.
 
-          
+
           Message Format
 
              <CER> ::= < Diameter Header: 257, REQ >
@@ -868,7 +870,7 @@ void DiameterPeerStateMachine::SendCER()
                        [ Firmware-Revision ]
                      * [ AVP ]
     */
-    
+
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleCE(*msg);   
    if (RawSend(msg, m_Data.m_IOInitiator.get()) == 0) {
@@ -918,7 +920,7 @@ void DiameterPeerStateMachine::SendCEA(diameter_unsigned32_t rcode,
 
    DiameterUInt32AvpWidget resultCode(DIAMETER_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
-   
+
    DiameterMsgResultCode::RCODE interpretedRcode = 
        DiameterMsgResultCode::InterpretedResultCode(rcode);
    if ((message.length() > 0) && 
@@ -960,7 +962,7 @@ void DiameterPeerStateMachine::SendDWR()
     */
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDW(*msg);
-   
+
    // check resulting state to determine
    // which IO to use
    Diameter_IO_Base *io = (state == DIAMETER_PEER_ST_I_OPEN) ?
@@ -997,7 +999,7 @@ void DiameterPeerStateMachine::SendDWA(diameter_unsigned32_t rcode,
 
    DiameterUInt32AvpWidget resultCode(DIAMETER_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
-   
+
 #if INTEROP
    if (message.length() > 0) {
        DiameterUtf8AvpWidget errorMsg(DIAMETER_AVPNAME_ERRORMESSAGE);
@@ -1037,11 +1039,11 @@ void DiameterPeerStateMachine::SendDPR(bool initiator)
     */
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDP(*msg);
-   
+
    DiameterUInt32AvpWidget disCause(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
    disCause.Get() = diameter_unsigned32_t(m_Data.m_DisconnectCause);
    msg->acl.add(disCause());   
-   
+
    Diameter_IO_Base *io = (initiator) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
@@ -1077,7 +1079,7 @@ void DiameterPeerStateMachine::SendDPA(bool initiator,
 
    DiameterUInt32AvpWidget resultCode(DIAMETER_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
-   
+
    if (message.length() > 0) {
        DiameterUtf8AvpWidget errorMsg(DIAMETER_AVPNAME_ERRORMESSAGE);
        errorMsg.Get() = message.data();
@@ -1203,19 +1205,19 @@ void DiameterPeerStateMachine::Cleanup(unsigned int flags)
        m_CurrentPeerEventParam->m_IO.reset();
        AAA_StateMachineWithTimer<DiameterPeerStateMachine>::Start();
    }
-   
+
    m_CleanupEvent = true;
 }
 
 int DiameterPeerStateMachine::RawSend(std::auto_ptr<DiameterMsg> &msg, 
-                                  Diameter_IO_Base *io)
+                                      Diameter_IO_Base *io)
 {
    AAAMessageBlock *aBuffer = NULL;
 
    for (int blockCnt = 1; 
         blockCnt <= DiameterMsgCollector::MAX_MSG_BLOCK; 
         blockCnt ++) {
-       
+
        aBuffer = AAAMessageBlock::Acquire
              (DiameterMsgCollector::MAX_MSG_LENGTH * blockCnt);
 
@@ -1225,7 +1227,7 @@ int DiameterPeerStateMachine::RawSend(std::auto_ptr<DiameterMsg> &msg,
        hp.setRawData(aBuffer);
        hp.setAppData(&msg->hdr);
        hp.setDictData(DIAMETER_PARSE_STRICT);
-   
+
        try {
           hp.parseAppToRaw();
        }
@@ -1277,7 +1279,7 @@ int DiameterPeerStateMachine::RawSend(std::auto_ptr<DiameterMsg> &msg,
 void DiameterPeerStateMachine::DumpPeerCapabilities()
 {
    DiameterPeerCapabilities &cap = m_Data.m_PeerCapabilities;
-    
+
    AAA_LOG((LM_INFO, "(%P|%t) Peer Capabilities\n"));
    AAA_LOG((LM_INFO, "(%P|%t)             Hostname : %s\n", cap.m_Host.data()));
    AAA_LOG((LM_INFO, "(%P|%t)                Realm : %s\n", cap.m_Realm.data()));
@@ -1287,7 +1289,7 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
        AAA_LOG((LM_INFO, "(%P|%t)              Host IP : type=%d, %s\n", (*x)->type,
                   inet_ntoa(*((struct in_addr*)(*x)->value.data()))));
    }
-   
+
    AAA_LOG((LM_INFO, "(%P|%t)             VendorId : %d\n", cap.m_VendorId));
    AAA_LOG((LM_INFO, "(%P|%t)         Product Name : %s\n", cap.m_ProductName.data()));
    AAA_LOG((LM_INFO, "(%P|%t)           Orig State : %d\n", cap.m_OriginStateId));
@@ -1309,7 +1311,7 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
                    label[i], *x));
        }
    }
-   
+
    DiameterVendorSpecificIdLst::iterator y = cap.m_VendorSpecificId.begin();
    for (; y != cap.m_VendorSpecificId.end(); y++) {
        AAA_LOG((LM_INFO, "(%P|%t)  Vendor Specific Id : "));
@@ -1326,7 +1328,7 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
                       *z));
        }
    }
-   
+
    AAA_LOG((LM_INFO, "(%P|%t)           Inband Sec : %d\n", cap.m_InbandSecurityId));
    AAA_LOG((LM_INFO, "(%P|%t)         Firmware Ver : %d\n", cap.m_FirmwareRevision));
 }
@@ -1348,7 +1350,7 @@ bool DiameterPeerStateMachine::ValidatePeer(diameter_unsigned32_t &rcode,
       Diameter node MUST cache the supported applications in order to
       ensure that unrecognized commands and/or AVPs are not unnecessarily
       sent to a peer.
-      
+
       A receiver of a Capabilities-Exchange-Req (CER) message that does not
       have any applications in common with the sender MUST return a
       Capabilities-Exchange-Answer (CEA) with the Result-Code AVP set to
@@ -1446,7 +1448,7 @@ bool DiameterPeerStateMachine::ValidatePeer(diameter_unsigned32_t &rcode,
        message (see Section 7.) with the Result-Code AVP set to
        AAA_UNABLE_TO_DELIVER to inform the downstream to take action
        (e.g., re-routing request to an alternate peer).
-      
+
        With the exception of the Capabilities-Exchange-Request message, a
        message of type Request that includes the Auth-Application-Id or
        Acct-Application-Id AVPs, or a message with an application-specific
@@ -1486,20 +1488,29 @@ bool DiameterPeerStateMachine::MsgIdRxMessage(DiameterMsg &msg)
 
 void DiameterPeerStateMachine::DoReConnect()
 {
-   if ((unsigned int)(++ m_ReconnectAttempt) < DIAMETER_CFG_TRANSPORT()->reconnect_max) {
+   if ((unsigned int)m_ReconnectAttempt < DIAMETER_CFG_TRANSPORT()->reconnect_max) {
        if (DIAMETER_CFG_TRANSPORT()->reconnect_interval > 0) {
+           m_ReconnectAttempt ++;
            ScheduleTimer(DIAMETER_PEER_EV_CONN_RETRY,
                          DIAMETER_CFG_TRANSPORT()->reconnect_interval,
                          0,
                          DIAMETER_PEER_EV_CONN_RETRY);
        }
    }
+   else {
+       m_ReconnectAttempt = 0;
+   }
 }
 
 void DiameterPeerStateMachine::StopReConnect()
 {
-   m_ReconnectAttempt = 0;
    CancelTimer(DIAMETER_PEER_EV_CONN_RETRY);
 }
 
+int DiameterPeerStateMachine::IPProtocolInUse()
+{
+   return (m_Data.m_IOInitiator.get() != NULL) ?
+           m_Data.m_IOInitiator->IPProtocolInUse() :
+           m_Data.m_IOResponder->IPProtocolInUse();
+}
 

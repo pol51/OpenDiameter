@@ -50,14 +50,14 @@ template<class ACE_ACCEPTOR,
          class ACE_STREAM,
          class ACE_ADDRESS,
          int IP_PROTOCOL>
-class Diameter_ACE_Transport : public DiameterTransportInterface
+class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
 {
    public:
       Diameter_ACE_Transport() : m_PendingStream(0) {
       }
       virtual ~Diameter_ACE_Transport() {
          if (m_PendingStream) {
-             ResetStream((DiameterTransportInterface*&)m_PendingStream);
+             ResetStream((DiameterTransportInterface<ACE_ADDRESS>*&)m_PendingStream);
          }
       }
       int Open() {
@@ -75,44 +75,43 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
          }
          return (-1);
       }
-      int Complete(DiameterTransportInterface *&iface) {
+      int Complete(DiameterTransportInterface<ACE_ADDRESS> *&iface) {
          iface = 0; 
          if (m_PendingStream) {
             int rc = m_Connector.complete(m_PendingStream->Stream());
             if (rc == 0) {
                 return HandOverStream(iface, 
-                                (DiameterTransportInterface*&)m_PendingStream);
+                                (DiameterTransportInterface<ACE_ADDRESS>*&)m_PendingStream);
             }
             else {
                 return ((AceAsynchResults(rc) == 0) && (errno != ETIMEDOUT)) ? 0 :
-                        ResetStream((DiameterTransportInterface*&)
+                        ResetStream((DiameterTransportInterface<ACE_ADDRESS>*&)
                                     m_PendingStream);
             }
          }
          return (-1);
       }
-      int Listen(int port) {
+      int Listen(int port, ACE_ADDRESS localAddr) {
          if (! m_PendingStream) {
              m_PendingStream = new Diameter_ACE_Transport
                  <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM, ACE_ADDRESS, IP_PROTOCOL>;
-             ACE_ADDRESS localAddr(port, LocalHostAddressToUse());
              return AceAsynchResults(m_Acceptor.open(localAddr, true, AddressFamilyToUse(),
                                                      ACE_DEFAULT_BACKLOG, IP_PROTOCOL));
          }
          return (-1);
       }
-      virtual int Accept(DiameterTransportInterface *&iface) {
+      virtual int Accept(DiameterTransportInterface<ACE_ADDRESS> *&iface) {
          iface = 0;
          if (m_PendingStream) {
             int rc = m_Acceptor.accept(m_PendingStream->Stream());
             if (rc == 0) {
-                HandOverStream(iface, (DiameterTransportInterface*&)
+                HandOverStream(iface, (DiameterTransportInterface<ACE_ADDRESS>*&)
                                m_PendingStream);
                 m_PendingStream = new Diameter_ACE_Transport
                      <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM, ACE_ADDRESS, IP_PROTOCOL>;
             }
             else if (AceAsynchResults(rc) < 0) {
-                ResetStream((DiameterTransportInterface*&)
+                ResetStream((DiameterTransportInterface<ACE_ADDRESS>*&)
                             m_PendingStream);
                 return (0);
             }
@@ -131,6 +130,12 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
          }
          return AceIOResults(m_Stream.recv(data, length));
       }
+      void UpdateRemoteAddress(DiameterHostIpLst &ipList) {
+         // The ACE_SEQPACK_Association class takes care
+         // of managing the remote IP address for the
+         // SCTP association. This may just be redundant
+         // information
+      }
       int Close() {
          // close auxillary sockets
          m_Acceptor.close();
@@ -144,6 +149,9 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
       }
       ACE_STREAM &Stream() {
          return m_Stream;
+      }
+      int IPProtocolInUse() {
+         return IP_PROTOCOL;
       }
 
    private:
@@ -192,13 +200,13 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
          }
          return (rc);
       }
-      int inline ResetStream(DiameterTransportInterface *&stream) {
+      int inline ResetStream(DiameterTransportInterface<ACE_ADDRESS> *&stream) {
          delete stream;
          stream = NULL;
          return (-1);
       }
-      int inline HandOverStream(DiameterTransportInterface *&dest,
-                                DiameterTransportInterface *&src) {
+      int inline HandOverStream(DiameterTransportInterface<ACE_ADDRESS> *&dest,
+                                DiameterTransportInterface<ACE_ADDRESS> *&src) {
          dest = src;
          src = NULL;
          return (1);
@@ -208,13 +216,6 @@ class Diameter_ACE_Transport : public DiameterTransportInterface
          return (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET;
 #else /* ! ACE_HAS_IPV6 */
          return AF_INET;
-#endif /* ! ACE_HAS_IPV6 */
-      }
-      inline const char* LocalHostAddressToUse() {
-#ifdef ACE_HAS_IPV6
-         return (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? ACE_IPV6_LOCALHOST : ACE_LOCALHOST;
-#else /* ! ACE_HAS_IPV6 */
-         return ACE_LOCALHOST;
 #endif /* ! ACE_HAS_IPV6 */
       }
 };

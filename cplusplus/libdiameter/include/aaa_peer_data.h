@@ -49,11 +49,19 @@ typedef Diameter_ACE_Transport<ACE_SOCK_SEQPACK_Acceptor,
                                ACE_Multihomed_INET_Addr,
                                IPPROTO_SCTP> DiameterTransportSCTP;
 
-typedef Diameter_IO_Connector<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpConnector;
-typedef Diameter_IO_Connector<DiameterTransportSCTP, DiameterMsgCollector> DiameterSctpConnector;
+typedef Diameter_IO_Connector<DiameterTransportTCP,
+                              ACE_INET_Addr,
+                              DiameterMsgCollector> DiameterTcpConnector;
+typedef Diameter_IO_Connector<DiameterTransportSCTP,
+                              ACE_Multihomed_INET_Addr,
+                              DiameterMsgCollector> DiameterSctpConnector;
 
-typedef Diameter_IO_Acceptor<DiameterTransportTCP, DiameterMsgCollector> DiameterTcpAcceptor;
-typedef Diameter_IO_Acceptor<DiameterTransportSCTP, DiameterMsgCollector> DiameterSctpAcceptor;
+typedef Diameter_IO_Acceptor<DiameterTransportTCP,
+                             ACE_INET_Addr,
+                             DiameterMsgCollector> DiameterTcpAcceptor;
+typedef Diameter_IO_Acceptor<DiameterTransportSCTP,
+                             ACE_Multihomed_INET_Addr,
+                             DiameterMsgCollector> DiameterSctpAcceptor;
 
 typedef Diameter_ACE_TransportAddress DiameterIpAddress;
 
@@ -77,8 +85,6 @@ typedef enum {
     AAA_DISCONNECT_TRANSPORT       = 10001,
     AAA_DISCONNECT_TIMEOUT         = 10002,
 } DIAMETER_DISCONNECT_CAUSE;
-
-typedef std::list<diameter_address_t*> DiameterHostIpLst;
 
 typedef struct
 {

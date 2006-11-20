@@ -45,7 +45,7 @@ class DiameterMsgCollectorHandler
            ALLOC_ERROR     = 3001,
            TRANSPORT_ERROR = 3002,
            INVALID_MSG     = 3003,
-        } COLLECTOR_ERROR;    
+        } COLLECTOR_ERROR;
     public:
         virtual void Message(std::auto_ptr<DiameterMsg> msg) = 0;
         virtual void Error(COLLECTOR_ERROR error, 
@@ -60,7 +60,7 @@ class DiameterMsgCollector : public Diameter_IO_RxHandler
            MAX_MSG_LENGTH  = 2048,
            MAX_MSG_BLOCK   = 10
         };
-    
+
     public:
         void RegisterHandler(DiameterMsgCollectorHandler &h) {
             m_Handler = &h;

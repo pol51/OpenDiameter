@@ -152,7 +152,11 @@
 
       <!-- Provides a customized list of local host IP 
            addresses that will be advertised to other
-           peers during CER/CEA exchange. 
+           peers during CER/CEA exchange. For SCTP, 
+	   the IP addresses MUST be valid addresses
+	   for all interface address present in the
+	   system. For TCP, only the first IP address
+	   will be used.
            -->
       <advertised_host_ip>192.168.1.100</advertised_host_ip>
       <advertised_host_ip>192.168.1.101</advertised_host_ip>

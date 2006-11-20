@@ -265,70 +265,70 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSED,
                            DIAMETER_PEER_EV_START,
                            DIAMETER_PEER_ST_WAIT_CONN_ACK,
-                           m_acISendConnReq); 
+                           m_acISendConnReq);
 
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSED,
                            DIAMETER_PEER_EV_R_CONN_CER,
                            DIAMETER_PEER_ST_R_OPEN,
-                           m_acRAcceptSendCEA);         
+                           m_acRAcceptSendCEA);
 
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSED,
                            DIAMETER_PEER_EV_CONN_RETRY,
                            DIAMETER_PEER_ST_CLOSED,
-                           m_acRetry); 
+                           m_acRetry);
 
         AddWildcardStateTableEntry(DIAMETER_PEER_ST_CLOSED,
                                    DIAMETER_PEER_ST_CLOSED,
-                                   m_acCleanup);        
-        
-        // ------------- DIAMETER_PEER_ST_WAIT_CONN_ACK ----------------  
+                                   m_acCleanup);
+
+        // ------------- DIAMETER_PEER_ST_WAIT_CONN_ACK ----------------
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_CONN_ACK,
                            DIAMETER_PEER_EV_I_RCV_CONN_ACK,
                            DIAMETER_PEER_ST_WAIT_I_CEA,
-                           m_acISendCER);               
+                           m_acISendCER);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_CONN_ACK,
                            DIAMETER_PEER_EV_I_RCV_CONN_NACK,
                            DIAMETER_PEER_ST_CLOSED,
-                           m_acConnNack);                
+                           m_acConnNack);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_CONN_ACK,
                            DIAMETER_PEER_EV_R_CONN_CER,
                            DIAMETER_PEER_ST_WAIT_CONN_ACK_ELECT,
-                           m_acRAccept);                
+                           m_acRAccept);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_CONN_ACK,
                            DIAMETER_PEER_EV_TIMEOUT,
                            DIAMETER_PEER_ST_CLOSED,
-                           m_acError);                  
+                           m_acError);
 
         // ------------- DIAMETER_PEER_ST_WAIT_CEA ----------------  
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_I_CEA,
                            DIAMETER_PEER_EV_I_RCV_CEA,
                            DIAMETER_PEER_ST_I_OPEN,
-                           m_acProcessCEA);             
+                           m_acProcessCEA);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_I_CEA,
                            DIAMETER_PEER_EV_R_CONN_CER,
                            DIAMETER_PEER_ST_WAIT_RETURNS,
-                           m_acRAcceptElect);           
+                           m_acRAcceptElect);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_I_CEA,
                            DIAMETER_PEER_EV_I_PEER_DISC,
                            DIAMETER_PEER_ST_CLOSED,
-                           m_acDisconnect);           
+                           m_acDisconnect);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_I_CEA,
-                           DIAMETER_PEER_EV_I_RCV_NON_CEA,  
+                           DIAMETER_PEER_EV_I_RCV_NON_CEA,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acError);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_I_CEA,
                            DIAMETER_PEER_EV_TIMEOUT,
-                           DIAMETER_PEER_ST_CLOSED,         
+                           DIAMETER_PEER_ST_CLOSED,
                            m_acError);
 
-        // ------------- DIAMETER_PEER_ST_WAIT_CONN_ACK_ELECT ----------------  
+        // ------------- DIAMETER_PEER_ST_WAIT_CONN_ACK_ELECT ----------------
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_CONN_ACK_ELECT,
                            DIAMETER_PEER_EV_I_RCV_CONN_ACK,
                            DIAMETER_PEER_ST_WAIT_RETURNS,
@@ -358,12 +358,12 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_RETURNS,
                            DIAMETER_PEER_EV_WIN_ELECTION,
                            DIAMETER_PEER_ST_R_OPEN,
-                           m_acIDisconnectSendCEA);  
+                           m_acIDisconnectSendCEA);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_RETURNS,
                            DIAMETER_PEER_EV_I_PEER_DISC,
                            DIAMETER_PEER_ST_R_OPEN,
-                           m_acIDisconnectSendCEA);  
+                           m_acIDisconnectSendCEA);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_RETURNS,
                            DIAMETER_PEER_EV_I_RCV_CEA,
@@ -373,7 +373,7 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_RETURNS,
                            DIAMETER_PEER_EV_R_PEER_DISC,
                            DIAMETER_PEER_ST_WAIT_I_CEA,
-                           m_acRDisconnectResp);         
+                           m_acRDisconnectResp);
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_RETURNS,
                            DIAMETER_PEER_EV_R_CONN_CER,
@@ -383,7 +383,7 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_RETURNS,
                            DIAMETER_PEER_EV_TIMEOUT,
                            DIAMETER_PEER_ST_CLOSED,
-                           m_acError);              
+                           m_acError);
 
         // ------------- DIAMETER_PEER_ST_R_OPEN ----------------  
         AddStateTableEntry(DIAMETER_PEER_ST_R_OPEN,
@@ -405,42 +405,42 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
                            DIAMETER_PEER_EV_R_RCV_DWA,
                            DIAMETER_PEER_ST_R_OPEN,
                            m_acProcessDWA);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_R_OPEN,
                            DIAMETER_PEER_EV_R_CONN_CER,
                            DIAMETER_PEER_ST_R_OPEN,
                            m_acRReject);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_R_OPEN,
                            DIAMETER_PEER_EV_STOP,
                            DIAMETER_PEER_ST_CLOSING,
                            m_acRSendDPR);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_R_OPEN,
                            DIAMETER_PEER_EV_R_RCV_DPR,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acRSendDPADisconnect);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_R_OPEN,
                            DIAMETER_PEER_EV_R_PEER_DISC,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acDisconnect);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_R_OPEN,
                            DIAMETER_PEER_EV_R_RCV_CER,
                            DIAMETER_PEER_ST_R_OPEN,
                            m_acRSendCEAOpen);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_R_OPEN,
                            DIAMETER_PEER_EV_R_RCV_CEA,
                            DIAMETER_PEER_ST_R_OPEN,
                            m_acProcessCEA);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_R_OPEN,
                            DIAMETER_PEER_EV_WATCHDOG,
                            DIAMETER_PEER_ST_R_OPEN,
                            m_acWatchdog);
-        
+
         // ------------- DIAMETER_PEER_ST_I_OPEN ----------------  
         AddStateTableEntry(DIAMETER_PEER_ST_I_OPEN,
                            DIAMETER_PEER_EV_SEND_MESSAGE,
@@ -461,71 +461,71 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
                            DIAMETER_PEER_EV_I_RCV_DWA,
                            DIAMETER_PEER_ST_I_OPEN,
                            m_acProcessDWA);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_I_OPEN,
                            DIAMETER_PEER_EV_R_CONN_CER,
                            DIAMETER_PEER_ST_I_OPEN,
                            m_acRReject);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_I_OPEN,
                            DIAMETER_PEER_EV_STOP,
                            DIAMETER_PEER_ST_CLOSING,
                            m_acISendDPR);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_I_OPEN,
                            DIAMETER_PEER_EV_I_RCV_DPR,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acISendDPADisconnect);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_I_OPEN,
                            DIAMETER_PEER_EV_I_PEER_DISC,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acDisconnect);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_I_OPEN,
                            DIAMETER_PEER_EV_I_RCV_CER,
                            DIAMETER_PEER_ST_I_OPEN,
                            m_acISendCEA);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_I_OPEN,
                            DIAMETER_PEER_EV_I_RCV_CEA,
                            DIAMETER_PEER_ST_I_OPEN,
                            m_acProcessCEA);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_I_OPEN,
                            DIAMETER_PEER_EV_WATCHDOG,
                            DIAMETER_PEER_ST_I_OPEN,
                            m_acWatchdog);
-        
+
         // ------------- DIAMETER_PEER_ST_CLOSING ----------------  
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSING,
                            DIAMETER_PEER_EV_I_RCV_DPA,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acDisconnectDPA);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSING,
                            DIAMETER_PEER_EV_R_RCV_DPA,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acDisconnectDPA);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSING,
                            DIAMETER_PEER_EV_TIMEOUT,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acError);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSING,
                            DIAMETER_PEER_EV_I_PEER_DISC,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acDisconnect);
-        
+
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSING,
                            DIAMETER_PEER_EV_R_PEER_DISC,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acDisconnect);
-        
+
         AddWildcardStateTableEntry(DIAMETER_PEER_ST_CLOSING,
                                    DIAMETER_PEER_ST_CLOSING);
-        
+
         InitialState(DIAMETER_PEER_ST_CLOSED);
       }
 
@@ -766,6 +766,10 @@ class DiameterPeerStateMachine :
 
       void DoReConnect();
       void StopReConnect();
+
+   protected: // Update of peer SCTP addresses
+
+      int IPProtocolInUse();
 
    protected: // Auxillary
 

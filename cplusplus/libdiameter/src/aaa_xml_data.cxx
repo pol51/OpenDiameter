@@ -572,8 +572,8 @@ void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
                                    "request_retransmission_interval", parser);
     OD_Utl_XML_UInt32Element trans09(root.transport.retx_max_count, 
                                    "max_request_retransmission_count", parser);
-    DiameterXmlStringListElement trans10(root.transport.advertised_host_ip,
-                                   "advertised_host_ip", parser);
+    DiameterXmlStringListElement trans10(root.transport.advertised_hostname,
+                                   "advertised_hostname", parser);
 
     // Peer table
     OD_Utl_XML_UInt32Element trans11((ACE_UINT32&)DIAMETER_PEER_TABLE()->ExpirationTime(), 
@@ -666,21 +666,6 @@ void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
              root.transport.retx_max_count = DIAMETER_ROUTER_MAX_RETX_COUNT;
         }
 
-        // post validation for advertised host
-        std::list<std::string>::iterator i = root.transport.advertised_host_ip.begin();
-        for (; i != root.transport.advertised_host_ip.end(); i++) {
-              ACE_INET_Addr hostAddr;
-              std::string testAddr(*i + ":0");
-
-             if (hostAddr.set(testAddr.data())) {
-                  AAA_LOG((LM_INFO, "(%P|%t) WARNING: Invalid Advertised Host IP Addr [%s], will be ignored\n",
-                                   (*i).data()));
-                  root.transport.advertised_host_ip.erase(i);
-                  i = root.transport.advertised_host_ip.begin();
-             }       
-        }
-
-        // post validation for advertised host
         if (! root.session.authSessions.stateful) {
             root.session.authSessions.stateful = DIAMETER_SESSION_STATE_MAINTAINED;
         }
@@ -767,9 +752,9 @@ void DiameterXMLConfigParser::dump()
                   root.transport.retx_max_count));
 
     std::list<std::string>::iterator i = 
-         root.transport.advertised_host_ip.begin();
-    for (; i != root.transport.advertised_host_ip.end(); i++) {
-         AAA_LOG((LM_INFO, "(%P|%t)        Host IP Addr : %s\n", 
+         root.transport.advertised_hostname.begin();
+    for (; i != root.transport.advertised_hostname.end(); i++) {
+         AAA_LOG((LM_INFO, "(%P|%t)      Hostnames Used : %s\n",
                        (*i).data()));
     }
 

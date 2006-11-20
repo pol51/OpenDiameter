@@ -93,7 +93,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeer :
          AAA_MutexScopeLock guard(m_EventMtx);
          m_EventInterface = NULL;
       }
-      
+
    protected:
       virtual void PeerFsmConnected() {
          //
@@ -212,10 +212,35 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
    public:
       void Start(int ports[DIAMETER_PEER_TTYPE_MAX]) {
           if (ports[DIAMETER_PEER_TTYPE_TCP] > 0) {
-              DiameterTcpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_TCP]);
+#ifdef ACE_HAS_IPV6
+              ACE_INET_Addr hostIdentity(ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.data(),
+                                         (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET);
+#else /* ! ACE_HAS_IPV6 */
+              ACE_INET_Addr hostIdentity(ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.data(), AF_INET);
+#endif /* ! ACE_HAS_IPV6 */
+              AAA_LOG((LM_ERROR, "(%P|%t) TCP Acceptor Listening at %d, binding to %s \n",
+                      ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.data()));
+              DiameterTcpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_TCP], hostIdentity);
           }
           if (ports[DIAMETER_PEER_TTYPE_SCTP] > 0) {
-              DiameterSctpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_SCTP]);
+              AAA_LOG((LM_ERROR, "(%P|%t) SCTP Acceptor Listening at %d, binding to ", ports[DIAMETER_PEER_TTYPE_SCTP]));
+
+              ACE_Multihomed_INET_Addr hostAddresses;
+              char **name = new char*[DIAMETER_CFG_TRANSPORT()->advertised_hostname.size()];
+              std::list<std::string>::iterator i = DIAMETER_CFG_TRANSPORT()->advertised_hostname.begin();
+              for (int y = 0; i != DIAMETER_CFG_TRANSPORT()->advertised_hostname.end(); i++, y++) {
+                  name[y] = (char*)(*i).data();
+                  AAA_LOG((LM_ERROR, "%s ", name[y]));
+              }
+              AAA_LOG((LM_ERROR, "\n"));
+              hostAddresses.set(ports[DIAMETER_PEER_TTYPE_SCTP], DIAMETER_CFG_TRANSPORT()->identity.data(), 1,
+#ifdef ACE_HAS_IPV6
+                                (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET,
+#else /* ! ACE_HAS_IPV6 */
+                                 AF_INET,
+#endif /* ! ACE_HAS_IPV6 */
+                                 (const char**)name, DIAMETER_CFG_TRANSPORT()->advertised_hostname.size());
+              DiameterSctpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_SCTP], hostAddresses);
           }
       }
       void Stop() {
@@ -260,7 +285,7 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                    m_IO(io), m_Acceptor(a) {
                    DiameterMsgCollector *h = reinterpret_cast<DiameterMsgCollector*>
                        (m_IO->Handler());
-                   h->RegisterHandler(*this);                   
+                   h->RegisterHandler(*this);
                }
                virtual ~PendingResponder() {
                }
@@ -279,7 +304,7 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                             return;
                          }
                       }
-                      /* 
+                      /*
                          CERs received from unknown peers MAY be silently
                          discarded, or a CEA MAY be issued with the Result-Code
                          AVP set to DIAMETER_UNKNOWN_PEER. In both cases, the
@@ -311,9 +336,9 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                std::auto_ptr<Diameter_IO_Base> m_IO;
                DiameterPeerAcceptor &m_Acceptor;
       };
-    
+
       friend class PendingResponder;
-    
+
       int Success(Diameter_IO_Base *io) {
           std::auto_ptr<Diameter_IO_Base> newIO(io);
           PendingResponder *r = new PendingResponder(*this, newIO);
@@ -341,7 +366,7 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
              }
          }
       }
-    
+
    private:
       std::list<PendingResponder*> m_PendingResponders;
       ACE_Token m_ResponderToken;

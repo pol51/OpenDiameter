@@ -42,9 +42,8 @@
       <reconnect_max>3</reconnect_max>
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
-      <advertised_host_ip>192.168.1.100</advertised_host_ip>
-      <advertised_host_ip>192.168.1.101</advertised_host_ip>
-      <advertised_host_ip>192.168.1.102</advertised_host_ip>
+      <advertised_hostname>nas01.access3.net</advertised_hostname>
+      <advertised_hostname>nas02.access3.net</advertised_hostname>
       <peer_table>
           <expiration_time>1</expiration_time>
           <peer>

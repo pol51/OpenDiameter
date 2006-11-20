@@ -213,7 +213,7 @@ typedef struct {
    diameter_unsigned32_t reconnect_max; // ReConnect max
    diameter_unsigned32_t retx_interval;  // Req ReTx interval
    diameter_unsigned32_t retx_max_count; // Req ReTx max count
-   std::list<std::string> advertised_host_ip; // List of host ip
+   std::list<std::string> advertised_hostname; // List of hostnames used by this node
                                          // addresses provided by this peer
 } DiameterDataTransportMngt;
 
