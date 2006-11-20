@@ -63,12 +63,14 @@ libradius_la_OBJECTS = $(am_libradius_la_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
 am_radius_dict_test_OBJECTS = test/DictTest.$(OBJEXT)
 radius_dict_test_OBJECTS = $(am_radius_dict_test_OBJECTS)
-radius_dict_test_DEPENDENCIES = libradius.la \
+radius_dict_test_DEPENDENCIES =  \
+	$(top_builddir)/libradius/libradius.la \
 	$(top_srcdir)/libdiamparser/libdiamparser.la \
 	$(top_srcdir)/libodutl/libodutl.la
 am_radius_parser_test_OBJECTS = test/ParserTest.$(OBJEXT)
 radius_parser_test_OBJECTS = $(am_radius_parser_test_OBJECTS)
-radius_parser_test_DEPENDENCIES = libradius.la \
+radius_parser_test_DEPENDENCIES =  \
+	$(top_builddir)/libradius/libradius.la \
 	$(top_srcdir)/libdiamparser/libdiamparser.la \
 	$(top_srcdir)/libodutl/libodutl.la
 DEFAULT_INCLUDES = -I. -I$(srcdir)
@@ -234,16 +236,16 @@ lib_LTLIBRARIES = libradius.la
 libradius_la_SOURCES = $(RADIUS_SRC) $(RADIUS_HDRS) $(PLATFORM_SRC)
 libradius_la_LDFLAGS = -version-info 1:0:0 
 libradius_la_AR = $(AR) -qcs
-LDADD = @L_LIBS@ libradius.la
+LDADD = @L_LIBS@ $(top_builddir)/libradius/libradius.la
 radius_dict_test_SOURCES = test/DictTest.cxx
 radius_dict_test_LDADD = @L_LIBS@ \
-                         libradius.la \
+                         $(top_builddir)/libradius/libradius.la \
 			 $(top_srcdir)/libdiamparser/libdiamparser.la \
 			 $(top_srcdir)/libodutl/libodutl.la
 
 radius_parser_test_SOURCES = test/ParserTest.cxx 
 radius_parser_test_LDADD = @L_LIBS@ \
-                           libradius.la \
+                           $(top_builddir)/libradius/libradius.la \
 			   $(top_srcdir)/libdiamparser/libdiamparser.la \
 			   $(top_srcdir)/libodutl/libodutl.la
 

@@ -9,7 +9,7 @@
     <ignoreparts/>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description/>
+    <description></description>
     <versioncontrol>kdevsubversion</versioncontrol>
   </general>
   <kdevautoproject>
@@ -62,7 +62,7 @@
         <f77compiler>kdevpgf77options</f77compiler>
         <cxxflags>-O0 -g</cxxflags>
         <envvars>
-          <envvar value="/usr/include" name="ACE_ROOT" />
+          <envvar value="/usr/local/include" name="ACE_ROOT" />
           <envvar value="/usr/include" name="BOOST_ROOT" />
         </envvars>
         <topsourcedir/>
@@ -91,11 +91,11 @@
   <kdevdebugger>
     <general>
       <dbgshell>libtool</dbgshell>
-      <programargs/>
-      <gdbpath/>
-      <configGdbScript/>
-      <runShellScript/>
-      <runGdbScript/>
+      <programargs></programargs>
+      <gdbpath></gdbpath>
+      <configGdbScript></configGdbScript>
+      <runShellScript></runShellScript>
+      <runGdbScript></runGdbScript>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -177,10 +177,10 @@
     <qt>
       <used>false</used>
       <version>3</version>
-      <root/>
+      <root></root>
     </qt>
     <creategettersetter>
-      <prefixGet/>
+      <prefixGet></prefixGet>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>

@@ -518,6 +518,7 @@ class BackendAuthApplication : public AAA_JobData
       md5Method(EapContinuedPolicyElement(EapType(4))),
       notificationMethod(EapContinuedPolicyElement(EapType(2)))
   {
+    MyBackendAuthSwitchStateMachine test(*task.reactor(), handle);
     // Policy settings for the backend authenticator
     identityMethod.AddContinuedPolicyElement
       (&notificationMethod, EapContinuedPolicyElement::PolicyOnFailure);

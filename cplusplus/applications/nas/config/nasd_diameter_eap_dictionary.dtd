@@ -1,76 +1,100 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
-     <!ELEMENT dictionary (vendor*, base, application*)>
+    <!ELEMENT configuration (general, parser, transport_mngt, session_mngt, log)>
 
-     <!ELEMENT vendor EMPTY>
-     <!ATTLIST vendor
-          id CDATA #REQUIRED
-          name CDATA #REQUIRED
-     >
+     <!ELEMENT general (product, version, vendor_id, supported_vendor_id*,
+                                      auth_application_id+, acct_application_id+,
+                                      vendor_specific_application_id*)>
 
-     <!ELEMENT base (command*, typedefn+, avp+)>
-     <!ATTLIST base
-          uri CDATA #IMPLIED
-     >
+     <!ELEMENT product (#PCDATA)>
+     <!ELEMENT version (#PCDATA)>
+     <!ELEMENT vendor_id (#PCDATA)>
+     <!ELEMENT supported_vendor_id (#PCDATA)>
+     <!ELEMENT auth_application_id (#PCDATA)>
+     <!ELEMENT acct_application_id (#PCDATA)>
 
-     <!ELEMENT application (command*, typedefn*, avp*)>
-     <!ATTLIST application
-          id CDATA #REQUIRED
-          name CDATA #IMPLIED
-          uri CDATA #IMPLIED
-     >
+     <!ELEMENT vendor_specific_application_id (vendor_id+,
+                                               auth_application_id?, acct_application_id?)>
 
-     <!ELEMENT command (requestrules*, answerrules*)>
-     <!ATTLIST command
-          name CDATA #REQUIRED
-          code CDATA #REQUIRED
-          application-id CDATA #IMPLIED
-          pbit CDATA #IMPLIED
-     >
+     <!ELEMENT parser (dictionary)>
 
-     <!ELEMENT typedefn EMPTY>
-     <!ATTLIST typedefn
-          type-name ID #REQUIRED
-          type-parent IDREF #IMPLIED
-          description CDATA #IMPLIED
-     >
+     <!ELEMENT dictionary (#PCDATA)>
 
-     <!ELEMENT avp ((type | grouped), (enum*))>
-     <!ATTLIST avp
-          name ID #REQUIRED
-          description CDATA #IMPLIED
-          code CDATA #REQUIRED
-          may-encrypt (yes | no) "yes"
-          mandatory (must | may | mustnot | shouldnot) "may"
-          protected (must | may | mustnot | shouldnot) "may"
-          vendor-id CDATA #IMPLIED
-     >
+     <!ELEMENT transport_mngt (identity, realm, tcp_listen_port, sctp_listen_port, use_ipv6,
+                               port, watchdog_timeout, reconnect_interval, reconnect_max,
+                               request_retransmission_interval, max_request_retransmission_count,
+                               advertised_hostname*, peer_table, route_table)>
 
-     <!ELEMENT type EMPTY>
-     <!ATTLIST type
-          type-name IDREF #REQUIRED
-     >
+     <!ELEMENT identity (#PCDATA)>
+     <!ELEMENT realm (#PCDATA)>
+     <!ELEMENT tcp_listen_port (#PCDATA)>
+     <!ELEMENT sctp_listen_port (#PCDATA)>
+     <!ELEMENT use_ipv6 (#PCDATA)>
+     <!ELEMENT watchdog_timeout (#PCDATA)>
+     <!ELEMENT reconnect_interval (#PCDATA)>
+     <!ELEMENT reconnect_max (#PCDATA)>
+     <!ELEMENT request_retransmission_interval (#PCDATA)>
+     <!ELEMENT max_request_retransmission_count (#PCDATA)>
+     <!ELEMENT advertised_hostname (#PCDATA)>
 
-     <!ELEMENT grouped (fixed*, required*, optional*, fixed*)>
+     <!ELEMENT peer_table (expiration_time,  peer+)>
 
-     <!ELEMENT enum EMPTY>
-     <!ATTLIST enum
-          name CDATA #REQUIRED
-          code CDATA #REQUIRED
-     >
+     <!ELEMENT expiration_time (#PCDATA)>
 
-     <!ELEMENT requestrules (fixed*, required*, optional*, fixed*)>
+     <!ELEMENT peer (hostname,  port,  tls_enabled)>
 
-     <!ELEMENT answerrules (fixed*, required*, optional*, fixed*)>
+     <!ELEMENT hostname (#PCDATA)>
+     <!ELEMENT port (#PCDATA)>
+     <!ELEMENT tls_enabled (#PCDATA)>
 
-     <!ELEMENT fixed (avprule+)>
-     <!ELEMENT required (avprule+)>
-     <!ELEMENT optional (avprule+)>
+     <!ELEMENT route_table (expire_time, route*, default_route)>
 
-     <!ELEMENT avprule EMPTY>
-     <!ATTLIST avprule
-          name IDREF #REQUIRED
-             maximum CDATA "none"
-             minimum CDATA "0"
-     >
+     <!ELEMENT expire_time (#PCDATA)>
 
+     <!ELEMENT route (realm,  role, application+)>
+     <!ELEMENT default_route (realm,  role, application+)>
+
+     <!ELEMENT realm (#PCDATA)>
+     <!ELEMENT role (#PCDATA)>
+
+     <!ELEMENT application (application_id, vendor_id, peer_entry+)>
+
+     <!ELEMENT application_id (#PCDATA)>
+     <!ELEMENT vendor_id (#PCDATA)>
+
+     <!ELEMENT peer_entry (server, metric)>
+
+     <!ELEMENT server (#PCDATA)>
+     <!ELEMENT metric (#PCDATA)>
+
+     <!ELEMENT session_mngt (max_sessions, auth_sessions, acct_sessions)>
+
+     <!ELEMENT max_sessions (#PCDATA)>
+
+     <!ELEMENT auth_sessions (stateful, session_timeout, lifetime_timeout,
+                                     grace_period_timeout, abort_retry_timeout)>
+
+     <!ELEMENT stateful (#PCDATA)>
+     <!ELEMENT session_timeout (#PCDATA)>
+     <!ELEMENT lifetime_timeout (#PCDATA)>
+     <!ELEMENT grace_period_timeout (#PCDATA)>
+     <!ELEMENT abort_retry_timeout (#PCDATA)>
+
+     <!ELEMENT acct_sessions (session_timeout, interim_interval,
+                                    realtime)>
+
+     <!ELEMENT interim_interval (#PCDATA)>
+     <!ELEMENT realtime (#PCDATA)>
+
+     <!ELEMENT log (flags, target)>
+
+     <!ELEMENT flags (debug, trace, info)>
+
+     <!ELEMENT debug (#PCDATA)>
+     <!ELEMENT trace (#PCDATA)>
+     <!ELEMENT info (#PCDATA)>
+
+     <!ELEMENT target (console, syslog)>
+
+     <!ELEMENT console (#PCDATA)>
+     <!ELEMENT syslog (#PCDATA)>
