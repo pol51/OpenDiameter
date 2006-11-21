@@ -130,12 +130,6 @@ class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
          }
          return AceIOResults(m_Stream.recv(data, length));
       }
-      void UpdateRemoteAddress(DiameterHostIpLst &ipList) {
-         // The ACE_SEQPACK_Association class takes care
-         // of managing the remote IP address for the
-         // SCTP association. This may just be redundant
-         // information
-      }
       int Close() {
          // close auxillary sockets
          m_Acceptor.close();
@@ -150,7 +144,7 @@ class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
       ACE_STREAM &Stream() {
          return m_Stream;
       }
-      int IPProtocolInUse() {
+      int TransportProtocolInUse() {
          return IP_PROTOCOL;
       }
 

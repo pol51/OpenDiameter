@@ -65,7 +65,7 @@ class DiameterTransportInterface
       virtual int Receive(void *data, size_t length,
                        int timeout = 0) = 0;
 
-      virtual int IPProtocolInUse() = 0;
+      virtual int TransportProtocolInUse() = 0;
 
       virtual ~DiameterTransportInterface() { }
 };
@@ -106,7 +106,7 @@ class Diameter_IO_Base : public ACE_Task<ACE_MT_SYNCH>
       virtual int Open() = 0;
       virtual int Send(AAAMessageBlock *data) = 0;
       virtual int Close() = 0;
-      virtual int IPProtocolInUse() = 0;
+      virtual int TransportProtocolInUse() = 0;
       virtual Diameter_IO_RxHandler *Handler() = 0;
       std::string &Name() {
           return m_Name;
@@ -163,8 +163,8 @@ class Diameter_IO : public Diameter_IO_Base
          data->Release();
          return bytes;
       }
-      int IPProtocolInUse() {
-         return m_Transport->IPProtocolInUse();
+      int TransportProtocolInUse() {
+         return m_Transport->TransportProtocolInUse();
       }
       int Close() {
          m_Running = false;

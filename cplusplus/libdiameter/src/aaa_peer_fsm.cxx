@@ -538,21 +538,22 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
    ipAvp.value.assign((char*)tool.GetAddressPtr(identityAddr),
                       tool.GetAddressSize(identityAddr));
 
-   if (IPProtocolInUse() == IPPROTO_SCTP) {
+   if (TransportProtocolInUse() == IPPROTO_SCTP) {
        if (DIAMETER_CFG_TRANSPORT()->advertised_hostname.size() > 0) {
            std::list<std::string>::iterator i = 
                DIAMETER_CFG_TRANSPORT()->advertised_hostname.begin();
            for (; i != DIAMETER_CFG_TRANSPORT()->advertised_hostname.end(); i++) {
-               if (! identityAddr.set(0, (*i).data(),
+               ACE_INET_Addr hostAddrs;
+               if (! hostAddrs.set(0, (*i).data(),
 #ifdef ACE_HAS_IPV6
                                    (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET)) {
 #else /* ! ACE_HAS_IPV6 */
                                    AF_INET) {
 #endif /* ! ACE_HAS_IPV6 */
-                   ipAvp = hostIp.Get();
-                   ipAvp.type = AAA_ADDRESS_IP;
-                   ipAvp.value.assign((char*)tool.GetAddressPtr(identityAddr),
-                                      tool.GetAddressSize(identityAddr));
+                   diameter_address_t &hostIpAvp = hostIp.Get();
+                   hostIpAvp.type = AAA_ADDRESS_IP;
+                   hostIpAvp.value.assign((char*)tool.GetAddressPtr(hostAddrs),
+                                      tool.GetAddressSize(hostAddrs));
                }
            }
        }
@@ -581,7 +582,7 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
            msg.acl.add((*widgets[i])());
        }
    }
-   
+
    DiameterVendorSpecificIdLst::iterator y =
        DIAMETER_CFG_GENERAL()->vendorSpecificId.begin();
    for (; y != DIAMETER_CFG_GENERAL()->vendorSpecificId.end();
@@ -596,7 +597,7 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
        if (vid.acctAppId > 0) {
            DiameterUInt32AvpWidget gAcctId(DIAMETER_AVPNAME_ACCTAPPID, vid.acctAppId);
            grp.add(gAcctId());
-       }       
+       }
 
        DiameterUInt32AvpWidget gVendorId(DIAMETER_AVPNAME_VENDORID);       
        DiameterApplicationIdLst::iterator z = vid.vendorIdLst.begin();
@@ -609,7 +610,7 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
    if (! vendorSpecificId.empty()) {
        msg.acl.add(vendorSpecificId());
    }
-   
+
    msg.acl.add(originHost());
    msg.acl.add(originRealm());
    msg.acl.add(hostIp());
@@ -1507,10 +1508,10 @@ void DiameterPeerStateMachine::StopReConnect()
    CancelTimer(DIAMETER_PEER_EV_CONN_RETRY);
 }
 
-int DiameterPeerStateMachine::IPProtocolInUse()
+int DiameterPeerStateMachine::TransportProtocolInUse()
 {
    return (m_Data.m_IOInitiator.get() != NULL) ?
-           m_Data.m_IOInitiator->IPProtocolInUse() :
-           m_Data.m_IOResponder->IPProtocolInUse();
+           m_Data.m_IOInitiator->TransportProtocolInUse() :
+           m_Data.m_IOResponder->TransportProtocolInUse();
 }
 

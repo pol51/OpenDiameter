@@ -769,7 +769,7 @@ class DiameterPeerStateMachine :
 
    protected: // Update of peer SCTP addresses
 
-      int IPProtocolInUse();
+      int TransportProtocolInUse();
 
    protected: // Auxillary
 

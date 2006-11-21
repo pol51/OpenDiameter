@@ -488,7 +488,7 @@ class AddressParser : public OctetstringParser
 
       ACE_UINT16 tmp = ntohs(address.type);
       char* c = (char*)&tmp;
-      
+
       str.append(c, 2);
       str.append(address.value);
 
