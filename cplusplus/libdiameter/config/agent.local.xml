@@ -43,7 +43,6 @@
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
       <advertised_hostname>agent1.isp.net</advertised_hostname>
-      <advertised_hostname>agent1.isp.net</advertised_hostname>
       <peer_table>
           <expiration_time>1</expiration_time>
           <peer>

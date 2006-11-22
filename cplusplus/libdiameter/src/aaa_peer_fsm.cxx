@@ -60,7 +60,7 @@ class AAA_ApplicationIdLookup
           for (int i=0; i<count; i++) {
               if (Find(id, *(lst[i]))) {
                   return true;
-              }              
+              }
           }
           return false;
       }
@@ -125,7 +125,9 @@ void DiameterPeerI_SendCER::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeer_ConnNack::operator()(DiameterPeerStateMachine &fsm)
 {
     fsm.Cleanup();
-    fsm.DoReConnect();
+    if (fsm.DoReConnect()) {
+        fsm.Notify(DIAMETER_PEER_EV_START);
+    }
     fsm.PeerFsmError(AAA_UNABLE_TO_COMPLY);
 }
 
@@ -137,7 +139,7 @@ void DiameterPeer_Cleanup::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeer_ReConnect::operator()(DiameterPeerStateMachine &fsm)
 {
     AAA_LOG((LM_INFO,
-            "(%P|%t) Retrying peer connection for the %d time\n", fsm.m_ReconnectAttempt));
+            "(%P|%t) Retrying peer connection for %d time\n", fsm.m_ReconnectAttempt));
 
     fsm.StopReConnect();
     reinterpret_cast<DiameterPeerEntry*>(&fsm)->Start(fsm.m_ReconnectAttempt % 2);
@@ -174,7 +176,7 @@ void DiameterPeer_Error::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeer_ProcessCEA::operator()(DiameterPeerStateMachine &fsm)
 {
     std::auto_ptr<DiameterMsg> cea = fsm.m_CurrentPeerEventParam->m_Msg;
-    
+
     DiameterMsgResultCode rcode(*cea);
     if (rcode.InterpretedResultCode() ==
         DiameterMsgResultCode::RCODE_SUCCESS) {
@@ -197,7 +199,7 @@ void DiameterPeer_ProcessCEA::operator()(DiameterPeerStateMachine &fsm)
                  "(%P|%t) Peer returned an error on CEA: %s\n",
                       strMsg->data()));
        }
-       fsm.Cleanup();       
+       fsm.Cleanup();
     }
 }
 
@@ -205,9 +207,9 @@ void DiameterPeerR_AcceptElect::operator()(DiameterPeerStateMachine &fsm)
 {
     fsm.PeerData().m_IOResponder = fsm.m_CurrentPeerEventParam->m_IO;
     std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
-   
+
     fsm.DisassembleCE(*cer);
-    
+
     std::string message;
     diameter_unsigned32_t rcode;
     if (! fsm.ValidatePeer(rcode, message)) {
@@ -1001,13 +1003,12 @@ void DiameterPeerStateMachine::SendDWA(diameter_unsigned32_t rcode,
    DiameterUInt32AvpWidget resultCode(DIAMETER_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
 
-#if INTEROP
-   if (message.length() > 0) {
+   if ((message.length() > 0) && 
+       (DiameterMsgResultCode::InterpretedResultCode(rcode) == DiameterMsgResultCode::RCODE_SUCCESS)) {
        DiameterUtf8AvpWidget errorMsg(DIAMETER_AVPNAME_ERRORMESSAGE);
        errorMsg.Get() = message.data();
        msg->acl.add(errorMsg());
    }
-#endif
 
    // check resulting state to determine
    // which IO to use
@@ -1189,6 +1190,7 @@ void DiameterPeerStateMachine::Cleanup(unsigned int flags)
    StopReConnect();
    CancelTimer(DIAMETER_PEER_EV_TIMEOUT);
    CancelTimer(DIAMETER_PEER_EV_WATCHDOG);
+   CancelTimer(DIAMETER_PEER_CONNECT_ATTEMPT_TOUT);
 
    if (flags & CLEANUP_FSM) {
        AAA_StateMachineWithTimer<DiameterPeerStateMachine>::Stop();
@@ -1487,7 +1489,7 @@ bool DiameterPeerStateMachine::MsgIdRxMessage(DiameterMsg &msg)
            (msg.hdr.ee == m_Data.m_PeerCapabilities.m_MsgId.m_LastTxEndId));
 }
 
-void DiameterPeerStateMachine::DoReConnect()
+bool DiameterPeerStateMachine::DoReConnect()
 {
    if ((unsigned int)m_ReconnectAttempt < DIAMETER_CFG_TRANSPORT()->reconnect_max) {
        if (DIAMETER_CFG_TRANSPORT()->reconnect_interval > 0) {
@@ -1496,11 +1498,13 @@ void DiameterPeerStateMachine::DoReConnect()
                          DIAMETER_CFG_TRANSPORT()->reconnect_interval,
                          0,
                          DIAMETER_PEER_EV_CONN_RETRY);
+           return true;
        }
    }
    else {
        m_ReconnectAttempt = 0;
    }
+   return false;
 }
 
 void DiameterPeerStateMachine::StopReConnect()

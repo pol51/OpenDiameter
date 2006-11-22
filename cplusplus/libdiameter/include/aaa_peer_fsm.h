@@ -261,7 +261,7 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
    public:
       DiameterPeerStateTable() {
 
-        // ------------- DIAMETER_PEER_ST_CLOSED ----------------  
+        // ------------- DIAMETER_PEER_ST_CLOSED ----------------
         AddStateTableEntry(DIAMETER_PEER_ST_CLOSED,
                            DIAMETER_PEER_EV_START,
                            DIAMETER_PEER_ST_WAIT_CONN_ACK,
@@ -764,7 +764,7 @@ class DiameterPeerStateMachine :
 
       int m_ReconnectAttempt;
 
-      void DoReConnect();
+      bool DoReConnect();
       void StopReConnect();
 
    protected: // Update of peer SCTP addresses
