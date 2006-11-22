@@ -125,9 +125,7 @@ void DiameterPeerI_SendCER::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeer_ConnNack::operator()(DiameterPeerStateMachine &fsm)
 {
     fsm.Cleanup();
-    if (fsm.DoReConnect()) {
-        fsm.Notify(DIAMETER_PEER_EV_START);
-    }
+    fsm.DoReConnect();
     fsm.PeerFsmError(AAA_UNABLE_TO_COMPLY);
 }
 
@@ -169,7 +167,6 @@ void DiameterPeer_Error::operator()(DiameterPeerStateMachine &fsm)
     AAA_LOG((LM_INFO,
                "(%P|%t) Timeout occurred or non-CEA message received\n"));
     fsm.Cleanup();
-    fsm.DoReConnect();
     fsm.PeerFsmError(AAA_LIMITED_SUCCESS);
 }
 
@@ -486,8 +483,12 @@ void DiameterPeer_DisconnectDPA::operator()(DiameterPeerStateMachine &fsm)
     }
 
     fsm.PeerFsmDisconnected
-        (fsm.PeerData().m_DisconnectCause);    
+        (fsm.PeerData().m_DisconnectCause);
     fsm.Cleanup();
+
+    if (fsm.PeerData().m_DisconnectCause == AAA_DISCONNECT_REBOOTING) {
+        fsm.DoReConnect();
+    }
 }
 
 void DiameterPeer_Watchdog::operator()(DiameterPeerStateMachine &fsm)
@@ -1489,7 +1490,7 @@ bool DiameterPeerStateMachine::MsgIdRxMessage(DiameterMsg &msg)
            (msg.hdr.ee == m_Data.m_PeerCapabilities.m_MsgId.m_LastTxEndId));
 }
 
-bool DiameterPeerStateMachine::DoReConnect()
+void DiameterPeerStateMachine::DoReConnect()
 {
    if ((unsigned int)m_ReconnectAttempt < DIAMETER_CFG_TRANSPORT()->reconnect_max) {
        if (DIAMETER_CFG_TRANSPORT()->reconnect_interval > 0) {
@@ -1498,13 +1499,11 @@ bool DiameterPeerStateMachine::DoReConnect()
                          DIAMETER_CFG_TRANSPORT()->reconnect_interval,
                          0,
                          DIAMETER_PEER_EV_CONN_RETRY);
-           return true;
        }
    }
    else {
        m_ReconnectAttempt = 0;
    }
-   return false;
 }
 
 void DiameterPeerStateMachine::StopReConnect()

@@ -764,7 +764,7 @@ class DiameterPeerStateMachine :
 
       int m_ReconnectAttempt;
 
-      bool DoReConnect();
+      void DoReConnect();
       void StopReConnect();
 
    protected: // Update of peer SCTP addresses
