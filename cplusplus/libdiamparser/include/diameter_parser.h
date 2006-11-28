@@ -1000,9 +1000,14 @@ class DiameterGroupedVectorAttribute :
             for (unsigned i=0; i<AAAVectorAttribute<T>::size(); i++) {
                 e = em.acquire(AAA_AVP_GROUPED_TYPE);
                 (*this)[i].CopyTo(e->dataRef(Type2Type<AAAAvpContainerList>()));
-                e->dataRef(Type2Type<T>()) = (*this)[i];
                 c.add(e);
             }
+        }
+        /*! overload the operator=() so as not
+         * to hide the base class implementation
+         */
+        virtual std::vector<T>& operator=(std::vector<T>& value) {
+            return DiameterVectorAttribute<T>::operator=(value);
         }
 };
 
