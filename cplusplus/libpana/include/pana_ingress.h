@@ -49,7 +49,7 @@ class PANA_EXPORT PANA_IngressJob : public AAA_Job
           m_MsgHandler(0),
           m_Name(name) {
       }
-      virtual int Schedule(AAA_Job* job, unsigned int backlogSize=1) { 
+      virtual int Schedule(AAA_Job* job, size_t backlogSize=1) { 
           return m_Group.Schedule(job);
       }
       virtual int Schedule() {

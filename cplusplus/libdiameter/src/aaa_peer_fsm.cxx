@@ -551,7 +551,7 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
 #ifdef ACE_HAS_IPV6
                                    (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET)) {
 #else /* ! ACE_HAS_IPV6 */
-                                   AF_INET) {
+                                   AF_INET)) {
 #endif /* ! ACE_HAS_IPV6 */
                    diameter_address_t &hostIpAvp = hostIp.Get();
                    hostIpAvp.type = AAA_ADDRESS_IP;
