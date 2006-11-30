@@ -179,15 +179,11 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
 void DiameterPeerEntry::Error(COLLECTOR_ERROR error,
                               std::string &io_name)
 {
-   static char *errMsg[] = { "Parsing error",
-                             "Allocation failure",
-                             "Transport disconnection",
-                             "Invalid message" };
-
-   AAA_LOG((LM_DEBUG, "(%P|%t) IO [%s] reported: %s\n",
-              io_name.data(), errMsg[error-PARSING_ERROR]));
+   AAA_LOG((LM_DEBUG, "(%P|%t) Message Collector reported [%s]\n",
+              io_name.data()));
 
    switch (error) {
+       case CORRUPTED_BYTE_STREAM:
        case TRANSPORT_ERROR:
            if (io_name == std::string(AAA_IO_ACCEPTOR_NAME)) {
                Notify(DIAMETER_PEER_EV_R_PEER_DISC);
