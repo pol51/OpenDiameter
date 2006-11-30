@@ -2,7 +2,7 @@
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd">
 <!--
   $Log: dictionary.xml,v $
-  Revision 1.5  2006/05/31 17:53:33  vfajardo
+  Revision 1.15  2006/05/31 17:53:32  vfajardo
   xml migration
 
   Revision 1.14  2006/05/02 14:29:03  vfajardo
@@ -599,7 +599,7 @@
       <enum name="Busy" code="2"/>
       <enum name="Do not want to talk to you" code="3"/>
     </avp>
-    <avp name="Error-Message" code="281" mandatory="must"
+    <avp name="Error-Message" code="281" mandatory="mustnot"
 	 protected="mustnot" may-encrypt="no">
       <type type-name="UTF8String"/>
     </avp>
