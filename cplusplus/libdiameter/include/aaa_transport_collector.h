@@ -37,19 +37,21 @@
 #include "diameter_parser.h"
 #include "aaa_transport_interface.h"
 
-class DiameterMsgCollectorHandler 
+class DiameterMsgCollectorHandler
 {
     public:
         typedef enum {
-           PARSING_ERROR   = 3000,
-           ALLOC_ERROR     = 3001,
-           TRANSPORT_ERROR = 3002,
-           INVALID_MSG     = 3003,
+           PARSING_ERROR          = 3000,
+           BUG_IN_PARSING_CODE    = 3001,
+           MEMORY_ALLOC_ERROR     = 3002,
+           CORRUPTED_BYTE_STREAM  = 3003,
+           INVALID_MSG            = 3004,
+           TRANSPORT_ERROR        = 3005
         } COLLECTOR_ERROR;
     public:
         virtual void Message(std::auto_ptr<DiameterMsg> msg) = 0;
-        virtual void Error(COLLECTOR_ERROR error, 
-            std::string &io_name) = 0;
+        virtual void Error(COLLECTOR_ERROR error,
+                           std::string &io_name) = 0;
         virtual ~DiameterMsgCollectorHandler() { }
 };
 
@@ -72,11 +74,19 @@ class DiameterMsgCollector : public Diameter_IO_RxHandler
         DiameterMsgCollector();
         virtual ~DiameterMsgCollector();
 
-        void Message(void *data, size_t length);
+        void Message(void *data, size_t length,
+                     const Diameter_IO_Base *io);
         void Error(int error, const Diameter_IO_Base *io) {
             m_Handler->Error(DiameterMsgCollectorHandler::TRANSPORT_ERROR,
                     const_cast<Diameter_IO_Base*>(io)->Name());
         }
+
+        static int Send(std::auto_ptr<DiameterMsg> &msg,
+                        Diameter_IO_Base *io);
+
+    protected:
+        void SendFailedAvp(DiameterErrorCode &st,
+                           Diameter_IO_Base *io);
 
     private:
         char *m_Buffer; // buffer of unprocessed received data

@@ -62,7 +62,8 @@ AMR_Parser::parseAppToRaw()
   
   // Specify the header.
   diameter_hdr_flag flag = {1,0,0};
-  aaaMessage.hdr = DiameterMsgHeader(1, 0, flag, code, appId, 0, 0);
+  DiameterMsgHeader mnrHdr(1, 0, flag, code, appId, 0, 0);
+  aaaMessage.hdr = mnrHdr;
 
   if (data.AuthApplicationId.IsSet())
     {

@@ -616,6 +616,21 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
         }
 
         /*!
+         * copy operator
+         */
+        DiameterMsgHeader &operator=(DiameterMsgHeader &hdr) {
+            this->ver = hdr.ver;
+            this->length = hdr.length;
+            this->flags = hdr.flags;
+            this->code = hdr.code;
+            this->appId = hdr.appId;
+            this->hh = hdr.hh;
+            this->ee = hdr.ee;
+            this->dictHandle = hdr.getDictHandle();
+            return *this;
+        }
+
+        /*!
         * returns the command name
         */
         const char* getCommandName();

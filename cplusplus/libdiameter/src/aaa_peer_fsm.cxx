@@ -543,7 +543,7 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
 
    if (TransportProtocolInUse() == IPPROTO_SCTP) {
        if (DIAMETER_CFG_TRANSPORT()->advertised_hostname.size() > 0) {
-           std::list<std::string>::iterator i = 
+           std::list<std::string>::iterator i =
                DIAMETER_CFG_TRANSPORT()->advertised_hostname.begin();
            for (; i != DIAMETER_CFG_TRANSPORT()->advertised_hostname.end(); i++) {
                ACE_INET_Addr hostAddrs;
@@ -877,7 +877,7 @@ void DiameterPeerStateMachine::SendCER()
 
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleCE(*msg);   
-   if (RawSend(msg, m_Data.m_IOInitiator.get()) == 0) {
+   if (DiameterMsgCollector::Send(msg, m_Data.m_IOInitiator.get()) == 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Sent CER\n"));
    }
 }
@@ -940,7 +940,7 @@ void DiameterPeerStateMachine::SendCEA(diameter_unsigned32_t rcode,
    Diameter_IO_Base *io = (state == DIAMETER_PEER_ST_I_OPEN) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (RawSend(msg, io) == 0) {
+   if (DiameterMsgCollector::Send(msg, io) == 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Sent CEA: rcode=%d\n",
                  rcode));
    }
@@ -972,7 +972,7 @@ void DiameterPeerStateMachine::SendDWR()
    Diameter_IO_Base *io = (state == DIAMETER_PEER_ST_I_OPEN) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (RawSend(msg, io) < 0) {
+   if (DiameterMsgCollector::Send(msg, io) < 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Failed sending DWR\n"));
    }
 }
@@ -1016,7 +1016,7 @@ void DiameterPeerStateMachine::SendDWA(diameter_unsigned32_t rcode,
    Diameter_IO_Base *io = (state == DIAMETER_PEER_ST_I_OPEN) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (RawSend(msg, io) < 0) {
+   if (DiameterMsgCollector::Send(msg, io) < 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Failed sending DWA: rcode=%d\n",
                  rcode));
    }
@@ -1050,7 +1050,7 @@ void DiameterPeerStateMachine::SendDPR(bool initiator)
    Diameter_IO_Base *io = (initiator) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (RawSend(msg, io) < 0) {
+   if (DiameterMsgCollector::Send(msg, io) < 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Failed sending Disconnect\n"));
    }
 }
@@ -1092,7 +1092,7 @@ void DiameterPeerStateMachine::SendDPA(bool initiator,
    Diameter_IO_Base *io = (initiator) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (RawSend(msg, io) < 0) {
+   if (DiameterMsgCollector::Send(msg, io) < 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Failed sending DWA: rcode=%d\n",
                  rcode));
    }
@@ -1211,73 +1211,6 @@ void DiameterPeerStateMachine::Cleanup(unsigned int flags)
    }
 
    m_CleanupEvent = true;
-}
-
-int DiameterPeerStateMachine::RawSend(std::auto_ptr<DiameterMsg> &msg, 
-                                      Diameter_IO_Base *io)
-{
-   AAAMessageBlock *aBuffer = NULL;
-
-   for (int blockCnt = 1; 
-        blockCnt <= DiameterMsgCollector::MAX_MSG_BLOCK; 
-        blockCnt ++) {
-
-       aBuffer = AAAMessageBlock::Acquire
-             (DiameterMsgCollector::MAX_MSG_LENGTH * blockCnt);
-
-       msg->acl.reset();
-
-       DiameterMsgHeaderParser hp;
-       hp.setRawData(aBuffer);
-       hp.setAppData(&msg->hdr);
-       hp.setDictData(DIAMETER_PARSE_STRICT);
-
-       try {
-          hp.parseAppToRaw();
-       }
-       catch (DiameterErrorCode &st) {
-          ACE_UNUSED_ARG(st);
-          aBuffer->Release();
-          return (-1);
-       }
-
-       DiameterMsgPayloadParser pp;
-       pp.setRawData(aBuffer);
-       pp.setAppData(&msg->acl);
-       pp.setDictData(msg->hdr.getDictHandle());
-
-       try { 
-          pp.parseAppToRaw();
-       }
-       catch (DiameterErrorCode &st) {
-          aBuffer->Release();
-
-          AAA_PARSE_ERROR_TYPE type;
-          int code;
-          st.get(type, code);
-          if ((type == AAA_PARSE_ERROR_TYPE_NORMAL) && (code == AAA_OUT_OF_SPACE)) {
-              if (blockCnt < DiameterMsgCollector::MAX_MSG_BLOCK) {
-                   msg->acl.reset();
-                   continue;
-              }
-              AAA_LOG((LM_ERROR, "(%P|%t) Not enough block space for transmission\n"));
-          }
-          return (-1);
-      }
-
-      msg->hdr.length = aBuffer->wr_ptr() - aBuffer->base();
-      try {
-          hp.parseAppToRaw();
-      }
-      catch (DiameterErrorCode &st) {
-          aBuffer->Release();
-          return (-1);
-      }
-      break;
-   }
-
-   aBuffer->length(msg->hdr.length);
-   return io->Send(aBuffer);
 }
 
 void DiameterPeerStateMachine::DumpPeerCapabilities()

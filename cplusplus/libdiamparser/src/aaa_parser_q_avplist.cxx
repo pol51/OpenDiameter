@@ -213,22 +213,22 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 		      if (pt == AAA_PARSE_TYPE_OPTIONAL) 
 			continue;
 
-            if (0 == min)
-               continue;
+                      if (0 == min)
+                        continue;
 
 		      AAA_LOG((LM_ERROR, "missing %s avp.\n", name));
-		      throw;
+		      throw st;
 		    }
 		  else
 		    {
 		      // Parse error 
 		      AAA_LOG((LM_ERROR, "Error in AVP %s.\n", name));
 		      cm.release(c);
-		      throw;
+		      throw st;
 		    }
 		}
-	      // Check number of containers
-	      if (c->size() < min)
+	        // Check number of containers
+                if (c->size() < min)
 		{
 		  AAA_LOG((LM_ERROR, "at lease min %s avp needed.\n", name));
 		  st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_MISSING_AVP, qavp->avp);
@@ -236,7 +236,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 		  cm.release(c);
 		  throw st;
 		}
-	      if (c->size() > max)
+	        if (c->size() > max)
 		{
 		  AAA_LOG((LM_ERROR, "at most max[%d] %s avp allowed.\n", max, name));
 		  st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_AVP_OCCURS_TOO_MANY_TIMES, qavp->avp);
@@ -244,7 +244,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 		  cm.release(c);
 		  throw st;
 		}
-	      acl->add(c);
+	        acl->add(c);
 	    } while (0);
 	  }
     }

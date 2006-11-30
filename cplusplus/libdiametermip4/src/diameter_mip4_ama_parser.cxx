@@ -62,7 +62,8 @@ AMA_Parser::parseAppToRaw()
 
   // Specify the header.
   diameter_hdr_flag flag = {0,0,0};  // Answer
-  aaaMessage.hdr = DiameterMsgHeader(1, 0, flag, code, appId, 0, 0);
+  DiameterMsgHeader mnAnsr(1, 0, flag, code, appId, 0, 0);
+  aaaMessage.hdr = mnAnsr;
 
   if (data.AuthApplicationId.IsSet())
     {

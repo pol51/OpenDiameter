@@ -105,6 +105,9 @@
 #define DIAMETER_AVPNAME_ACCTMULTISID          "Acct-Multi-Session-Id"
 #define DIAMETER_AVPNAME_ACCTINTERVAL          "Acct-Interim-Interval"
 #define DIAMETER_AVPNAME_CLASS                 "Class"
+#define DIAMETER_AVPNAME_PROXYINFO             "Proxy-Info"
+#define DIAMETER_AVPNAME_PROXYHOST             "Proxy-Host"
+#define DIAMETER_AVPNAME_PROXYSTATE            "Proxy-State"
 #define DIAMETER_AVPNAME_WILDCARD              "AVP"
 
 //
@@ -292,8 +295,10 @@ class DiameterBaseException
           ALLOC_FAILURE = 0,
           INVALID_ID_TYPE,
           MISSING_SESSION_ID,
+          MISSING_ORIGIN_HOST,
+          MISSING_ORIGIN_REALM
       } ERROR_CODE;
-    
+
    public:
       DiameterBaseException(int code, std::string &desc) :
         m_Code(code), m_Description(desc) {
@@ -364,6 +369,132 @@ class DiameterMsgQuery
        DiameterMsg &m_Msg;
 };
 
+class DiameterErrorMsg
+{
+    /*
+
+    7.2.  Error Bit
+
+       The 'E' (Error Bit) in the Diameter header is set when the request
+       caused a protocol-related error (see Section 7.1.3).  A message with
+       the 'E' bit MUST NOT be sent as a response to an answer message.
+       Note that a message with the 'E' bit set is still subjected to the
+       processing rules defined in Section 6.2.  When set, the answer
+       message will not conform to the ABNF specification for the command,
+       and will instead conform to the following ABNF:
+
+       Message Format
+
+       <answer-message> ::= < Diameter Header: code, ERR [PXY] >
+                         0*1< Session-Id >
+                            { Origin-Host }
+                            { Origin-Realm }
+                            { Result-Code }
+                            [ Origin-State-Id ]
+                            [ Error-Reporting-Host ]
+                            [ Proxy-Info ]
+                          * [ AVP ]
+
+       Note that the code used in the header is the same than the one found
+       in the request message, but with the 'R' bit cleared and the 'E' bit
+       set.  The 'P' bit in the header is set to the same value as the one
+       found in the request message.
+    */
+
+    public:
+       static std::auto_ptr<DiameterMsg> Generate(DiameterMsg &request,
+                                                  diameter_unsigned32_t rcode) {
+
+          DiameterMsgWidget errAnswer(request.hdr.code, false,
+                                      request.hdr.appId);
+          errAnswer()->hdr = request.hdr;
+          errAnswer()->hdr.flags.e = DIAMETER_FLAG_SET;
+          errAnswer()->hdr.flags.r = DIAMETER_FLAG_CLR;
+
+          DiameterUtf8AvpContainerWidget sidReqAvp(request.acl);
+          DiameterUInt32AvpContainerWidget originStateReqAvp(request.acl);
+          DiameterGroupedAvpContainerWidget proxyInfoReqAvp(request.acl);
+
+          DiameterIdentityAvpWidget originHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
+          DiameterIdentityAvpWidget originRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
+          DiameterUInt32AvpWidget resultCodeAvp(DIAMETER_AVPNAME_RESULTCODE);
+          DiameterUInt32AvpWidget originStateAvp(DIAMETER_AVPNAME_ORIGINSTATEID);
+          DiameterIdentityAvpWidget errorHostAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
+          DiameterGroupedAvpWidget proxyInfoAvp(DIAMETER_AVPNAME_PROXYINFO);
+
+          DiameterUtf8AvpContainerWidget sidAvp(errAnswer()->acl);
+          diameter_utf8string_t *sidReq = sidReqAvp.GetAvp(DIAMETER_AVPNAME_SESSIONID);
+          if (sidReq) {
+             diameter_utf8string_t &sid = sidAvp.AddAvp(DIAMETER_AVPNAME_SESSIONID);
+             sid = *sidReq;
+          }
+
+          diameter_unsigned32_t *oStateId = originStateReqAvp.GetAvp(DIAMETER_AVPNAME_ORIGINSTATEID);
+          if (oStateId) {
+              originStateAvp.Get() = *oStateId;
+              errAnswer()->acl.add(originStateAvp());
+          }
+
+          diameter_grouped_t *proxyInfo = proxyInfoReqAvp.GetAvp(DIAMETER_AVPNAME_PROXYINFO);
+          if (proxyInfo) {
+              DiameterGroupedAvpContainerWidget pInfoAvp(errAnswer()->acl);
+              diameter_grouped_t &pInfoAns = pInfoAvp.AddAvp(DIAMETER_AVPNAME_PROXYINFO);
+
+              DiameterIdentityAvpContainerWidget pHostReq(*proxyInfo);
+              DiameterStringAvpContainerWidget pStateReq(*proxyInfo);
+
+              DiameterIdentityAvpContainerWidget pHostAns(pInfoAns);
+              DiameterStringAvpContainerWidget pStateAns(pInfoAns);
+
+              diameter_identity_t *hostReq = pHostReq.GetAvp(DIAMETER_AVPNAME_PROXYHOST);
+              diameter_identity_t &hostAns = pHostAns.AddAvp(DIAMETER_AVPNAME_PROXYHOST);
+              hostAns = *hostReq;
+
+              diameter_identity_t *stateReq = pStateReq.GetAvp(DIAMETER_AVPNAME_PROXYSTATE);
+              diameter_identity_t &stateAns = pStateAns.AddAvp(DIAMETER_AVPNAME_PROXYSTATE);
+              stateAns = *stateReq;
+          }
+
+          originHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
+          originRealmAvp.Get() = DIAMETER_CFG_TRANSPORT()->realm;
+          errorHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
+          resultCodeAvp.Get() = rcode;
+
+          errAnswer()->acl.add(originHostAvp());
+          errAnswer()->acl.add(originRealmAvp());
+          errAnswer()->acl.add(resultCodeAvp());
+          errAnswer()->acl.add(errorHostAvp());
+
+          return errAnswer();
+       }
+
+       static std::auto_ptr<DiameterMsg> Generate(DiameterMsgHeader hdr,
+                                                  diameter_unsigned32_t rcode) {
+
+          DiameterMsgWidget errAnswer(hdr.code, false, hdr.appId);
+          errAnswer()->hdr = hdr;
+          errAnswer()->hdr.flags.e = DIAMETER_FLAG_SET;
+          errAnswer()->hdr.flags.r = DIAMETER_FLAG_CLR;
+
+          DiameterIdentityAvpWidget originHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
+          DiameterIdentityAvpWidget originRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
+          DiameterUInt32AvpWidget resultCodeAvp(DIAMETER_AVPNAME_RESULTCODE);
+          DiameterIdentityAvpWidget errorHostAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
+
+          originHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
+          originRealmAvp.Get() = DIAMETER_CFG_TRANSPORT()->realm;
+          errorHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
+          resultCodeAvp.Get() = rcode;
+
+          errAnswer()->acl.add(originHostAvp());
+          errAnswer()->acl.add(originRealmAvp());
+          errAnswer()->acl.add(resultCodeAvp());
+          errAnswer()->acl.add(errorHostAvp());
+
+          return errAnswer();
+       }
+};
+
 template <class ARG>
 class DiameterProtectedQueue :
    private std::list<ARG>
@@ -390,14 +521,14 @@ class DiameterProtectedQueue :
       ACE_RW_Mutex m_Lock;
 };
 
-template <class ARG> 
-class DiameterIterAction 
+template <class ARG>
+class DiameterIterAction
 {
    public:
       // return TRUE to delete entry in iteration
       // return FALSE to sustain entry
       virtual bool operator()(ARG&)=0;
-      
+
    protected:
       virtual ~DiameterIterAction() {
       }
@@ -405,9 +536,9 @@ class DiameterIterAction
       }
 };
 
-template <class INDEX, 
+template <class INDEX,
           class DATA>
-class DiameterProtectedMap : 
+class DiameterProtectedMap :
    private std::map<INDEX, DATA>
 {
    public:
@@ -464,7 +595,7 @@ class DiameterProtectedMap :
 };
 
 template <class ARG>
-class DiameterProtectedPtrQueue 
+class DiameterProtectedPtrQueue
 {
    public:
       void Enqueue(std::auto_ptr<ARG> a) {
@@ -508,7 +639,7 @@ class DiameterRangedValue
                       int low = DEFAULT_LOW, 
                       int high = DEFAULT_HIGH) {
           Reset(level, low, high);
-      }      
+      }
       virtual ~DiameterRangedValue() {
       }
       virtual int operator++() {

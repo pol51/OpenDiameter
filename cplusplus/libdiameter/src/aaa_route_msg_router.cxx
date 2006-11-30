@@ -384,8 +384,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::DcLocal::Process(std::auto_ptr<DiameterMsg> 
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::DcLocal::ErrorHandling(std::auto_ptr<DiameterMsg> msg,
-                                                      DiameterPeerEntry *source,
-                                                      DiameterPeerEntry *dest)
+                                                           DiameterPeerEntry *source,
+                                                           DiameterPeerEntry *dest)
 {
     /*
       Result-Code AVP values that are used to report protocol errors MUST
@@ -417,21 +417,14 @@ AAA_ROUTE_RESULT DiameterMsgRouter::DcLocal::ErrorHandling(std::auto_ptr<Diamete
       AVP set to DIAMETER_UNABLE_TO_DELIVER.
     */
 
-    DiameterMsgResultCode rcode(*msg);
-    switch (rcode.ResultCode()) {
-       case AAA_UNABLE_TO_DELIVER:
-           // TBD: Attempt to re-route
-       default:
-           if (dest) {
-               return (dest->Send(msg) >= 0) ?
-                   AAA_ROUTE_RESULT_SUCCESS: AAA_ROUTE_RESULT_FAILED;
-           }
-           else {
-               // original request must have been locally generated
-               m_Arg[DiameterMsgRouterHandlerTable::H_ERROR]->
-                  Answer(msg, source, dest);
-          }
-          break;
+    if (dest) {
+        return (dest->Send(msg) >= 0) ?
+            AAA_ROUTE_RESULT_SUCCESS: AAA_ROUTE_RESULT_FAILED;
+    }
+    else {
+        // original request must have been locally generated
+        m_Arg[DiameterMsgRouterHandlerTable::H_ERROR]->
+           Answer(msg, source, dest);
     }
     return (AAA_ROUTE_RESULT_SUCCESS);
 }
@@ -472,9 +465,6 @@ int DiameterMsgRouter::DcForward::LoopDetection(std::auto_ptr<DiameterMsg> &msg)
     for (int p=1; rteRec; p++) {
         if (*rteRec == (DIAMETER_CFG_TRANSPORT()->identity)) {
             // send back answer
-            msg->hdr.flags.r = 0;
-            DiameterMsgResultCode rcode(*msg);
-            rcode.ResultCode(AAA_LOOP_DETECTED);
             AAA_LOG((LM_INFO, "(%P|%t) !!! WARNING !!!: Route record shows a loop in the message, sending back with error\n"));
             return (0);
         }
@@ -489,7 +479,8 @@ int DiameterMsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 {
     if (LoopDetection(msg) == 0) {
         if (source) {
-            return (source->Send(msg) >= 0) ? 0 : (-1);
+            std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(*msg, AAA_LOOP_DETECTED);
+            return (source->Send(answerMsg) >= 0) ? 0 : (-1);
         }
         else {
             // request must have been locally generated
@@ -651,7 +642,8 @@ int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
         if (! oHost || ((*oHost) != DIAMETER_CFG_TRANSPORT()->identity)) {
 
             if (m_Arg.m_rcForward.Delivery().LoopDetection(msg) == 0) {
-                return (source->Send(msg) >= 0) ? 0 : (-1);
+                std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(*msg, AAA_LOOP_DETECTED);
+                return (source->Send(answerMsg) >= 0) ? 0 : (-1);
             }
 
             DiameterIdentityAvpWidget rrecord(DIAMETER_AVPNAME_ROUTERECORD);
@@ -667,7 +659,7 @@ int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
                 return (0);
             }
         }
-        
+
         /*
           The Diameter protocol requires that agents maintain
           transaction state, which is used for failover purposes.
@@ -738,19 +730,15 @@ int DiameterMsgRouter::DcReject::RequestMsg(std::auto_ptr<DiameterMsg> msg,
     AAA_LOG((LM_INFO, "(%P|%t) *** Router rejected request message ***\n"));
     DiameterMsgHeaderDump::Dump(*msg);
 
-    msg->hdr.flags.r = 0;
-    msg->hdr.flags.e = 1;
-    DiameterMsgResultCode rcode(*msg);
-    rcode.ResultCode(AAA_UNABLE_TO_DELIVER);
-
     if (! source) {
         // request must have been locally generated
         m_Arg[DiameterMsgRouterHandlerTable::H_ERROR]->
                 Request(msg, source, dest);
         return (0);
     }
-    else {    
-        return (source->Send(msg) == 0) ? 0 : (-1);
+    else {
+        std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(*msg, AAA_UNABLE_TO_DELIVER);
+        return (source->Send(answerMsg) == 0) ? 0 : (-1);
     }
 }
 
@@ -797,7 +785,7 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
                    |    Relay    |              |   Diameter  |
                    |    Agent    |<-------------|    Server   |
                    +-------------+  4. Answer   +-------------+
-    
+
                          Figure 5: Diameter Redirect Agent
 
        The receiver of the answer message with the 'E' bit set, and the
@@ -814,6 +802,8 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
     DiameterIdentityAvpContainerWidget destRealm(msg->acl);
     diameter_identity_t *DestRealm = destRealm.GetAvp(DIAMETER_AVPNAME_DESTREALM);
     DiameterRouteEntry *route = DIAMETER_ROUTE_TABLE()->Lookup(*DestRealm);
+
+    std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(*msg, AAA_REDIRECT_INDICATION);
 
     try {
         diameter_unsigned32_t *idPtr;
@@ -842,7 +832,7 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
                     vendorIdLst.push_back(*value);
                     value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID, p);
                 }
-          
+
                 char *avpNames[] = { DIAMETER_AVPNAME_AUTHAPPID,
                                      DIAMETER_AVPNAME_ACCTAPPID };
                 DiameterUInt32AvpContainerWidget gId(*grouped);
@@ -862,7 +852,7 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
                 }
             }
         }
-        
+
         if (app) {
             DiameterDiamUriAvpWidget redirect(DIAMETER_AVPNAME_REDIRECTHOST);
             DiameterRouteServerEntry *server = app->Servers().First();
@@ -873,8 +863,8 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
             if (! redirect.empty()) {
                 DiameterEnumAvpWidget redirectUsage(DIAMETER_AVPNAME_REDIRECTHOSTUSAGE);
                 redirectUsage.Get() = route->RedirectUsage();
-                msg->acl.add(redirect());
-                msg->acl.add(redirectUsage());
+                answerMsg->acl.add(redirect());
+                answerMsg->acl.add(redirectUsage());
             }
         }
     }
@@ -882,11 +872,7 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
         return (-1);
     }
 
-    msg->hdr.flags.r = 0;
-    msg->hdr.flags.e = 1;
-    DiameterMsgResultCode rcode(*msg);
-    rcode.ResultCode(AAA_REDIRECT_INDICATION);
-    return (source->Send(msg) >= 0) ? 0 : (-1);
+    return (source->Send(answerMsg) >= 0) ? 0 : (-1);
 }
 
 int DiameterMsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,

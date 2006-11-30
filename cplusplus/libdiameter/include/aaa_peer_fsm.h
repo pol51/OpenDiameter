@@ -584,9 +584,9 @@ class DiameterPeerStateMachine :
           }
           switch (state) {
               case DIAMETER_PEER_ST_I_OPEN:
-                  return RawSend(msg, m_Data.m_IOInitiator.get());
+                  return DiameterMsgCollector::Send(msg, m_Data.m_IOInitiator.get());
               case DIAMETER_PEER_ST_R_OPEN:
-                  return RawSend(msg, m_Data.m_IOResponder.get());
+                  return DiameterMsgCollector::Send(msg, m_Data.m_IOResponder.get());
               default:
                   AAA_LOG((LM_INFO, "(%P|%t) Discarding msg to send, peer state is not open\n"));
                   break;
@@ -721,7 +721,6 @@ class DiameterPeerStateMachine :
       DiameterPeerData &PeerData() {
          return m_Data;
       }
-      int RawSend(std::auto_ptr<DiameterMsg> &msg, Diameter_IO_Base *io);    
 
    protected: // Capabilities exchange
 

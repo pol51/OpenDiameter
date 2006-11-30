@@ -90,7 +90,8 @@ class Diameter_IO_RxHandler
 {
    public:
       virtual void Message(void *data,
-                           size_t length) = 0;
+                           size_t length,
+                           const Diameter_IO_Base *io) = 0;
       virtual void Error(int error,
                          const Diameter_IO_Base *io) = 0;
 
@@ -194,7 +195,7 @@ class Diameter_IO : public Diameter_IO_Base
                                           MAX_PACKET_LENGTH);
              try {
                 if (bytes > 0) {
-                    m_RxHandler.Message(m_ReadBuffer, bytes);
+                    m_RxHandler.Message(m_ReadBuffer, bytes, this);
                 }
                 else if (bytes == 0) {
                     // timeout

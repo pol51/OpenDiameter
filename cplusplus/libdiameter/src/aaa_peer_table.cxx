@@ -177,7 +177,7 @@ void DiameterPeerEntry::Message(std::auto_ptr<DiameterMsg> msg)
 }
 
 void DiameterPeerEntry::Error(COLLECTOR_ERROR error,
-                          std::string &io_name)
+                              std::string &io_name)
 {
    static char *errMsg[] = { "Parsing error",
                              "Allocation failure",
