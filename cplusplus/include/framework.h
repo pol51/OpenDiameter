@@ -861,7 +861,10 @@ public:
       reactor(0);
     }
 
-  virtual ~AAA_Task() { Stop(); }
+  virtual ~AAA_Task()
+  {
+     Stop();
+  }
   
   /// Activate specified number of threads.  A negative integer is
   /// thrown when the task could not be started.

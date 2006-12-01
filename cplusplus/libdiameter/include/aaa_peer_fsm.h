@@ -567,8 +567,8 @@ class DiameterPeerStateMachine :
            AAA_Job
 {
    public:
-      DiameterPeerData &Data() { 
-         return m_Data; 
+      DiameterPeerData &Data() {
+         return m_Data;
       }
       AAA_GroupedJob &Job() {
           return *m_GroupedJob.get();
@@ -748,8 +748,7 @@ class DiameterPeerStateMachine :
 
       virtual void SendDPR(bool initiator);
       virtual void SendDPA(bool initiator,
-                           diameter_unsigned32_t rcode,
-                           std::string &message);
+                           diameter_unsigned32_t rcode);
       void AssembleDP(DiameterMsg &msg,
                       bool request = true);
       void DisassembleDP(DiameterMsg &msg);
@@ -870,11 +869,11 @@ class DiameterPeerStateMachine :
       friend class DiameterPeerI_SendMessage;
       friend class DiameterPeerI_SendCEA;
       friend class DiameterPeer_Watchdog;
-    
+
    private:
-    
+
       AAA_JobHandle<AAA_GroupedJob> m_GroupedJob;    
-    
+
       DiameterPeerData m_Data;
       static DiameterPeerStateTable m_StateTable;
 };

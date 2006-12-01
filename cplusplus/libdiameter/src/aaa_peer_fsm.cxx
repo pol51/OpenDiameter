@@ -356,7 +356,7 @@ void DiameterPeerProcessDWRSendDWA::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeer_ProcessDWA::operator()(DiameterPeerStateMachine &fsm)
 {
     std::auto_ptr<DiameterMsg> dwa = fsm.m_CurrentPeerEventParam->m_Msg;
-    
+
     DiameterMsgResultCode rcode(*dwa);
     if (rcode.InterpretedResultCode() ==
         DiameterMsgResultCode::RCODE_SUCCESS) {
@@ -371,7 +371,7 @@ void DiameterPeer_ProcessDWA::operator()(DiameterPeerStateMachine &fsm)
                   "(%P|%t) Peer returned an error on Watchdog: %s, closing peer\n",
                        strMsg->data()));
         }
-        fsm.Cleanup();       
+        fsm.Cleanup();
     }
 }
 
@@ -382,16 +382,16 @@ void DiameterPeerI_SendMessage::operator()(DiameterPeerStateMachine &fsm)
     if (fsm.Send(*msg, fsm.PeerData().m_IOInitiator.get()) < 0) {
         AAA_LOG((LM_INFO, "(%P|%t) Error sending message: %d\n",
                    msg->hdr.code));
-    }    
+    }
 #endif
 }
 
 void DiameterPeerI_SendCEA::operator()(DiameterPeerStateMachine &fsm)
 {
     std::auto_ptr<DiameterMsg> cer = fsm.m_CurrentPeerEventParam->m_Msg;
-   
+
     fsm.DisassembleCE(*cer);
-    
+
     std::string message;
     diameter_unsigned32_t rcode;
     if (! fsm.ValidatePeer(rcode, message)) {
@@ -424,33 +424,31 @@ void DiameterPeerR_SendDPR::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeerI_SendDPADisconnect::operator()(DiameterPeerStateMachine &fsm)
 {
     std::auto_ptr<DiameterMsg> dpr = fsm.m_CurrentPeerEventParam->m_Msg;
-    
+
     AAA_LOG((LM_INFO, "(%P|%t) Peer initiator requested termination, disconnecting\n"));
-    std::string message = "Disconnected";
-    fsm.SendDPA(true, AAA_SUCCESS, message);
-    
+    fsm.SendDPA(true, AAA_SUCCESS);
+
     DiameterUInt32AvpContainerWidget cause(dpr->acl);
-    diameter_unsigned32_t *uint32 = cause.GetAvp(DIAMETER_AVPNAME_DISCONNECT_CAUSE);   
-    
-    fsm.Cleanup();    
+    diameter_unsigned32_t *uint32 = cause.GetAvp(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
+
+    fsm.Cleanup();
     fsm.PeerFsmDisconnected
-         ((uint32) ? *uint32 : AAA_DISCONNECT_UNKNOWN);   
+         ((uint32) ? *uint32 : AAA_DISCONNECT_UNKNOWN);
 }
 
 void DiameterPeerR_SendDPADisconnect::operator()(DiameterPeerStateMachine &fsm)
 {
     std::auto_ptr<DiameterMsg> dpr = fsm.m_CurrentPeerEventParam->m_Msg;
-    
+
     AAA_LOG((LM_INFO, "(%P|%t) Peer responder requested termination, disconnecting\n"));
-    std::string message = "Disconnected";
-    fsm.SendDPA(false, AAA_SUCCESS, message);
-    
+    fsm.SendDPA(false, AAA_SUCCESS);
+
     DiameterUInt32AvpContainerWidget cause(dpr->acl);
-    diameter_unsigned32_t *uint32 = cause.GetAvp(DIAMETER_AVPNAME_DISCONNECT_CAUSE);   
-    
-    fsm.Cleanup();    
+    diameter_unsigned32_t *uint32 = cause.GetAvp(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
+
+    fsm.Cleanup();
     fsm.PeerFsmDisconnected
-         ((uint32) ? *uint32 : AAA_DISCONNECT_UNKNOWN);   
+         ((uint32) ? *uint32 : AAA_DISCONNECT_UNKNOWN);
 }
 
 void DiameterPeer_Disconnect::operator()(DiameterPeerStateMachine &fsm)
@@ -800,6 +798,7 @@ void DiameterPeerStateMachine::AssembleDP(DiameterMsg &msg,
                                       bool request)
 {
    DiameterMsgHeader &h = msg.hdr;
+   ACE_OS::memset(&msg.hdr, 0, sizeof(msg.hdr));
    h.ver = DIAMETER_PROTOCOL_VERSION;
    h.length = 0;
    h.flags.r = request ? DIAMETER_FLAG_SET : DIAMETER_FLAG_CLR;
@@ -876,7 +875,7 @@ void DiameterPeerStateMachine::SendCER()
     */
 
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
-   AssembleCE(*msg);   
+   AssembleCE(*msg);
    if (DiameterMsgCollector::Send(msg, m_Data.m_IOInitiator.get()) == 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Sent CER\n"));
    }
@@ -1045,7 +1044,7 @@ void DiameterPeerStateMachine::SendDPR(bool initiator)
 
    DiameterUInt32AvpWidget disCause(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
    disCause.Get() = diameter_unsigned32_t(m_Data.m_DisconnectCause);
-   msg->acl.add(disCause());   
+   msg->acl.add(disCause());
 
    Diameter_IO_Base *io = (initiator) ?
                       m_Data.m_IOInitiator.get() :
@@ -1056,8 +1055,7 @@ void DiameterPeerStateMachine::SendDPR(bool initiator)
 }
 
 void DiameterPeerStateMachine::SendDPA(bool initiator,
-                                   diameter_unsigned32_t rcode,
-                                   std::string &message)
+                                       diameter_unsigned32_t rcode)
 {
     /*
       5.4.2.  Disconnect-Peer-Answer
@@ -1082,12 +1080,6 @@ void DiameterPeerStateMachine::SendDPA(bool initiator,
 
    DiameterUInt32AvpWidget resultCode(DIAMETER_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
-
-   if (message.length() > 0) {
-       DiameterUtf8AvpWidget errorMsg(DIAMETER_AVPNAME_ERRORMESSAGE);
-       errorMsg.Get() = message.data();
-       msg->acl.add(errorMsg());
-   }
 
    Diameter_IO_Base *io = (initiator) ?
                       m_Data.m_IOInitiator.get() :

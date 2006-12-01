@@ -241,6 +241,7 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
 #endif /* ! ACE_HAS_IPV6 */
                                  (const char**)name, DIAMETER_CFG_TRANSPORT()->advertised_hostname.size());
               DiameterSctpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_SCTP], hostAddresses);
+              delete[] name;
           }
       }
       void Stop() {

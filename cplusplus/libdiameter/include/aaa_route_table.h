@@ -125,7 +125,9 @@ class DiameterRouteEntry : public OD_Utl_RbTreeData
    public:
       DiameterRouteEntry(std::string &realm,
                      DIAMETER_ROUTE_ACTION a = DIAMETER_ROUTE_ACTION_LOCAL) :
-          m_Realm(realm), m_Action(a) {
+          m_Realm(realm),
+          m_Action(a),
+          m_RedirectUsage(DIAMETER_REDIRECT_USAGE_DONT_CACHE) {
       }
       ~DiameterRouteEntry() {
           clear();

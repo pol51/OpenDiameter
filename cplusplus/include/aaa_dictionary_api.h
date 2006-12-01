@@ -71,7 +71,8 @@ class AAADictionaryEntry
             vendorId(vid),
             flags(flg) {
         }
-
+        virtual ~AAADictionaryEntry() {
+        }
 
     public:
         std::string         avpName;  /**< AVP name */

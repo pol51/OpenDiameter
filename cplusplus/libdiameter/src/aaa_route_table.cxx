@@ -199,7 +199,7 @@ void DiameterRouteEntry::clear(void *userData)
 
 void DiameterRouteEntry::Dump(void *userData)
 {
-    AAA_LOG((LM_INFO, "(%P|%t)              Route  : Realm = %s, Action = %d, Redirect-Usage = %d\n", 
+    AAA_LOG((LM_INFO, "(%P|%t)              Route  : Realm = %s, Action = %d, Redirect-Usage = %d\n",
             m_Realm.data(), m_Action, m_RedirectUsage));
 
     DiameterRouteVendorIdMap::iterator x = m_Identifiers.begin();
