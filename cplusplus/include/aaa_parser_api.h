@@ -706,34 +706,53 @@ template<typename D, AAAAvpDataType t, typename EM>
 class AAAAvpWidget {
     public:
         AAAAvpWidget(char *name) {
-            AAAAvpContainerMngr cm;
-            m_cAvp = cm.acquire(name);
+            AllocContainer(name);
         }
         AAAAvpWidget(char *name, D &value) {
-            AAAAvpContainerMngr cm;
-            m_cAvp = cm.acquire(name);
+            AllocContainer(name);
             Get() = value;
         }
         AAAAvpWidget(AAAAvpContainer *avp) :
             m_cAvp(avp) {
+            m_refCount = 1;
         }
         virtual ~AAAAvpWidget() {
+            DeAllocContainer();
         }
         D &Get() {
             EM em;
             AAAAvpContainerEntry *e = em.acquire(t);
             m_cAvp->add(e);
+            m_refCount ++;
             return e->dataRef(Type2Type<D>());
         }
         AAAAvpContainer *operator()() {
+            m_refCount ++;
             return m_cAvp;
         }
         bool empty() {
             return (m_cAvp->size() == 0);
         }
 
+    protected:
+        void AllocContainer(char *name) {
+            m_refCount = 0;
+            AAAAvpContainerMngr cm;
+            m_cAvp = cm.acquire(name);
+        }
+        void DeAllocContainer() {
+            // Use refCount to de-alloc un-used container
+            // If a reference was made to the container
+            // we assume it is being used
+            if (this->empty() && (m_refCount == 0)) {
+               AAAAvpContainerMngr cm;
+               cm.release(m_cAvp);
+            }
+        }
+
     private:
         AAAAvpContainer *m_cAvp;
+        unsigned short m_refCount;
 };
 
 /*! \brief Generic AVP widget lookup and parser
