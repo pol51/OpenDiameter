@@ -120,7 +120,6 @@ class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
          return (-1);
       }
       int Send(void *data, size_t length) {
-         AAA_MutexScopeLock guard(m_TxMutex);
          return AceIOResults(m_Stream.send(data, length));
       }
       int Receive(void *data, size_t length, int timeout = 0) {
@@ -161,9 +160,6 @@ class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
                              ACE_ADDRESS,
                              IP_PROTOCOL>*
                      m_PendingStream;
-
-      // mutext protection for sender
-      ACE_Mutex      m_TxMutex;
 
       int inline AceAsynchResults(int rc) {
          if (rc < 0) {

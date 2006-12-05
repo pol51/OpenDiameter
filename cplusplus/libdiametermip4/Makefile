@@ -176,9 +176,9 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIBTOOL_DEPS = ./ltmain.sh
 LN_S = ln -s
 LTLIBOBJS = 
-L_CPPFLAGS = -Wall -I/usr/include -I/usr/include -g
-L_CXXFLAGS = -Wall -I/usr/include -I/usr/include -g
-L_LDFLAGS = -L/usr/include/ace
+L_CPPFLAGS = -Wall -I/usr/local/include -I/usr/include -g -fno-strict-aliasing
+L_CXXFLAGS = -Wall -I/usr/local/include -I/usr/include -g -fno-strict-aliasing
+L_LDFLAGS = -L/usr/local/include/ace
 L_LIBS = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser
 L_MPAFLAGS = 
 L_ODBCFLAGS = 
@@ -247,7 +247,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = $(prefix)/etc/opendiameter/diametermip4
 target_alias = 
-AM_CPPFLAGS = -Wall -I/usr/include -I/usr/include -g  \
+AM_CPPFLAGS = -Wall -I/usr/local/include -I/usr/include -g -fno-strict-aliasing  \
               -I../include \
               -I../libodutl/include \
               -I../libdiamparser/include \
@@ -256,7 +256,7 @@ AM_CPPFLAGS = -Wall -I/usr/include -I/usr/include -g  \
               -I./include \
               -DOS_LINUX
 
-AM_LDFLAGS = -L/usr/include/ace
+AM_LDFLAGS = -L/usr/local/include/ace
 DIAMETER_MIP_SRC = src/diameter_mip4_amr_parser.cxx \
                    src/diameter_mip4_ama_parser.cxx \
                    src/diameter_mip4_har_parser.cxx \

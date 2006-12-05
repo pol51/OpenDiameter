@@ -584,9 +584,9 @@ class DiameterPeerStateMachine :
           }
           switch (state) {
               case DIAMETER_PEER_ST_I_OPEN:
-                  return DiameterMsgCollector::Send(msg, m_Data.m_IOInitiator.get());
+                  return DIAMETER_TX_MSG_COLLECTOR()->Send(msg, m_Data.m_IOInitiator.get());
               case DIAMETER_PEER_ST_R_OPEN:
-                  return DiameterMsgCollector::Send(msg, m_Data.m_IOResponder.get());
+                  return DIAMETER_TX_MSG_COLLECTOR()->Send(msg, m_Data.m_IOResponder.get());
               default:
                   AAA_LOG((LM_INFO, "(%P|%t) Discarding msg to send, peer state is not open\n"));
                   break;

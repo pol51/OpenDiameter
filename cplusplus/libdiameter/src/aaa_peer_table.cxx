@@ -52,7 +52,7 @@ void DiameterPeerEntry::Stop(DIAMETER_DISCONNECT_CAUSE cause)
 void DiameterPeerEntry::IncommingConnectionRequest(std::auto_ptr<Diameter_IO_Base> io,
                                                    std::auto_ptr<DiameterMsg> cer)
 {
-   DiameterMsgCollector *h = reinterpret_cast<DiameterMsgCollector*>(io->Handler());
+   DiameterRxMsgCollector *h = reinterpret_cast<DiameterRxMsgCollector*>(io->Handler());
    h->RegisterHandler(*this);
    MsgIdRxMessage(*cer);
    Notify(DIAMETER_PEER_EV_R_CONN_CER, cer, io);
@@ -60,7 +60,7 @@ void DiameterPeerEntry::IncommingConnectionRequest(std::auto_ptr<Diameter_IO_Bas
 
 void DiameterPeerEntry::ConnectionRequestAccepted(std::auto_ptr<Diameter_IO_Base> io)
 {
-   DiameterMsgCollector *h = reinterpret_cast<DiameterMsgCollector*>(io->Handler());
+   DiameterRxMsgCollector *h = reinterpret_cast<DiameterRxMsgCollector*>(io->Handler());
    h->RegisterHandler(*this);
    Notify(DIAMETER_PEER_EV_I_RCV_CONN_ACK, io);
 }

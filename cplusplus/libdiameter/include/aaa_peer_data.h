@@ -51,17 +51,17 @@ typedef Diameter_ACE_Transport<ACE_SOCK_SEQPACK_Acceptor,
 
 typedef Diameter_IO_Connector<DiameterTransportTCP,
                               ACE_INET_Addr,
-                              DiameterMsgCollector> DiameterTcpConnector;
+                              DiameterRxMsgCollector> DiameterTcpConnector;
 typedef Diameter_IO_Connector<DiameterTransportSCTP,
                               ACE_Multihomed_INET_Addr,
-                              DiameterMsgCollector> DiameterSctpConnector;
+                              DiameterRxMsgCollector> DiameterSctpConnector;
 
 typedef Diameter_IO_Acceptor<DiameterTransportTCP,
                              ACE_INET_Addr,
-                             DiameterMsgCollector> DiameterTcpAcceptor;
+                             DiameterRxMsgCollector> DiameterTcpAcceptor;
 typedef Diameter_IO_Acceptor<DiameterTransportSCTP,
                              ACE_Multihomed_INET_Addr,
-                             DiameterMsgCollector> DiameterSctpAcceptor;
+                             DiameterRxMsgCollector> DiameterSctpAcceptor;
 
 typedef Diameter_ACE_TransportAddress DiameterIpAddress;
 

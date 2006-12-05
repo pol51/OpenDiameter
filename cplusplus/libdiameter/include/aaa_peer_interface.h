@@ -279,12 +279,12 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
     */
 
       class PendingResponder :
-         public DiameterMsgCollectorHandler {
+         public DiameterRxMsgCollectorHandler {
             public:
                PendingResponder(DiameterPeerAcceptor &a,
                                 std::auto_ptr<Diameter_IO_Base> io) :
                    m_IO(io), m_Acceptor(a) {
-                   DiameterMsgCollector *h = reinterpret_cast<DiameterMsgCollector*>
+                   DiameterRxMsgCollector *h = reinterpret_cast<DiameterRxMsgCollector*>
                        (m_IO->Handler());
                    h->RegisterHandler(*this);
                }
@@ -318,11 +318,11 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                          destined to the unknown peer can be discarded.
                       */
                    }
-                   Error(DiameterMsgCollectorHandler::INVALID_MSG,
+                   Error(DiameterRxMsgCollectorHandler::INVALID_MSG,
                          m_IO->Name());
                }
                void Error(COLLECTOR_ERROR error, std::string &io_name) {
-                   if (error == DiameterMsgCollectorHandler::PARSING_ERROR) {
+                   if (error == DiameterRxMsgCollectorHandler::PARSING_ERROR) {
                        return; // not considered fatal for now
                    }
                    AAA_LOG((LM_ERROR,

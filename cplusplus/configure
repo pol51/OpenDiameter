@@ -22435,9 +22435,9 @@ done
 
 case $host in
   *-*-freebsd*)
-     L_CPPFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -pthread"
+     L_CPPFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -pthread -fno-strict-aliasing"
 
-     L_CXXFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -pthread"
+     L_CXXFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -pthread -fno-strict-aliasing"
 
      L_LDFLAGS="-L$ACE_ROOT/ace -pthread"
 
@@ -22447,9 +22447,9 @@ case $host in
 
   ;;
   *-*-linux*)
-     L_CPPFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -g"
+     L_CPPFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -g -fno-strict-aliasing"
 
-     L_CXXFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -g"
+     L_CXXFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -g -fno-strict-aliasing"
 
      L_LDFLAGS="-L$ACE_ROOT/ace"
 

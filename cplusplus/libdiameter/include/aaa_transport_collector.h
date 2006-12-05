@@ -37,7 +37,7 @@
 #include "diameter_parser.h"
 #include "aaa_transport_interface.h"
 
-class DiameterMsgCollectorHandler
+class DiameterRxMsgCollectorHandler
 {
     public:
         typedef enum {
@@ -52,10 +52,10 @@ class DiameterMsgCollectorHandler
         virtual void Message(std::auto_ptr<DiameterMsg> msg) = 0;
         virtual void Error(COLLECTOR_ERROR error,
                            std::string &io_name) = 0;
-        virtual ~DiameterMsgCollectorHandler() { }
+        virtual ~DiameterRxMsgCollectorHandler() { }
 };
 
-class DiameterMsgCollector : public Diameter_IO_RxHandler
+class DiameterRxMsgCollector : public Diameter_IO_RxHandler
 {
     public:
         typedef enum {
@@ -64,26 +64,23 @@ class DiameterMsgCollector : public Diameter_IO_RxHandler
         };
 
     public:
-        void RegisterHandler(DiameterMsgCollectorHandler &h) {
+        void RegisterHandler(DiameterRxMsgCollectorHandler &h) {
             m_Handler = &h;
         }
         void RemoveHandler() {
             m_Handler = NULL;
         }
 
-        DiameterMsgCollector();
-        virtual ~DiameterMsgCollector();
+        DiameterRxMsgCollector();
+        virtual ~DiameterRxMsgCollector();
 
         void Message(void *data, size_t length,
                      const Diameter_IO_Base *io);
         void Error(int error, const Diameter_IO_Base *io) {
-            m_Handler->Error(DiameterMsgCollectorHandler::TRANSPORT_ERROR,
+            m_Handler->Error(DiameterRxMsgCollectorHandler::TRANSPORT_ERROR,
                     const_cast<Diameter_IO_Base*>(io)->Name());
         }
-
-        static int Send(std::auto_ptr<DiameterMsg> &msg,
-                        Diameter_IO_Base *io);
-
+                        
     protected:
         void SendFailedAvp(DiameterErrorCode &st,
                            Diameter_IO_Base *io);
@@ -93,9 +90,86 @@ class DiameterMsgCollector : public Diameter_IO_RxHandler
         int m_Offset; // current read offset from buffer
         int m_BufSize; // allocated size of rdBuffer
         int m_MsgLength; // current message length
-        DiameterMsgCollectorHandler *m_Handler;
+        DiameterRxMsgCollectorHandler *m_Handler;
         DiameterRangedValue m_PersistentError;
 };
+
+class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
+{
+    private:
+        class TransmitDatum {
+            public:
+                TransmitDatum(std::auto_ptr<DiameterMsg> &msg,
+                              Diameter_IO_Base *io) :
+                     m_Msg(msg),
+                     m_IO(io) {
+                }
+                std::auto_ptr<DiameterMsg> &GetMsg() {
+                    return m_Msg;
+                }
+                Diameter_IO_Base *GetIO() {
+                    return m_IO;
+                }
+                
+            private:
+                std::auto_ptr<DiameterMsg> m_Msg;
+                Diameter_IO_Base          *m_IO;
+        };
+        
+    public:
+        DiameterTxMsgCollector() :
+            m_Active(false),
+            m_Condition(*(new ACE_Thread_Mutex)) {
+        }
+        virtual ~DiameterTxMsgCollector() {
+            Stop();
+            delete &(m_Condition.mutex());
+        }
+        bool Start() {
+            if (! m_Active && (activate() == 0)) {
+                m_Active = true;
+            }
+            return m_Active;
+        }
+        void Stop() {
+            m_Active = false;
+            m_Condition.signal();
+            // wait for thread to exit
+            while (thr_count() > 0) {
+                ACE_Time_Value tm(0, 100000);
+                ACE_OS::sleep(tm);
+            }
+        }
+        int Send(std::auto_ptr<DiameterMsg> &msg,
+                 Diameter_IO_Base *io) {
+            m_SendQueue.Enqueue(new TransmitDatum(msg, io));
+            m_Condition.signal();
+            return (0);
+        }
+                                   
+    private:
+        bool m_Active;
+        ACE_Condition_Thread_Mutex m_Condition;
+        DiameterProtectedQueue<TransmitDatum*> m_SendQueue;
+        
+    private:
+        int SafeSend(std::auto_ptr<DiameterMsg> &msg,
+                     Diameter_IO_Base *io);
+         
+        int svc() {
+           do {
+               m_Condition.wait();
+               while (! m_SendQueue.IsEmpty()) {
+                   std::auto_ptr<TransmitDatum> datum(m_SendQueue.Dequeue());
+                   SafeSend(datum->GetMsg(), datum->GetIO());
+               }
+           } while (m_Active);
+           return (0);
+        }
+};
+
+typedef ACE_Singleton<DiameterTxMsgCollector, ACE_Recursive_Thread_Mutex> DiameterTxMsgCollector_S;
+#define DIAMETER_TX_MSG_COLLECTOR() DiameterTxMsgCollector_S::instance()
 
 #endif
 

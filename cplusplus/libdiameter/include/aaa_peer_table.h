@@ -39,7 +39,7 @@
 
 class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
 	public DiameterPeerStateMachine,
-          DiameterMsgCollectorHandler
+          DiameterRxMsgCollectorHandler
 {
    public:
       DiameterPeerEntry(AAA_Task &task,
