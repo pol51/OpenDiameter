@@ -41,12 +41,13 @@ DiameterRxMsgCollector::DiameterRxMsgCollector() :
     m_Handler(NULL)
 {
    m_Buffer = (char*)ACE_OS::malloc(DIAMETER_HEADER_SIZE +
-                                    MAX_MSG_LENGTH);
+                                    MSG_COLLECTOR_MAX_MSG_LENGTH);
    if (m_Buffer != NULL) {
-      m_BufSize = DIAMETER_HEADER_SIZE + MAX_MSG_LENGTH;
+      m_BufSize = DIAMETER_HEADER_SIZE + MSG_COLLECTOR_MAX_MSG_LENGTH;
       ACE_OS::memset(m_Buffer, 0, m_BufSize);
       m_PersistentError.Reset(0, 0,
-              (m_BufSize * MAX_MSG_BLOCK)/sizeof(ACE_UINT32));
+              (m_BufSize * 
+               MSG_COLLECTOR_MAX_MSG_BLOCK)/sizeof(ACE_UINT32));
    }
 }
 
@@ -57,8 +58,7 @@ DiameterRxMsgCollector::~DiameterRxMsgCollector()
    }
 }
 
-void DiameterRxMsgCollector::Message(void *data, size_t length,
-                                   const Diameter_IO_Base *io)
+void DiameterRxMsgCollector::Message(void *data, size_t length)
 {
    if (m_Buffer == NULL || m_Handler == NULL) {
       return;
@@ -101,7 +101,8 @@ void DiameterRxMsgCollector::Message(void *data, size_t length,
                st.get(eType, eCode, eDesc);
 
                DiameterRangedValue lengthRange
-                  (hdr.length, DIAMETER_HEADER_SIZE, m_BufSize * MAX_MSG_BLOCK);
+                  (hdr.length, DIAMETER_HEADER_SIZE, m_BufSize * 
+                   MSG_COLLECTOR_MAX_MSG_BLOCK);
 
                if ((eCode == AAA_COMMAND_UNSUPPORTED) &&
                    ! lengthRange.InRange()) {
@@ -123,7 +124,7 @@ void DiameterRxMsgCollector::Message(void *data, size_t length,
                    // can trust reported header length despite error
                    bHasHeaderError = true;
                    std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(hdr, eCode);
-                   DIAMETER_TX_MSG_COLLECTOR()->Send(answerMsg, (Diameter_IO_Base*)io);
+                   m_Handler->SendErrorAnswer(answerMsg);
                }
                else {
                    eDesc = "Bug present in the parsing code !!!!";
@@ -197,7 +198,7 @@ void DiameterRxMsgCollector::Message(void *data, size_t length,
 
                    if (eType == AAA_PARSE_ERROR_TYPE_NORMAL) {
 
-                       SendFailedAvp(st, (Diameter_IO_Base*)io);
+                       SendFailedAvp(st);
 
                        aBuffer->Release();
                        m_Offset -= m_MsgLength;
@@ -234,7 +235,8 @@ void DiameterRxMsgCollector::Message(void *data, size_t length,
                 m_Handler->Message(msg);
 
                 m_PersistentError.Reset(0, 0,
-                    (m_BufSize * MAX_MSG_BLOCK)/sizeof(ACE_UINT32));
+                    (m_BufSize * 
+                     MSG_COLLECTOR_MAX_MSG_BLOCK)/sizeof(ACE_UINT32));
             }
             else {
                 eDesc = "Header error encounted in newly arrived message";
@@ -258,8 +260,7 @@ void DiameterRxMsgCollector::Message(void *data, size_t length,
    }
 }
 
-void DiameterRxMsgCollector::SendFailedAvp(DiameterErrorCode &st,
-                                           Diameter_IO_Base *io)
+void DiameterRxMsgCollector::SendFailedAvp(DiameterErrorCode &st)
 {
    // AAA_OUT_OF_SPACE
    // AAA_INVALID_AVP_VALUE
@@ -270,25 +271,18 @@ void DiameterRxMsgCollector::SendFailedAvp(DiameterErrorCode &st,
 
    // TBD:
    // std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(msg, eCode);
-   // DIAMETER_TX_MSG_COLLECTOR()->Send(answerMsg, io);
+   // m_Handler->SendErrorAnswer(answerMsg);
 }
 
 int DiameterTxMsgCollector::SafeSend(std::auto_ptr<DiameterMsg> &msg,
                                      Diameter_IO_Base *io)
 {
-   AAAMessageBlock *aBuffer = NULL;
-
-   for (int blockCnt = 1;
-        blockCnt <= DiameterRxMsgCollector::MAX_MSG_BLOCK;
-        blockCnt ++) {
-
-       aBuffer = AAAMessageBlock::Acquire
-             (DiameterRxMsgCollector::MAX_MSG_LENGTH * blockCnt);
-
+   do {
        msg->acl.reset();
+       m_Buffer->reset();
 
        DiameterMsgHeaderParser hp;
-       hp.setRawData(aBuffer);
+       hp.setRawData(m_Buffer);
        hp.setAppData(&msg->hdr);
        hp.setDictData(DIAMETER_PARSE_STRICT);
 
@@ -297,12 +291,11 @@ int DiameterTxMsgCollector::SafeSend(std::auto_ptr<DiameterMsg> &msg,
        }
        catch (DiameterErrorCode &st) {
           ACE_UNUSED_ARG(st);
-          aBuffer->Release();
           return (-1);
        }
 
        DiameterMsgPayloadParser pp;
-       pp.setRawData(aBuffer);
+       pp.setRawData(m_Buffer);
        pp.setAppData(&msg->acl);
        pp.setDictData(msg->hdr.getDictHandle());
 
@@ -310,14 +303,14 @@ int DiameterTxMsgCollector::SafeSend(std::auto_ptr<DiameterMsg> &msg,
           pp.parseAppToRaw();
        }
        catch (DiameterErrorCode &st) {
-          aBuffer->Release();
-
           AAA_PARSE_ERROR_TYPE type;
           int code;
           st.get(type, code);
           if ((type == AAA_PARSE_ERROR_TYPE_NORMAL) && (code == AAA_OUT_OF_SPACE)) {
-              if (blockCnt < DiameterRxMsgCollector::MAX_MSG_BLOCK) {
-                  msg->acl.reset();
+              if (m_BlockCount < MSG_COLLECTOR_MAX_MSG_BLOCK) {
+                  m_BlockCount ++;
+                  m_Buffer = AAAMessageBlock::Acquire
+                             (MSG_COLLECTOR_MAX_MSG_LENGTH * m_BlockCount);
                   continue;
               }
               AAA_LOG((LM_ERROR, "(%P|%t) Not enough block space for transmission\n"));
@@ -325,17 +318,17 @@ int DiameterTxMsgCollector::SafeSend(std::auto_ptr<DiameterMsg> &msg,
           return (-1);
       }
 
-      msg->hdr.length = aBuffer->wr_ptr() - aBuffer->base();
+      msg->hdr.length = m_Buffer->wr_ptr() - m_Buffer->base();
       try {
           hp.parseAppToRaw();
       }
       catch (DiameterErrorCode &st) {
-          aBuffer->Release();
           return (-1);
       }
       break;
    }
+   while (true);
 
-   aBuffer->length(msg->hdr.length);
-   return io->Send(aBuffer);
+   m_Buffer->length(msg->hdr.length);
+   return io->Send(m_Buffer);
 }

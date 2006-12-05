@@ -89,6 +89,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
    protected:
       void Message(std::auto_ptr<DiameterMsg> msg);
       void Error(COLLECTOR_ERROR error, std::string &io_name);
+      int SendErrorAnswer(std::auto_ptr<DiameterMsg> &msg);
 
       class PeerInitiator : public DiameterTcpConnector,
                                    DiameterSctpConnector

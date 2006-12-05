@@ -387,7 +387,7 @@ int main(int argc, char *argv[])
    start = time(0);
 
    int msgCountPerSession = 10;
-   int sessionCount = 10;
+   int sessionCount = 100;
    char *cfgFile = "config/nas2.local.xml";
 
    if (argc == 2) {

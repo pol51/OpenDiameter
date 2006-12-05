@@ -332,6 +332,11 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                    m_Acceptor.RemoveFromPendingList(*this);
                    throw(error);
                }
+               int SendErrorAnswer(std::auto_ptr<DiameterMsg> &msg) {
+                   AAA_LOG((LM_ERROR,
+                             "(%P|%t) Peer message maybe malformed, ignoring during CER/CEA exchange\n"));
+                   return (0);
+               }
 
             private:
                std::auto_ptr<Diameter_IO_Base> m_IO;

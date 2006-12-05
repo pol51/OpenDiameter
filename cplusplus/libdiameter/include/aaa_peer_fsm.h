@@ -584,9 +584,9 @@ class DiameterPeerStateMachine :
           }
           switch (state) {
               case DIAMETER_PEER_ST_I_OPEN:
-                  return DIAMETER_TX_MSG_COLLECTOR()->Send(msg, m_Data.m_IOInitiator.get());
+                  return m_TxMsgCollector.Send(msg, m_Data.m_IOInitiator.get());
               case DIAMETER_PEER_ST_R_OPEN:
-                  return DIAMETER_TX_MSG_COLLECTOR()->Send(msg, m_Data.m_IOResponder.get());
+                  return m_TxMsgCollector.Send(msg, m_Data.m_IOResponder.get());
               default:
                   AAA_LOG((LM_INFO, "(%P|%t) Discarding msg to send, peer state is not open\n"));
                   break;
@@ -671,10 +671,12 @@ class DiameterPeerStateMachine :
              (*this, m_StateTable, *t.reactor()),
              m_GroupedJob(&t.Job()) {
           m_ReconnectAttempt = 0;
+          m_TxMsgCollector.Start();
       }
       virtual ~DiameterPeerStateMachine() {
           WaitOnCleanup();
           AAA_StateMachine<DiameterPeerStateMachine>::Stop();
+          m_TxMsgCollector.Stop();
       }
 
    protected: // Notifications
@@ -768,6 +770,9 @@ class DiameterPeerStateMachine :
    protected: // Update of peer SCTP addresses
 
       int TransportProtocolInUse();
+      
+   protected: // Message transmission thread
+      DiameterTxMsgCollector m_TxMsgCollector;
 
    protected: // Auxillary
 

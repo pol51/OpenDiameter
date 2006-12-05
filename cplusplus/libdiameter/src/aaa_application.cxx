@@ -76,9 +76,6 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
     DIAMETER_AUTH_SESSION_GC_ROOT()->Initialize(m_Task);
     DIAMETER_ACCT_SESSION_GC_ROOT()->Initialize(m_Task);
 
-    /// Initialize message transmitter
-    DIAMETER_TX_MSG_COLLECTOR()->Start();
-
     /// start contacting peers
     int ports[DIAMETER_PEER_TTYPE_MAX] = { DIAMETER_CFG_TRANSPORT()->tcp_listen_port,
                                            DIAMETER_CFG_TRANSPORT()->sctp_listen_port };
@@ -105,9 +102,6 @@ AAAReturnCode DiameterApplication::Close()
     DiameterPeerConnector::Stop(AAA_DISCONNECT_REBOOTING);
     m_PeerAcceptor.Stop();
 
-    /// stop message transmitter
-    DIAMETER_TX_MSG_COLLECTOR()->Stop();
-    
     /// close logging facility
     DiameterLogFacility::Close();
 

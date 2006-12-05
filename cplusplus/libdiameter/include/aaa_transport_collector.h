@@ -37,6 +37,11 @@
 #include "diameter_parser.h"
 #include "aaa_transport_interface.h"
 
+typedef enum {
+    MSG_COLLECTOR_MAX_MSG_LENGTH  = 2048,
+    MSG_COLLECTOR_MAX_MSG_BLOCK   = 10
+};
+
 class DiameterRxMsgCollectorHandler
 {
     public:
@@ -48,21 +53,16 @@ class DiameterRxMsgCollectorHandler
            INVALID_MSG            = 3004,
            TRANSPORT_ERROR        = 3005
         } COLLECTOR_ERROR;
-    public:
+    public:    
         virtual void Message(std::auto_ptr<DiameterMsg> msg) = 0;
         virtual void Error(COLLECTOR_ERROR error,
                            std::string &io_name) = 0;
+        virtual int SendErrorAnswer(std::auto_ptr<DiameterMsg> &msg) = 0;
         virtual ~DiameterRxMsgCollectorHandler() { }
 };
 
 class DiameterRxMsgCollector : public Diameter_IO_RxHandler
 {
-    public:
-        typedef enum {
-           MAX_MSG_LENGTH  = 2048,
-           MAX_MSG_BLOCK   = 10
-        };
-
     public:
         void RegisterHandler(DiameterRxMsgCollectorHandler &h) {
             m_Handler = &h;
@@ -74,16 +74,14 @@ class DiameterRxMsgCollector : public Diameter_IO_RxHandler
         DiameterRxMsgCollector();
         virtual ~DiameterRxMsgCollector();
 
-        void Message(void *data, size_t length,
-                     const Diameter_IO_Base *io);
+        void Message(void *data, size_t length);
         void Error(int error, const Diameter_IO_Base *io) {
             m_Handler->Error(DiameterRxMsgCollectorHandler::TRANSPORT_ERROR,
                     const_cast<Diameter_IO_Base*>(io)->Name());
         }
                         
     protected:
-        void SendFailedAvp(DiameterErrorCode &st,
-                           Diameter_IO_Base *io);
+        void SendFailedAvp(DiameterErrorCode &st);
 
     private:
         char *m_Buffer; // buffer of unprocessed received data
@@ -119,12 +117,15 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
     public:
         DiameterTxMsgCollector() :
             m_Active(false),
-            m_Condition(*(new ACE_Thread_Mutex)) {
+            m_Condition(*(new ACE_Thread_Mutex)),
+            m_BlockCount(1) {
+            m_Buffer = AAAMessageBlock::Acquire(MSG_COLLECTOR_MAX_MSG_LENGTH);
         }
         virtual ~DiameterTxMsgCollector() {
             Stop();
             delete &(m_Condition.mutex());
-        }
+            m_Buffer->Release();
+        }        
         bool Start() {
             if (! m_Active && (activate() == 0)) {
                 m_Active = true;
@@ -148,9 +149,18 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
         }
                                    
     private:
+        //
+        // Variables for transmitter thread
+        //
         bool m_Active;
         ACE_Condition_Thread_Mutex m_Condition;
         DiameterProtectedQueue<TransmitDatum*> m_SendQueue;
+        
+        //
+        // Variables for buffer pool
+        //
+        AAAMessageBlock *m_Buffer;
+        short m_BlockCount;
         
     private:
         int SafeSend(std::auto_ptr<DiameterMsg> &msg,
@@ -167,9 +177,6 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
            return (0);
         }
 };
-
-typedef ACE_Singleton<DiameterTxMsgCollector, ACE_Recursive_Thread_Mutex> DiameterTxMsgCollector_S;
-#define DIAMETER_TX_MSG_COLLECTOR() DiameterTxMsgCollector_S::instance()
 
 #endif
 

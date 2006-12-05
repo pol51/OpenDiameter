@@ -204,4 +204,8 @@ void DiameterPeerEntry::Error(COLLECTOR_ERROR error,
    }
 }
 
+int DiameterPeerEntry::SendErrorAnswer(std::auto_ptr<DiameterMsg> &msg)
+{
+   return DiameterPeerStateMachine::Send(msg);
+}
 

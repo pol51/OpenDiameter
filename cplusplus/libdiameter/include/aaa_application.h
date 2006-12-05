@@ -64,7 +64,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterApplication :
         
     public:
         DiameterApplication(AAA_Task &task,
-                        char *cfgfile = NULL) :
+                            char *cfgfile = NULL) :
             m_Task(task) {
             if (cfgfile) {
                 Open(cfgfile);
