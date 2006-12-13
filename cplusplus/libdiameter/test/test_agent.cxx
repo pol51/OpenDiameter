@@ -227,23 +227,23 @@ class AAA_SampleProxyWithMux : public AAA_ProxyHandler
 };
 
 class PeerEventHandler : 
-   public DiameterPeerFsmUserEventInterface
+   public DiameterPeerEventInterface
 {
    public:
-      virtual void PeerFsmConnected() {
+      virtual void Connected() {
          AAA_LOG((LM_INFO, "(%P|%t) **** peer is now connected ****\n"));
       }
-      virtual void PeerFsmDisconnected(int cause) {
+      virtual void Disconnected(int cause) {
          AAA_LOG((LM_INFO, "(%P|%t) **** peer is now disconnected: %d ****\n",
                  cause));
       }
-      virtual void PeerFsmError(PFSM_EV_ERR err) {
+      virtual void Error(PFSM_EV_ERR err) {
          AAA_LOG((LM_INFO, "(%P|%t) **** peer is now disconnected: %d ****\n",
                  err));
          switch (err) {
-            case PFSM_EV_ERR_CONN_NACK:
+            case PEER_EVENT_CONN_NACK:
                break;
-            case PFSM_EV_ERR_TIMEOUT_OR_NONCEA:
+            case PEER_EVENT_TIMEOUT_OR_NONCEA:
                break;
          }
       }

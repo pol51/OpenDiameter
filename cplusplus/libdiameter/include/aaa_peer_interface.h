@@ -38,25 +38,20 @@
 #include "aaa_peer_table.h"
 #include "aaa_route_msg_router.h"
 
-//
-// For backward compatability only
-//
 typedef enum {
-    PFSM_EV_ERR_CONN_NACK,
-    PFSM_EV_ERR_TIMEOUT_OR_NONCEA,
+    PEER_EVENT_CONN_NACK,
+    PEER_EVENT_TIMEOUT_OR_NONCEA,
 } PFSM_EV_ERR;
 
-//
-// For backward compatability only
-//
-class DiameterPeerFsmUserEventInterface
+class DiameterPeerEventInterface
 {
    public:
-      virtual void PeerFsmConnected() = 0;
-      virtual void PeerFsmDisconnected(int cause) = 0;
-      virtual void PeerFsmError(PFSM_EV_ERR err) = 0;
-      virtual ~DiameterPeerFsmUserEventInterface() { }
-      
+      virtual void Connected() = 0;
+      virtual void Disconnected(int cause) = 0;
+      virtual void Error(PFSM_EV_ERR err) = 0;
+      virtual ~DiameterPeerEventInterface() {
+      }
+
       // TBD: Can add more events here when needed
 };
 
@@ -70,69 +65,54 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeer :
                int tls_enabled,
                int etime,
                bool is_static) :
-          DiameterPeerEntry(task, 
-                        peername, 
+          DiameterPeerEntry(task,
+                        peername,
                         peerport,
                         tls_enabled,
                         etime,
                         is_static),
           m_EventInterface(NULL) {
-      }            
+      }
       virtual void RegisterUserEventHandler
-         (DiameterPeerFsmUserEventInterface &handler) {
-         //
-         // For backward compatability only
-         //
-         AAA_MutexScopeLock guard(m_EventMtx);
+         (DiameterPeerEventInterface &handler) {
+         ACE_Write_Guard<ACE_RW_Mutex> guard(m_EventMtx);
          m_EventInterface = &handler;
       }
       virtual void RemoveUserEventHandler() {
-         //
-         // For backward compatability only
-         //
-         AAA_MutexScopeLock guard(m_EventMtx);
+         ACE_Write_Guard<ACE_RW_Mutex> guard(m_EventMtx);
          m_EventInterface = NULL;
       }
 
    protected:
-      virtual void PeerFsmConnected() {
-         //
-         // For backward compatability only
-         //
-         AAA_MutexScopeLock guard(m_EventMtx);
+      virtual void Connected() {
+         ACE_Read_Guard<ACE_RW_Mutex> guard(m_EventMtx);
          if (m_EventInterface) {
-             m_EventInterface->PeerFsmConnected(); 
+             m_EventInterface->Connected();
          }
       }
-      virtual void PeerFsmError(int resultCode) {
-         //
-         // For backward compatability only
-         //
-         AAA_MutexScopeLock guard(m_EventMtx);
-         if (m_EventInterface) {             
-             m_EventInterface->PeerFsmError
+      virtual void Error(int resultCode) {
+         ACE_Read_Guard<ACE_RW_Mutex> guard(m_EventMtx);
+         if (m_EventInterface) {
+             m_EventInterface->Error
                 ((resultCode == AAA_LIMITED_SUCCESS) ?
-                   PFSM_EV_ERR_TIMEOUT_OR_NONCEA :
-                   PFSM_EV_ERR_CONN_NACK); 
+                   PEER_EVENT_TIMEOUT_OR_NONCEA :
+                   PEER_EVENT_CONN_NACK);
          }
       }
-      virtual void PeerFsmDisconnected(int cause) {
+      virtual void Disconnected(int cause) {
 
          DIAMETER_MSG_ROUTER()->ReTransmitEvent
             (static_cast<DiameterPeerEntry*>(this));
-         
-         //
-         // For backward compatability only
-         //
-         AAA_MutexScopeLock guard(m_EventMtx);
+
+         ACE_Read_Guard<ACE_RW_Mutex> guard(m_EventMtx);
          if (m_EventInterface) {
-             m_EventInterface->PeerFsmDisconnected(cause); 
+             m_EventInterface->Disconnected(cause);
          }
       }
-      
+
    private:
-      ACE_Mutex m_EventMtx;
-      DiameterPeerFsmUserEventInterface *m_EventInterface;
+      ACE_RW_Mutex m_EventMtx;
+      DiameterPeerEventInterface *m_EventInterface;
 };
 
 class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerManager

@@ -111,7 +111,7 @@ void DiameterPeerR_AcceptSendCEA::operator()(DiameterPeerStateMachine &fsm)
                           0,
                           DIAMETER_PEER_EV_WATCHDOG);
         fsm.StopReConnect();
-        fsm.PeerFsmConnected();
+        fsm.Connected();
     }
 }
 
@@ -126,7 +126,7 @@ void DiameterPeer_ConnNack::operator()(DiameterPeerStateMachine &fsm)
 {
     fsm.Cleanup();
     fsm.DoReConnect();
-    fsm.PeerFsmError(AAA_UNABLE_TO_COMPLY);
+    fsm.Error(AAA_UNABLE_TO_COMPLY);
 }
 
 void DiameterPeer_Cleanup::operator()(DiameterPeerStateMachine &fsm)
@@ -167,7 +167,7 @@ void DiameterPeer_Error::operator()(DiameterPeerStateMachine &fsm)
     AAA_LOG((LM_INFO,
                "(%P|%t) Timeout occurred or non-CEA message received\n"));
     fsm.Cleanup();
-    fsm.PeerFsmError(AAA_LIMITED_SUCCESS);
+    fsm.Error(AAA_LIMITED_SUCCESS);
 }
 
 void DiameterPeer_ProcessCEA::operator()(DiameterPeerStateMachine &fsm)
@@ -185,7 +185,7 @@ void DiameterPeer_ProcessCEA::operator()(DiameterPeerStateMachine &fsm)
                           0,
                           DIAMETER_PEER_EV_WATCHDOG);
         AAA_LOG((LM_DEBUG, "(%P|%t) *** Local capabilities accepted by peer ***\n"));
-        fsm.PeerFsmConnected();
+        fsm.Connected();
     }
     else {
        DiameterUtf8AvpContainerWidget errorMsg(cea->acl);
@@ -238,7 +238,7 @@ void DiameterPeerR_SendCEA::operator()(DiameterPeerStateMachine &fsm)
                       0,
                       DIAMETER_PEER_EV_WATCHDOG);
     AAA_LOG((LM_DEBUG, "(%P|%t) %s\n", message.data()));
-    fsm.PeerFsmConnected();
+    fsm.Connected();
 }
 
 void DiameterPeerR_SendCEAOpen::operator()(DiameterPeerStateMachine &fsm)
@@ -280,7 +280,7 @@ void DiameterPeerR_DisconnectIOpen::operator()(DiameterPeerStateMachine &fsm)
                           DIAMETER_PEER_EV_WATCHDOG);
         fsm.PeerData().m_IOResponder.reset();
         AAA_LOG((LM_DEBUG, "(%P|%t) *** Initiator capabilities accepted ***\n"));
-        fsm.PeerFsmConnected();
+        fsm.Connected();
     }
     else {
        DiameterUtf8AvpContainerWidget errorMsg(cea->acl);
@@ -314,7 +314,7 @@ void DiameterPeerI_DisconnectSendCEA::operator()(DiameterPeerStateMachine &fsm)
                       0,
                       DIAMETER_PEER_EV_WATCHDOG);
     AAA_LOG((LM_DEBUG, "(%P|%t) %s\n", message.data()));
-    fsm.PeerFsmConnected();
+    fsm.Connected();
 }
 
 void DiameterPeerR_SendMessage::operator()(DiameterPeerStateMachine &fsm)
@@ -432,7 +432,7 @@ void DiameterPeerI_SendDPADisconnect::operator()(DiameterPeerStateMachine &fsm)
     diameter_unsigned32_t *uint32 = cause.GetAvp(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
 
     fsm.Cleanup();
-    fsm.PeerFsmDisconnected
+    fsm.Disconnected
          ((uint32) ? *uint32 : AAA_DISCONNECT_UNKNOWN);
 }
 
@@ -447,7 +447,7 @@ void DiameterPeerR_SendDPADisconnect::operator()(DiameterPeerStateMachine &fsm)
     diameter_unsigned32_t *uint32 = cause.GetAvp(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
 
     fsm.Cleanup();
-    fsm.PeerFsmDisconnected
+    fsm.Disconnected
          ((uint32) ? *uint32 : AAA_DISCONNECT_UNKNOWN);
 }
 
@@ -456,8 +456,7 @@ void DiameterPeer_Disconnect::operator()(DiameterPeerStateMachine &fsm)
     AAA_LOG((LM_INFO, "(%P|%t) General disconnection\n"));
     fsm.Cleanup();
     fsm.DoReConnect();
-    fsm.PeerFsmDisconnected
-         (AAA_DISCONNECT_TRANSPORT);
+    fsm.Disconnected(AAA_DISCONNECT_TRANSPORT);
 }
 
 void DiameterPeer_DisconnectDPA::operator()(DiameterPeerStateMachine &fsm)
@@ -480,7 +479,7 @@ void DiameterPeer_DisconnectDPA::operator()(DiameterPeerStateMachine &fsm)
         }
     }
 
-    fsm.PeerFsmDisconnected
+    fsm.Disconnected
         (fsm.PeerData().m_DisconnectCause);
     fsm.Cleanup();
 

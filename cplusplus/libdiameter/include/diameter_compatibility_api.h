@@ -150,7 +150,7 @@ typedef DiameterApplication                     AAA_Application;
 typedef DiameterPeer                            AAA_Peer;
 typedef DiameterPeerEntry                       AAA_PeerEntry;
 typedef DiameterPeerManager                     AAA_PeerManager;
-typedef DiameterPeerFsmUserEventInterface       AAA_PeerFsmUserEventInterface;
+typedef DiameterPeerEventInterface              AAA_PeerFsmUserEventInterface;
 
 // Accounting record collection API
 typedef DiameterClientAcctRecCollector          AAA_ClientAcctRecCollector;

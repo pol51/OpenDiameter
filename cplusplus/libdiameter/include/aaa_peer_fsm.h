@@ -680,11 +680,11 @@ class DiameterPeerStateMachine :
       }
 
    protected: // Notifications
-      virtual void PeerFsmConnected() {
+      virtual void Connected() {
       }
-      virtual void PeerFsmError(int resultCode) {
+      virtual void Error(int resultCode) {
       }
-      virtual void PeerFsmDisconnected(int cause) {
+      virtual void Disconnected(int cause) {
       }
 
    protected: // Job servicing
