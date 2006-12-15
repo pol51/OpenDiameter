@@ -61,9 +61,8 @@ int PANA_IngressMsgParser::Serve()
 
        pp.parseRawToApp(); // may throw exception
 
-       // migrate deivice id and port info
-       parsedMsg->srcDevices().move(m_SrcDevices);
-       parsedMsg->srcPort() = m_SrcPort;
+       // migrate source address
+       parsedMsg->srcAddress() = m_SrcAddr;
 
        (*m_MsgHandler)(*parsedMsg);
     }
@@ -72,14 +71,13 @@ int PANA_IngressMsgParser::Serve()
     }
     catch (PANA_Exception &e) {
        AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECEIVER] %s\n", 
-                  e.description().data())); 
+                  e.description().data()));
     }
     catch (...) {
     }
 
     // release the raw buffer and device id containers
     PANA_MESSAGE_POOL()->free(&m_Message);
-    delete &m_SrcDevices;
 
     Release(2);
     return (0);
@@ -88,33 +86,25 @@ int PANA_IngressMsgParser::Serve()
 int PANA_IngressReceiver::Serve()
 {
     m_Running = true;
-    ACE_UINT32 srcPort;
     PANA_MessageBuffer *msg_buffer = NULL;
     try {
-        PANA_DeviceIdContainer *srcDevices;
-        ACE_NEW_NORETURN(srcDevices, PANA_DeviceIdContainer);
-        if (srcDevices == NULL) {
-            AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] device id on %s\n",
-                       m_Name.data()));
-            throw (0);
-        }
-
+        ACE_INET_Addr addr;
         msg_buffer = PANA_MESSAGE_POOL()->malloc();
-        ssize_t bytes = m_IO().recv(msg_buffer->wr_ptr(), msg_buffer->size(), 
-                                  srcPort, *srcDevices);
+        ssize_t bytes = m_IO.recv(msg_buffer->wr_ptr(),
+                                  msg_buffer->size(),
+                                  addr);
         if (bytes > 0) {
             if (m_MsgHandler == NULL) {
                 AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] handler absent on %s\n",
-                           m_Name.data()));
+                         m_Name.data()));
                 throw (1);
             }
 
             PANA_IngressMsgParser *parser;
-            ACE_NEW_NORETURN(parser, 
+            ACE_NEW_NORETURN(parser,
                              PANA_IngressMsgParser(m_Group,
                                                    *msg_buffer,
-                                                   srcPort,
-                                                   *srcDevices));
+                                                   addr));
             if (parser) {
                 msg_buffer->size(bytes);
                 parser->RegisterHandler(*m_MsgHandler);
@@ -130,21 +120,18 @@ int PANA_IngressReceiver::Serve()
                            m_Name.data()));
                 throw (0);
             }
-            if (m_Abort) {
+            if (m_Running) {
                 throw (0);
             }
             Schedule();
-        } 
+        }
         else if (bytes == 0) {
             throw (1);
         } else if ((errno != EAGAIN) &&
                    (errno != ETIME) &&
                    (errno != ECONNREFUSED)) {
-            AAA_LOG((LM_ERROR, "(%P|%t) Receive channel error on %s : %s, retrying\n",
+            AAA_LOG((LM_ERROR, "(%P|%t) Receive channel error on %s : %s\n",
                        m_Name.data(), strerror(errno)));
-            if (! m_Abort) {
-                m_IO.ReOpen();
-            }
             throw (1);
         }
         else {
@@ -154,7 +141,7 @@ int PANA_IngressReceiver::Serve()
     }
     catch (int rc) {
         PANA_MESSAGE_POOL()->free(msg_buffer);
-        if (rc && (! m_Abort)) {
+        if (rc) {
             // manually re-schedule myself
             Schedule();
         }

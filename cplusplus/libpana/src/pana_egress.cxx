@@ -57,31 +57,10 @@ int PANA_EgressSender::Serve()
     hp.parseAppToRaw();
 
     /* --- send the message --- */
-    int retry = 0;
-    for (; retry < RETRY_COUNT; retry ++) {
-        if (m_IO().send(rawBuf->base(), m_Msg->length(), 
-                        m_Msg->srcPort(), m_Msg->srcDevices()) < 0) {
-            AAA_LOG((LM_ERROR, "(%P|%t) Retransmitt error: %s, retrying\n",
+    if (m_IO.send(rawBuf->base(), m_Msg->length(),
+                    m_Msg->destAddress()) < 0) {
+        AAA_LOG((LM_ERROR, "(%P|%t) Transmit error [%s]\n",
                        strerror(errno)));
-            try {
-                for (int reopen = 0; reopen < RETRY_COUNT; reopen ++) {
-                    if (m_IO.ReOpen()) {
-                        throw (0);
-                    }
-                    ACE_Time_Value tout(1, 0);
-                    ACE_OS::sleep(tout);
-                }                
-                AAA_LOG((LM_ERROR, "(%P|%t) Unable to re-open socket, giving-up\n"));
-                break;
-            } catch (...) {
-            }
-        }
-        else {
-            break;
-        }
-    }
-    if (retry == RETRY_COUNT) {
-        AAA_LOG((LM_ERROR, "(%P|%t) Unable to send message, giving-up\n"));
     }
 
     PANA_MESSAGE_POOL()->free(rawBuf);

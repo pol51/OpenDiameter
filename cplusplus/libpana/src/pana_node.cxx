@@ -60,7 +60,6 @@ void PANA_Node::Start(std::string &cfg_file)
 
 void PANA_Node::Stop()
 {
-    PANA_CFG_CLOSE();
 }
 
 

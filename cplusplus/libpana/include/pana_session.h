@@ -39,7 +39,6 @@
 #include "ace/Atomic_Op.h"
 #include "pana_exports.h"
 #include "pana_exceptions.h"
-#include "pana_device_id.h"
 #include "pana_security_assoc.h"
 #include "pana_config_manager.h"
 #include "pana_serial_num.h"
@@ -56,14 +55,8 @@ class PANA_AuxillarySessionVariables {
         virtual ~PANA_AuxillarySessionVariables() {
             Reset();
         }
-        bool &SecAssociationResumed() {
-            return m_SessionResumed;
-        }
         bool &Authorized() {
             return m_Authorized;
-        }
-        bool &CarryDeviceId() {
-            return m_CarryDeviceId;
         }
         bool &AlgorithmIsSet() {
             return m_AlgorithmIsSet;
@@ -77,9 +70,7 @@ class PANA_AuxillarySessionVariables {
         virtual void Reset();
 
     private:
-        bool m_SessionResumed; // Set to true if this session is resumed
         bool m_Authorized; // Set to true if authorize() returns true
-        bool m_CarryDeviceId; // Set to true if device-id avp is sent
         bool m_AlgorithmIsSet; // Set to true if algorithm avp is agreed upon
         PANA_MsgQueue m_RxMessageQueue; // Receive message queue
         PANA_BufferQueue m_TxEapMessageQueue; // EAP Tx message queue
@@ -94,23 +85,14 @@ class PANA_SessionAttribute {
        virtual ~PANA_SessionAttribute() {
            Reset();
        }
-       std::string &SessionId() {
+       ACE_UINT32 &SessionId() {
            return m_SessionId;
        }
-       PANA_DeviceId &PacDeviceId() {
-           return m_PacDeviceId;
+       ACE_INET_Addr &PacAddress() {
+           return m_PacAddress;
        }
-       PANA_DeviceId &PaaDeviceId() {
-           return m_PaaDeviceId;
-       }
-       ACE_INET_Addr &PacIpAddress() {
-           return m_PacIpAddress;
-       }
-       ACE_INET_Addr &PaaIpAddress() {
-           return m_PaaIpAddress;
-       }
-       PANA_DeviceIdContainer &EpDeviceIds() {
-           return m_EpDeviceId;
+       ACE_INET_Addr &PaaAddress() {
+           return m_PaaAddress;
        }
        PANA_SerialNumber &LastTxSeqNum() {
            return m_LastTxSeqNum;
@@ -124,51 +106,20 @@ class PANA_SessionAttribute {
        boost::shared_ptr<PANA_Message> &CachedAnsMsg() {
            return m_CachedAnsMsg;
        }
-       ACE_UINT32 &ReAuthInterval() {
-           return m_ReAuthInterval;
-       }
        ACE_UINT32 &SessionLifetime() {
            return m_SessionLifetime;
-       }
-       ACE_UINT32 &ProtectionCapability() {
-           return m_ProtectionCapability;
-       }
-       PANA_CfgPPAC &PPAC() {
-           return m_PPAC;
-       }
-       PANA_CfgProviderInfo &PreferedISP() {
-           return m_PreferedISP;
-       }
-       PANA_CfgProviderInfo &PreferedNAP() {
-           return m_PreferedNAP;
-       }
-       pana_octetstring_t &LastTxNotification() {
-           return m_LastTxNotification;
-       }
-       pana_octetstring_t &LastRxNotification() {
-           return m_LastRxNotification;
        }
        virtual void Reset();
 
     private:
-       std::string m_SessionId; // session id
-       PANA_DeviceId m_PacDeviceId; // PaC device id
-       PANA_DeviceId m_PaaDeviceId; // PAA device id
-       ACE_INET_Addr m_PacIpAddress; // PaC IP address
-       ACE_INET_Addr m_PaaIpAddress; // PAA IP address
-       PANA_DeviceIdContainer m_EpDeviceId; // List of EP device id
+       ACE_UINT32 m_SessionId;  // Session Id
+       ACE_INET_Addr m_PacAddress;     // PaC IP address and port
+       ACE_INET_Addr m_PaaAddress;     // PAA IP address and port
        PANA_SerialNumber m_LastTxSeqNum; // last transmitted seq number
        PANA_SerialNumber m_LastRxSeqNum; // last recevied tseq number value
        boost::shared_ptr<PANA_Message> m_LastTxReqMsg; // last transmitted message
        boost::shared_ptr<PANA_Message> m_CachedAnsMsg; // cached message
-       ACE_UINT32 m_ReAuthInterval; // Re-Auth transmission interval
        ACE_UINT32 m_SessionLifetime; // negotiated session lifetime
-       ACE_UINT32 m_ProtectionCapability; // negotiated protection capability
-       PANA_CfgPPAC m_PPAC; // Post pana address config flags
-       PANA_CfgProviderInfo m_PreferedISP; // negotiated ISP information
-       PANA_CfgProviderInfo m_PreferedNAP; // negotiated NAP information
-       pana_octetstring_t m_LastTxNotification; // Last notification sent
-       pana_octetstring_t m_LastRxNotification; // Last notification received
 };
 
 typedef enum {
@@ -253,14 +204,12 @@ class PANA_EXPORT PANA_SessionRxInterfaceTable : public AAA_Job
       }
 };
 
-class PANA_Session;
 class PANA_EXPORT PANA_SessionTxInterface
 {
    public:
       PANA_SessionTxInterface() { }
       virtual ~PANA_SessionTxInterface() { }
       virtual void Send(boost::shared_ptr<PANA_Message> msg) = 0;
-      virtual PANA_DeviceIdContainer &GetLocalAddress() = 0;
 };
 
 class PANA_SessionTimerInterface
@@ -294,7 +243,7 @@ class PANA_SessionTimerInterface
         void CancelEapResponse() {
             Cancel(PANA_TID_EAP_RESP);
         }
-                
+
         // for message re-transmission only
         bool ScheduleTxRetry();
         bool ReScheduleTxRetry();
@@ -315,35 +264,28 @@ class PANA_EXPORT PANA_SessionEventInterface
 {
    public:
       typedef struct {
-         AAAScholarAttribute<PANA_DeviceId> m_Paa;
-         AAAScholarAttribute<PANA_DeviceId> m_Pac;
+         AAAScholarAttribute<ACE_INET_Addr> m_PacAddress;
+         AAAScholarAttribute<ACE_INET_Addr> m_PaaAddress;
          AAAScholarAttribute<pana_octetstring_t> m_Key;
          AAAScholarAttribute<ACE_UINT32> m_KeyId;
          AAAScholarAttribute<ACE_UINT32> m_Lifetime;
-         AAAScholarAttribute<ACE_UINT32> m_ProtectionCapability;
-         AAAScholarAttribute<PANA_DeviceIdContainer*> m_Ep;
-         AAAScholarAttribute<PANA_PMKKeyList> m_PMKKeyList;
-         AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedISP;
-         AAAScholarAttribute<PANA_CfgProviderInfo> m_PreferedNAP;
       } PANA_AuthorizationArgs;
 
    public:
       virtual void EapStart() = 0;
       virtual void Authorize(PANA_AuthorizationArgs &args) = 0;
       virtual bool IsKeyAvailable(pana_octetstring_t &key) = 0;
-      virtual void Notification(pana_octetstring_t &msg) = 0;
-      virtual void Notification(pana_octetstring_t &msg,
-                                PANA_DeviceId &pacId) = 0;
       virtual void Disconnect(ACE_UINT32 cause = 0) = 0;
       virtual void EapAltReject() = 0;
       virtual void Error(ACE_UINT32 resultCode) = 0;
       virtual ~PANA_SessionEventInterface() { }
 };
 
-class PANA_EXPORT PANA_Session : public PANA_SessionAttribute
+class PANA_EXPORT PANA_Session :
+   public PANA_SessionAttribute
 {
    public:
-      virtual void NotifyScheduleLifetime(int gracePeriod = 0);
+      virtual void NotifyScheduleLifetime();
 
       virtual bool IsFatalError();
 
@@ -363,16 +305,13 @@ class PANA_EXPORT PANA_Session : public PANA_SessionAttribute
       virtual void RxPTR();
       virtual void RxPTA();
       virtual void RxPER();
-      virtual void RxPEA(bool fatal);
-
-      virtual void AddNotification(PANA_Message& msg);
-      virtual void ProcessNotification(PANA_Message &msg);
+      virtual void RxPEA();
 
       virtual void SendReqMsg(boost::shared_ptr<PANA_Message> msg,
-                              bool useRetransmission = true);
+                              bool allowRetry = true);
       virtual void SendAnsMsg(boost::shared_ptr<PANA_Message> msg);
 
-      virtual void TxFormatAddress(PANA_Message &msg);
+      virtual void TxPrepareMessage(PANA_Message &msg);
       virtual void RxValidateMsg(PANA_Message &msg,
                                  bool skipAuth = false);
 
@@ -395,10 +334,10 @@ class PANA_EXPORT PANA_Session : public PANA_SessionAttribute
                    PANA_SessionTimerInterface &tm,
                    PANA_SessionEventInterface &ev) :
          m_TxChannel(tp),
-         m_Timer(tm), 
+         m_Timer(tm),
          m_Event(ev) {
       }
-      virtual ~PANA_Session() { 
+      virtual ~PANA_Session() {
       }
 
       // session variables

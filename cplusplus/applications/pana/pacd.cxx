@@ -160,10 +160,6 @@ class PeerChannel : public PANA_ClientEventInterface,
           m_Eap.Stop();
           m_Eap.Start();
        }
-       void ChooseISP(const PANA_CfgProviderList &list,
-                      PANA_CfgProviderInfo *&choice) {
-          // TBD: choose ISP here
-       }
        void EapRequest(AAAMessageBlock *request) {
           m_Eap.Receive(request);
        }
@@ -173,29 +169,8 @@ class PeerChannel : public PANA_ClientEventInterface,
        void Failure() {
           m_PaC.EapFailure();
        }
-       void Notification(pana_octetstring_t &msg) {
-       }
-        void Notification(pana_octetstring_t &msg, 
-                          PANA_DeviceId &pacId) {
-            char display[64];
-            ACE_INET_Addr addr;
-            PANA_DeviceIdConverter::FormatToAddr(pacId, addr);
-            addr.addr_to_string(display, sizeof(display));
-            std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
-        }
        void EapAltReject() {
        }
-#if defined(PANA_MPA_SUPPORT)
-       void PacIpAddress(PANA_DeviceId &ip,
-                         PANA_DeviceId &oldip,
-                         PANA_DeviceId &remoteip) {
-          char display[64];
-          ACE_INET_Addr addr;
-          PANA_DeviceIdConverter::FormatToAddr(ip, addr);
-          addr.addr_to_string(display, sizeof(display));
-          std::cout << "PAC Ip Address: " << display << std::endl;
-       }
-#endif
        void Authorize(PANA_AuthorizationArgs &args) {
           // Seed the auth-script
           m_AuthScriptCtl.Seed(args);

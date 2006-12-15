@@ -36,68 +36,45 @@
 
 #include "pana_exports.h"
 #include "pana_session.h"
-#include "pana_provider_info.h"
 
-typedef union {
-    struct {
-        ACE_UINT32 PcapNotSupported   :  1;
-        ACE_UINT32 PpacNotSupported   :  1;
-        ACE_UINT32 BindSuccess        :  1;
-        ACE_UINT32 Reserved           : 29;
-    } i;
-    ACE_UINT32 p;
-} PANA_ClientSupportFlags;
-
-class PANA_EXPORT PANA_ClientEventInterface : public PANA_SessionEventInterface
+class PANA_EXPORT PANA_ClientEventInterface :
+   public PANA_SessionEventInterface
 {
    public:
-      virtual void ChooseISP(const PANA_CfgProviderList &list,
-                             PANA_CfgProviderInfo *&choice) = 0;
       virtual void EapRequest(AAAMessageBlock *request) = 0;
-      virtual bool ResumeSession() = 0;
 };
 
-class PANA_EXPORT PANA_Client : public PANA_Session
+class PANA_EXPORT PANA_Client :
+   public PANA_Session
 {
    public:
       PANA_Client(PANA_SessionTxInterface &tp,
                   PANA_SessionTimerInterface &tm,
                   PANA_ClientEventInterface &ev);
 
-      virtual void LoadLocalAddress();
-      virtual void IspSelection(PANA_Message *psr);
-
       virtual void NotifyEapRestart();
       virtual void NotifyAuthorization();
       virtual void NotifyEapRequest(pana_octetstring_t &payload);
 
-      virtual bool IsSessionResumed();
-
       virtual void TxPCI();
-      virtual void TxPSA(PANA_Message *psr);
+      virtual void TxPSA(bool eapOptimization);
       virtual void TxPAR();
       virtual void TxPAN(bool eapPiggyBack);
-      virtual void TxPBA(bool close);
-      virtual void TxPRAR();
+      virtual void TxPBA(bool authSuccess);
+      virtual void TxPRR();
 
       virtual void RxPSR();
-      virtual void RxPAR(bool eapReAuth);
+      virtual void RxPAR();
       virtual void RxPAN();
       virtual void RxPBR();
-      virtual void RxPRAA();
+      virtual void RxPRA();
 
-      PANA_ClientSupportFlags &SupportFlags() {
-          return m_Flags;
-      }
       PANA_SessionTimerInterface &Timer() {
           return m_Timer;
       }
 
    private:
-      virtual void TxFormatAddress(PANA_Message &msg);
-
-   private:
-      PANA_ClientSupportFlags m_Flags;
+      virtual void TxPrepareMessage(PANA_Message &msg);
 };
 
 #endif /* __PANA_CLIENT_H__ */

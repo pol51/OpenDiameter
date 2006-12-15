@@ -32,7 +32,6 @@
 /* END_COPYRIGHT                                                          */
 
 #include "pana_client.h"
-#include "pana_device_id.h"
 #include "pana_config_manager.h"
 #include "pana_pmk_bootstrap.h"
 
@@ -47,43 +46,10 @@ PANA_Client::PANA_Client(PANA_SessionTxInterface &tp,
     //
     // Initialization Action:
     //
-    // FIRST_AUTH_EXCHG=Set;
-    // STATELESS_HANDSHAKE=Unset;
-    // CARRY_DEVICE_ID=Unset;
-    // RtxTimerStop();
-    //
-    //
-    // Mobility Initialization Action:
-    //
-    //   MOBILITY=Set|Unset
-    //   PANA_SA_RESUMED=Unset;
-    //
+    //   FIRST_AUTH_EXCHG=Set;
+    //   RTX_COUNTER=0;
+    //   RtxTimerStop();
     Reset();
-
-    // Local reset
-    AuxVariables().CarryDeviceId() = false;
-    m_Flags.p = 0;
-}
-
-void PANA_Client::LoadLocalAddress()
-{
-    // resolve Pac device id
-    PANA_DeviceIdContainer &localAddrs = m_TxChannel.GetLocalAddress();
-    PANA_DeviceId *id = localAddrs.search(AAA_ADDR_FAMILY_802);
-    if (id == NULL) {
-       id = PANA_DeviceIdConverter::GetIpOnlyAddress(localAddrs,
-                (bool)PANA_CFG_GENERAL().m_IPv6Enabled);
-       if (id) {
-          PANA_AddrConverter::ToAce(*id, PacIpAddress());
-       }
-    }
-    if (id) {
-       PacDeviceId() = *id;
-    }
-    else {
-       throw (PANA_Exception(PANA_Exception::FAILED, 
-                            "No device ID available"));
-    }
 }
 
 void PANA_Client::NotifyEapRestart()
@@ -95,45 +61,17 @@ void PANA_Client::NotifyAuthorization()
 {
     PANA_SessionEventInterface::PANA_AuthorizationArgs args;
 
-    args.m_Pac.Set(PacDeviceId());
-    args.m_Paa.Set(PaaDeviceId());
+    args.m_PacAddress.Set(PacAddress());
+    args.m_PaaAddress.Set(PaaAddress());
 
-    if (SecurityAssociation().IsSet()) {
-        args.m_Key.Set(SecurityAssociation().Get());
-        if (PANA_CFG_GENERAL().m_WPASupport &&
-            (EpDeviceIds().size() > 0)) {
-            PANA_DeviceIdIterator i;
-            for (i = EpDeviceIds().begin(); i != 
-                 EpDeviceIds().end(); i ++) {
-                PANA_DeviceId *epId = (*i);
-                PANA_PMKKey pmk(SecurityAssociation().Get(),
-                                PacDeviceId().value,
-                                epId->value);
-                args.m_PMKKeyList().push_back(pmk.Key());
-            }
-            if (EpDeviceIds().size() > 0) {
-                args.m_PMKKeyList.IsSet() = true;
-            }
-        }
+    if (SecurityAssociation().MSK().IsSet()) {
+        args.m_Key.Set(SecurityAssociation().MSK().Get());
     }
 
     args.m_Lifetime.Set(SessionLifetime());
-    args.m_ProtectionCapability.Set(ProtectionCapability());
-    args.m_Ep.Set(&EpDeviceIds());
-    args.m_PreferedISP.Set(PreferedISP());
-    args.m_PreferedNAP.Set(PreferedNAP());
 
     m_Event.Authorize(args);
     AuxVariables().Authorized() = true; // PaC always authorized
-}
-
-bool PANA_Client::IsSessionResumed()
-{
-    if (SecurityAssociation().IsSet()) {
-        return static_cast<PANA_ClientEventInterface&>(m_Event).
-            ResumeSession();
-    }
-    return (false);
 }
 
 void PANA_Client::NotifyEapRequest(pana_octetstring_t &payload)
@@ -147,165 +85,54 @@ void PANA_Client::NotifyEapRequest(pana_octetstring_t &payload)
     }
 }
 
-void PANA_Client::IspSelection(PANA_Message *psr)
-{
-    // extract ISP info if any
-    PANA_CfgProviderList ispList;
-    PANA_CfgProviderInfo *ispInfo;
-    PANA_CfgProviderInfo *ispChoice = NULL;
-    PANA_GroupedAvpContainerWidget ispAvp(psr->avpList());
-    pana_grouped_t *isp = ispAvp.GetAvp(PANA_AVPNAME_ISPINFO);
-    if (isp) {
-        for (int ndx=1; isp; ndx++) {
-            ispInfo = new PANA_CfgProviderInfo;
-            if (ispInfo) {
-                PANA_ProviderInfoTool infoTool;
-                infoTool.Extract(*isp, *ispInfo);
-                ispList.push_back(ispInfo);
-            }
-            isp = ispAvp.GetAvp(PANA_AVPNAME_ISPINFO, ndx);
-        }
-
-        // ask user to choose
-        static_cast<PANA_ClientEventInterface&>(m_Event).
-               ChooseISP(ispList, ispChoice);
-    }
-
-    // if none chosen, select from config file
-    if ((ispChoice == NULL) &&
-        (PANA_CFG_PAC().m_IspInfo.m_Name.size() > 0)) {
-        ispChoice = &PANA_CFG_PAC().m_IspInfo;
-    }
-
-    if (ispChoice) {
-        PreferedISP().m_Name = ispChoice->m_Name;
-        PreferedISP().m_Id = ispChoice->m_Id;
-
-        AAA_LOG((LM_INFO, "(%P|%t) Selected ISP: [id=%d] %s\n",
-                 PreferedISP().m_Id, PreferedISP().m_Name.data()));
-    }
-
-    // cleanup
-    while (! ispList.empty()) {
-        ispInfo = ispList.front();
-        ispList.pop_front();
-        delete ispInfo;
-    }
-}
-
 void PANA_Client::RxPSR()
 {
    /*
-        7.2.  PANA-Start-Request (PSR)
+      7.2.  PANA-Start-Request (PSR)
 
-        The PANA-Start-Request (PSR) message is sent by the PAA to the PaC to
-        start PANA authentication.  The PAA sets the sequence number to an
-        initial random value.
+         The PANA-Start-Request (PSR) message is sent by the PAA to the PaC to
+         start PANA authentication.  The PAA sets the Sequence Number field to
+         an initial random value and sets the Session Identifier field to a
+         newly assigned value.
 
-        PANA-Start-Request ::= < PANA-Header: 2, REQ [,SLS] >
-                            [ Nonce ]
-                            [ Cookie ]
-                            [ EAP-Payload ]
-                            [ NAP-Information ]
-                            *  [ ISP-Information ]
-                            [ Protection-Capability]
-                            [ Algorithm ]
-                            [ PPAC ]
-                            [ Notification ]
-                            *  [ AVP ]
+         PANA-Start-Request ::= < PANA-Header: 2, REQ >
+                             [ EAP-Payload ]
+                             [ Algorithm ]
+                          *  [ AVP ]
     */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    if (PANA_CFG_PAC().m_PaaIpAddress.size() == 0) {
-        PANA_DeviceId *id = PANA_DeviceIdConverter::GetIpOnlyAddress
-                                (msg.srcDevices(),
-                                (bool)PANA_CFG_GENERAL().m_IPv6Enabled);
-        if (id) {
-            PaaIpAddress().set_address(id->value.data(), 
-                                        id->value.size(), 
-                                        (bool)PANA_CFG_GENERAL().m_IPv6Enabled ?
-				        0 : 1);
-            PaaIpAddress().set_port_number(msg.srcPort());
-        }
-        else {
-            throw (PANA_Exception(PANA_Exception::FAILED, 
-                                    "No PAA device ID gathered"));
-        }
-        PaaDeviceId() = *id;
-    }
-    else {
-        std::string paaIpStr = PANA_CFG_PAC().m_PaaIpAddress + ":0";
-        PaaIpAddress().string_to_addr(paaIpStr.data());
-        PANA_AddrConverter::ToAAAAddress(PaaIpAddress(), PaaDeviceId());
-    }
-
-    AAA_LOG((LM_INFO, "(%P|%t) RxPSR: L-flag %d, seq=%d\n",
-               msg.flags().stateless, msg.seq()));
-
-    // verify if protection capability is present and supported
-    PANA_UInt32AvpContainerWidget pcapAvp(msg.avpList());
-    pana_unsigned32_t *pcap = pcapAvp.GetAvp(PANA_AVPNAME_PROTECTIONCAP);
-    if (pcap) {
-        ProtectionCapability() = ACE_NTOHL(*pcap);
-    }
-
-    // update paa nonce
-    PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
-    pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
-    if (nonce && ! SecurityAssociation().PaaNonce().IsSet()) {
-        SecurityAssociation().PaaNonce().Set(*nonce);
-    }
-
-    // process notification
-    ProcessNotification(msg);
-
-    // update nap information
-    PANA_GroupedAvpContainerWidget napAvp(msg.avpList());
-    pana_grouped_t *nap = napAvp.GetAvp(PANA_AVPNAME_NAPINFO);
-    if (nap) {
-       PANA_ProviderInfoTool infoTool;
-       infoTool.Extract(*nap, PreferedNAP());
-    }
+    AAA_LOG((LM_INFO, "(%P|%t) RxPSR: seq=%d\n", msg.seq()));
 
     // RtxTimerStop()
     m_Timer.CancelTxRetry();
 
     // start eap
-    if (! AuxVariables().SecAssociationResumed()) {
-       NotifyEapRestart();
-    }
+    NotifyEapRestart();
 
     // PSR.exist_avp("EAP-Payload")
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
-       // make sure isp is choosen
-       IspSelection(&msg);
-
-       // send to eap
        NotifyEapRequest(*payload);
-       return;
     }
-
-    TxPSA(cleanup.get());
+    else {
+       TxPSA(false);
+    }
 }
 
-void PANA_Client::TxPSA(PANA_Message *psr)
+void PANA_Client::TxPSA(bool eapOptimization)
 {
    /*
-     7.3  PANA-Start-Answer (PSA)
+     7.3.  PANA-Start-Answer (PSA)
 
-      The PANA-Start-Answer (PSA) message is sent by the PaC to the PAA in
-      response to a PANA-Start-Request message.  This message completes the
-      handshake to start PANA authentication.
+        The PANA-Start-Answer (PSA) message is sent by the PaC to the PAA in
+        response to a PANA-Start-Request message.  This message completes the
+        handshake to start PANA authentication.
 
-      PANA-Start-Answer ::= < PANA-Header: 2 [,SEP] >
-                            [ Nonce ]
-                            [ Cookie ]
+        PANA-Start-Answer ::= < PANA-Header: 2 >
                             [ EAP-Payload ]
-                            [ ISP-Information ]
-                            [ Notification ]
                          *  [ AVP ]
      */
 
@@ -315,97 +142,35 @@ void PANA_Client::TxPSA(PANA_Message *psr)
     msg->type() = PANA_MTYPE_PSR;
     msg->seq() = LastRxSeqNum().Value();
 
-    // add pac nonce
-    if (SecurityAssociation().PaaNonce().IsSet() &&
-        ! SecurityAssociation().PacNonce().IsSet()) {
-        // generate nouce
-        SecurityAssociation().PacNonce().Generate();
-
-        pana_octetstring_t &nonce = SecurityAssociation().PacNonce().Get();
-        PANA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
-        nonceAvp.Get().assign(nonce.data(), nonce.size());
-        msg->avpList().add(nonceAvp());
-    }
-
-    if (psr == NULL) {
-
+    if (eapOptimization) {
         // add eap payload
         PANA_MsgBlockGuard guard(AuxVariables().TxEapMessageQueue().Dequeue());
         PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
         eapAvp.Get().assign(guard()->base(), guard()->size());
         msg->avpList().add(eapAvp());
-
-        // add prefered isp information if any
-        if (PreferedISP().m_Name.size() > 0) {
-            PANA_GroupedAvpWidget choosenIsp(PANA_AVPNAME_ISPINFO);
-            PANA_ProviderInfoTool infoTool;
-            infoTool.Add(choosenIsp.Get(), PreferedISP());
-            msg->avpList().add(choosenIsp());
-        }
-
-        // add notification if any
-        AddNotification(*msg);
-
-
-        SendAnsMsg(msg);
-        return;
     }
 
-    PANA_StringAvpContainerWidget cookieAvp(psr->avpList());
-    pana_octetstring_t *cookie = cookieAvp.GetAvp(PANA_AVPNAME_COOKIE);
-    if (cookie) {
-        // add cookie
-        PANA_StringAvpWidget psaCookieAvp(PANA_AVPNAME_COOKIE);
-        psaCookieAvp.Get().assign(cookie->data(), cookie->size());
-        msg->avpList().add(psaCookieAvp());
-    }
 
-    if (AuxVariables().SecAssociationResumed()) {
-
-        // add session id
-        PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
-        sessionIdAvp.Get() = SessionId();
-        msg->avpList().add(sessionIdAvp());
-
-        // add auth (make sure this is the last 
-        // process in this message)
-        SecurityAssociation().AddAuthAvp(*msg);
-    }
-    else {
-       // ISP selection
-       IspSelection(psr);
-
-       // add prefered isp information
-       PANA_GroupedAvpWidget choosenIsp(PANA_AVPNAME_ISPINFO);
-       PANA_ProviderInfoTool infoTool;
-       infoTool.Add(choosenIsp.Get(), PreferedISP());
-       msg->avpList().add(choosenIsp());
-    }
-
-    AAA_LOG((LM_INFO, "(%P|%t) TxPSA: L-flag %d, seq=%d\n",
-               msg->flags().stateless, msg->seq()));
-
-    // add notification if any
-    AddNotification(*msg);
-
-    SendReqMsg(msg, (cookie) ? true : false);
+    SendAnsMsg(msg);
 }
 
 void PANA_Client::TxPCI()
 {
     /*
-        7.1.  PANA-Client-Initiation (PCI)
+      7.1.  PANA-Client-Initiation (PCI)
 
-        The PANA-Client-Initiation (PCI) message is used for PaC-initiated
-        handshake.  The sequence number in this message is always set to zero
-        (0).
+         The PANA-Client-Initiation (PCI) message is used for PaC-initiated
+         handshake.  The Sequence Number and Session Identifier fields in this
+         message MUST be set to zero (0).
 
-        PANA-Client-Initiation ::= < PANA-Header: 1 >
-                            [ Notification ]
-                            *  [ AVP ]
+         PANA-Client-Initiation ::= < PANA-Header: 1 >
+                          *  [ AVP ]
     */
 
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
+
+    // initialize session id
+    this->SessionId() = 0;
 
     // Populate header
     msg->type() = PANA_MTYPE_PCI;
@@ -413,46 +178,32 @@ void PANA_Client::TxPCI()
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPCI: seq=%d\n", msg->seq()));
 
-    // add notification if any
-    AddNotification(*msg);
-
     SendReqMsg(msg);
 }
 
-void PANA_Client::RxPAR(bool eapReAuth)
+void PANA_Client::RxPAR()
 {
     /*
-     7.4  PANA-Auth-Request (PAR)
+      7.4.  PANA-Auth-Request (PAR)
 
-      The PANA-Auth-Request (PAR) message is either sent by the PAA or the
-      PaC.  Its main task is to carry an EAP-Payload AVP.
+         The PANA-Auth-Request (PAR) message is either sent by the PAA or the
+         PaC.  Its main task is to carry an EAP-Payload AVP.
 
-       PANA-Auth-Request ::= < PANA-Header: 3, REQ [,SEP] [,NAP] >
-                             < Session-Id >
+         PANA-Auth-Request ::= < PANA-Header: 3, REQ >
                              < EAP-Payload >
                              [ Nonce ]
-                             [ Notification ]
                           *  [ AVP ]
-                          0*1 < AUTH >
+                         0*1 < AUTH >
     */
 
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: L-flag %d, seq=%d\n",
-                   msg.flags().stateless, msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: seq=%d\n", msg.seq()));
 
-    // process notification
-    ProcessNotification(msg);
-
-    AuxVariables().SecAssociationResumed() = false;
-    if (eapReAuth) {
-        m_Timer.CancelSession();
-    }
-    else {
-        // RtxTimerStop()
-        m_Timer.CancelTxRetry();
-    }
+    // Stop any RtxTimerStop()
+    m_Timer.CancelTxRetry();
+    m_Timer.CancelEapResponse();
 
     // update paa nonce
     PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
@@ -461,51 +212,45 @@ void PANA_Client::RxPAR(bool eapReAuth)
         SecurityAssociation().PaaNonce().Set(*nonce);
     }
 
-    // PAR.exist_avp("EAP-Payload")
+    // EAP piggyback check
+    if (! PANA_CFG_GENERAL().m_EapPiggyback) {
+        TxPAN(false);
+    }
+
+    // < EAP-Payload >
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapRequest(*payload);
 
-        // EAP response timeout should be less than retry 
+        // EAP response timeout should be less than retry
         m_Timer.ScheduleEapResponse(PANA_CFG_GENERAL().m_RT.m_IRT/2);
     }
     else {
         throw (PANA_Exception(PANA_Exception::FAILED, 
                "No EAP-Payload AVP in PAR message"));
     }
-
-    // EAP piggyback check
-    if (! PANA_CFG_GENERAL().m_EapPiggyback) {
-        TxPAN(false);
-    }
 }
 
 void PANA_Client::RxPAN()
 {
     /*
-     7.5  PANA-Auth-Answer (PAN)
+      7.5.  PANA-Auth-Answer (PAN)
 
-       THe PANA-Auth-Answer (PAN) message is sent by either the PaC or the
-       PAA in response to a PANA-Auth-Request message.  It MAY carry an EAP-
-       Payload AVP.
+         The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
+         PAA in response to a PANA-Auth-Request message.  It MAY carry an
+         EAP-Payload AVP.
 
-        PANA-Auth-Answer ::= < PANA-Header: 3 [,SEP] [,NAP] >
-                             < Session-Id >
+         PANA-Auth-Answer ::= < PANA-Header: 3 >
                              [ Nonce ]
                              [ EAP-Payload ]
-                             [ Notification ]
                           *  [ AVP ]
                          0*1 < AUTH >
     */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: L-flag %d, seq=%d\n",
-                   msg.flags().stateless, msg.seq()));
-
-    // process notification
-    ProcessNotification(msg);
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: seq=%d\n", msg.seq()));
 
     m_Timer.CancelTxRetry();
     m_Timer.CancelSession();
@@ -514,18 +259,16 @@ void PANA_Client::RxPAN()
 void PANA_Client::TxPAR()
 {
     /*
-     7.4  PANA-Auth-Request (PAR)
+      7.4.  PANA-Auth-Request (PAR)
 
-      The PANA-Auth-Request (PAR) message is either sent by the PAA or the
-      PaC.  Its main task is to carry an EAP-Payload AVP.
+         The PANA-Auth-Request (PAR) message is either sent by the PAA or the
+         PaC.  Its main task is to carry an EAP-Payload AVP.
 
-       PANA-Auth-Request ::= < PANA-Header: 3, REQ [,SEP] [,NAP] >
-                             < Session-Id >
+         PANA-Auth-Request ::= < PANA-Header: 3, REQ >
                              < EAP-Payload >
                              [ Nonce ]
-                             [ Notification ]
                           *  [ AVP ]
-                          0*1 < AUTH >
+                         0*1 < AUTH >
      */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
@@ -537,11 +280,6 @@ void PANA_Client::TxPAR()
     ++ LastTxSeqNum();
     msg->seq() = LastTxSeqNum().Value();
 
-    // add session id
-    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
-    sessionIdAvp.Get() = SessionId();
-    msg->avpList().add(sessionIdAvp());
-
     // stop eap response timer
     m_Timer.CancelEapResponse();
 
@@ -551,16 +289,12 @@ void PANA_Client::TxPAR()
     eapAvp.Get().assign(guard()->base(), guard()->length());
     msg->avpList().add(eapAvp());
 
-    // add notification if any       
-    AddNotification(*msg);
-
     // auth avp if any
-    if (SecurityAssociation().IsSet()) {
+    if (SecurityAssociation().Auth().IsSet()) {
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: L-flag %d, seq=%d\n",
-                   msg->flags().stateless, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: seq=%d\n", msg->seq()));
 
     SendReqMsg(msg);
 }
@@ -568,17 +302,15 @@ void PANA_Client::TxPAR()
 void PANA_Client::TxPAN(bool eapPiggyBack)
 {
     /*
-     7.5  PANA-Auth-Answer (PAN)
+      7.5.  PANA-Auth-Answer (PAN)
 
-       THe PANA-Auth-Answer (PAN) message is sent by either the PaC or the
-       PAA in response to a PANA-Auth-Request message.  It MAY carry an EAP-
-       Payload AVP.
+         The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
+         PAA in response to a PANA-Auth-Request message.  It MAY carry an
+         EAP-Payload AVP.
 
-        PANA-Auth-Answer ::= < PANA-Header: 3 [,SEP] [,NAP] >
-                             < Session-Id >
+         PANA-Auth-Answer ::= < PANA-Header: 3 >
                              [ Nonce ]
                              [ EAP-Payload ]
-                             [ Notification ]
                           *  [ AVP ]
                          0*1 < AUTH >
     */
@@ -589,14 +321,8 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
     msg->type() = PANA_MTYPE_PAN;
     msg->seq() = LastRxSeqNum().Value();
 
-    // add session id
-    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
-    sessionIdAvp.Get() = SessionId();
-    msg->avpList().add(sessionIdAvp());
-
     // add pac nonce
     if (! SecurityAssociation().PacNonce().IsSet()) {
-        // generate nouce
         SecurityAssociation().PacNonce().Generate();
 
         pana_octetstring_t &nonce = SecurityAssociation().PacNonce().Get();
@@ -616,17 +342,12 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
        msg->avpList().add(eapAvp());
     }
 
-    // add notification if any
-    AddNotification(*msg);
-
     // add SA if any
-    if (SecurityAssociation().IsSet()) {
-        SecurityAssociation().AddKeyIdAvp(*msg);
+    if (SecurityAssociation().Auth().IsSet()) {
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: L-flag %d, seq=%d\n",
-                   msg->flags().stateless, msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: seq=%d\n", msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -634,21 +355,17 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
 void PANA_Client::RxPBR()
 {
     /*
-     7.8  PANA-Bind-Request (PBR)
+      7.8.  PANA-Bind-Request (PBR)
 
-       The PANA-Bind-Request (PBR) message is sent by the PAA to the PaC to
-       deliver the result of PANA authentication.
+         The PANA-Bind-Request (PBR) message is sent by the PAA to the PaC to
+         deliver the result of PANA authentication.
 
-       PANA-Bind-Request ::= < PANA-Header: 5, REQ [,SEP] [,NAP] >
-                             < Session-Id >
+         PANA-Bind-Request ::= < PANA-Header: 5, REQ >
                              { Result-Code }
-                             [ PPAC ]
                              [ EAP-Payload ]
                              [ Session-Lifetime ]
-                             [ Protection-Capability ]
                              [ Key-Id ]
-                          *  [ Device-Id ]
-                             [ Notification ]
+                             [ Algorithm ]
                           *  [ AVP ]
                          0*1 < AUTH >
      */
@@ -657,12 +374,6 @@ void PANA_Client::RxPBR()
     PANA_Message &msg = *cleanup;
 
     AAA_LOG((LM_INFO, "(%P|%t) RxPBR: seq=%d\n", msg.seq()));
-
-    // process notification
-    ProcessNotification(msg);
-
-    // Reset flags
-    m_Flags.p = 0;
 
     // lookup result code
     PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
@@ -673,19 +384,6 @@ void PANA_Client::RxPBR()
     }
     pana_unsigned32_t rcode = ACE_NTOHL(*pRcode);
 
-    // update ep device id's
-    bool epIdPresent = false;
-    PANA_AddressAvpContainerWidget epIdAvp(msg.avpList());
-    pana_address_t *epId = epIdAvp.GetAvp(PANA_AVPNAME_DEVICEID);
-    if (epId) {
-        epIdPresent = true;
-        for (int ndx=1; epId; ndx++) {
-            PANA_DeviceId *newId = new PANA_DeviceId(*epId);
-            EpDeviceIds().push_back(newId);
-            epId = epIdAvp.GetAvp(PANA_AVPNAME_DEVICEID, ndx);
-        }
-    }
-
     // update session lifetime
     PANA_UInt32AvpContainerWidget slAvp(msg.avpList());
     pana_unsigned32_t *sl = slAvp.GetAvp(PANA_AVPNAME_SESSIONLIFETIME);
@@ -693,28 +391,11 @@ void PANA_Client::RxPBR()
         SessionLifetime() = ACE_NTOHL(*sl);
     }
 
-    // update protection capability
-    PANA_UInt32AvpContainerWidget pcapAvp(msg.avpList());
-    pana_unsigned32_t *pcap = pcapAvp.GetAvp(PANA_AVPNAME_PROTECTIONCAP);
-    if (pcap && PANA_RCODE_SUCCESS(rcode)) {
-        if (ACE_NTOHL(*pcap) != PANA_CFG_GENERAL().m_ProtectionCap) {
-            AAA_LOG((LM_ERROR,  
-                       "No matchig protection-capability ... session will close"));
-            m_Flags.i.PcapNotSupported = true;
-        }
-        ProtectionCapability() = ACE_NTOHL(*pcap);
-    }
-
-    // update post pana address config
-    PANA_UInt32AvpContainerWidget ppacAvp(msg.avpList());
-    pana_unsigned32_t *ppac = ppacAvp.GetAvp(PANA_AVPNAME_PPAC);
-    if (ppac && PANA_RCODE_SUCCESS(rcode)) {
-        if (! (PPAC().common(ACE_NTOHL(*ppac)))) {
-            AAA_LOG((LM_ERROR,  
-                       "No matching PPAC ... session will close"));
-            m_Flags.i.PpacNotSupported = true;
-        }
-        PPAC().set(ACE_NTOHL(*ppac));
+    // extract key id if any
+    PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
+    pana_unsigned32_t *pKeyId = rcodeAvp.GetAvp(PANA_AVPNAME_KEYID);
+    if (pKeyId) {
+        SecurityAssociation().MSK().Id() = *pKeyId;
     }
 
     // extract eap
@@ -723,64 +404,26 @@ void PANA_Client::RxPBR()
     if (payload) {
         NotifyEapRequest(*payload);
     }
-    if (PANA_RCODE_SUCCESS(rcode) && epIdPresent) {
-        AuxVariables().CarryDeviceId() = true;
+    else if (rcode != PANA_RCODE_SUCCESS) {
+        m_Event.EapAltReject();
+        Error(rcode);
     }
-
-    if (! AuxVariables().SecAssociationResumed()) {
-        if (! PANA_RCODE_SUCCESS(rcode) && (payload == NULL)) {
-            m_Event.EapAltReject();
-            Error(rcode);
-        }
-    }
-    else if (PANA_RCODE_SUCCESS(rcode)) {
-        // session resumption verification
-        PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
-        pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
-        if (! nonce) {
-            throw (PANA_Exception(PANA_Exception::FAILED, 
-                    "Session resumption failed, missing nonce in PBR"));
-        }
-        PANA_Nonce ncheck(*nonce);
-        if (! (ncheck == SecurityAssociation().PaaNonce())) {
-            throw (PANA_Exception(PANA_Exception::FAILED, 
-                    "Session resumption failed, invalid PAA nonce"));
-        }
-        if (! SecurityAssociation().ValidateAuthAvp(msg)) {
-            throw (PANA_Exception(PANA_Exception::FAILED, 
-                    "Session resumption failed, invalid AUTH received"));
-        }
-        PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
-        pana_unsigned32_t *keyid = keyIdAvp.GetAvp(PANA_AVPNAME_KEYID);
-        if (! keyid) {
-            throw (PANA_Exception(PANA_Exception::FAILED, 
-                    "Session resumption failed, missing keyid in PBR"));
-        }
-        if (ACE_NTOHL(*keyid) != SecurityAssociation().AAAKey().Id()) {
-            throw (PANA_Exception(PANA_Exception::FAILED, 
-                    "Session resumption failed, mis-match keyid"));
-        }
-
-        TxPBA(false); // TBD: resolve this
-        NotifyAuthorization();
-        NotifyScheduleLifetime();
+    else {
+        throw (PANA_Exception(PANA_Exception::FAILED, 
+               "No EAP-Payload on PANA_SUCCESS result code"));
     }
 }
 
-void PANA_Client::TxPBA(bool close)
+void PANA_Client::TxPBA(bool authSuccess)
 {
     /*
-      7.9  PANA-Bind-Answer (PBA)
+      7.9.  PANA-Bind-Answer (PBA)
 
-        The PANA-Bind-Answer (PBA) message is sent by the PaC to the PAA in
-        response to a PANA-Bind-Request message.
+         The PANA-Bind-Answer (PBA) message is sent by the PaC to the PAA in
+         response to a PANA-Bind-Request message.
 
-        PANA-Bind-Answer ::= < PANA-Header: 5 [,SEP] [,NAP] >
-                             < Session-Id >
-                             [ PPAC ]
-                             [ Device-Id ]
+         PANA-Bind-Answer ::= < PANA-Header: 5 >
                              [ Key-Id ]
-                             [ Notification ]
                           *  [ AVP ]
                          0*1 < AUTH >
      */
@@ -790,38 +433,19 @@ void PANA_Client::TxPBA(bool close)
     msg->type() = PANA_MTYPE_PBA;
     msg->seq() = LastRxSeqNum().Value();
 
-    // add session id
-    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
-    sessionIdAvp.Get() = SessionId();
-    msg->avpList().add(sessionIdAvp());
-
-    if (! close) {
-       // add ppac
-       PANA_UInt32AvpWidget ppacAvp(PANA_AVPNAME_PPAC);
-       ppacAvp.Get() = ACE_HTONL(PPAC()());
-       msg->avpList().add(ppacAvp());
-
-       // add device-id
-       if (AuxVariables().CarryDeviceId()) {
-           PANA_AddressAvpWidget deviceAvp(PANA_AVPNAME_DEVICEID);
-           deviceAvp.Get() = PacDeviceId()();
-           msg->avpList().add(deviceAvp());
-       }
-
-       // update the aaa key's
-       pana_octetstring_t newKey;
-       if (m_Event.IsKeyAvailable(newKey)) {
-           SecurityAssociation().UpdateAAAKey(newKey);
-           SecurityAssociation().GenerateAuthKey(SessionId());
-       }
+    if (authSuccess) {
+        pana_octetstring_t newKey;
+        if (m_Event.IsKeyAvailable(newKey)) {
+            SecurityAssociation().MSK().Set(newKey);
+            SecurityAssociation().GenerateAuthKey(this->SessionId());
+        }
     }
 
-    // add notification if any
-    AddNotification(*msg);
-
     // auth and key-id
-    if (SecurityAssociation().IsSet()) {
-        SecurityAssociation().AddKeyIdAvp(*msg);
+    if (SecurityAssociation().MSK().IsSet()) {
+        if (SecurityAssociation().MSK().Id() != 0) {
+            SecurityAssociation().AddKeyIdAvp(*msg);
+        }
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
@@ -830,76 +454,57 @@ void PANA_Client::TxPBA(bool close)
     SendAnsMsg(msg);
 }
 
-void PANA_Client::TxPRAR()
+void PANA_Client::TxPRR()
 {
     /*
-      7.6  PANA-Reauth-Request (PRAR)
+      7.6.  PANA-Reauth-Request (PRR)
 
-       The PANA-Reauth-Request (PRAR) message is sent by the PaC to the PAA
-       to re-initiate EAP authentication.
+         The PANA-Reauth-Request (PRR) message is sent by the PaC to the PAA
+         to re-initiate EAP authentication.
 
-        PANA-Reauth-Request ::= < PANA-Header: 4, REQ >
-                                < Session-Id >
-                                [ Notification ]
-                             *  [ AVP ]
-                            0*1 < AUTH >
+         PANA-Reauth-Request ::= < PANA-Header: 4, REQ >
+                          *  [ AVP ]
+                         0*1 < AUTH >
      */
+
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PRAR;
+    msg->type() = PANA_MTYPE_PRR;
     msg->flags().request = true;
 
     // adjust serial num
     ++ LastTxSeqNum();
     msg->seq() = LastTxSeqNum().Value();
 
-    // reset values
-    AuxVariables().SecAssociationResumed() = false;
-
-    // add session id
-    PANA_Utf8AvpWidget sessionIdAvp(PANA_AVPNAME_SESSIONID);
-    sessionIdAvp.Get() = SessionId();
-    msg->avpList().add(sessionIdAvp());
-
-    // add notification if any
-    AddNotification(*msg);
-
     // auth avp
-    if (SecurityAssociation().IsSet()) {
+    if (SecurityAssociation().Auth().IsSet()) {
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    // Cancel session timers
-    m_Timer.CancelSession();
-
-    AAA_LOG((LM_INFO, "(%P|%t) TxPRAR: seq=%d\n", msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPRR: seq=%d\n", msg->seq()));
 
     SendReqMsg(msg);
 }
 
-void PANA_Client::RxPRAA()
+void PANA_Client::RxPRA()
 {
     /*
-      7.7  PANA-Reauth-Answer (PRAA)
+      7.7.  PANA-Reauth-Answer (PRA)
 
-       The PANA-Reauth-Answer (PRAA) message is sent by the PAA to the PaC
-       in response to a PANA-Reauth-Request message.
+         The PANA-Reauth-Answer (PRA) message is sent by the PAA to the PaC in
+         response to a PANA-Reauth-Request message.
 
-        PANA-Reauth-Answer ::= < PANA-Header: 4 >
-                               < Session-Id >
-                               [ Notification ]
-                            *  [ AVP ]
-                           0*1 < AUTH >
+         PANA-Reauth-Answer ::= < PANA-Header: 4 >
+                          *  [ AVP ]
+                         0*1 < AUTH >
      */
+
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPRAA: seq=%d\n", msg.seq()));
-
-    // process notification
-    ProcessNotification(msg);
+    AAA_LOG((LM_INFO, "(%P|%t) RxPRA: seq=%d\n", msg.seq()));
 
     m_Timer.CancelTxRetry();
 
@@ -907,51 +512,10 @@ void PANA_Client::RxPRAA()
     NotifyEapRestart();
 }
 
-void PANA_Client::TxFormatAddress(PANA_Message &msg)
+void PANA_Client::TxPrepareMessage(PANA_Message &msg)
 {
-   PANA_CfgClient &c = PANA_CFG_PAC();
-
-   // Proper destination IP address hierarchy is as follows:
-   //   a. try the known Paa IP address from previous rx msg
-   //   b. try locally config unicast addr
-   //   c. try locally config mcast address if present
-   //   d. undeliverable if not found
-   if (PaaIpAddress().get_port_number() > 0) {
-      PANA_DeviceId *ipId = PANA_DeviceIdConverter::CreateFromAddr
-          (PaaIpAddress());
-      if (ipId == NULL) {
-         throw (PANA_Exception(PANA_Exception::NO_MEMORY, 
-                              "Failed to allocate IP device id"));
-      }
-      msg.srcDevices().push_back(ipId);
-      msg.srcPort() = PaaIpAddress().get_port_number();
-   }
-   else {
-      // have to compute peer IP address
-      std::string *destIp;
-
-      msg.srcPort() = c.m_PaaPortNumber;
-      if (c.m_PaaIpAddress.size() > 0) {
-         destIp = &c.m_PaaIpAddress;
-      }
-      else if (c.m_PaaMcastAddress.size() > 0) {
-         destIp = &c.m_PaaMcastAddress;
-      }
-      else {
-         throw (PANA_Exception(PANA_Exception::FAILED, 
-                              "Unable to configure a destination address"));
-      }
-
-      char buf[256];
-      ACE_OS::sprintf(buf, "%s:%d", destIp->data(),
-                      c.m_PaaPortNumber);
-      ACE_INET_Addr paaAddr(buf);
-      PANA_DeviceId *ipId = PANA_DeviceIdConverter::CreateFromAddr(paaAddr);
-      if (ipId == NULL) {
-         throw (PANA_Exception(PANA_Exception::NO_MEMORY, 
-                              "Failed to allocate IP device id"));
-      }
-      msg.srcDevices().push_back(ipId);
-   }
+    msg.srcAddress() = this->PacAddress();
+    msg.destAddress() = this->PaaAddress();
+    msg.sessionId() = this->SessionId();
 }
 

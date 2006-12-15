@@ -44,7 +44,7 @@
 typedef enum {
   PANA_ST_OFFLINE = 1,
   PANA_ST_WAIT_EAP_MSG_IN_INIT,
-  PANA_ST_STATEFUL_INIT,
+  PANA_ST_WAIT_WAIT_PAC_IN_INIT,
   PANA_ST_WAIT_PAA,
   PANA_ST_WAIT_SUCC_PBA,
   PANA_ST_WAIT_FAIL_PBA,
@@ -52,7 +52,7 @@ typedef enum {
   PANA_ST_WAIT_EAP_RESULT,
   PANA_ST_WAIT_EAP_RESULT_CLOSE,
   PANA_ST_OPEN,
-  PANA_ST_WAIT_PRAA,
+  PANA_ST_WAIT_PRA,
   PANA_ST_WAIT_PAN_OR_PAR,
   PANA_ST_WAIT_PPA,
   PANA_ST_WAIT_PUA,
@@ -67,8 +67,8 @@ typedef enum {
   PANA_EV_MTYPE_PSA,
   PANA_EV_MTYPE_PAR,
   PANA_EV_MTYPE_PAN,
-  PANA_EV_MTYPE_PRAR,
-  PANA_EV_MTYPE_PRAA,
+  PANA_EV_MTYPE_PRR,
+  PANA_EV_MTYPE_PRA,
   PANA_EV_MTYPE_PBR,
   PANA_EV_MTYPE_PBA,
   PANA_EV_MTYPE_PPR,
@@ -97,7 +97,7 @@ typedef enum {
   PANA_EV_APP_REAUTH,
   PANA_EV_APP_TERMINATE,
   PANA_EV_APP_AUTH_USER,
-  PANA_EV_APP_NOTIFICATION,
+  PANA_EV_APP_UPDATE,
   PANA_EV_APP_PING
 } PANA_APP_EVENT;
 
@@ -110,16 +110,16 @@ typedef enum {
 template<class EVENT_VAR, class FSM>
 class FsmTimer : public PANA_SessionTimerInterface {
    public:
-      FsmTimer(FSM &fsm) : 
-          m_fsm(fsm) { 
+      FsmTimer(FSM &fsm) :
+          m_fsm(fsm) {
       }
       void Schedule(PANA_TID tid, ACE_UINT32 sec) {
           EVENT_VAR ev;
           switch (tid) {
-             case PANA_TID_RETRY: 
-                 ev.Do_ReTransmission(); 
+             case PANA_TID_RETRY:
+                 ev.Do_ReTransmission();
                  break;
-             case PANA_TID_SESSION: 
+             case PANA_TID_SESSION:
                  ev.Do_SessTimeout();
                  break;
              case PANA_TID_EAP_RESP:
@@ -131,10 +131,10 @@ class FsmTimer : public PANA_SessionTimerInterface {
       void Cancel(PANA_TID tid) {
           EVENT_VAR ev;
           switch (tid) {
-             case PANA_TID_RETRY: 
-                 ev.Do_ReTransmission(); 
+             case PANA_TID_RETRY:
+                 ev.Do_ReTransmission();
                  break;
-             case PANA_TID_SESSION: 
+             case PANA_TID_SESSION:
                  ev.Do_SessTimeout();
                  break;
              case PANA_TID_EAP_RESP:
@@ -173,18 +173,16 @@ class PANA_EXPORT PANA_StateMachine :
 
       class FsmTxChannel : public PANA_SessionTxInterface {
          public:
-            FsmTxChannel(CHANNEL &ch) : 
-               m_Channel(ch) { 
+            FsmTxChannel(CHANNEL &ch) :
+               m_Channel(ch) {
             }
             virtual void Send(boost::shared_ptr<PANA_Message> msg) {
                m_Channel.Send(msg);
             }
-            virtual PANA_DeviceIdContainer &GetLocalAddress() {
-               return m_Channel.GetLocalAddress();
-            }
          private:
-            CHANNEL &m_Channel; 
+            CHANNEL &m_Channel;
       };
+
    public:
 
       virtual void InitializeMsgMaps() = 0;
@@ -282,17 +280,17 @@ class PANA_EXPORT PANA_StateMachine :
 
    private:
        const char *StrState(int state) {
-           static char *str[] = { "OFFLINE",       
+           static char *str[] = { "OFFLINE",
                                   "WAIT_EAP_MSG_IN_INIT",
-                                  "STATEFUL_INIT", 
+                                  "STATEFUL_INIT",
                                   "WAIT_PAA",
-                                  "WAIT_SUCC_PBA", 
+                                  "WAIT_SUCC_PBA",
                                   "WAIT_FAIL_PBA",
-                                  "WAIT_EAP_MSG",  
+                                  "WAIT_EAP_MSG",
                                   "WAIT_EAP_RESULT",
-                                  "WAIT_EAP_RESULT_CLOSE", 
+                                  "WAIT_EAP_RESULT_CLOSE",
                                   "OPEN",
-                                  "WAIT_PRAA",
+                                  "WAIT_PRA",
                                   "WAIT_PAN_OR_PAR",
                                   "WAIT_PPA",
                                   "WAIT_PUA",

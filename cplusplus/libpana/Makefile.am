@@ -32,16 +32,13 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_client.h \
             include/pana_client_fsm.h \
             include/pana_config_manager.h \
-            include/pana_cookie.h \
             include/pana_defs.h \
-            include/pana_device_id.h \
             include/pana_egress.h \
             include/pana_exceptions.h \
             include/pana_exports.h \
             include/pana_fsm.h \
             include/pana_ingress.h \
             include/pana_io.h \
-            include/pana_mcast_transport.h \
             include/pana_memory_manager.h \
             include/pana_message.h \
             include/pana_node.h \
@@ -55,18 +52,15 @@ PANA_HDRS = include/pana_auth_script.h \
 	    include/pana_parser_dict.h \
             include/pana_pmk_bootstrap.h \
             include/pana_prf_plus.h \
-            include/pana_provider_info.h \
             include/pana_psk_bootstrap.h \
             include/pana_security_assoc.h \
             include/pana_serial_num.h \
             include/pana_session.h \
-            include/pana_sid_generator.h \
             include/pana_udp_transport.h
 
 PANA_SRC  = src/pana_config_manager.cxx \
             src/pana_client.cxx \
             src/pana_client_fsm.cxx \
-            src/pana_cookie.cxx \
             src/pana_egress.cxx \
             src/pana_ingress.cxx \
             src/pana_node.cxx \
@@ -79,7 +73,6 @@ PANA_SRC  = src/pana_config_manager.cxx \
             src/pana_parser_dict.cxx \
             src/pana_pmk_bootstrap.cxx \
             src/pana_prf_plus.cxx \
-            src/pana_provider_info.cxx \
             src/pana_psk_bootstrap.cxx \
             src/pana_security_assoc.cxx \
             src/pana_session.cxx
@@ -92,9 +85,7 @@ sysconf_DATA = config/config.xsd \
                config/dictionary.dtd \
                config/dictionary.xml \
                config/paa.xml \
-               config/paa6.xml \
                config/pac.xml \
-               config/pac6.xml \
                config/pana_auth.bat \
                config/shared_secret.bin \
                config/users.xml \

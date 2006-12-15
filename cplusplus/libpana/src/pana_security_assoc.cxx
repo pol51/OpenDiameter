@@ -39,25 +39,33 @@
 
 void PANA_AuthKey::Generate(PANA_Nonce &pac,
                             PANA_Nonce &paa,
-                            pana_octetstring_t &aaaKey,
-                            pana_utf8string_t &sessionId)
+                            pana_octetstring_t &msk,
+                            ACE_UINT32 sessionId,
+                            ACE_UINT32 keyId)
 {
-   // The PANA_AUTH_KEY is derived from the available MSK and it is used to
-   // integrity protect PANA messages.  The PANA_AUTH_KEY is computed in
-   // the following way:
-   //
-   //   PANA_AUTH_KEY = prf+(MSK, PaC_nonce | PAA_nonce | Session-ID)
-   //
-   // where the prf+ function is defined in IKEv2 [RFC4306].  The pseudo-
-   // random function to be used for the prf+ function is specified in the
-   // Algorithm AVP in a PANA-Bind-Request message.  The length of
-   // PANA_AUTH_KEY depends on the integrity algorithm in use.  See
-   // Section 5.4 for the detailed usage of the PANA_AUTH_KEY.
+   /*
+   The PANA_AUTH_KEY is derived from the available MSK and it is used to
+   integrity protect PANA messages.  The PANA_AUTH_KEY is computed in
+   the following way:
+
+    PANA_AUTH_KEY = prf+(MSK, PaC_nonce|PAA_nonce|Session_ID|Key_ID)
+
+   where the prf+ function is defined in IKEv2 [RFC4306].  The
+   pseudo-random function to be used for the prf+ function is specified
+   in the Algorithm AVP in a PANA-Bind-Request message.  The length of
+   PANA_AUTH_KEY depends on the integrity algorithm in use.  See
+   Section 5.4 for the detailed usage of the PANA_AUTH_KEY.  PaC_nonce
+   and PAA_nonce are values of the Nonce AVP carried in the first
+   PANA-Auth-Answer and PANA-Auth-Request messages in the authentication
+   and authorization phase or the re-authentication phase, respectively.
+   Session_ID is the session identifier of the session.  Key_ID is the
+   value of the Key-ID AVP.
+   */
 
 #if PANA_SA_DEBUG
-    printf("AAA key[%d]: ", aaaKey.size());
-    for (size_t i=0; i<aaaKey.size(); i++) {
-        printf("%02X ", (unsigned char)((char*)aaaKey.data())[i]);
+    printf("MSK [%d]: ", msk.size());
+    for (size_t i=0; i<msk.size(); i++) {
+        printf("%02X ", (unsigned char)((char*)msk.data())[i]);
     }
     printf("\n");
     printf("Pac Nonce[%d]: ", pac.Get().size());
@@ -73,10 +81,11 @@ void PANA_AuthKey::Generate(PANA_Nonce &pac,
 #endif
 
     OD_Utl_Sha1 sha1;
-    sha1.Update((unsigned char*)aaaKey.data(), aaaKey.size());
+    sha1.Update((unsigned char*)msk.data(), msk.size());
     sha1.Update((unsigned char*)pac.Get().data(), pac.Get().size());
     sha1.Update((unsigned char*)paa.Get().data(), paa.Get().size());
-    sha1.Update((unsigned char*)sessionId.data(), sessionId.size());
+    sha1.Update((unsigned char*)&sessionId, sizeof(sessionId));
+    sha1.Update((unsigned char*)&keyId, sizeof(keyId));
     sha1.Final();
 
     char sbuf[PANA_AUTH_HMACSIZE];
@@ -95,13 +104,13 @@ void PANA_AuthKey::Generate(PANA_Nonce &pac,
 #endif
 }
 
-void PANA_SecurityAssociation::GenerateAuthKey
-    (pana_utf8string_t &sessionId) 
+void PANA_SecurityAssociation::GenerateAuthKey(ACE_UINT32 sessionId)
 {
     m_AuthKey.Generate(m_PacNonce,
                        m_PaaNonce,
-                       m_Value,
-                       sessionId);
+                       m_MSK.Get(),
+                       sessionId,
+                       m_MSK.Id());
 }
 
 void PANA_SecurityAssociation::GenerateAuthAvpValue
@@ -110,17 +119,17 @@ void PANA_SecurityAssociation::GenerateAuthAvpValue
             pana_octetstring_t &authValue)
 {
     //
-    //   A PANA message can contain a AUTH (Message Authentication Code) AVP 
-    //   for cryptographically protecting the message. 
+    //   A PANA message can contain a AUTH (Message Authentication Code) AVP
+    //   for cryptographically protecting the message.
     //
-    //   When a AUTH AVP is included in a PANA message, the value field of the 
-    //   AUTH AVP is calculated by using the PANA_AUTH_Key in the following 
-    //   way: 
+    //   When a AUTH AVP is included in a PANA message, the value field of the
+    //   AUTH AVP is calculated by using the PANA_AUTH_Key in the following
+    //   way:
     //
-    //       AUTH AVP value = HMAC_SHA1(PANA_AUTH_Key, PANA_PDU) 
+    //       AUTH AVP value = HMAC_SHA1(PANA_AUTH_Key, PANA_PDU)
     //
-    //   where PANA_PDU is the PANA message including the PANA header, with 
-    //   the AUTH AVP value field first initialized to 0.  
+    //   where PANA_PDU is the PANA message including the PANA header, with
+    //   the AUTH AVP value field first initialized to 0.
     //    
     OD_Utl_Sha1 sha1;
     sha1.Update((unsigned char*)m_AuthKey.Get().data(), 
@@ -159,7 +168,7 @@ void PANA_SecurityAssociation::GenerateAuthAvpValue
 bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
 {
     PANA_UInt32AvpWidget keyIdAvp(PANA_AVPNAME_KEYID);
-    keyIdAvp.Get() = ACE_HTONL(m_AAAKey.Id());
+    keyIdAvp.Get() = ACE_HTONL(m_MSK.Id());
     msg.avpList().add(keyIdAvp());
     return (true);
 }

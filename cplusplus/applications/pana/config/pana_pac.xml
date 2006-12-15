@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pana_configuration SYSTEM "config.dtd">
+<!DOCTYPE pana_configuration SYSTEM "pana_config.dtd">
 <pana_configuration>
 
     <general>
 
-        <!-- UDP port that the PAA will listen to
-             for Pac messages. Note that this
+        <!-- UDP port that the PaC will listen to
+             for PAA messages. Note that this
              does not bind to any address or interface
              so it will receive Pac messages on any
              interface -->
@@ -30,27 +30,27 @@
              Sec 10 of the draft for rules govering
              message retranmission -->
         <retransmission_param>
-            <!-- Initial retransmission timeout -->
-            <initial_rt_timeout>10</initial_rt_timeout>
+           <!-- Initial retransmission timeout -->
+           <initial_rt_timeout>10</initial_rt_timeout>
 
-            <!-- Maximum retransmission count -->
-            <max_rt_count>3</max_rt_count>
+           <!-- Maximum retransmission count -->
+           <max_rt_count>3</max_rt_count>
 
-            <!-- Maximum retransmission timeout -->
-            <max_rt_timeout>120</max_rt_timeout>
+           <!-- Maximum retransmission timeout -->
+           <max_rt_timeout>120</max_rt_timeout>
 
-            <!-- Maximum retransmission duration -->
-            <max_rt_duration>120</max_rt_duration>
+           <!-- Maximum retransmission duration -->
+           <max_rt_duration>10</max_rt_duration>
         </retransmission_param>
 
         <!-- Re-Auth timer (interval) -->
         <keep_alive_interval>10</keep_alive_interval>
 
-        <!-- WPA (802.11i) bootstrap support 
+        <!-- WPA (802.11i) bootstrap support
              A 256-bit PMK key will be generated during the
              Authorize method (and passed to authorization
-             script) when this option is enabled. 
-             -->
+             script) when this option is enabled.
+          -->
         <wpa_bootstrap>1</wpa_bootstrap>
 
         <!-- Session lifetime enforces when this PANA
@@ -61,24 +61,19 @@
 
     </general>
 
-    <agent>
+    <client>
 
-        <!-- When this options is enabled, the PAA will
-             attempt to carry the first EAP request in
-             the PANA-Start-Request message -->
-        <optimized_handshake>0</optimized_handshake>
+        <!-- Pre-configure IP address of the PAA. If this
+             entry is empty, discovery message will be
+             transmitted using paa_mcast_address. Note
+             that the library automatically detects whether
+             your are going to use IPv6 or IPv4 based on
+             this address -->
+        <paa_ip_address></paa_ip_address>
 
-        <!-- This tells the PAA whether the session lifetime
-             AVP will be carried in the PANA-Bind-Rquest
-             message. If enabled, the session lifetime
-             defined previously will be sent to the PaC -->
-        <carry_lifetime>1</carry_lifetime>
+        <!-- PAA port number used in conjuction with paa_ip_address -->
+        <paa_port_number>3001</paa_port_number>
 
-        <!-- This tells the PAA whether the PANA-Start-Request
-             will be retransmitted. This aids in keeping
-             a more stateless PAA if disabled -->
-        <retry_psr>0</retry_psr>
-
-    </agent>
+    </client>
 
 </pana_configuration>

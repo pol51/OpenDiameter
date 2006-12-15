@@ -42,34 +42,25 @@
 class PANA_EXPORT PANA_EgressSender : public AAA_Job
 {
     public:
-        typedef enum {
-            RETRY_COUNT = 3,
-        };
-    public:
         PANA_EgressSender(AAA_GroupedJob &g,
-                          PANA_ResilientIO &io,
+                          PANA_IO &io,
                           boost::shared_ptr<PANA_Message> msg) :
            m_IO(io),
            m_Group(g),
            m_Msg(msg) {
         }
-        virtual bool ExistBacklog() { 
-           return (false); 
+        virtual bool ExistBacklog() {
+           return (false);
         }
-        virtual int Schedule(AAA_Job*job, size_t backlogSize=1) { 
-           // destination port check
-           if (m_Msg->srcPort() <= 0) {
-              throw (PANA_Exception(PANA_Exception::TRANSPORT_FAILED,
-                    "Invalid destination port bounded to message"));
-           }
+        virtual int Schedule(AAA_Job*job, size_t backlogSize=1) {
            return m_Group.Schedule(job);
         }
 
     protected:
         int Serve();
-    
+
     protected:
-        PANA_ResilientIO &m_IO;
+        PANA_IO &m_IO;
         AAA_GroupedJob &m_Group;
         boost::shared_ptr<PANA_Message> m_Msg;
 };

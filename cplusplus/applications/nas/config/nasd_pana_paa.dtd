@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-     <!ELEMENT pana_configuration (general, (client|auth_agent))>
+     <!ELEMENT pana_configuration (general, (client|agent))>
 
-     <!ELEMENT general (thread_count, listen_port, interface_name, ipv6,
-                        protection_capability, dictionary_filename,
-                        mobility, separate, abort_on_first_eap_failure,
-                        eap_piggyback, retransmission_param, ppac_config,
+     <!ELEMENT general (listen_port, dictionary_filename, 
+                        eap_piggyback, retransmission_param,
                         keep_alive_interval, wpa_bootstrap)>
 
-     <!ELEMENT thread_count (#PCDATA)>
      <!ELEMENT listen_port (#PCDATA)>
-     <!ELEMENT interface_name (#PCDATA)>
-     <!ELEMENT ipv6 (#PCDATA)>
-     <!ELEMENT protection_capability (#PCDATA)>
      <!ELEMENT dictionary_filename (#PCDATA)>
-     <!ELEMENT mobility (#PCDATA)>
      <!ELEMENT eap_piggyback (#PCDATA)>
+     <!ELEMENT session_lifetime (#PCDATA)>
 
      <!ELEMENT retransmission_param (initial_rt_timeout, max_rt_count,
                                      max_rt_timeout, max_rt_duration)>
-     <!ELEMENT ppac_config (dhcpv4, dhcpv6, autoconfv6, dhcpv4_ipsec, ikev2)>
 
      <!ELEMENT keep_alive_interval (#PCDATA)>
      <!ELEMENT wpa_bootstrap (#PCDATA)>
@@ -29,33 +22,13 @@
      <!ELEMENT max_rt_timeout (#PCDATA)>
      <!ELEMENT max_rt_duration (#PCDATA)>
 
-     <!ELEMENT dhcpv4 (#PCDATA)>
-     <!ELEMENT dhcpv6 (#PCDATA)>
-     <!ELEMENT autoconfv6 (#PCDATA)>
-     <!ELEMENT dhcpv4_ipsec (#PCDATA)>
-     <!ELEMENT ikev2 (#PCDATA)>
+     <!ELEMENT client (paa_ip_address, paa_port_number)>
 
-     <!ELEMENT client (paa_ip_address?, paa_port_number?,
-                       paa_mcast_address, isp_info?)>
-                       
      <!ELEMENT paa_ip_address (#PCDATA)>
      <!ELEMENT paa_port_number (#PCDATA)>
-     <!ELEMENT paa_mcast_address (#PCDATA)>
-     <!ELEMENT isp_info (id, name)>
 
-     <!ELEMENT id (#PCDATA)>
-     <!ELEMENT name (#PCDATA)>
+     <!ELEMENT agent (optimized_handshake, carry_lifetime, retry_psr)>
 
-     <!ELEMENT auth_agent (mcast_address, session_lifetime,
-                           grace_period, use_cookie, nap_info?,
-                           isp_info*, ep_id*, carry_device_id)>
-                           
-     <!ELEMENT mcast_address (#PCDATA)>
-     <!ELEMENT session_lifetime (#PCDATA)>
-     <!ELEMENT grace_period (#PCDATA)>
-     <!ELEMENT use_cookie (#PCDATA)>
-     <!ELEMENT nap_info (id, name)>
-     <!ELEMENT ep_id (type, id)>
-     <!ELEMENT carry_device_id (#PCDATA)>
-     
-     <!ELEMENT type (#PCDATA)>
+     <!ELEMENT optimized_handshake (#PCDATA)>
+     <!ELEMENT carry_lifetime (#PCDATA)>
+     <!ELEMENT retry_psr (#PCDATA)>

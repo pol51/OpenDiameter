@@ -4,27 +4,12 @@
 
     <general>
 
-        <!-- Controls the number of threads in the pool
-             to be spawned at startup -->
-        <thread_count>5</thread_count>
-
-        <!-- UDP port that the PAA will listen to
-             for Pac messages -->
-        <listen_port>3003</listen_port>
-
-        <!-- Name of interface to use for PANA
-             messages -->
-        <interface_name>eth1</interface_name>
-
-        <!-- Flag to indicate that this library
-             will try to use IPv6 stack 
-              0 - use only IPv4
-              1 - attempt to use IPv6 --> 
-        <ipv6>1</ipv6>
-
-        <!-- Protection capability advertised by
-             the PAA -->
-        <protection_capability>1</protection_capability>
+        <!-- UDP port that the PaC will listen to
+             for PAA messages. Note that this
+             does not bind to any address or interface
+             so it will receive Pac messages on any
+             interface -->
+        <listen_port>3001</listen_port>
 
         <!-- Filename of the parser dictionary -->
         <dictionary_filename>config/dictionary.xml</dictionary_filename>
@@ -38,26 +23,7 @@
              valid if use_cookie is 0. Also, if this
              is set and used, then the separate flag
              will be ingnored -->
-        <eap_piggyback>0</eap_piggyback> 
-
-        <!-- Post pana address configuration options -->
-        <ppac_config>
-           <!-- suppots dhcpv4 -->
-	   <dhcpv4>1</dhcpv4> 
-
-           <!-- suppots dhcpv6 -->
-	   <dhcpv6>1</dhcpv6> 
-
-           <!-- supports IPv6 stateless autoconfig -->
-           <autoconfv6>0</autoconfv6>
-
-           <!-- supports DHCPv4 via IPsec tunnel -->
-           <dhcpv4_ipsec>0</dhcpv4_ipsec>
-
-           <!-- supports IKEv2 -->
-           <ikev2>0</ikev2>
-
-        </ppac_config>
+        <eap_piggyback>0</eap_piggyback>
 
         <!-- Configurable retransmission parameters
              as specified in the PANA draft. See
@@ -79,44 +45,35 @@
 
         <!-- Re-Auth timer (interval) -->
         <keep_alive_interval>10</keep_alive_interval>
-        
-        <!-- WPA (802.11i) bootstrap support 
+
+        <!-- WPA (802.11i) bootstrap support
              A 256-bit PMK key will be generated during the
              Authorize method (and passed to authorization
-             script) when this option is enabled. 
+             script) when this option is enabled.
           -->
         <wpa_bootstrap>1</wpa_bootstrap>
+
+        <!-- Session lifetime enforces when this PANA
+             session will end. Note that this can controls
+             the deletion of the PANA session whether
+             the session was auth successfully or not -->
+        <session_lifetime>360</session_lifetime>
+
     </general>
 
     <client>
 
         <!-- Pre-configure IP address of the PAA. If this
              entry is empty, discovery message will be
-             transmitted using paa_mcast_address -->
+             transmitted using paa_mcast_address. Note
+             that the library automatically detects whether
+             your are going to use IPv6 or IPv4 based on
+             this address -->
         <paa_ip_address></paa_ip_address>
 
         <!-- PAA port number used in conjuction with paa_ip_address -->
         <paa_port_number>3001</paa_port_number>
 
-        <!-- Pre-configure mcast address if the PAA address
-             is not known before hand. This will be used
-             in discovery if paa_ip_address is empty. Note
-             that default value is set in schema if this
-             value is empty --> 
-        <paa_mcast_address>ff01::15</paa_mcast_address>
-
-        <!-- ISP provider information to be sent with 
-             the start answer message. If name is empty,
-             no ISP-Information will be sent. If not
-             the Pac will match name with the list 
-             provided by the PAA during start request.
-             If a match is found, ISP-Information will
-             be sent else it will not -->
-        <isp_info>
-           <id>2</id>
-           <name>Provider2.com</name>
-        </isp_info>
-
     </client>
-    
+
 </pana_configuration>

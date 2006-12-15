@@ -135,7 +135,6 @@ template<> void PANA_HeaderParser::parseRawToApp()
 
     // flags
     h->flags().request = *((AAAUInt8*)(p)) & 0x80 ? 1 : 0;
-    h->flags().stateless = *((AAAUInt8*)(p)) & 0x40 ? 1 : 0;
     h->flags().reserved = 0;
     p += sizeof(ACE_UINT16);
 
@@ -151,6 +150,10 @@ template<> void PANA_HeaderParser::parseRawToApp()
         st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_COMMAND_UNSUPPORTED);
         throw st;
     }
+
+    // session identifier
+    h->sessionId() = ACE_UINT32(ACE_NTOHL(*((ACE_UINT32*)(p))));
+    p += sizeof(ACE_UINT32);
 
     // sequence number
     h->seq() = ACE_UINT32(ACE_NTOHL(*((ACE_UINT32*)(p))));
@@ -191,12 +194,15 @@ template<> void PANA_HeaderParser::parseAppToRaw()
     // flags
     *((ACE_UINT16*)(p)) = 0;
     *((AAAUInt8*)(p)) |= h->flags().request ? 0x80 : 0x0;
-    *((AAAUInt8*)(p)) |= h->flags().stateless ? 0x40 : 0x0;
     p += sizeof(ACE_UINT16);
 
     // type
     *((ACE_UINT16*)(p)) = ACE_HTONS(h->type());
     p += sizeof(ACE_UINT16);
+
+    // session identifier
+    *((ACE_UINT32*)(p)) = ACE_UINT32(ACE_HTONL(h->sessionId()));
+    p += sizeof(ACE_UINT32);
 
     // seq number
     *((ACE_UINT32*)(p)) = ACE_UINT32(ACE_HTONL(h->seq()));

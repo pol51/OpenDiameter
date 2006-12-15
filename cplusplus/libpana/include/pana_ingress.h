@@ -41,7 +41,8 @@
 #include "pana_memory_manager.h"
 #include "od_utl_patterns.h"
 
-class PANA_EXPORT PANA_IngressJob : public AAA_Job
+class PANA_EXPORT PANA_IngressJob :
+   public AAA_Job
 {
    public:
       PANA_IngressJob(AAA_GroupedJob &g, const char *name = "") :
@@ -49,7 +50,7 @@ class PANA_EXPORT PANA_IngressJob : public AAA_Job
           m_MsgHandler(0),
           m_Name(name) {
       }
-      virtual int Schedule(AAA_Job* job, size_t backlogSize=1) { 
+      virtual int Schedule(AAA_Job* job, size_t backlogSize=1) {
           return m_Group.Schedule(job);
       }
       virtual int Schedule() {
@@ -75,51 +76,50 @@ class PANA_EXPORT PANA_IngressJob : public AAA_Job
 /*!
  * Ingress message parser
  */
-class PANA_EXPORT PANA_IngressMsgParser : 
+class PANA_EXPORT PANA_IngressMsgParser :
    public PANA_IngressJob
 {
    public:
       PANA_IngressMsgParser(AAA_GroupedJob &g,
                             PANA_MessageBuffer &msg,
-                            ACE_UINT32 port,
-                            PANA_DeviceIdContainer &dev,
+                            ACE_INET_Addr &srcAddr,
                             const char *name = "") :
          PANA_IngressJob(g, name),
-         m_SrcPort(port),
-         m_Message(msg),
-         m_SrcDevices(dev) { 
+         m_SrcAddr(srcAddr),
+         m_Message(msg) {
       }
-      virtual ~PANA_IngressMsgParser() { 
+      virtual ~PANA_IngressMsgParser() {
       }
 
       virtual int Serve();
 
    private:
-      ACE_UINT32 m_SrcPort;
+      ACE_INET_Addr m_SrcAddr;
       PANA_MessageBuffer &m_Message;
-      PANA_DeviceIdContainer &m_SrcDevices;
 };
 
 /*!
  * Ingress io receiver
  */
-class PANA_EXPORT PANA_IngressReceiver : public PANA_IngressJob
+class PANA_EXPORT PANA_IngressReceiver :
+    public PANA_IngressJob
 {
     public:
-      PANA_IngressReceiver(AAA_GroupedJob &g, 
-                           PANA_ResilientIO &io,
+      PANA_IngressReceiver(AAA_GroupedJob &g,
+                           PANA_IO &io,
                            const char *name = "") :
              PANA_IngressJob(g, name),
-			 m_IO(io),
-			 m_Running(false),
-             m_Abort(false) { 
+                             m_IO(io),
+                             m_Running(false) {
       }
-
-      bool &Abort() {
-         return m_Abort;
+      bool Running() {
+         return m_Running;
+      }
+      void Stop() {
+         m_Running = true;
       }
       virtual int Serve();
-      virtual void Wait() {		  
+      virtual void Wait() {
          while (m_Running) {
             ACE_Time_Value tm(1, 0);
             ACE_OS::sleep(tm);
@@ -127,9 +127,8 @@ class PANA_EXPORT PANA_IngressReceiver : public PANA_IngressJob
       }
 
    protected:
-      PANA_ResilientIO &m_IO;
+      PANA_IO &m_IO;
       bool m_Running;
-      bool m_Abort;
 };
 
 #endif // __PANA_INGRESS_H__

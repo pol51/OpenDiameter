@@ -243,9 +243,6 @@ class PeerApplication : public AAA_JobData,
      eap->Stop();
      eap->Start();
   }
-  void ChooseISP(const PANA_CfgProviderList &list,
-                 PANA_CfgProviderInfo *&choice) {
-  }
   void EapRequest(AAAMessageBlock *request) {
      eap->Receive(request);
   }
@@ -258,31 +255,13 @@ class PeerApplication : public AAA_JobData,
          pacSession.EapReAuthenticate();
          reauth = true;
      }
-     else {
-         std::string msg = "--- message from client ---";
-         pacSession.SendNotification(msg);
-     }
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
      return false;
   }
-  bool ResumeSession() {
-      return false;
-  }
   void Disconnect(ACE_UINT32 cause) {
       eap->Stop();
       // semaphore.release();
-  }
-  void Notification(pana_octetstring_t &msg) {
-      std::cout << "PANA notification: " << msg << std::endl;
-  }
-  void Notification(pana_octetstring_t &msg, 
-                    PANA_DeviceId &pacId) {
-      char display[64];
-      ACE_INET_Addr addr;
-      PANA_DeviceIdConverter::FormatToAddr(pacId, addr);
-      addr.addr_to_string(display, sizeof(display));
-      std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
   }
   void Error(ACE_UINT32 resultCode) { 
   }
@@ -345,22 +324,6 @@ class StandAloneAuthApplication : public AAA_JobData,
   }
   bool IsUserAuthorized() {
       return true;
-  }
-  void Notification(pana_octetstring_t &msg) {
-      std::cout << "PANA notification: " << msg << std::endl;
-      paaSession.Stop();
-  }
-  void Notification(pana_octetstring_t &msg, 
-                    PANA_DeviceId &pacId) {
-      char display[64];
-      ACE_INET_Addr addr;
-      PANA_DeviceIdConverter::FormatToAddr(pacId, addr);
-      addr.addr_to_string(display, sizeof(display));
-      std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
-      paaSession.Stop();
-  }
-  bool ResumeSession() {
-      return false;
   }
   void Disconnect(ACE_UINT32 cause) {
      eap->Stop();

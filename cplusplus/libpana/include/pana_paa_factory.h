@@ -41,27 +41,18 @@
 #include "od_utl_patterns.h"
 #include "od_utl_rbtree_dbase.h"
 
-typedef OD_Utl_DbaseTree<std::string, PANA_PaaSession> PANA_PendingSessionDb;
-
-class PANA_EXPORT PANA_PaaSessionFactory : public PANA_PaaSessionChannel
+class PANA_EXPORT PANA_PaaSessionFactory :
+   public PANA_PaaSessionChannel
 {
    public:
-      PANA_PaaSessionFactory(PANA_Node &n) : PANA_PaaSessionChannel(n) { 
+      PANA_PaaSessionFactory(PANA_Node &n) :
+         PANA_PaaSessionChannel(n) {
 
-         OD_Utl_SCSIAdapter1<PANA_PaaSessionFactory, 
+         OD_Utl_SCSIAdapter1<PANA_PaaSessionFactory,
                            void(PANA_PaaSessionFactory::*)(PANA_Message&),
-                           PANA_Message&> 
+                           PANA_Message&>
                      msgHandler(*this, &PANA_PaaSessionFactory::Receive);
          PANA_PaaSessionChannel::RegisterHandler(msgHandler);
-         m_Flags.p = 0;
-         m_Flags.i.CarryPcapInPSR = PANA_CARRY_PCAP_IN_PSR;
-         m_Flags.i.CarryAlgoInPSR = PANA_CARRY_ALGO_IN_PSR;
-         m_Flags.i.CarryPcapInPBR = (PANA_CFG_GENERAL().m_ProtectionCap >= 0) ?
-                                      true : PANA_CARRY_PCAP_IN_PBR;
-         if (! m_Flags.i.CarryPcapInPBR) {
-             m_Flags.i.CarryPcapInPSR = false;
-             m_Flags.i.CarryAlgoInPSR = false;
-         }
       }
       virtual ~PANA_PaaSessionFactory() {
          PANA_PaaSessionChannel::RemoveHandler();
@@ -76,18 +67,14 @@ class PANA_EXPORT PANA_PaaSessionFactory : public PANA_PaaSessionChannel
       virtual void RxPCI(PANA_Message &msg);
       virtual void StatelessTxPSR(ACE_INET_Addr &addr);
       virtual void StatelessRxPSA(PANA_Message &msg);
-      virtual bool ValidateCookie(PANA_Message &msg);
-
-      PANA_PendingSessionDb m_PendingDb;
-      PANA_PaaSupportFlags m_Flags;
 };
 
 template<class PAA_SESSION, class ARG>
 class PANA_PaaSessionFactoryAdapter : public PANA_PaaSessionFactory
 {
    public:
-      PANA_PaaSessionFactoryAdapter(ARG &arg) : 
-         m_arg(arg) { 
+      PANA_PaaSessionFactoryAdapter(ARG &arg) :
+         m_arg(arg) {
       }
       PANA_PaaSession *Create() {
          return (new PAA_SESSION(m_Node, m_arg));

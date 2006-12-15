@@ -156,22 +156,6 @@ class NASD_PaaSession :
 	bool IsUserAuthorized() {
             return true;
 	}
-        void Notification(diameter_octetstring_t &msg) {
-            std::cout << "PANA notification: " << msg << std::endl;
-        }
-        void Notification(diameter_octetstring_t &msg, 
-                          PANA_DeviceId &pacId) {
-	    if (m_CfgData &&
-                m_ScriptCtl.CurrentScript().length() > 0) {
-                m_ScriptCtl.CurrentArgs().m_Pac = pacId;
-                m_ScriptCtl.Update();
-	    }
-            char display[64];
-            ACE_INET_Addr addr;
-            PANA_DeviceIdConverter::FormatToAddr(pacId, addr);
-            addr.addr_to_string(display, sizeof(display));
-            std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
-        }
 	void EapResponse(AAAMessageBlock *request) {
             SendIngress(*request);
 	}

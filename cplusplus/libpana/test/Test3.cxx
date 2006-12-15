@@ -350,9 +350,6 @@ class PeerChannel : public PANA_ClientEventInterface
       eap.Stop();
       eap.Start();
   }
-  void ChooseISP(const PANA_CfgProviderList &list,
-                 PANA_CfgProviderInfo *&choice) {
-  }
   void EapRequest(AAAMessageBlock *request) {
       eap.Receive(request);
   }
@@ -366,19 +363,7 @@ class PeerChannel : public PANA_ClientEventInterface
 #else
      ACE_INET_Addr newAddr("127.0.0.1:0");
 #endif
-     std::string note = "new address notification";
-     pana.Update(newAddr, note);
-  }
-  void Notification(pana_octetstring_t &msg) {
-      std::cout << "PANA notification: " << msg << std::endl;
-  }
-  void Notification(pana_octetstring_t &msg, 
-                    PANA_DeviceId &pacId) {
-      char display[64];
-      ACE_INET_Addr addr;
-      PANA_DeviceIdConverter::FormatToAddr(pacId, addr);
-      addr.addr_to_string(display, sizeof(display));
-      std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
+     pana.Update(newAddr);
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {
@@ -396,9 +381,6 @@ class PeerChannel : public PANA_ClientEventInterface
        return true;
     }
     return false;
-  }
-  bool ResumeSession() {
-      return false;
   }
   void Disconnect(ACE_UINT32 cause) {
       eap.Stop();
@@ -480,17 +462,6 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
      }
      return false;
    }
-   void Notification(pana_octetstring_t &msg) {
-       std::cout << "PANA notification: " << msg << std::endl;
-   }
-  void Notification(pana_octetstring_t &msg, 
-                    PANA_DeviceId &pacId) {
-      char display[64];
-      ACE_INET_Addr addr;
-      PANA_DeviceIdConverter::FormatToAddr(pacId, addr);
-      addr.addr_to_string(display, sizeof(display));
-      std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
-  }
    bool IsUserAuthorized() {
       return true;
    }

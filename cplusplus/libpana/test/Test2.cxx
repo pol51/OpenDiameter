@@ -302,9 +302,6 @@ class PeerChannel : public PANA_ClientEventInterface
       eap.Stop();
       eap.Start();
   }
-  void ChooseISP(const PANA_CfgProviderList &list,
-                 PANA_CfgProviderInfo *&choice) {
-  }
   void EapRequest(AAAMessageBlock *request) {
       eap.Receive(request);
   }
@@ -326,8 +323,7 @@ class PeerChannel : public PANA_ClientEventInterface
           break;
         case UPDATE: {
             ACE_INET_Addr newAddr("192.168.1.1:0");
-            std::string message("message with IP address");
-            pana.Update(newAddr, message);
+            pana.Update(newAddr);
           }
           testState = PING;
           break;
@@ -336,17 +332,6 @@ class PeerChannel : public PANA_ClientEventInterface
           testState = REAUTH;
           break;
      }
-  }
-  void Notification(pana_octetstring_t &msg) {
-      std::cout << "PANA notification: " << msg << std::endl;
-  }
-  void Notification(pana_octetstring_t &msg, 
-                    PANA_DeviceId &pacId) {
-      char display[64];
-      ACE_INET_Addr addr;
-      PANA_DeviceIdConverter::FormatToAddr(pacId, addr);
-      addr.addr_to_string(display, sizeof(display));
-      std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {
@@ -364,9 +349,6 @@ class PeerChannel : public PANA_ClientEventInterface
        return true;
     }
     return false;
-  }
-  bool ResumeSession() {
-      return false;
   }
   void Disconnect(ACE_UINT32 cause) {
       eap.Stop();
@@ -418,17 +400,6 @@ class StandAloneAuthChannel : public PANA_PaaEventInterface
        return true;
     }
     return false;
-  }
-  void Notification(pana_octetstring_t &msg) {
-      std::cout << "PANA notification: " << msg << std::endl;
-  }
-  void Notification(pana_octetstring_t &msg, 
-                    PANA_DeviceId &pacId) {
-      char display[64];
-      ACE_INET_Addr addr;
-      PANA_DeviceIdConverter::FormatToAddr(pacId, addr);
-      addr.addr_to_string(display, sizeof(display));
-      std::cout << "PANA Notification with PAC Ip Address: " << display << std::endl;
   }
   bool IsUserAuthorized() {
       return true;

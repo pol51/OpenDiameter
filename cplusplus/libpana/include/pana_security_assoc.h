@@ -43,7 +43,7 @@
 #define PANA_AUTH_ALGORITHM()      ((PANA_PRF_HMAC_SHA1 << 16)|PANA_AUTH_HMAC_SHA1_160)
 #define PANA_AUTH_HMACSIZE         20
 
-class PANA_EXPORT PANA_Nonce : 
+class PANA_EXPORT PANA_Nonce :
     public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
@@ -74,11 +74,11 @@ class PANA_EXPORT PANA_Nonce :
         }
 };
 
-class PANA_EXPORT PANA_AAAKey : 
+class PANA_EXPORT PANA_MSK :
     public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
-        PANA_AAAKey() : 
+        PANA_MSK() :
             m_Id(0) {
         }
         ACE_UINT32 &Id() {
@@ -92,18 +92,18 @@ class PANA_EXPORT PANA_AAAKey :
         ACE_UINT32 m_Id;
 };
 
-class PANA_EXPORT PANA_AuthKey : 
+class PANA_EXPORT PANA_AuthKey :
     public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
         void Generate(PANA_Nonce &pac,
                       PANA_Nonce &paa,
                       pana_octetstring_t &aaaKey,
-                      pana_utf8string_t &sessionId);
+                      ACE_UINT32 sessionId,
+                      ACE_UINT32 keyId);
 };
 
-class PANA_EXPORT PANA_SecurityAssociation : 
-    public PANA_ScholarValue<pana_octetstring_t>
+class PANA_EXPORT PANA_SecurityAssociation
 {
     public:
         PANA_SecurityAssociation() {
@@ -115,20 +115,17 @@ class PANA_EXPORT PANA_SecurityAssociation :
             return m_PaaNonce;
         }
         void Reset() {
-            m_AAAKey.Reset();
+            m_MSK.Reset();
             m_AuthKey.Reset();
         }
-        void UpdateKeyId(ACE_UINT32 keyId) {
-            m_AAAKey.Id() = keyId;
+        PANA_MSK &MSK() {
+            return m_MSK;
         }
-        void UpdateAAAKey(pana_octetstring_t &key) {
-            m_AAAKey.Set(key);
-        }
-        PANA_AAAKey &AAAKey() {
-            return m_AAAKey;
+        PANA_AuthKey &Auth() {
+            return m_AuthKey;
         }
 
-        void GenerateAuthKey(pana_utf8string_t &sessionId);
+        void GenerateAuthKey(ACE_UINT32 sessionId);
         bool AddKeyIdAvp(PANA_Message &msg);
         bool AddAuthAvp(PANA_Message &msg);
         bool ValidateAuthAvp(PANA_Message &msg);
@@ -142,7 +139,7 @@ class PANA_EXPORT PANA_SecurityAssociation :
         PANA_AuthKey m_AuthKey;
         PANA_Nonce   m_PacNonce;
         PANA_Nonce   m_PaaNonce;
-        PANA_AAAKey  m_AAAKey;
+        PANA_MSK     m_MSK;
 };
 
 #endif /* __PANA_SECURITY_ASSOC_H__ */
