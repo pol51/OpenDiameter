@@ -53,6 +53,7 @@ int PANA_IngressMsgParser::Serve()
        hp.setAppData(parsedMsg);
 
        hp.parseRawToApp(); // may throw exception
+       m_Message.size(parsedMsg->length());
 
        PANA_PayloadParser pp;
        pp.setRawData(&m_Message);

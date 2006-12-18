@@ -41,20 +41,25 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
       PANA_PaaSession *session = PANA_SESSIONDB_SEARCH(msg.sessionId());
       session->Receive(msg);
    }
-   catch (PANA_Exception &e) {
-      ACE_UNUSED_ARG(e);
-      switch (msg.type()) {
-         case PANA_MTYPE_PCI:
-             RxPCI(msg);
-             break;
-         case PANA_MTYPE_PSA:
-             StatelessRxPSA(msg);
-             break;
-         default:
-            throw (PANA_Exception(PANA_Exception::ENTRY_NOT_FOUND,
-                   "Session identifier not found, discarding message"));
+   catch (PANA_SessionDb::DB_ERROR cause) {
+      if (cause == PANA_SessionDb::ENTRY_NOT_FOUND) {
+          switch (msg.type()) {
+             case PANA_MTYPE_PCI:
+                 RxPCI(msg);
+                 break;
+             case PANA_MTYPE_PSA:
+                 StatelessRxPSA(msg);
+                 break;
+             default:
+                 AAA_LOG((LM_ERROR, "(%P|%t) Unknown msg during handshake, discarding: seq=%d\n", msg.seq()));
+                 break;
+          }
       }
+      return;
    }
+   catch (...) {
+   }
+   AAA_LOG((LM_ERROR, "(%P|%t) Unknown error when looking up session for a message, discarding: seq=%d\n", msg.seq()));
 }
 
 void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
@@ -90,6 +95,10 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
        if (PANA_CFG_PAA().m_OptimizedHandshake) {
            ev.EnableCfg_OptimizedHandshake();
            PANA_CFG_PAA().m_RetryPSR = true;
+           AAA_LOG((LM_INFO, "(%P|%t) PAA is using EAP optimization\n"));
+       }
+       else {
+           AAA_LOG((LM_INFO, "(%P|%t) PAA is acting stateful\n"));
        }
        session->Notify(ev.Get());
    }
@@ -102,6 +111,7 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
        //  Unset &&                  ("Algorithm");
        // RTX_PSR=Unset            Tx:PSR();
        //
+       AAA_LOG((LM_INFO, "(%P|%t) PAA is acting stateless\n"));
        StatelessTxPSR(addr);
    }
 }
@@ -120,7 +130,7 @@ void PANA_PaaSessionFactory::RxPCI(PANA_Message &msg)
 
    */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: seq=%d\n", msg.seq()));
+   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
 
    // validate sequence number
    if (msg.seq() != 0) {
@@ -167,7 +177,7 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
     // proper addresses
     msg->destAddress() = addr;
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: seq=%d\n", msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
 
     m_Channel.Send(msg);
 }
@@ -186,7 +196,7 @@ void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
                           *  [ AVP ]
     */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPSA: Stateless, seq=%d\n", msg.seq()));
+   AAA_LOG((LM_INFO, "(%P|%t) RxPSA: Stateless, id=%d seq=%d\n", msg.sessionId(), msg.seq()));
 
    if (msg.sessionId() == 0) {
        throw (PANA_Exception(PANA_Exception::NO_MEMORY,

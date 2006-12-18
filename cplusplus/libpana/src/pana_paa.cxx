@@ -130,6 +130,7 @@ void PANA_Paa::TxPSR()
     // Populate header
     msg->type() = PANA_MTYPE_PSR;
     msg->flags().request = true;
+    msg->sessionId() = this->SessionId();
 
     // adjust serial num
     ++ LastTxSeqNum();
@@ -148,7 +149,7 @@ void PANA_Paa::TxPSR()
         msg->avpList().add(eapAvp());
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: seq=%d\n", msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg, PANA_CFG_PAA().m_RetryPSR);
 }
@@ -170,7 +171,7 @@ void PANA_Paa::RxPSA()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPSA: seq=%d\n", msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPSA: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
 
     if ((PANA_CFG_PAA().m_OptimizedHandshake == 0) &&
         (PANA_CFG_PAA().m_RetryPSR == 0)) {
@@ -211,6 +212,7 @@ void PANA_Paa::TxPAR()
     // Populate header
     msg->type() = PANA_MTYPE_PAR;
     msg->flags().request = true;
+    msg->sessionId() = this->SessionId();
 
     // adjust serial num
     ++ LastTxSeqNum();
@@ -243,7 +245,7 @@ void PANA_Paa::TxPAR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: seq=%d\n", msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
 }
@@ -276,6 +278,7 @@ void PANA_Paa::TxPBR(pana_unsigned32_t rcode,
     // adjust serial num
     ++ LastTxSeqNum();
     msg->seq() = LastTxSeqNum().Value();
+    msg->sessionId() = this->SessionId();
 
     // add result-code
     PANA_UInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
@@ -324,7 +327,7 @@ void PANA_Paa::TxPBR(pana_unsigned32_t rcode,
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPBR: seq=%d\n", msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPBR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
 }
@@ -346,7 +349,7 @@ void PANA_Paa::RxPBA(bool success)
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPBA: seq=%d\n", msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPBA: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
     if (success) {
@@ -379,13 +382,14 @@ void PANA_Paa::TxPAN()
     // Populate header
     msg->type() = PANA_MTYPE_PAN;
     msg->seq() = LastRxSeqNum().Value();
+    msg->sessionId() = this->SessionId();
 
     // add SA if any
     if (SecurityAssociation().Auth().IsSet()) {
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: seq=%d\n", msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -409,7 +413,7 @@ void PANA_Paa::RxPAR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: seq=%d\n", msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
@@ -441,7 +445,7 @@ void PANA_Paa::RxPAN()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: seq=%d\n", msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
 
@@ -476,7 +480,7 @@ void PANA_Paa::RxPRR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPRR: seq=%d\n", msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPRR: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
 
     NotifyEapReAuth();
     TxPRA();
@@ -500,13 +504,14 @@ void PANA_Paa::TxPRA()
     // Populate header
     msg->type() = PANA_MTYPE_PRA;
     msg->seq() = LastRxSeqNum().Value();
+    msg->sessionId() = this->SessionId();
 
     // auth avp
     if (SecurityAssociation().Auth().IsSet()) {
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPRA: seq=%d\n", msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPRA: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -515,6 +520,5 @@ void PANA_Paa::TxPrepareMessage(PANA_Message &msg)
 {
     msg.srcAddress() = this->PaaAddress();
     msg.destAddress() = this->PacAddress();
-    msg.sessionId() = this->SessionId();
 }
 

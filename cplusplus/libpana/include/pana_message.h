@@ -269,6 +269,7 @@ class PANA_MsgHeader
            m_Version = PANA_VERSION;
            m_Length  = 0;
            m_Type    = 0;
+           m_SessionId = 0;
            m_SeqNum  = 0;
            ACE_OS::memset(&m_Flags, 0, sizeof(PANA_MsgHeader::Flags));
        }
