@@ -37,10 +37,10 @@
            <max_rt_count>3</max_rt_count>
 
            <!-- Maximum retransmission timeout -->
-           <max_rt_timeout>120</max_rt_timeout>
+           <max_rt_timeout>5</max_rt_timeout>
 
            <!-- Maximum retransmission duration -->
-           <max_rt_duration>10</max_rt_duration>
+           <max_rt_duration>360</max_rt_duration>
         </retransmission_param>
 
         <!-- Re-Auth timer (interval) -->
@@ -69,7 +69,7 @@
              that the library automatically detects whether
              your are going to use IPv6 or IPv4 based on
              this address -->
-        <paa_ip_address></paa_ip_address>
+        <paa_ip_address>127.0.0.1</paa_ip_address>
 
         <!-- PAA port number used in conjuction with paa_ip_address -->
         <paa_port_number>3001</paa_port_number>

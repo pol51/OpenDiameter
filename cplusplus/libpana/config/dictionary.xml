@@ -4,8 +4,8 @@
 <dictionary>
     <!-- *********************** Message types *************************** -->
     <command name="PANA-Client-Initiation" code="1">
-      <requestrules>
-      </requestrules>
+      <answerrules>
+      </answerrules>
     </command>
     <command name="PANA-Start" code="2">
       <requestrules>

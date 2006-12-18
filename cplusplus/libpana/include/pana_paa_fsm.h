@@ -124,8 +124,8 @@ class PANA_PaaEventVariable
                 AAA_LOG((LM_DEBUG, "App[%d] ", m_Event.i.m_Event_App));
             if (m_Event.i.m_Event_Eap)
                 AAA_LOG((LM_DEBUG, "Eap[%d] ", m_Event.i.m_Event_Eap));
-            if (m_Event.i.m_Cfg_PiggyBack)
-                AAA_LOG((LM_DEBUG, "EapPiggy "));
+            if (m_Event.i.m_Cfg_OptimizedHshk)
+                AAA_LOG((LM_DEBUG, "EapOptimized "));
             if (m_Event.i.m_Do_Authorize)
                 AAA_LOG((LM_DEBUG, "DoAuth "));
             if (m_Event.i.m_Do_Ping)

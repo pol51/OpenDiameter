@@ -52,7 +52,7 @@
 class PANA_EXPORT PANA_Node
 {
    public:
-       PANA_Node(AAA_Task &t, std::string &cfg_file) : 
+       PANA_Node(AAA_Task &t, std::string &cfg_file) :
            m_Task(t) {
            Start(cfg_file);
        }

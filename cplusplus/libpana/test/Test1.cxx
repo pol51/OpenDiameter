@@ -524,7 +524,6 @@ int main(int argc, char **argv)
   task.Start(5);
 
   try {
-      PANA_Node node(task, cfgfile);
       if (b_client) {
           PANA_Node node(task, cfgfile);
           PeerApplication peer(node, semaphore);

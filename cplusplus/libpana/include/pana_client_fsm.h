@@ -43,7 +43,6 @@ class PANA_PacEventVariable
     private:
         typedef union {
             struct {
-               ACE_UINT32 m_Ver_Flag            : 1;
                ACE_UINT32 m_Type_Msg            : 5;
 
                ACE_UINT32 m_Event_App           : 4;
@@ -65,7 +64,7 @@ class PANA_PacEventVariable
 
                ACE_UINT32 m_AlgoNotSupported    : 1;
 
-               ACE_UINT32 m_Reserved            : 6;
+               ACE_UINT32 m_Reserved            : 8;
             } i;
             ACE_UINT32 p;
         } EventParams;
@@ -131,8 +130,12 @@ class PANA_PacEventVariable
                 AAA_LOG((LM_DEBUG, "Msg[%d] ", m_Event.i.m_Type_Msg));
             if (m_Event.i.m_Event_App)
                 AAA_LOG((LM_DEBUG, "App[%d] ", m_Event.i.m_Event_App));
+            if (m_Event.i.m_Event_Eap)
+                AAA_LOG((LM_DEBUG, "Eap Event[%d] ", m_Event.i.m_Event_Eap));
             if (m_Event.i.m_Cfg_EapPiggyback)
                 AAA_LOG((LM_DEBUG, "EapPiggy "));
+            if (m_Event.i.m_AlgoNotSupported)
+                AAA_LOG((LM_DEBUG, "Algorithm "));
             if (m_Event.i.m_Do_Ping)
                 AAA_LOG((LM_DEBUG, "DoPing "));
             if (m_Event.i.m_Do_RetryTimeout)
@@ -144,15 +147,13 @@ class PANA_PacEventVariable
             if (m_Event.i.m_Do_SessTimeout)
                 AAA_LOG((LM_DEBUG, "SessTout "));
             if (m_Event.i.m_ResultCode)
-                AAA_LOG((LM_DEBUG, "EAP[%d] ", m_Event.i.m_ResultCode));
+                AAA_LOG((LM_DEBUG, "ResultCode[%d] ", m_Event.i.m_ResultCode));
             if (m_Event.i.m_AvpExist_KeyId)
                 AAA_LOG((LM_DEBUG, "keyId "));
             if (m_Event.i.m_AvpExist_Auth)
                 AAA_LOG((LM_DEBUG, "Auth "));
             if (m_Event.i.m_AvpExist_EapPayload)
                 AAA_LOG((LM_DEBUG, "EapPayload "));
-            if (m_Event.i.m_Event_Eap)
-                AAA_LOG((LM_DEBUG, "Eap[%d] ", m_Event.i.m_Event_Eap));
             AAA_LOG((LM_DEBUG, "\n"));
 #endif
         }

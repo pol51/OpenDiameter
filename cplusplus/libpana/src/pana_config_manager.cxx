@@ -49,8 +49,6 @@ void PANA_CfgManager::open(std::string &cfg_file)
                                    "listen_port", parser);
     OD_Utl_XML_StringElement gen05(m_Data.m_General.m_Dictionary,
                                    "dictionary_filename", parser);
-    OD_Utl_XML_UInt32Element gen06(m_Data.m_General.m_MobilityEnabled,
-                                   "mobility", parser);
     OD_Utl_XML_UInt32Element gen09(m_Data.m_General.m_EapPiggyback,
                                    "eap_piggyback", parser);
     OD_Utl_XML_UInt32Element gen10(m_Data.m_General.m_KeepAliveInterval,
@@ -105,7 +103,6 @@ void PANA_CfgManager::dump()
     AAA_LOG((LM_INFO, "     General configuration\n"));
     AAA_LOG((LM_INFO, "          Listen Port     : %d\n", m_Data.m_General.m_ListenPort));
     AAA_LOG((LM_INFO, "          Dictionary      : %s\n", m_Data.m_General.m_Dictionary.data()));
-    AAA_LOG((LM_INFO, "          Mobility        : %d\n", m_Data.m_General.m_MobilityEnabled));
     AAA_LOG((LM_INFO, "          EAP Piggyback   : %d\n", m_Data.m_General.m_EapPiggyback));
     AAA_LOG((LM_INFO, "          Re-Transmission\n"));
     AAA_LOG((LM_INFO, "                     IRT  : %d\n", m_Data.m_General.m_RT.m_IRT));
@@ -114,7 +111,7 @@ void PANA_CfgManager::dump()
     AAA_LOG((LM_INFO, "                     MRD  : %d\n", m_Data.m_General.m_RT.m_MRD));
     AAA_LOG((LM_INFO, "          Session-Lifetime: %d\n", m_Data.m_General.m_SessionLifetime));
 
-    if (m_Data.m_PaC.m_PaaIpAddress.size() > 0) {
+    if (m_Data.m_PaC.m_PaaPortNumber > 0) {
         AAA_LOG((LM_INFO, "     Client configuration\n"));
         AAA_LOG((LM_INFO, "          PAA IP Adress   : %s\n", m_Data.m_PaC.m_PaaIpAddress.data()));
         AAA_LOG((LM_INFO, "          PAA Port Number : %d\n", m_Data.m_PaC.m_PaaPortNumber));

@@ -90,9 +90,8 @@ bool PANA_SessionTimerInterface::ScheduleTxRetry()
    unsigned int newRt = PANA_CFG_GENERAL().m_RT.m_IRT +
               int(RAND()*float(PANA_CFG_GENERAL().m_RT.m_IRT));
    if (newRt > PANA_CFG_GENERAL().m_RT.m_MRT) {
-       newRt = PANA_CFG_GENERAL().m_RT.m_MRT + 
+       newRt = PANA_CFG_GENERAL().m_RT.m_MRT +
        int(RAND()*float(PANA_CFG_GENERAL().m_RT.m_MRT));
-       return false;
    }
 
    m_Timeout = newRt;
@@ -142,7 +141,7 @@ bool PANA_SessionTimerInterface::ReScheduleTxRetry()
                int(RAND()*float(m_Timeout));
 
    if (newRt > PANA_CFG_GENERAL().m_RT.m_MRT) {
-       newRt = PANA_CFG_GENERAL().m_RT.m_MRT + 
+       newRt = PANA_CFG_GENERAL().m_RT.m_MRT +
        int(RAND()*float(PANA_CFG_GENERAL().m_RT.m_MRT));
    }
 
@@ -707,7 +706,6 @@ bool PANA_Session::TxLastReqMsg()
     }
     else {
         AAA_LOG((LM_INFO, "(%P|%t) Re-transmission giving up\n"));
-        m_Timer.ScheduleSession(0);
     }
     return (false);
 }
@@ -756,7 +754,7 @@ void PANA_Session::Reset()
 
 void PANA_Session::Disconnect(ACE_UINT32 cause)
 {
-   AAA_LOG((LM_INFO, "(%P|%t) Disconnect: cause=%d\n", 
+   AAA_LOG((LM_INFO, "(%P|%t) Disconnect: cause=%d\n",
        cause));
 
    m_Timer.CancelTxRetry();
@@ -768,13 +766,13 @@ void PANA_Session::Disconnect(ACE_UINT32 cause)
 
 void PANA_Session::Error(ACE_UINT32 resultCode)
 {
-   AAA_LOG((LM_INFO, "(%P|%t) Error: result-code=%d\n", 
+   AAA_LOG((LM_INFO, "(%P|%t) Error: result-code=%d\n",
        resultCode));
 
    m_Timer.CancelTxRetry();
    m_Timer.CancelSession();
    m_Timer.CancelEapResponse();
-   m_Event.Error(resultCode); 
+   m_Event.Error(resultCode);
    Reset();
 }
 

@@ -68,7 +68,6 @@ typedef struct  {
     std::string m_Dictionary;
     ACE_UINT32 m_ListenPort;
     ACE_UINT32 m_EapPiggyback;
-    ACE_UINT32 m_MobilityEnabled;
     ACE_UINT32 m_KeepAliveInterval;
     ACE_UINT32 m_WPASupport;
     ACE_UINT32 m_SessionLifetime;

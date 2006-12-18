@@ -62,6 +62,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //  PAC_FOUND) &&                                      IN_INIT
     // OPTIMIZED_HANDSHAKE==Set
     //
+    ev.Reset();
     ev.Event_App(PANA_EV_APP_PAC_FOUND);
     ev.EnableCfg_OptimizedHandshake();
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
@@ -77,6 +78,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     // RTX_PSR=Set              Tx:PSR();
     //                       RtxTimerStart();
     //
+    ev.Reset();
     ev.Event_App(PANA_EV_APP_PAC_FOUND);
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_WAIT_EAP_MSG_IN_INIT,

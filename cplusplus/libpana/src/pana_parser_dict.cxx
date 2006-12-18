@@ -943,7 +943,9 @@ void PANA_LoadXMLDictionary(char* xmlFile)
       if (h->FatalError() || (h->ErrorCount() > 0)) {
           AAA_LOG ((LM_ERROR, ACE_TEXT ("Exception occurred. Exiting...\n")));
           throw;
-      }       
+      }
+
+      AAA_LOG ((LM_INFO, ACE_TEXT ("Dictionary loaded successfully\n")));
    }
    catch (...) {
       exit(1);

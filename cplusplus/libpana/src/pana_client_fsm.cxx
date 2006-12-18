@@ -554,7 +554,6 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //                         Disconnect();
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-    ev.AvpExist_KeyId();
     AddStateTableEntry(PANA_ST_WAIT_EAP_RESULT_CLOSE, ev.Get(),
                        PANA_ST_CLOSED,
                        m_PacWaitEapSuccessExitActionClose);
@@ -1454,9 +1453,12 @@ PANA_PacSession::PANA_PacSession(PANA_Node &n,
                msgHandler(*this, &PANA_PacSession::Receive);
 
    ACE_INET_Addr addr;
-   std::string paaIp = PANA_CFG_PAC().m_PaaIpAddress + ":";
-   paaIp += PANA_CFG_PAC().m_PaaPortNumber;
-   addr.string_to_addr(paaIp.data());
+   char strAddr[64];
+   sprintf(strAddr, "%s:%d", PANA_CFG_PAC().m_PaaIpAddress.data(),
+           PANA_CFG_PAC().m_PaaPortNumber);
+   addr.string_to_addr(strAddr);
+
+   m_PaC.PaaAddress() = addr;
 
    m_Channel.Open(addr);
    m_Channel.RegisterHandler(msgHandler);
