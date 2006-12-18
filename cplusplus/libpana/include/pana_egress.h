@@ -35,7 +35,6 @@
 #define __PANA_EGRESS_H__
 
 #include "pana_session.h"
-#include "pana_io.h"
 #include "framework.h"
 #include "boost/shared_ptr.hpp"
 
@@ -43,9 +42,9 @@ class PANA_EXPORT PANA_EgressSender : public AAA_Job
 {
     public:
         PANA_EgressSender(AAA_GroupedJob &g,
-                          PANA_IO &io,
+                          PANA_Socket &so,
                           boost::shared_ptr<PANA_Message> msg) :
-           m_IO(io),
+           m_Socket(so),
            m_Group(g),
            m_Msg(msg) {
         }
@@ -60,7 +59,7 @@ class PANA_EXPORT PANA_EgressSender : public AAA_Job
         int Serve();
 
     protected:
-        PANA_IO &m_IO;
+        PANA_Socket &m_Socket;
         AAA_GroupedJob &m_Group;
         boost::shared_ptr<PANA_Message> m_Msg;
 };

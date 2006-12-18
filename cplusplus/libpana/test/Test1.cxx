@@ -461,7 +461,7 @@ int main(int argc, char **argv)
 
   // Gather command line options
   ACE_Get_Opt opt(argc, argv, "cf:u:U:P:A:", 1);
-    
+
   for (int c; (c = opt()) != (-1); ) {
       switch (c) {
           case 'f': cfgfile.assign(opt.optarg); break;

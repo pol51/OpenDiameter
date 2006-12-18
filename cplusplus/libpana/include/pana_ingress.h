@@ -36,7 +36,6 @@
 #define __PANA_INGRESS_H__
 
 #include "pana_message.h"
-#include "pana_io.h"
 #include "framework.h"
 #include "pana_memory_manager.h"
 #include "od_utl_patterns.h"
@@ -105,18 +104,23 @@ class PANA_EXPORT PANA_IngressReceiver :
     public PANA_IngressJob
 {
     public:
+      typedef enum {
+          PANA_SOCKET_RECV_TIMEOUT = 3 // sec
+      };
+
+    public:
       PANA_IngressReceiver(AAA_GroupedJob &g,
-                           PANA_IO &io,
+                           PANA_Socket &so,
                            const char *name = "") :
              PANA_IngressJob(g, name),
-                             m_IO(io),
+                             m_Socket(so),
                              m_Running(false) {
       }
       bool Running() {
          return m_Running;
       }
       void Stop() {
-         m_Running = true;
+         m_Socket.close();
       }
       virtual int Serve();
       virtual void Wait() {
@@ -127,7 +131,7 @@ class PANA_EXPORT PANA_IngressReceiver :
       }
 
    protected:
-      PANA_IO &m_IO;
+      PANA_Socket &m_Socket;
       bool m_Running;
 };
 

@@ -38,7 +38,6 @@
 #include "pana_exceptions.h"
 #include "pana_egress.h"
 #include "pana_ingress.h"
-#include "pana_udp_transport.h"
 
 /*
  * PANA transport abstraction
@@ -59,10 +58,12 @@ class PANA_EXPORT PANA_Channel :
         }
         virtual void Open(ACE_INET_Addr &addr) {
             if (m_Socket.open(addr) < 0) {
+                AAA_LOG((LM_ERROR, "(%P|%t) Failed to open socket\n"));
                 throw (PANA_Exception(PANA_Exception::TRANSPORT_FAILED,
                                       "Failed to open device"));
             }
             if (m_Group.Schedule(this) < 0) {
+                AAA_LOG((LM_ERROR, "(%P|%t) Failed to schedule receiver job\n"));
                 throw (PANA_Exception(PANA_Exception::TRANSPORT_FAILED,
                                       "Failed to schedule channel"));
             }

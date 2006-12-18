@@ -9,7 +9,7 @@
              does not bind to any address or interface
              so it will receive Pac messages on any
              interface -->
-        <listen_port>3001</listen_port>
+        <listen_port>3002</listen_port>
 
         <!-- Filename of the parser dictionary -->
         <dictionary_filename>config/dictionary.xml</dictionary_filename>
@@ -63,13 +63,11 @@
 
     <client>
 
-        <!-- Pre-configure IP address of the PAA. If this
-             entry is empty, discovery message will be
-             transmitted using paa_mcast_address. Note
-             that the library automatically detects whether
+        <!-- Pre-configure IP address or hostname of the PAA.
+             Note that the library automatically detects whether
              your are going to use IPv6 or IPv4 based on
              this address -->
-        <paa_ip_address>127.0.0.1</paa_ip_address>
+        <paa_ip_address>localhost</paa_ip_address>
 
         <!-- PAA port number used in conjuction with paa_ip_address -->
         <paa_port_number>3001</paa_port_number>

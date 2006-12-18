@@ -57,8 +57,8 @@ int PANA_EgressSender::Serve()
     hp.parseAppToRaw();
 
     /* --- send the message --- */
-    if (m_IO.send(rawBuf->base(), m_Msg->length(),
-                    m_Msg->destAddress()) < 0) {
+    if (m_Socket.send(rawBuf->base(), m_Msg->length(),
+                      m_Msg->destAddress()) < 0) {
         AAA_LOG((LM_ERROR, "(%P|%t) Transmit error [%s]\n",
                        strerror(errno)));
     }

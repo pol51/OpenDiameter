@@ -88,11 +88,12 @@ int PANA_IngressReceiver::Serve()
     m_Running = true;
     PANA_MessageBuffer *msg_buffer = NULL;
     try {
-        ACE_INET_Addr addr;
         msg_buffer = PANA_MESSAGE_POOL()->malloc();
-        ssize_t bytes = m_IO.recv(msg_buffer->wr_ptr(),
-                                  msg_buffer->size(),
-                                  addr);
+        ACE_INET_Addr srcAddr;
+        ACE_Time_Value tm(PANA_SOCKET_RECV_TIMEOUT, 0);
+        ssize_t bytes = m_Socket.recv(msg_buffer->wr_ptr(),
+                                      msg_buffer->size(),
+                                      srcAddr, 0, &tm);
         if (bytes > 0) {
             if (m_MsgHandler == NULL) {
                 AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] handler absent on %s\n",
@@ -104,7 +105,7 @@ int PANA_IngressReceiver::Serve()
             ACE_NEW_NORETURN(parser,
                              PANA_IngressMsgParser(m_Group,
                                                    *msg_buffer,
-                                                   addr));
+                                                   srcAddr));
             if (parser) {
                 msg_buffer->size(bytes);
                 parser->RegisterHandler(*m_MsgHandler);

@@ -35,6 +35,7 @@
 #define __PANA_DEFS_H__
 
 #include "aaa_parser_api.h"
+#include "ace/SOCK_Dgram.h"
 
 #if _MSC_VER > 1000
 #pragma once
@@ -366,5 +367,10 @@ class PANA_AddrConverter
             }
         }
 };
+
+//
+// Transport considerations
+//
+typedef ACE_SOCK_Dgram   PANA_Socket;
 
 #endif /* __PANA_CORE_H__ */

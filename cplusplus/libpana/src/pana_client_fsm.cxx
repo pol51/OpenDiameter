@@ -1454,12 +1454,16 @@ PANA_PacSession::PANA_PacSession(PANA_Node &n,
 
    ACE_INET_Addr addr;
    char strAddr[64];
+
+   // Setup the known PAA address
    sprintf(strAddr, "%s:%d", PANA_CFG_PAC().m_PaaIpAddress.data(),
            PANA_CFG_PAC().m_PaaPortNumber);
    addr.string_to_addr(strAddr);
-
    m_PaC.PaaAddress() = addr;
 
+   // Listen to a specific port
+   sprintf(strAddr, "%d", PANA_CFG_GENERAL().m_ListenPort);
+   addr.string_to_addr(strAddr);
    m_Channel.Open(addr);
    m_Channel.RegisterHandler(msgHandler);
 
