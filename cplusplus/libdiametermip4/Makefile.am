@@ -56,7 +56,6 @@ sysconf_DATA = config/aaas_s.local.xml \
                config/aaas_s2.local.xml \
                config/client.local.xml \
                config/configuration.xml \
-               config/configuration.xsd \
                config/dictionary.dtd \
                config/dictionary.xml \
                config/fac.local.xml \

@@ -63,10 +63,8 @@
 
     <client>
 
-        <!-- Pre-configure IP address of the PAA. If this
-             entry is empty, discovery message will be
-             transmitted using paa_mcast_address. Note
-             that the library automatically detects whether
+        <!-- Pre-configure IP address or hostname of the PAA.
+             Note that the library automatically detects whether
              your are going to use IPv6 or IPv4 based on
              this address -->
         <paa_ip_address></paa_ip_address>

@@ -38,7 +38,6 @@ include_HEADERS = $(DIAMETER_NASREQ_HDR)
 sysconfdir = $(prefix)/etc/opendiameter/diameternasreq
 sysconf_DATA = config/client.local.xml \
                config/configuration.xml \
-               config/configuration.xsd \
                config/dictionary.dtd \
                config/dictionary.xml \
                config/server.local.xml

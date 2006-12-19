@@ -402,7 +402,6 @@ ARCHIE_SRC = eap-archie/eap_archie_fsm.cxx
 
 include_HEADERS = $(CORE_HDR)
 sysconf_DATA = config/client.eap-tls.xml \
-               config/eap-tls.configuration.xsd \
                config/server.eap-tls.xml
 
 @compile_EAPTLS_FALSE@lib_LTLIBRARIES = libeap.la libeaparchie.la

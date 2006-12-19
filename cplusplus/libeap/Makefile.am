@@ -92,7 +92,6 @@ include_HEADERS = $(CORE_HDR)
 
 sysconfdir = $(prefix)/etc/opendiameter/eap
 sysconf_DATA = config/client.eap-tls.xml \
-               config/eap-tls.configuration.xsd \
                config/server.eap-tls.xml
 
 if compile_EAPTLS

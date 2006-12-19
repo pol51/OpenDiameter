@@ -41,10 +41,8 @@ sysconfdir = $(prefix)/etc/opendiameter/diametereap
 sysconf_DATA = config/client.eap-tls.xml \
                  config/client.local.xml \
                  config/configuration.xml \
-                 config/configuration.xsd \
                  config/dictionary.dtd \
                  config/dictionary.xml \
-                 config/eap-tls.configuration.xsd \
                  config/server.eap-tls.xml \
                  config/server.local.xml
 
