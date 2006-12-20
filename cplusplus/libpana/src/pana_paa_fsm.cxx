@@ -81,7 +81,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     ev.Reset();
     ev.Event_App(PANA_EV_APP_PAC_FOUND);
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
-                       PANA_ST_WAIT_EAP_MSG_IN_INIT,
+                       PANA_ST_WAIT_PAC_IN_INIT,
                        m_PaaExitActionTxPSR);
 
     /////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_REQUEST);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_WAIT_PAC_IN_INIT,
+                       PANA_ST_WAIT_PAC_IN_INIT,
                        m_PaaExitActionTxPSR);
 
     // -----------------------
@@ -158,7 +158,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //                          RtxTimerStop();
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PSA);
-    AddStateTableEntry(PANA_ST_WAIT_WAIT_PAC_IN_INIT, ev.Get(),
+    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
                        PANA_ST_WAIT_EAP_MSG,
                        m_PaaExitActionRxPSA);
 
@@ -174,8 +174,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //                          RtxTimerStart();
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_REQUEST);
-    AddStateTableEntry(PANA_ST_WAIT_WAIT_PAC_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_WAIT_PAC_IN_INIT,
+    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
+                       PANA_ST_WAIT_PAC_IN_INIT,
                        m_PaaExitActionTxPSR);
 
     /////////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    AddStateTableEntry(PANA_ST_WAIT_WAIT_PAC_IN_INIT, ev.Get(),
+    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
                        PANA_ST_CLOSED,
                        m_PaaExitActionTimeout);
 
@@ -196,7 +196,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Do_RetryTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_WAIT_PAC_IN_INIT, ev.Get(),
+    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
                        PANA_ST_CLOSED,
                        m_PaaExitActionTimeout);
 
@@ -208,8 +208,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //
     ev.Reset();
     ev.Do_ReTransmission();
-    AddStateTableEntry(PANA_ST_WAIT_WAIT_PAC_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_WAIT_PAC_IN_INIT,
+    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
+                       PANA_ST_WAIT_PAC_IN_INIT,
                        m_PaaExitActionRetransmission);
 
     // -------------------
@@ -1082,6 +1082,9 @@ class PANA_PsmRxPCI : public PANA_ServerRxStateFilter
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
 
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
           // resolve the event
           PANA_PaaEventVariable ev;
           ev.MsgType(PANA_EV_MTYPE_PCI);
@@ -1099,7 +1102,7 @@ class PANA_PsmRxPSA : public PANA_ServerRxStateFilter
       PANA_PsmRxPSA(PANA_Paa &a, PANA_PaaSession &s) :
           PANA_ServerRxStateFilter(a, s) {
           static PANA_ST validStates[] = { PANA_ST_OFFLINE,
-                                           PANA_ST_WAIT_WAIT_PAC_IN_INIT };
+                                           PANA_ST_WAIT_PAC_IN_INIT };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
       virtual void HandleMessage(PANA_Message &msg) {
@@ -1114,6 +1117,9 @@ class PANA_PsmRxPSA : public PANA_ServerRxStateFilter
 
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
 
           // resolve the event
           PANA_PaaEventVariable ev;
@@ -1149,6 +1155,9 @@ class PANA_PsmRxPBA : public PANA_ServerRxStateFilter
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
 
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
           // resolve the event
           PANA_PaaEventVariable ev;
           ev.MsgType(PANA_EV_MTYPE_PBA);
@@ -1183,6 +1192,9 @@ class PANA_PsmRxPRR : public PANA_ServerRxStateFilter
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
 
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
           // resolve the event
           PANA_PaaEventVariable ev;
           ev.MsgType(PANA_EV_MTYPE_PRR);
@@ -1209,6 +1221,9 @@ class PANA_PsmRxPT : public PANA_ServerRxStateFilter
 
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
 
           // resolve the event
           PANA_PaaEventVariable ev;
@@ -1237,6 +1252,9 @@ class PANA_PsmRxPU : public PANA_ServerRxStateFilter
 
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
 
           // resolve the event
           PANA_PaaEventVariable ev;
@@ -1274,6 +1292,9 @@ class PANA_PsmRxPP : public PANA_ServerRxStateFilter
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
 
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
           // resolve the event
           PANA_PaaEventVariable ev;
           ev.MsgType(msg.flags().request ?
@@ -1300,6 +1321,9 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
 
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
 
           // resolve the event
           PANA_PaaEventVariable ev;
@@ -1346,6 +1370,7 @@ class PANA_PsmRxPE : public PANA_ServerRxStateFilter
           m_arg.PacAddress() = msg.srcAddress();
 
           // tell the session
+          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
           m_arg.RxPER();
 
           // resolve the event
@@ -1359,7 +1384,6 @@ class PANA_PsmRxPE : public PANA_ServerRxStateFilter
           else {
               ev.MsgType(PANA_EV_MTYPE_PEA);
           }
-          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
           m_Session.Notify(ev.Get());
       };
       virtual PANA_ServerRxStateFilter *clone() {

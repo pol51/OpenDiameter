@@ -55,6 +55,7 @@ typedef struct {
     std::string m_PaaIpAddress;
     ACE_UINT32 m_PaaPortNumber;
     ACE_UINT32 m_EapResponseTimeout;
+    ACE_UINT32 m_EapPiggyback;
 } PANA_CfgClient;
 
 // Agent configuration data loaded from XML file
@@ -68,8 +69,6 @@ typedef struct {
 typedef struct  {
     std::string m_Dictionary;
     ACE_UINT32 m_ListenPort;
-    ACE_UINT32 m_EapPiggyback;
-    ACE_UINT32 m_KeepAliveInterval;
     ACE_UINT32 m_WPASupport;
     ACE_UINT32 m_SessionLifetime;
     PANA_CfgRetransmissionParam m_RT;

@@ -227,6 +227,7 @@ void PANA_Session::TxPUA()
     // Populate header
     msg->type() = PANA_MTYPE_PUA;
     msg->seq() = LastRxSeqNum().Value();
+    msg->sessionId() = this->SessionId();
 
     // auth avp if any
     if (SecurityAssociation().Auth().IsSet()) {
@@ -543,12 +544,19 @@ void PANA_Session::TxPER(pana_unsigned32_t rcode)
     rcodeAvp.Get() = ACE_HTONL(rcode);
     msg->avpList().add(rcodeAvp());
 
-    // TBD: Add Failed-AVP and Failed-Message-Header
+    // add Failed-Message-Header
+    PANA_StringAvpWidget failedHeaderAvp(PANA_AVPNAME_FAILEDMSGHDR);
+    failedHeaderAvp.Get().assign((char*)&LastRxHeader(),
+                                 PANA_MsgHeader::HeaderLength);
+    msg->avpList().add(failedHeaderAvp());
 
     // auth avp
     if (SecurityAssociation().Auth().IsSet()) {
         SecurityAssociation().AddAuthAvp(*msg);
     }
+
+    // RtxTimerStop()
+    m_Timer.CancelEapResponse();
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPER: [RCODE=%d] id=%d seq=%d\n", msg->sessionId(), msg->seq()));
 

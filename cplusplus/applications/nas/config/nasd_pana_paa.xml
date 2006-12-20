@@ -14,17 +14,6 @@
         <!-- Filename of the parser dictionary -->
         <dictionary_filename>config/dictionary.xml</dictionary_filename>
 
-        <!-- Session resumption flag -->
-        <mobility>0</mobility>
-
-        <!-- Controls wether EAP payload will be sent
-             in the PSR/PSA message during stateful
-             discovery. Note that this is only
-             valid if use_cookie is 0. Also, if this
-             is set and used, then the separate flag
-             will be ingnored -->
-        <eap_piggyback>0</eap_piggyback>
-
         <!-- Configurable retransmission parameters
              as specified in the PANA draft. See
              Sec 10 of the draft for rules govering
@@ -43,9 +32,6 @@
             <max_rt_duration>120</max_rt_duration>
         </retransmission_param>
 
-        <!-- Re-Auth timer (interval) -->
-        <keep_alive_interval>10</keep_alive_interval>
-
         <!-- WPA (802.11i) bootstrap support 
              A 256-bit PMK key will be generated during the
              Authorize method (and passed to authorization
@@ -57,7 +43,7 @@
              session will end. Note that this can controls
              the deletion of the PANA session whether
              the session was auth successfully or not -->
-        <session_lifetime>360</session_lifetime>
+        <session_lifetime>10</session_lifetime>
 
     </general>
 

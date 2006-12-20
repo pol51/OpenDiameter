@@ -318,7 +318,7 @@ class PeerChannel : public PANA_ClientEventInterface
      switch (testState) { 
         case REAUTH:
           // just for testing -- reauthenticate ourselves
-          pana.EapReAuthenticate();
+          pana.ReAuthenticate();
           testState = UPDATE;
           break;
         case UPDATE: {

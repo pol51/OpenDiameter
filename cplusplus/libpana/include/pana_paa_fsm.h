@@ -108,6 +108,9 @@ class PANA_PaaEventVariable
         void AvpExist_EapPayload(bool set = true) {
             m_Event.i.m_AvpExist_EapPayload = set;
         }
+        void EnableCfg_EapPiggyback(bool set = true) {
+            // un-used, just to satisfy template requirements
+        }
         void Reset() {
             m_Event.p = 0;
         }

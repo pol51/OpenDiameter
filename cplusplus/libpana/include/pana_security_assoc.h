@@ -72,6 +72,13 @@ class PANA_EXPORT PANA_Nonce :
             m_Value.assign((char*)v, sizeof(v));
             m_IsSet = true;
         }
+        void Dump(char *prefix) {
+            printf("%s Nonce value: ", prefix);
+            for (size_t i = 0; i < m_Value.size(); i++) {
+                printf("0x%x ", m_Value.data()[i]);
+            }
+            printf("\n");
+        }
 };
 
 class PANA_EXPORT PANA_MSK :

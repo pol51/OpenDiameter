@@ -212,7 +212,7 @@ class PANA_EXPORT PANA_ClientStateTable :
        };
        class PacWaitEapMsgExitActionTxPANTout : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
-               if (PANA_CFG_GENERAL().m_EapPiggyback) {
+               if (PANA_CFG_PAC().m_EapPiggyback) {
                    c.TxPAN(false);
                }
                c.Timer().CancelEapResponse();
@@ -249,6 +249,7 @@ class PANA_EXPORT PANA_ClientStateTable :
        };
        class PacOpenExitActionRxPAR : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
+               c.NotifyEapRestart();
                c.RxPAR();
            }
        };
@@ -310,6 +311,11 @@ class PANA_EXPORT PANA_ClientStateTable :
                c.TxPEA();
            }
        };
+       class PacExitActionTxPER : public AAA_Action<PANA_Client> {
+           virtual void operator()(PANA_Client &c) {
+               c.TxPER(PANA_ERROR_UNABLE_TO_COMPLY);
+           }
+       };
        class PacWaitPEAExitActionRxPEA : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
                c.RxPEA();
@@ -344,6 +350,7 @@ class PANA_EXPORT PANA_ClientStateTable :
        PacExitActionRetransmission            m_PacExitActionRetransmission;
        PacExitActionTimeout                   m_PacExitActionTimeout;
        PacExitActionTxPEA                     m_PacExitActionTxPEA;
+       PacExitActionTxPER                     m_PacExitActionTxPER;
        PacWaitPEAExitActionRxPEA              m_PacWaitPEAExitActionRxPEA;
 };
 
@@ -361,7 +368,7 @@ class PANA_EXPORT PANA_PacSession : public
       virtual void EapSuccess();
       virtual void EapTimeout();
       virtual void EapFailure();
-      virtual void EapReAuthenticate();
+      virtual void ReAuthenticate();
       virtual void Update(ACE_INET_Addr &addr);
       virtual void Ping();
       virtual void Stop();

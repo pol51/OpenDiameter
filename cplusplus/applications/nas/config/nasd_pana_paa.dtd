@@ -2,20 +2,16 @@
 
      <!ELEMENT pana_configuration (general, (client|agent))>
 
-     <!ELEMENT general (listen_port, dictionary_filename, 
-                        eap_piggyback, retransmission_param,
-                        keep_alive_interval, wpa_bootstrap)>
+     <!ELEMENT general (listen_port, dictionary_filename,
+                        retransmission_param, wpa_bootstrap,
+                        session_lifetime)>
 
      <!ELEMENT listen_port (#PCDATA)>
      <!ELEMENT dictionary_filename (#PCDATA)>
-     <!ELEMENT eap_piggyback (#PCDATA)>
-     <!ELEMENT session_lifetime (#PCDATA)>
-
      <!ELEMENT retransmission_param (initial_rt_timeout, max_rt_count,
                                      max_rt_timeout, max_rt_duration)>
-
-     <!ELEMENT keep_alive_interval (#PCDATA)>
      <!ELEMENT wpa_bootstrap (#PCDATA)>
+     <!ELEMENT session_lifetime (#PCDATA)>
 
      <!ELEMENT initial_rt_timeout (#PCDATA)>
      <!ELEMENT max_rt_count (#PCDATA)>
@@ -23,10 +19,12 @@
      <!ELEMENT max_rt_duration (#PCDATA)>
 
      <!ELEMENT client (paa_ip_address, paa_port_number,
-                       eap_response_timeout)>
+                       eap_response_timeout, eap_piggyback)>
 
      <!ELEMENT paa_ip_address (#PCDATA)>
      <!ELEMENT paa_port_number (#PCDATA)>
+     <!ELEMENT eap_response_timeout (#PCDATA)>
+     <!ELEMENT eap_piggyback (#PCDATA)>
 
      <!ELEMENT agent (optimized_handshake, carry_lifetime, retry_psr)>
 

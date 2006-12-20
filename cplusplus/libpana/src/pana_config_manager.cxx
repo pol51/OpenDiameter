@@ -47,15 +47,11 @@ void PANA_CfgManager::open(std::string &cfg_file)
     // General Section
     OD_Utl_XML_UInt32Element gen01(m_Data.m_General.m_ListenPort,
                                    "listen_port", parser);
-    OD_Utl_XML_StringElement gen05(m_Data.m_General.m_Dictionary,
+    OD_Utl_XML_StringElement gen02(m_Data.m_General.m_Dictionary,
                                    "dictionary_filename", parser);
-    OD_Utl_XML_UInt32Element gen09(m_Data.m_General.m_EapPiggyback,
-                                   "eap_piggyback", parser);
-    OD_Utl_XML_UInt32Element gen10(m_Data.m_General.m_KeepAliveInterval,
-                                   "keep_alive_interval", parser);
-    OD_Utl_XML_UInt32Element gen11(m_Data.m_General.m_WPASupport,
+    OD_Utl_XML_UInt32Element gen04(m_Data.m_General.m_WPASupport,
                                    "wpa_bootstrap", parser);
-    OD_Utl_XML_UInt32Element gen12(m_Data.m_General.m_SessionLifetime,
+    OD_Utl_XML_UInt32Element gen05(m_Data.m_General.m_SessionLifetime,
                                    "session_lifetime", parser);
 
     // re-transmission section
@@ -75,6 +71,8 @@ void PANA_CfgManager::open(std::string &cfg_file)
                                    "paa_port_number", parser);
     OD_Utl_XML_UInt32Element pac03(m_Data.m_PaC.m_EapResponseTimeout,
                                    "eap_response_timeout", parser);
+    OD_Utl_XML_UInt32Element pac04(m_Data.m_PaC.m_EapPiggyback,
+                                   "eap_piggyback", parser);
 
     // Agent config
     OD_Utl_XML_UInt32Element paa01(m_Data.m_Paa.m_OptimizedHandshake,
@@ -105,7 +103,6 @@ void PANA_CfgManager::dump()
     AAA_LOG((LM_INFO, "     General configuration\n"));
     AAA_LOG((LM_INFO, "          Listen Port     : %d\n", m_Data.m_General.m_ListenPort));
     AAA_LOG((LM_INFO, "          Dictionary      : %s\n", m_Data.m_General.m_Dictionary.data()));
-    AAA_LOG((LM_INFO, "          EAP Piggyback   : %d\n", m_Data.m_General.m_EapPiggyback));
     AAA_LOG((LM_INFO, "          Re-Transmission\n"));
     AAA_LOG((LM_INFO, "                     IRT  : %d\n", m_Data.m_General.m_RT.m_IRT));
     AAA_LOG((LM_INFO, "                     MRC  : %d\n", m_Data.m_General.m_RT.m_MRC));
@@ -115,9 +112,10 @@ void PANA_CfgManager::dump()
 
     if (m_Data.m_PaC.m_PaaPortNumber > 0) {
         AAA_LOG((LM_INFO, "     Client configuration\n"));
-        AAA_LOG((LM_INFO, "          PAA IP Adress   : %s\n", m_Data.m_PaC.m_PaaIpAddress.data()));
+        AAA_LOG((LM_INFO, "           PAA IP Adress  : %s\n", m_Data.m_PaC.m_PaaIpAddress.data()));
         AAA_LOG((LM_INFO, "          PAA Port Number : %d\n", m_Data.m_PaC.m_PaaPortNumber));
         AAA_LOG((LM_INFO, "     EAP Response Timeout : %d\n", m_Data.m_PaC.m_EapResponseTimeout));
+        AAA_LOG((LM_INFO, "            EAP Piggyback : %d\n", m_Data.m_PaC.m_EapPiggyback));
     }
     else {
         AAA_LOG((LM_INFO, "        PAA configuration\n"));

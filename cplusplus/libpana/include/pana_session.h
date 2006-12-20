@@ -109,6 +109,9 @@ class PANA_SessionAttribute {
        ACE_UINT32 &SessionLifetime() {
            return m_SessionLifetime;
        }
+       PANA_MsgHeader &LastRxHeader() {
+           return m_LastRxHeader;
+       }
        virtual void Reset();
 
     private:
@@ -120,6 +123,7 @@ class PANA_SessionAttribute {
        boost::shared_ptr<PANA_Message> m_LastTxReqMsg; // last transmitted message
        boost::shared_ptr<PANA_Message> m_CachedAnsMsg; // cached message
        ACE_UINT32 m_SessionLifetime; // negotiated session lifetime
+       PANA_MsgHeader m_LastRxHeader; // Header of the last received message
 };
 
 typedef enum {

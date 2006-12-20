@@ -204,17 +204,17 @@ void PANA_Client::RxPAR()
 
     // Stop any RtxTimerStop()
     m_Timer.CancelTxRetry();
-    m_Timer.CancelEapResponse();
 
     // update paa nonce
     PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
     pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && ! SecurityAssociation().PaaNonce().IsSet()) {
         SecurityAssociation().PaaNonce().Set(*nonce);
+        SecurityAssociation().PaaNonce().Dump("PAA");
     }
 
     // EAP piggyback check
-    if (! PANA_CFG_GENERAL().m_EapPiggyback) {
+    if (! PANA_CFG_PAC().m_EapPiggyback) {
         TxPAN(false);
     }
 
@@ -327,6 +327,7 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
     // add pac nonce
     if (! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Generate();
+        SecurityAssociation().PacNonce().Dump("PaC");
 
         pana_octetstring_t &nonce = SecurityAssociation().PacNonce().Get();
         PANA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);

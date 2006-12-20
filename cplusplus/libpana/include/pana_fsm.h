@@ -44,7 +44,7 @@
 typedef enum {
   PANA_ST_OFFLINE = 1,
   PANA_ST_WAIT_EAP_MSG_IN_INIT,
-  PANA_ST_WAIT_WAIT_PAC_IN_INIT,
+  PANA_ST_WAIT_PAC_IN_INIT,
   PANA_ST_WAIT_PAA,
   PANA_ST_WAIT_SUCC_PBA,
   PANA_ST_WAIT_FAIL_PBA,
@@ -123,6 +123,9 @@ class FsmTimer : public PANA_SessionTimerInterface {
                  ev.Do_SessTimeout();
                  break;
              case PANA_TID_EAP_RESP:
+                 if (PANA_CFG_PAC().m_EapPiggyback) {
+                     ev.EnableCfg_EapPiggyback();
+                 }
                  ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
                  break;
           }
@@ -138,6 +141,9 @@ class FsmTimer : public PANA_SessionTimerInterface {
                  ev.Do_SessTimeout();
                  break;
              case PANA_TID_EAP_RESP:
+                 if (PANA_CFG_PAC().m_EapPiggyback) {
+                     ev.EnableCfg_EapPiggyback();
+                 }
                  ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
                  break;
           }
@@ -282,7 +288,7 @@ class PANA_EXPORT PANA_StateMachine :
        const char *StrState(int state) {
            static char *str[] = { "OFFLINE",
                                   "WAIT_EAP_MSG_IN_INIT",
-                                  "WAIT_WAIT_PAC_IN_INIT",
+                                  "WAIT_PAC_IN_INIT",
                                   "WAIT_PAA",
                                   "WAIT_SUCC_PBA",
                                   "WAIT_FAIL_PBA",

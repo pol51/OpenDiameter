@@ -175,19 +175,22 @@ void PANA_Paa::RxPSA()
 
     if ((PANA_CFG_PAA().m_OptimizedHandshake == 0) &&
         (PANA_CFG_PAA().m_RetryPSR == 0)) {
+        // Rx:PSA in OFFLINE state
         NotifyEapRestart();
     }
     else {
+        // Rx:PSA in WAIT_PAC_IN_INIT state
         if (PANA_CFG_PAA().m_RetryPSR) {
             m_Timer.CancelTxRetry();
         }
 
-        if (PANA_CFG_PAA().m_OptimizedHandshake) {
-            PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-            pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
-            if (payload) {
-                NotifyEapResponse(*payload);
-            }
+        PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+        pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+        if (payload) {
+            NotifyEapResponse(*payload);
+        }
+        else {
+            NotifyEapRestart();
         }
     }
 }
@@ -454,6 +457,8 @@ void PANA_Paa::RxPAN()
     pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && ! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Set(*nonce);
+        SecurityAssociation().PaaNonce().Dump("PAA");
+        SecurityAssociation().PacNonce().Dump("PaC");
     }
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());

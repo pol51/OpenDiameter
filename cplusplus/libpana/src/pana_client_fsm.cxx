@@ -200,6 +200,14 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
                        PANA_ST_OFFLINE,
                        m_PacExitActionTimeout);
+    // Required to deal with eap piggyback enabled flag enabled
+    // during call to ScheduleEapResponse(..) method
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
+    ev.EnableCfg_EapPiggyback();
+    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
+                       PANA_ST_OFFLINE,
+                       m_PacExitActionTimeout);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
@@ -423,31 +431,32 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacWaitEapMsgExitActionTxPANTout);
 
     /////////////////////////////////////////////////////////////////
+    // EAP_RESP_TIMEOUT &&      None()                     WAIT_EAP_MSG
+    // !eap_piggyback()
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
+    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
+                       PANA_ST_WAIT_EAP_MSG);
+
+    /////////////////////////////////////////////////////////////////
     // EAP_INVALID_MSG ||       Tx:PER();                  WAIT_PEA
     // EAP_SUCCESS ||           RtxTimerStart();
-    // EAP_FAILURE ||
-    // (EAP_RESP_TIMEOUT &&
-    //  !eap_piggyback())
+    // EAP_FAILURE
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPER);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPER);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPEA);
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPER);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
@@ -759,9 +768,9 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // ----------------
 
     /////////////////////////////////////////////////////////////////
-    // - - - - - - - - -(liveness test initiated by PAA) - - - - - - -
-    // Rx:PRA                   RtxTimerStop();            WAIT_PAA
-    //
+    // - - - - - - - - -(re-authentication initiated by PaC) - - - - -
+    // Rx:PRA                  RtxTimerStop();            WAIT_PAA
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PRA);
     AddStateTableEntry(PANA_ST_WAIT_PRA, ev.Get(),
@@ -845,13 +854,13 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // ----------------
 
     /////////////////////////////////////////////////////////////////
-    // - - - - - - - - -(re-authentication initiated by PaC) - - - - -
-    // Rx:PRA                  RtxTimerStop();            WAIT_PAA
+    // - - - - - - - - -(liveness test initiated by PAA) - - - - - - -
+    // Rx:PPA                   RtxTimerStop();            OPEN
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PPA);
     AddStateTableEntry(PANA_ST_WAIT_PPA, ev.Get(),
-                       PANA_ST_WAIT_PAA,
+                       PANA_ST_OPEN,
                        m_PacWaitPPAExitActionRxPPA);
 
     /////////////////////////////////////////////////////////////////
@@ -1120,6 +1129,29 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacExitActionTimeout);
 
     /////////////////////////////////////////////////////////////////
+    // RTX_TIMEOUT &&           Disconnect();              CLOSED
+    // RTX_COUNTER>=
+    // RTX_MAX_NUM
+    //
+    ev.Reset();
+    ev.Do_RetryTimeout();
+    AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
+                       PANA_ST_CLOSED,
+                       m_PacExitActionTimeout);
+
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - (Reach maximum number of retransmission)- - - 
+    // RTX_TIMEOUT &&           Retransmit();              (no change)
+    // RTX_COUNTER<
+    // RTX_MAX_NUM
+    //
+    ev.Reset();
+    ev.Do_ReTransmission();
+    AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
+                       PANA_ST_WAIT_PEA,
+                       m_PacExitActionRetransmission);
+
+    /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
     //
 #if !defined(PANA_DEBUG)
@@ -1166,6 +1198,9 @@ class PANA_CsmRxPSR : public PANA_ClientRxStateFilter
 
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
+
+         // save last received header
+         m_arg.LastRxHeader() = msg;
 
          // resolve the event
          PANA_PacEventVariable ev;
@@ -1216,11 +1251,14 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
 
+         // save last received header
+         m_arg.LastRxHeader() = msg;
+
          // resolve the event
          PANA_PacEventVariable ev;
          if (msg.flags().request) {
             ev.MsgType(PANA_EV_MTYPE_PAR);
-            ev.EnableCfg_EapPiggyback(PANA_CFG_GENERAL().m_EapPiggyback ? 1 : 0);
+            ev.EnableCfg_EapPiggyback(PANA_CFG_PAC().m_EapPiggyback ? 1 : 0);
          }
          else {
             ev.MsgType(PANA_EV_MTYPE_PAN);
@@ -1253,6 +1291,9 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
 
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
+
+         // save last received header
+         m_arg.LastRxHeader() = msg;
 
          // resolve the event
          PANA_PacEventVariable ev;
@@ -1302,6 +1343,9 @@ class PANA_CsmRxPP : public PANA_ClientRxStateFilter
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
 
+         // save last received header
+         m_arg.LastRxHeader() = msg;
+
          // resolve the event
          PANA_PacEventVariable ev;
          ev.MsgType(msg.flags().request ?
@@ -1330,6 +1374,9 @@ class PANA_CsmRxPU : public PANA_ClientRxStateFilter
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
 
+         // save last received header
+         m_arg.LastRxHeader() = msg;
+
          // resolve the event
          PANA_PacEventVariable ev;
          ev.MsgType(msg.flags().request ?
@@ -1357,6 +1404,9 @@ class PANA_CsmRxPT : public PANA_ClientRxStateFilter
 
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
+
+         // save last received header
+         m_arg.LastRxHeader() = msg;
 
          // resolve the event
          PANA_PacEventVariable ev;
@@ -1391,6 +1441,9 @@ class PANA_CsmRxPRA : public PANA_ClientRxStateFilter
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
 
+         // save last received header
+         m_arg.LastRxHeader() = msg;
+
          // resolve the event
          PANA_PacEventVariable ev;
          ev.MsgType(PANA_EV_MTYPE_PRA);
@@ -1419,10 +1472,9 @@ class PANA_CsmRxPE : public PANA_ClientRxStateFilter
       virtual void HandleMessage(PANA_Message &msg) {
           // first level validation
           m_arg.RxValidateMsg(msg);
-          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
 
-         // save address of Paa
-         m_arg.PaaAddress() = msg.srcAddress();
+          // save address of Paa
+          m_arg.PaaAddress() = msg.srcAddress();
 
           // resolve the event
           PANA_PacEventVariable ev;
@@ -1435,6 +1487,8 @@ class PANA_CsmRxPE : public PANA_ClientRxStateFilter
                       ev.Do_FatalError();
                   }
               }
+              // tell the session
+              m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
               m_arg.RxPER();
           }
           else {
@@ -1540,7 +1594,7 @@ void PANA_PacSession::EapSendResponse(AAAMessageBlock *response)
    m_PaC.AuxVariables().TxEapMessageQueue().Enqueue(guard.Release());
    PANA_PacEventVariable ev;
    ev.Event_Eap(PANA_EV_EAP_RESPONSE);
-   if (PANA_CFG_GENERAL().m_EapPiggyback) {
+   if (PANA_CFG_PAC().m_EapPiggyback) {
        ev.EnableCfg_EapPiggyback();
    }
    Notify(ev.Get());
@@ -1566,8 +1620,7 @@ void PANA_PacSession::EapSuccess()
 void PANA_PacSession::EapTimeout()
 {
    PANA_PacEventVariable ev;
-   ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
-   ev.EnableCfg_EapPiggyback(PANA_CFG_GENERAL().m_EapPiggyback ? 1 : 0);
+   ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
    Notify(ev.Get());
 }
 
@@ -1581,7 +1634,7 @@ void PANA_PacSession::EapFailure()
    Notify(ev.Get());
 }
 
-void PANA_PacSession::EapReAuthenticate()
+void PANA_PacSession::ReAuthenticate()
 {
    PANA_PacEventVariable ev;
    ev.Event_App(PANA_EV_APP_REAUTH);
