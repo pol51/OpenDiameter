@@ -368,6 +368,7 @@ libdiameter_la_AR = $(AR) -qcs
 include_HEADERS = $(INC)
 sysconf_DATA = config/agent.local.xml \
                config/configuration.xml \
+               config/configuration.dtd \
                config/dictionary.dtd \
                config/dictionary.xml \
                config/isp.local.xml \

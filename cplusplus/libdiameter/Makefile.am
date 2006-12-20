@@ -77,6 +77,7 @@ include_HEADERS = $(INC)
 sysconfdir = $(prefix)/etc/opendiameter/diameter
 sysconf_DATA = config/agent.local.xml \
                config/configuration.xml \
+               config/configuration.dtd \
                config/dictionary.dtd \
                config/dictionary.xml \
                config/isp.local.xml \

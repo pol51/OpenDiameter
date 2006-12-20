@@ -32,16 +32,13 @@ AM_LDFLAGS = @L_LDFLAGS@
 bin_PROGRAMS = nasd
 sysconfdir = $(prefix)/etc/opendiameter/nasd
 nobase_sysconf_DATA = config/nasd.xml \
-                      config/nasd.xsd \
                       config/nasd_diameter_eap.xml \
-                      config/nasd_diameter_eap.xsd \
                       config/nasd_diameter_eap_dictionary.dtd \
                       config/nasd_diameter_eap_dictionary.xml \
                       config/nasd_eap_shared_secret.bin \
                       config/nasd_pana_dictionary.dtd \
                       config/nasd_pana_dictionary.xml \
-                      config/nasd_pana_paa.xml \
-                      config/nasd_pana_paa.xsd
+                      config/nasd_pana_paa.xml
 
 nasd_SOURCES = $(SRC) $(HDR)
 nasd_LDADD = @L_LIBS@ \

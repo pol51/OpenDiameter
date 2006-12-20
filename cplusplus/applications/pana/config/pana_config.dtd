@@ -22,7 +22,8 @@
      <!ELEMENT max_rt_timeout (#PCDATA)>
      <!ELEMENT max_rt_duration (#PCDATA)>
 
-     <!ELEMENT client (paa_ip_address, paa_port_number)>
+     <!ELEMENT client (paa_ip_address, paa_port_number,
+                       eap_response_timeout)>
 
      <!ELEMENT paa_ip_address (#PCDATA)>
      <!ELEMENT paa_port_number (#PCDATA)>

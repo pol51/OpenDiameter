@@ -28,14 +28,11 @@ AM_LDFLAGS = @L_LDFLAGS@
 bin_PROGRAMS = aaad
 sysconfdir = $(prefix)/etc/opendiameter/aaad
 nobase_sysconf_DATA = config/aaad.xml \
-                      config/aaad.xsd \
                       config/aaad_diameter_dictionary.dtd \
                       config/aaad_diameter_dictionary.xml \
                       config/aaad_diameter_server.xml \
-                      config/aaad_diameter_server.xsd \
                       config/aaad_eap_shared_secret.bin \
-                      config/aaad_user_db.xml \
-                      config/aaad_user_db.xsd
+                      config/aaad_user_db.xml
 
 aaad_SOURCES = $(SRC) $(HDR) 
 aaad_LDADD = $(top_builddir)/libeap/libeap.la \
