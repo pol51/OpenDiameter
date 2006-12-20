@@ -77,6 +77,7 @@ void PANA_Paa::NotifyAuthorization()
 
 void PANA_Paa::NotifyEapRestart()
 {
+    m_Timer.CancelSession();
     m_Event.EapStart();
 }
 
@@ -457,8 +458,6 @@ void PANA_Paa::RxPAN()
     pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && ! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Set(*nonce);
-        SecurityAssociation().PaaNonce().Dump("PAA");
-        SecurityAssociation().PacNonce().Dump("PaC");
     }
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());

@@ -37,6 +37,8 @@
 #include "pana_memory_manager.h"
 #include "pana_parser.h"
 
+ACE_UINT32 PANA_MSK::m_GlobalId = 0;
+
 void PANA_AuthKey::Generate(PANA_Nonce &pac,
                             PANA_Nonce &paa,
                             pana_octetstring_t &msk,
@@ -78,6 +80,7 @@ void PANA_AuthKey::Generate(PANA_Nonce &pac,
         printf("%02X ", (unsigned char)((char*)paa.Get().data())[i]);
     }
     printf("\n");
+    printf("Key ID: %d\n", keyId);
 #endif
 
     OD_Utl_Sha1 sha1;

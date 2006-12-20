@@ -54,6 +54,7 @@ PANA_Client::PANA_Client(PANA_SessionTxInterface &tp,
 
 void PANA_Client::NotifyEapRestart()
 {
+    m_Timer.CancelSession();
     m_Event.EapStart();
 }
 
@@ -210,7 +211,6 @@ void PANA_Client::RxPAR()
     pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
     if (nonce && ! SecurityAssociation().PaaNonce().IsSet()) {
         SecurityAssociation().PaaNonce().Set(*nonce);
-        SecurityAssociation().PaaNonce().Dump("PAA");
     }
 
     // EAP piggyback check
@@ -327,7 +327,6 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
     // add pac nonce
     if (! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Generate();
-        SecurityAssociation().PacNonce().Dump("PaC");
 
         pana_octetstring_t &nonce = SecurityAssociation().PacNonce().Get();
         PANA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
@@ -399,7 +398,7 @@ void PANA_Client::RxPBR()
     PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
     pana_unsigned32_t *pKeyId = rcodeAvp.GetAvp(PANA_AVPNAME_KEYID);
     if (pKeyId) {
-        SecurityAssociation().MSK().Id() = *pKeyId;
+        SecurityAssociation().MSK().Id() = ACE_NTOHL(*pKeyId);
     }
 
     // extract eap

@@ -252,7 +252,7 @@ class PeerApplication : public AAA_JobData,
      PANA_AuthScriptCtl::Print(args);
      static bool reauth = false;
      if (! reauth) {
-         pacSession.EapReAuthenticate();
+         pacSession.ReAuthenticate();
          reauth = true;
      }
   }
