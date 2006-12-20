@@ -75,6 +75,7 @@ int PANA_IngressMsgParser::Serve()
                   e.description().data()));
     }
     catch (...) {
+       AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECEIVER] Unknown error\n"));
     }
 
     // release the raw buffer and device id containers

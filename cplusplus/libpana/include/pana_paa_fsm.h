@@ -402,6 +402,9 @@ class PANA_EXPORT PANA_PaaSession : public
       ACE_UINT32 &SessionId() {
          return m_PAA.SessionId();
       }
+      ACE_INET_Addr &PacAddress() {
+         return m_PAA.PacAddress();
+      }
 
    private:
       void InitializeMsgMaps();

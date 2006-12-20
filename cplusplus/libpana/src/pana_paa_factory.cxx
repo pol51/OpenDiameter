@@ -58,8 +58,8 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
       return;
    }
    catch (...) {
+      AAA_LOG((LM_ERROR, "(%P|%t) Unknown error receipt of msg, discarding: seq=%d\n", msg.seq()));
    }
-   AAA_LOG((LM_ERROR, "(%P|%t) Unknown error when looking up session for a message, discarding: seq=%d\n", msg.seq()));
 }
 
 void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
@@ -86,8 +86,13 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
                                "Failed to auth agent session"));
        }
 
+       AAA_LOG((LM_INFO, "(%P|%t) Found a new PaC, created a session for it\n"));
+
        // add new session into database
        PANA_SESSIONDB_ADD(session->SessionId(), *session);
+
+       // save PaC address
+       session->PacAddress() = addr;
 
        // notify session
        PANA_PaaEventVariable ev;

@@ -244,7 +244,7 @@ class PeerApplication : public AAA_JobData,
      eap->Start();
   }
   void EapRequest(AAAMessageBlock *request) {
-     eap->Receive(request);
+     //eap->Receive(request);
   }
   void EapAltReject() {
   }

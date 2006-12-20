@@ -73,6 +73,8 @@ void PANA_CfgManager::open(std::string &cfg_file)
                                    "paa_ip_address", parser);
     OD_Utl_XML_UInt32Element pac02(m_Data.m_PaC.m_PaaPortNumber,
                                    "paa_port_number", parser);
+    OD_Utl_XML_UInt32Element pac03(m_Data.m_PaC.m_EapResponseTimeout,
+                                   "eap_response_timeout", parser);
 
     // Agent config
     OD_Utl_XML_UInt32Element paa01(m_Data.m_Paa.m_OptimizedHandshake,
@@ -115,10 +117,11 @@ void PANA_CfgManager::dump()
         AAA_LOG((LM_INFO, "     Client configuration\n"));
         AAA_LOG((LM_INFO, "          PAA IP Adress   : %s\n", m_Data.m_PaC.m_PaaIpAddress.data()));
         AAA_LOG((LM_INFO, "          PAA Port Number : %d\n", m_Data.m_PaC.m_PaaPortNumber));
+        AAA_LOG((LM_INFO, "     EAP Response Timeout : %d\n", m_Data.m_PaC.m_EapResponseTimeout));
     }
     else {
         AAA_LOG((LM_INFO, "        PAA configuration\n"));
-        AAA_LOG((LM_INFO, "      Optimized Handshake : %s\n", m_Data.m_Paa.m_OptimizedHandshake));
+        AAA_LOG((LM_INFO, "      Optimized Handshake : %d\n", m_Data.m_Paa.m_OptimizedHandshake));
         AAA_LOG((LM_INFO, "           Carry Lifetime : %d\n", m_Data.m_Paa.m_CarryLifetime));
         AAA_LOG((LM_INFO, "                Retry PSR : %d\n", m_Data.m_Paa.m_RetryPSR));
     }

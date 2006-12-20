@@ -196,9 +196,10 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // EAP_RESP_TIMEOUT         None();                    OFFLINE
     //
     ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
+    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
-                       PANA_ST_OFFLINE);
+                       PANA_ST_OFFLINE,
+                       m_PacExitActionTimeout);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
@@ -416,28 +417,37 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //                          Tx:PAN();
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
+    ev.EnableCfg_EapPiggyback();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_PAA,
                        m_PacWaitEapMsgExitActionTxPANTout);
 
     /////////////////////////////////////////////////////////////////
-    // EAP_INVALID_MSG ||       None();                    WAIT_PAA
-    // EAP_SUCCESS ||
+    // EAP_INVALID_MSG ||       Tx:PER();                  WAIT_PEA
+    // EAP_SUCCESS ||           RtxTimerStart();
     // EAP_FAILURE ||
     // (EAP_RESP_TIMEOUT &&
     //  !eap_piggyback())
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_PAA);
+                       PANA_ST_WAIT_PEA,
+                       m_PacExitActionTxPEA);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_PAA);
+                       PANA_ST_WAIT_PEA,
+                       m_PacExitActionTxPEA);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_PAA);
+                       PANA_ST_WAIT_PEA,
+                       m_PacExitActionTxPEA);
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
+    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
+                       PANA_ST_WAIT_PEA,
+                       m_PacExitActionTxPEA);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
@@ -452,8 +462,8 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
                         // PER.exist_avp("AUTH") &&
                         // key_available()
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(), 
-                       PANA_ST_CLOSED, 
+    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
+                       PANA_ST_CLOSED,
                        m_PacExitActionTxPEA);
 
     /////////////////////////////////////////////////////////////////
@@ -841,7 +851,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PPA);
     AddStateTableEntry(PANA_ST_WAIT_PPA, ev.Get(),
-                       PANA_ST_OPEN,
+                       PANA_ST_WAIT_PAA,
                        m_PacWaitPPAExitActionRxPPA);
 
     /////////////////////////////////////////////////////////////////
@@ -1397,8 +1407,7 @@ class PANA_CsmRxPE : public PANA_ClientRxStateFilter
    public:
       PANA_CsmRxPE(PANA_Client &c, PANA_PacSession &s) :
          PANA_ClientRxStateFilter(c, s) {
-          static PANA_ST validStates[] = { PANA_ST_OFFLINE,
-                                           PANA_ST_WAIT_PAA,
+          static PANA_ST validStates[] = { PANA_ST_WAIT_PAA,
                                            PANA_ST_OPEN,
                                            PANA_ST_WAIT_EAP_MSG,
                                            PANA_ST_WAIT_PRA,

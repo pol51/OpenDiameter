@@ -79,15 +79,15 @@ includedir = $(prefix)/include/opendiameter/pana
 include_HEADERS = $(PANA_HDRS)
 
 sysconfdir = $(prefix)/etc/opendiameter/pana
-sysconf_DATA = config/config.xsd \
-               config/dictionary.dtd \
+sysconf_DATA = config/dictionary.dtd \
                config/dictionary.xml \
                config/paa.xml \
                config/pac.xml \
+               config/config.dtd \
                config/pana_auth.bat \
                config/shared_secret.bin \
-               config/users.xml \
-               config/users.xsd
+               config/users.dtd \
+               config/users.xml
 
 lib_LTLIBRARIES = libpana.la
 libpana_la_SOURCES = $(PANA_SRC) $(PANA_HDRS) $(PLATFORM_SRC)

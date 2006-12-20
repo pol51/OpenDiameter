@@ -523,7 +523,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     ev.Reset();
     ev.Event_App(PANA_EV_APP_PING);
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
-                       PANA_ST_WAIT_PAA,
+                       PANA_ST_WAIT_PPA,
                        m_PaaOpenExitActionTxPPR);
 
     /////////////////////////////////////////////////////////////////
@@ -897,6 +897,14 @@ PANA_PaaStateTable::PANA_PaaStateTable()
                        PANA_ST_WAIT_PUA,
                        m_PaaExitActionTxPEA);
 
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - (Catch all processing)- -
+    //
+#if !defined(PANA_DEBUG)
+    AddWildcardStateTableEntry(PANA_ST_WAIT_PUA,
+                               PANA_ST_WAIT_PUA);
+#endif
+
     // ----------------
     // State: SESS_TERM
     // ----------------
@@ -1029,36 +1037,6 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
                        PANA_ST_WAIT_PEA,
                        m_PaaExitActionRetransmission);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - (PANA-Error-Message-Processing)- -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
-    ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
-                        // PER.exist_avp("AUTH") &&
-                        // key_available()
-    AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PaaExitActionTxPEA);
-
-    /////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
-    // !fatal
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
-    // !key_available()
-    //
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
-    AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
-                       PANA_ST_WAIT_PEA,
-                       m_PaaExitActionTxPEA);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -

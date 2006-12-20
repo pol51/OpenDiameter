@@ -72,6 +72,11 @@
         <!-- PAA port number used in conjuction with paa_ip_address -->
         <paa_port_number>3001</paa_port_number>
 
+        <!-- eap response timeout. Number of seconds the EAP layer
+             is allowed to send an EAP response before an EAP_RESP_TIMEOUT
+             event occurs -->
+        <eap_response_timeout>3</eap_response_timeout>
+
     </client>
 
 </pana_configuration>

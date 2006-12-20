@@ -282,7 +282,7 @@ class PANA_EXPORT PANA_StateMachine :
        const char *StrState(int state) {
            static char *str[] = { "OFFLINE",
                                   "WAIT_EAP_MSG_IN_INIT",
-                                  "STATEFUL_INIT",
+                                  "WAIT_WAIT_PAC_IN_INIT",
                                   "WAIT_PAA",
                                   "WAIT_SUCC_PBA",
                                   "WAIT_FAIL_PBA",
@@ -340,10 +340,10 @@ class PANA_SessionRxStateFilter : public PANA_SessionRxInterface<ARG>
 
    protected:
       SESSION &m_Session;
-    
+
    private:
       PANA_ST *m_AllowedStates;
-      int m_Count; 
+      int m_Count;
 };
 
 #endif // __PANA_FSM_H__

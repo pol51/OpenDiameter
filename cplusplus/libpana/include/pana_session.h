@@ -236,8 +236,9 @@ class PANA_SessionTimerInterface
         }
 
         // for eap response timer only
-        bool ScheduleEapResponse(ACE_UINT32 sec) {
-            Schedule(PANA_TID_EAP_RESP, sec);
+        bool ScheduleEapResponse() {
+            Schedule(PANA_TID_EAP_RESP,
+                     PANA_CFG_PAC().m_EapResponseTimeout);
             return true;
         }
         void CancelEapResponse() {

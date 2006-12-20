@@ -38,6 +38,8 @@
 #include "pana_fsm.h"
 #include "pana_client.h"
 
+#define PANA_DEBUG 1
+
 class PANA_PacEventVariable
 {
     private:

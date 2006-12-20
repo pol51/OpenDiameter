@@ -80,8 +80,8 @@ void PANA_Client::NotifyEapRequest(pana_octetstring_t &payload)
     if (block) {
         block->copy((char*)payload.data(), payload.size());
         block->wr_ptr(block->base());
+        block->rd_ptr(block->base());
         static_cast<PANA_ClientEventInterface&>(m_Event).EapRequest(block);
-        block->Release();
     }
 }
 
@@ -116,6 +116,7 @@ void PANA_Client::RxPSR()
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
        NotifyEapRequest(*payload);
+       m_Timer.ScheduleEapResponse();
     }
     else {
        TxPSA(false);
@@ -224,7 +225,7 @@ void PANA_Client::RxPAR()
         NotifyEapRequest(*payload);
 
         // EAP response timeout should be less than retry
-        m_Timer.ScheduleEapResponse(PANA_CFG_GENERAL().m_RT.m_IRT/2);
+        m_Timer.ScheduleEapResponse();
     }
     else {
         throw (PANA_Exception(PANA_Exception::FAILED, 
