@@ -161,22 +161,6 @@ class PANA_EXPORT PANA_StateMachine :
    public AAA_StateMachineWithTimer<ARG>, AAA_Job
 {
    private:
-      class EventQueue : private std::list<AAA_Event> {
-         public:
-            void Enqueue(AAA_Event ev) {
-                AAA_MutexScopeLock guard(m_Lock);
-                push_back(ev);
-            }
-            AAA_Event Dequeue() {
-                AAA_MutexScopeLock guard(m_Lock);
-                AAA_Event ev = front();
-                pop_front(); 
-                return ev;
-            }
-         private: 
-            ACE_Mutex m_Lock;
-      };
-
       class FsmTxChannel : public PANA_SessionTxInterface {
          public:
             FsmTxChannel(CHANNEL &ch) :
@@ -202,7 +186,8 @@ class PANA_EXPORT PANA_StateMachine :
          Schedule(this);
       }
       virtual void Receive(PANA_Message &msg) {
-         m_MsgHandlers.Receive(msg);
+         m_RxMsgQueue.Enqueue(&msg);
+         Schedule(this);
       }
       virtual void Error(int err) { 
          Stop(); 
@@ -237,36 +222,42 @@ class PANA_EXPORT PANA_StateMachine :
                         CHANNEL &udp) :
 	 AAA_StateMachineWithTimer<ARG>(arg, table, *node.Task().reactor(), "PANA"),
          m_GroupedJob(AAA_GroupedJob::Create(node.Job(), (AAA_JobData*)this)),
-         m_MsgHandlers(m_GroupedJob.Job()),
          m_TxChannel(udp) {
       }
       virtual ~PANA_StateMachine() { }
 
       virtual int Serve() {
-         AAA_Event ev = m_EventQueue.Dequeue();
-         try {
-#if PANA_FSM_DEBUG
-             int prevState = AAA_StateMachineWithTimer<ARG>::state;
-             AAA_LOG((LM_DEBUG, "(%P|%t) Event: %d occurring\n", ev));
-#endif
 
-             AAA_MutexScopeLock guard(m_FsmLock);
-             AAA_StateMachineWithTimer<ARG>::Event(ev);
+         AAA_MutexScopeLock lock(m_FsmLock);
 
+         if (! m_RxMsgQueue.IsEmpty()) {
+             PANA_Message *msg = m_RxMsgQueue.Dequeue();
+             m_MsgHandlers.Receive(*msg);
+         }
+
+         if (! m_EventQueue.IsEmpty()) {
+             AAA_Event ev = m_EventQueue.Dequeue();
+             try {
 #if PANA_FSM_DEBUG
-             AAA_LOG((LM_DEBUG, "(%P|%t) From state: %s to %s\n",
-                        StrState(prevState),
-                        StrState(AAA_StateMachineWithTimer<ARG>::state)));
+                 int prevState = AAA_StateMachineWithTimer<ARG>::state;
+                 AAA_LOG((LM_DEBUG, "(%P|%t) Event: %d occurring\n", ev));
 #endif
-         }
-         catch (PANA_Exception &e) {
-             AAA_LOG((LM_ERROR, "(%P|%t) Error[%d]: %s\n",
-                        e.code(), e.description().data()));
-             Stop();
-         }
-         catch (...) {
-             AAA_LOG((LM_ERROR, "(%P|%t) Unknown error during FSM\n"));
-             Stop();
+                 AAA_StateMachineWithTimer<ARG>::Event(ev);
+#if PANA_FSM_DEBUG
+                 AAA_LOG((LM_DEBUG, "(%P|%t) From state: %s to %s\n",
+                            StrState(prevState),
+                            StrState(AAA_StateMachineWithTimer<ARG>::state)));
+#endif
+             }
+             catch (PANA_Exception &e) {
+                 AAA_LOG((LM_ERROR, "(%P|%t) Error[%d]: %s\n",
+                            e.code(), e.description().data()));
+                 Stop();
+             }
+             catch (...) {
+                 AAA_LOG((LM_ERROR, "(%P|%t) Unknown error during FSM\n"));
+                 Stop();
+             }
          }
          return (0);
       }
@@ -278,7 +269,8 @@ class PANA_EXPORT PANA_StateMachine :
       }
 
    protected:
-      EventQueue m_EventQueue;
+      AAA_ProtectedQueue<AAA_Event> m_EventQueue;
+      AAA_ProtectedQueue<PANA_Message*> m_RxMsgQueue;
       AAA_JobHandle<AAA_GroupedJob> m_GroupedJob;
       PANA_SessionRxInterfaceTable<ARG> m_MsgHandlers;
       FsmTxChannel m_TxChannel;

@@ -145,11 +145,9 @@ class PANA_EXPORT PANA_SessionRxInterface
 };
 
 template<class ARG>
-class PANA_EXPORT PANA_SessionRxInterfaceTable : public AAA_Job
+class PANA_EXPORT PANA_SessionRxInterfaceTable
 {
    public:
-      PANA_SessionRxInterfaceTable(AAA_GroupedJob &jobQ) :
-         m_GroupedJob(jobQ) { }
       virtual ~PANA_SessionRxInterfaceTable() { }
 
       virtual void Register(int mtype, PANA_SessionRxInterface<ARG> &i) {
@@ -166,20 +164,6 @@ class PANA_EXPORT PANA_SessionRxInterfaceTable : public AAA_Job
          }
       }
       void Receive(PANA_Message &msg) {
-         m_rxSchedulingQueue.push_back(&msg);
-         Schedule(this);
-      }
-
-   protected:
-      std::map<int, PANA_SessionRxInterface<ARG>*> m_map;
-      std::list<PANA_Message*> m_rxSchedulingQueue;
-      AAA_GroupedJob &m_GroupedJob;
-
-   private:
-      virtual int Serve() {
-         PANA_Message &msg = (*m_rxSchedulingQueue.front()); 
-         m_rxSchedulingQueue.pop_front();
-
          typename std::map<int, PANA_SessionRxInterface<ARG>*>::iterator i =
              m_map.find(msg.type());
          if (i != m_map.end()) {
@@ -201,11 +185,10 @@ class PANA_EXPORT PANA_SessionRxInterfaceTable : public AAA_Job
             AAA_LOG((LM_INFO, "(%P|%t) ERROR: No message handler for msg: %d, discarding\n",
                        msg.type()));
          }
-         return (0);
       }
-      virtual int Schedule(AAA_Job* job, size_t backlogSize = 1) {
-         return m_GroupedJob.Schedule(job, backlogSize);
-      }
+
+   protected:
+      std::map<int, PANA_SessionRxInterface<ARG>*> m_map;
 };
 
 class PANA_EXPORT PANA_SessionTxInterface

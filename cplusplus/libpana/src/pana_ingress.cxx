@@ -124,7 +124,7 @@ int PANA_IngressReceiver::Serve()
                 throw (0);
             }
             if (m_Running) {
-                throw (1);
+                Schedule();
             }
         }
         else if (bytes == 0) {
