@@ -1485,4 +1485,180 @@ ACE_EXPORT_SINGLETON_DECLARE(ACE_Singleton, AAALogMsg, ACE_Recursive_Thread_Mute
                          AAALogMsg_S::instance()->log X; \
                      } while(0)
 
+template <class ARG>
+class AAA_ProtectedQueue :
+   private std::list<ARG>
+{
+   public:
+      virtual ~AAA_ProtectedQueue() {
+      }
+      virtual void Enqueue(ARG arg) {
+         ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
+         std::list<ARG>::push_back(arg);  
+      }
+      virtual ARG Dequeue() {
+         ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
+         ARG a = std::list<ARG>::front();
+         std::list<ARG>::pop_front();
+         return a;
+      }
+      virtual bool IsEmpty() {
+         ACE_Read_Guard<ACE_RW_Mutex> guard(m_Lock);
+         return std::list<ARG>::empty() ? true : false;
+      }
+
+   private:
+      ACE_RW_Mutex m_Lock;
+};
+
+template <class ARG>
+class AAA_IterAction
+{
+   public:
+      // return TRUE to delete entry in iteration
+      // return FALSE to sustain entry
+      virtual bool operator()(ARG&)=0;
+
+   protected:
+      virtual ~AAA_IterAction() {
+      }
+      AAA_IterAction() {
+      }
+};
+
+template <class INDEX,
+          class DATA>
+class AAA_ProtectedMap  :
+   private std::map<INDEX, DATA>
+{
+   public:
+      virtual ~AAA_ProtectedMap() {
+      }
+      virtual void Add(INDEX ndx, DATA data) {
+         ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
+         std::map<INDEX, DATA>::insert(std::pair
+             <INDEX, DATA>(ndx, data));
+      }
+      virtual bool Lookup(INDEX ndx, DATA &data) {
+         ACE_Read_Guard<ACE_RW_Mutex> guard(m_Lock);
+         typename std::map<INDEX, DATA>::iterator i;
+         i = std::map<INDEX, DATA>::find(ndx);
+         if (i != std::map<INDEX, DATA>::end()) {
+             data = i->second;
+             return (true);
+         }
+         return (false);
+       }
+      virtual bool Remove(INDEX ndx,
+                          AAA_IterAction<DATA> &e) {
+         ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
+         typename std::map<INDEX, DATA>::iterator i;
+         i = std::map<INDEX, DATA>::find(ndx);
+         if (i != std::map<INDEX, DATA>::end()) {
+             e(i->second);
+             std::map<INDEX, DATA>::erase(i);
+             return (true);
+         }
+         return (false);
+      }
+      virtual bool IsEmpty() {
+         ACE_Read_Guard<ACE_RW_Mutex> guard(m_Lock);
+         return std::map<INDEX, DATA>::empty() ? true : false;
+      }
+      virtual void Iterate(AAA_IterAction<DATA> &e) {
+         ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
+         typename std::map<INDEX, DATA>::iterator i =
+             std::map<INDEX, DATA>::begin();
+         while (i != std::map<INDEX, DATA>::end()) {
+             if (e(i->second)) {
+                 typename std::map<INDEX, DATA>::iterator h = i;
+                 i ++;
+                 std::map<INDEX, DATA>::erase(h);
+                 continue;
+             }
+             i ++;
+         }
+      }
+
+   private:
+      ACE_RW_Mutex m_Lock;
+};
+
+template <class ARG>
+class AAA_ProtectedPtrQueue
+{
+   public:
+      void Enqueue(std::auto_ptr<ARG> a) {
+         m_Queue.Enqueue(a.release());
+      }
+      std::auto_ptr<ARG> Dequeue() {
+         std::auto_ptr<ARG> arg(m_Queue.Dequeue());
+         return arg;
+      }
+
+   private:
+      AAA_ProtectedQueue<ARG*> m_Queue;
+};
+
+template <class ARG>
+class AAA_ProtectedPtrMap
+{
+   public:
+      void Enqueue(std::auto_ptr<ARG> a) {
+         m_Queue.Enqueue(a.release());
+      }
+      std::auto_ptr<ARG> Dequeue() {
+         std::auto_ptr<ARG> arg(m_Queue.Dequeue());
+         return arg;
+      }
+
+   private:
+      AAA_ProtectedQueue<ARG*> m_Queue;
+};
+
+class AAA_RangedValue
+{
+   public:
+      typedef enum {
+          DEFAULT_LOW  = 0,
+          DEFAULT_HIGH = 3,
+      };
+
+   public:
+      AAA_RangedValue(int level = DEFAULT_LOW,
+                      int low = DEFAULT_LOW, 
+                      int high = DEFAULT_HIGH) {
+          Reset(level, low, high);
+      }
+      virtual ~AAA_RangedValue() {
+      }
+      virtual int operator++() {
+          m_CurrentLevel += 1;
+          return (m_CurrentLevel > m_HighThreshold) ? true : false;
+      }
+      virtual int operator--() {
+          m_CurrentLevel -= 1;
+          return (m_CurrentLevel < m_LowThreshold) ? true : false;
+      }
+      virtual int operator()() {
+          return m_CurrentLevel;
+      }
+      virtual bool InRange() {
+          return ((m_CurrentLevel > m_LowThreshold) &&
+                  (m_CurrentLevel < m_HighThreshold));
+      }
+      void Reset(int level = DEFAULT_LOW,
+                 int low = DEFAULT_LOW, 
+                 int high = DEFAULT_HIGH) {
+          m_CurrentLevel = level;
+          m_LowThreshold = low;
+          m_HighThreshold = high;
+      } 
+
+   private:
+      int m_CurrentLevel;
+      int m_LowThreshold;
+      int m_HighThreshold;
+};
+
 #endif // __FRAMEWORK_H__
