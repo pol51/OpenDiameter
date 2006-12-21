@@ -1628,9 +1628,6 @@ void PANA_PacSession::EapFailure()
 {
    PANA_PacEventVariable ev;
    ev.Event_Eap(PANA_EV_EAP_FAILURE);
-   if (m_PaC.SecurityAssociation().MSK().Id() > 0) {
-       ev.AvpExist_KeyId();
-   }
    Notify(ev.Get());
 }
 
