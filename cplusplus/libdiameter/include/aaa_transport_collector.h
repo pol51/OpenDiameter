@@ -89,7 +89,7 @@ class DiameterRxMsgCollector : public Diameter_IO_RxHandler
         int m_BufSize; // allocated size of rdBuffer
         int m_MsgLength; // current message length
         DiameterRxMsgCollectorHandler *m_Handler;
-        DiameterRangedValue m_PersistentError;
+        AAA_RangedValue m_PersistentError;
 };
 
 class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
@@ -154,7 +154,7 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
         //
         bool m_Active;
         ACE_Condition_Thread_Mutex m_Condition;
-        DiameterProtectedQueue<TransmitDatum*> m_SendQueue;
+        AAA_ProtectedQueue<TransmitDatum*> m_SendQueue;
         
         //
         // Variables for buffer pool

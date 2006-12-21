@@ -602,7 +602,7 @@ class DiameterPeerStateMachine :
          std::auto_ptr<Diameter_IO_Base> m_IO;
       } DiameterPeerEventParam;
 
-      DiameterProtectedPtrQueue<DiameterPeerEventParam> m_EventQueue;
+      AAA_ProtectedPtrQueue<DiameterPeerEventParam> m_EventQueue;
       std::auto_ptr<DiameterPeerEventParam> m_CurrentPeerEventParam;
 
    public:

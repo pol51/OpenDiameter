@@ -100,7 +100,7 @@ void DiameterRxMsgCollector::Message(void *data, size_t length)
                AAA_PARSE_ERROR_TYPE eType;
                st.get(eType, eCode, eDesc);
 
-               DiameterRangedValue lengthRange
+               AAA_RangedValue lengthRange
                   (hdr.length, DIAMETER_HEADER_SIZE, m_BufSize * 
                    MSG_COLLECTOR_MAX_MSG_BLOCK);
 

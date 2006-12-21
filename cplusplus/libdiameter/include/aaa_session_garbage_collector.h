@@ -100,7 +100,7 @@ class DiameterSessionGarbageCollector :
 
     private:
         AAA_JobHandle<AAA_GroupedJob> m_GroupedJob;
-        DiameterProtectedQueue<T*> m_DeleteQueue;
+        AAA_ProtectedQueue<T*> m_DeleteQueue;
         bool m_Enabled;
 };
 

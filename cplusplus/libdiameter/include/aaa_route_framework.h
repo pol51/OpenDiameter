@@ -130,7 +130,7 @@ class DiameterDeliveryRoutingNode : public DiameterRoutingNode
 {
    private:
        
-       class PendingReqCleanup : public DiameterIterAction<DiameterRouterPendingReqPtr> {
+       class PendingReqCleanup : public AAA_IterAction<DiameterRouterPendingReqPtr> {
           public:
              virtual bool operator()(DiameterRouterPendingReqPtr &r) {
                 delete r;
@@ -139,7 +139,7 @@ class DiameterDeliveryRoutingNode : public DiameterRoutingNode
        };
 
        template<class THRESHOLD>
-       class PendingReqReTxCheck : public DiameterIterAction<DiameterRouterPendingReqPtr> {
+       class PendingReqReTxCheck : public AAA_IterAction<DiameterRouterPendingReqPtr> {
           public:
              PendingReqReTxCheck(THRESHOLD thold,
                 AAA_Action<DiameterRouterPendingReqPtr> &act) :
@@ -295,7 +295,7 @@ class DiameterDeliveryRoutingNode : public DiameterRoutingNode
        ARG &m_Arg;
     
    private:
-       DiameterProtectedMap<int, DiameterRouterPendingReqPtr> m_ReqMap;
+       AAA_ProtectedMap<int, DiameterRouterPendingReqPtr> m_ReqMap;
 };
 
 template<class DELIVERY_NODE, class ARG>
