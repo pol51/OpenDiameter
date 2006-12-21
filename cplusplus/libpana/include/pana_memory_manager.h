@@ -86,6 +86,7 @@ class PANA_EXPORT PANA_MessagePoolManager
                         // reset read/write ptr
                         buffer->rd_ptr(buffer->base());
                         buffer->wr_ptr(buffer->base());
+                        memset(buffer->base(), 0x0, PANA_MAX_MESSAGE_SIZE);
                         return (buffer);
                     }
                 }
