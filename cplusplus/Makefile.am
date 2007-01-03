@@ -39,6 +39,9 @@ DIST_SUBDIRS = $(SUBDIRS_LIBS) $(SUBDIRS_APPS)
 includedir = $(prefix)/include/opendiameter
 include_HEADERS = $(top_srcdir)/include/framework.h \
                   $(top_srcdir)/include/aaa_parser_api.h \
+                  $(top_srcdir)/include/aaa_global_config.h \
+                  $(top_srcdir)/include/aaa_dictionary_api.h \
+                  $(top_srcdir)/include/aaa_parser_defs.h \
                   $(top_srcdir)/include/resultcodes.h
 
 dist-hook:

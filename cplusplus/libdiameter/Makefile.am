@@ -38,7 +38,8 @@ INC = include/aaa_application.h \
       include/diameter_api.h \
       include/aaa_session.inl \
       include/aaa_session_client.inl \
-      include/aaa_session_server.inl
+      include/aaa_session_server.inl \
+      include/diameter_compatibility_api.h
 
 SRC = src/aaa_application.cxx \
       src/aaa_peer_fsm.cxx \
