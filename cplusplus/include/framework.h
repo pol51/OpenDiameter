@@ -37,7 +37,7 @@
 #ifndef __FRAMEWORK_H__
 #define __FRAMEWORK_H__
 
-#include <config.h>
+#include <aaa_global_config.h>
 #include <list>
 #include <map>
 #include <string>

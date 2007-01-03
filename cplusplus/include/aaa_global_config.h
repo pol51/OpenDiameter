@@ -56,7 +56,7 @@
 #define PANA_DEBUG 0
 
 /* PANA FSM debugging */
-#define PANA_FSM_DEBUG 0
+#define PANA_FSM_DEBUG 1
 
 /* PANA key generator debugging flag */
 #define PANA_SA_DEBUG 0
