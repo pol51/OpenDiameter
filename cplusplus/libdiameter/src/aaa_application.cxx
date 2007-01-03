@@ -77,8 +77,8 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
     DIAMETER_ACCT_SESSION_GC_ROOT()->Initialize(m_Task);
 
     /// start contacting peers
-    int ports[DIAMETER_PEER_TTYPE_MAX] = { DIAMETER_CFG_TRANSPORT()->tcp_listen_port,
-                                           DIAMETER_CFG_TRANSPORT()->sctp_listen_port };
+    int ports[DIAMETER_PEER_TTYPE_MAX] = { DIAMETER_CFG_TRANSPORT()->sctp_listen_port,
+                                           DIAMETER_CFG_TRANSPORT()->tcp_listen_port };
     m_PeerAcceptor.Start(ports);
     DiameterPeerConnector::Start();
 
