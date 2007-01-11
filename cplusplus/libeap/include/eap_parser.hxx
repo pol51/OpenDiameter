@@ -61,6 +61,9 @@ EapHeaderParser::parseRawToApp()
   // read the length
   header->length = ntohs(*((ACE_UINT16*)buffer->rd_ptr())); 
   buffer->rd_ptr(sizeof(ACE_UINT16));
+
+  // make sure buffer length is in sequence with header length
+  buffer->length(header->length);
 }
 
 /// Use this function to convert 
@@ -314,7 +317,7 @@ EapRequestIdentityParser::parseRawToApp()
 {
   AAAMessageBlock *msg = getRawData();
   EapIdentity *identity = getAppData();
-  size_t idStringSize = msg->size() - (msg->rd_ptr()-msg->base());
+  size_t idStringSize = msg->length() - (msg->rd_ptr()-msg->base());
 
   // UTF8 varidation without null-charater check.
   UTF8Checker check;
@@ -377,7 +380,7 @@ EapRequestNotificationParser::parseRawToApp()
 {
   AAAMessageBlock *msg = getRawData();
   EapNotification *notification = getAppData();
-  size_t notificationStringSize = msg->size() - (msg->rd_ptr()-msg->base());
+  size_t notificationStringSize = msg->length() - (msg->rd_ptr()-msg->base());
 
   // UTF8 varidation without null-charater check.
   UTF8Checker check;
@@ -442,7 +445,7 @@ EapRequestMD5ChallengeParser::parseRawToApp()
 {
   AAAMessageBlock *msg = getRawData();
   EapMD5Challenge *md5Challenge = getAppData();
-  size_t contentSize = msg->size() - (msg->rd_ptr()-msg->base());
+  size_t contentSize = msg->length() - (msg->rd_ptr()-msg->base());
 
   // Read the Value-Size.
   ACE_Byte valueSize = (ACE_Byte)*msg->rd_ptr();
