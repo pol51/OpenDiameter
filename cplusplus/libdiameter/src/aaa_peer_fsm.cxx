@@ -300,7 +300,6 @@ void DiameterPeerR_Reject::operator()(DiameterPeerStateMachine &fsm)
     AAA_LOG((LM_DEBUG, "(%P|%t) Responder connection attempt rejected\n"));
     std::auto_ptr<Diameter_IO_Base> io = fsm.m_CurrentPeerEventParam->m_IO;
     std::auto_ptr<DiameterMsg> msg = fsm.m_CurrentPeerEventParam->m_Msg;
-    io.reset();
 }
 
 void DiameterPeerI_DisconnectSendCEA::operator()(DiameterPeerStateMachine &fsm)
