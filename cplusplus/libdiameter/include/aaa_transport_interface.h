@@ -272,9 +272,13 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
           TX_IF *newTransport;
           do {
               if ((rc = Create(newTransport)) > 0) {
+
+                  std::string childName(m_Name);
+                  childName += " - Child thread";
+
                   Diameter_IO<TX_IF, RX_HANDLER> *io =
                      new Diameter_IO<TX_IF, RX_HANDLER>
-                          (*newTransport, m_Name.data());
+                          (*newTransport, childName.data());
                   if (io) {
                       try {
                           Success(io);
@@ -339,7 +343,7 @@ class Diameter_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 
    protected:
       int Create(TX_IF *&newTransport) {
-          AAA_LOG((LM_INFO, "(%P|%t) Checking if connection request completed ...\n"));
+          AAA_LOG((LM_INFO, "(%P|%t) Checking if connection attempt is accepted ...\n"));
           return Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Accept
               (reinterpret_cast<DiameterTransportInterface<ADDR_TYPE> *&>(newTransport));
       }
