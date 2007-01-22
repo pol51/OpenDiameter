@@ -288,14 +288,15 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
                 diameter_grouped_t *grouped = vendorSpecificId.GetAvp
                     (DIAMETER_AVPNAME_VENDORAPPID);
                 if (grouped) {
-                    DiameterApplicationIdLst vendorIdLst;
                     DiameterUInt32AvpContainerWidget gVendorId(*grouped);
-                    diameter_unsigned32_t *value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
-                    for (int p=1; value; p++) {
-                        vendorIdLst.push_back(*value);
-                        value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID, p);
+                    diameter_unsigned32_t *vid = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
+                    if (vid == NULL) {
+                        AAA_LOG((LM_INFO, "(%P|%t) Vendor-Specific-Application-Id has no vendor ID AVP\n",
+                                 DestRealm.data()));
+                        return (AAA_ROUTE_RESULT_NEXT_CHAIN);
                     }
-          
+
+                    diameter_unsigned32_t *value = NULL;
                     char *avpNames[] = { DIAMETER_AVPNAME_AUTHAPPID,
                                          DIAMETER_AVPNAME_ACCTAPPID };
                     DiameterUInt32AvpContainerWidget gId(*grouped);
@@ -306,17 +307,12 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
                     }
 
                     if (value) {
-                        DiameterApplicationIdLst::iterator i = vendorIdLst.begin();
-                        for (; (app == NULL) && (i != vendorIdLst.end()); i++) {
-                            if ((app = route->Lookup(*value, *i))) {
-                                break;
-                            }
-                        }
+                        app = route->Lookup(*value, *vid);
                     }
                 }
             }
         }
-        
+
         if (app) {
             // get the first available/open peer
             DiameterPeerEntry *peer = NULL;
@@ -825,14 +821,14 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
             diameter_grouped_t *grouped = vendorSpecificId.GetAvp
                 (DIAMETER_AVPNAME_VENDORAPPID);
             if (grouped) {
-                DiameterApplicationIdLst vendorIdLst;
                 DiameterUInt32AvpContainerWidget gVendorId(*grouped);
-                diameter_unsigned32_t *value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
-                for (int p=1; value; p++) {
-                    vendorIdLst.push_back(*value);
-                    value = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID, p);
+                diameter_unsigned32_t *vid = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
+                if (vid == NULL) {
+                    AAA_LOG((LM_INFO, "(%P|%t) Vendor-Specific-Application-Id has no vendor ID AVP\n"));
+                    return (-1);
                 }
 
+                diameter_unsigned32_t *value = NULL;
                 char *avpNames[] = { DIAMETER_AVPNAME_AUTHAPPID,
                                      DIAMETER_AVPNAME_ACCTAPPID };
                 DiameterUInt32AvpContainerWidget gId(*grouped);
@@ -843,12 +839,7 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
                 }
 
                 if (value) {
-                    DiameterApplicationIdLst::iterator i = vendorIdLst.begin();
-                    for (; (app == NULL) && (i != vendorIdLst.end()); i++) {
-                        if ((app = route->Lookup(*value, *i))) {
-                            break;
-                        }
-                    }
+                    app = route->Lookup(*value, *vid);
                 }
             }
         }

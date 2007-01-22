@@ -598,13 +598,10 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
            DiameterUInt32AvpWidget gAcctId(DIAMETER_AVPNAME_ACCTAPPID, vid.acctAppId);
            grp.add(gAcctId());
        }
-
-       DiameterUInt32AvpWidget gVendorId(DIAMETER_AVPNAME_VENDORID);       
-       DiameterApplicationIdLst::iterator z = vid.vendorIdLst.begin();
-       for (; z != vid.vendorIdLst.end(); z++) {
-           gVendorId.Get() = *z;
+       if (vid.vendorId > 0) {
+           DiameterUInt32AvpWidget gVendorId(DIAMETER_AVPNAME_VENDORID, vid.vendorId);
+           grp.add(gVendorId());
        }
-       grp.add(gVendorId());
    }
 
    if (! vendorSpecificId.empty()) {
@@ -710,12 +707,6 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
    }
 
    while (! cap.m_VendorSpecificId.empty()) {
-       DiameterVendorSpecificIdLst::iterator x =
-           cap.m_VendorSpecificId.begin();
-       DiameterApplicationIdLst &id = (*x).vendorIdLst;
-       while (! id.empty()) {
-           id.pop_front();
-       }
        cap.m_VendorSpecificId.pop_front();
    }
    diameter_grouped_t *grouped = vendorSpecificId.GetAvp(DIAMETER_AVPNAME_VENDORAPPID);
@@ -726,11 +717,7 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
        DiameterUInt32AvpContainerWidget gVendorId(*grouped);
 
        uint32 = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
-       for (int p=1; uint32; p++) {
-           vsid.vendorIdLst.push_back(*uint32);
-           uint32 = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID, p);
-       }
-
+       vsid.vendorId = (uint32) ? *uint32 : 0;
        uint32 = gAuthId.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
        vsid.authAppId = (uint32) ? *uint32 : 0;
        uint32 = gAcctId.GetAvp(DIAMETER_AVPNAME_ACCTAPPID);
@@ -1169,10 +1156,6 @@ void DiameterPeerStateMachine::Cleanup(unsigned int flags)
    while (! cap.m_VendorSpecificId.empty()) {
        DiameterVendorSpecificIdLst::iterator x =
            cap.m_VendorSpecificId.begin();
-       DiameterApplicationIdLst &id = (*x).vendorIdLst;
-       while (! id.empty()) {
-           id.pop_front();
-       }
        cap.m_VendorSpecificId.pop_front();
    }
 
@@ -1243,6 +1226,12 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
    DiameterVendorSpecificIdLst::iterator y = cap.m_VendorSpecificId.begin();
    for (; y != cap.m_VendorSpecificId.end(); y++) {
        AAA_LOG((LM_INFO, "(%P|%t)  Vendor Specific Id : "));
+        if ((*y).vendorId > 0) {
+            AAA_LOG((LM_INFO, "(%P|%t)      Vendor=%d, ", (*y)));
+        }
+        else {
+            AAA_LOG((LM_INFO, "(%P|%t)      Vendor=--- "));
+        }
        if ((*y).authAppId > 0) {
            AAA_LOG((LM_INFO, " Auth=%d ", (*y).authAppId));
        }
@@ -1250,11 +1239,6 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
            AAA_LOG((LM_INFO, " Acct=%d ", (*y).acctAppId));
        }
        AAA_LOG((LM_INFO, "%s\n", (((*y).authAppId == 0) && ((*y).acctAppId == 0)) ? "---" : ""));
-       DiameterApplicationIdLst::iterator z = (*y).vendorIdLst.begin();
-       for (; z != (*y).vendorIdLst.end(); z++) {
-           AAA_LOG((LM_INFO, "(%P|%t)                        vendor id=%d\n",
-                      *z));
-       }
    }
 
    AAA_LOG((LM_INFO, "(%P|%t)           Inband Sec : %d\n", cap.m_InbandSecurityId));

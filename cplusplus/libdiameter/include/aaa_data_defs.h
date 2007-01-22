@@ -177,7 +177,7 @@ typedef enum {
 typedef std::list<diameter_unsigned32_t> DiameterApplicationIdLst;
 
 typedef struct {
-   DiameterApplicationIdLst vendorIdLst;     // vendor application id 
+   diameter_unsigned32_t vendorId;     // vendor application id 
    diameter_unsigned32_t authAppId;      // auth application id
    diameter_unsigned32_t acctAppId;      // acct application id
 } DiameterDataVendorSpecificApplicationId;

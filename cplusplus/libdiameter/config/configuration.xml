@@ -53,24 +53,20 @@
            id -->
       <vendor_specific_application_id>
 
-          <!-- List of vendor id's advertized by this diameter
-               entity -->
+          <!-- Exactly one instance of the vendor id is advertized
+               by this diameter entity -->
           <vendor_id>31</vendor_id>
-          <vendor_id>32</vendor_id>
-          <vendor_id>33</vendor_id>
 
           <!-- Exactly one instance of the
-               vendor's auth application id -->  
+               vendor's auth application id -->
           <auth_application_id>1</auth_application_id>
 
           <!-- Or Exactly one instance of the
-               vendor's acct application id -->  
+               vendor's acct application id -->
           <acct_application_id>4</acct_application_id>
       </vendor_specific_application_id>
       <vendor_specific_application_id>
           <vendor_id>41</vendor_id>
-          <vendor_id>42</vendor_id>
-          <vendor_id>43</vendor_id>
           <auth_application_id>5</auth_application_id>
           <acct_application_id>6</acct_application_id>
       </vendor_specific_application_id>
@@ -150,7 +146,7 @@
            -->
       <max_request_retransmission_count>3</max_request_retransmission_count>
 
-      <!-- Provides a customized list of local host IP 
+      <!-- Provides a customized list of local hostnames
            addresses that will be advertised to other
            peers during CER/CEA exchange. For SCTP, 
 	   the IP addresses MUST be valid addresses
@@ -158,10 +154,10 @@
 	   system. For TCP, only the first IP address
 	   will be used.
            -->
-      <advertised_host_ip>192.168.1.100</advertised_host_ip>
-      <advertised_host_ip>192.168.1.101</advertised_host_ip>
-      <advertised_host_ip>192.168.1.102</advertised_host_ip>
-      
+      <advertised_hostname>192.168.1.100</advertised_hostname>
+      <advertised_hostname>192.168.1.101</advertised_hostname>
+      <advertised_hostname>192.168.1.102</advertised_hostname>
+
       <!-- Peer table lists peers that this open diameter 
            application will attempt to connect to on startup.
            Each peer entry contains host, port and tls

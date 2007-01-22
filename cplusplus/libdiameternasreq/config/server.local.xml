@@ -14,15 +14,11 @@
       <acct_application_id>4</acct_application_id>
       <vendor_specific_application_id>
           <vendor_id>31</vendor_id>
-          <vendor_id>32</vendor_id>
-          <vendor_id>33</vendor_id>
           <auth_application_id>1</auth_application_id>
           <acct_application_id>4</acct_application_id>
       </vendor_specific_application_id>
       <vendor_specific_application_id>
           <vendor_id>41</vendor_id>
-          <vendor_id>42</vendor_id>
-          <vendor_id>43</vendor_id>
           <auth_application_id>5</auth_application_id>
           <acct_application_id>6</acct_application_id>
       </vendor_specific_application_id>

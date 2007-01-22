@@ -93,9 +93,7 @@ class DiameterXmlVendorAppIdParser :
      	 }
          m_Id.authAppId = 0;
          m_Id.acctAppId = 0;
-         while (! m_Id.vendorIdLst.empty()) {
-            m_Id.vendorIdLst.pop_front();
-         }
+         m_Id.vendorId = 0;
          return true;
      }
      virtual bool endElement() {
@@ -394,7 +392,7 @@ class DiameterXmlVendorIdConv :
          else if (m_element->Parent()->Name() == std::string("vendor_specific_application_id")) {
               DiameterXmlVendorAppIdParser *vendorIdElm = 
                  (DiameterXmlVendorAppIdParser*)m_element->Parent();
-                 vendorIdElm->Get().vendorIdLst.push_back(ACE_OS::atoi(ch));
+                 vendorIdElm->Get().vendorId = ACE_OS::atoi(ch);
          }
          else if (m_element->Parent()->Name() == std::string("application")) {
             DiameterXmlRouteApplicationParser *rteAppElm = 
@@ -539,7 +537,7 @@ void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
                                    "product", parser);
     OD_Utl_XML_UInt32Element gen02(root.general.version, 
                                    "version", parser);
-    OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlVendorIdConv> 
+    OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlVendorIdConv>
                                   gen03(m_unused, "vendor_id", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlAcctAppIdConv> 
                                   gen04(m_unused, "acct_application_id", parser);
@@ -714,8 +712,14 @@ void DiameterXMLConfigParser::dump()
     DiameterVendorSpecificIdLst::iterator n = 
         root.general.vendorSpecificId.begin();
     for (; n != root.general.vendorSpecificId.end(); n ++) {
-  
+
         AAA_LOG((LM_INFO, "(%P|%t)  Vendor Specific Id : "));
+        if ((*n).vendorId > 0) {
+            AAA_LOG((LM_INFO, "(%P|%t)      Vendor=%d, ", (*n)));
+        }
+        else {
+            AAA_LOG((LM_INFO, "(%P|%t)      Vendor=--- "));
+        }
         if ((*n).authAppId > 0) {
             AAA_LOG((LM_INFO, " Auth=%d ", (*n).authAppId));
         }
@@ -724,11 +728,6 @@ void DiameterXMLConfigParser::dump()
         }
         AAA_LOG((LM_INFO, "%s\n", (((*n).authAppId == 0) && 
                 ((*n).acctAppId == 0)) ? "---" : ""));
-        DiameterApplicationIdLst::iterator i = (*n).vendorIdLst.begin();
-        for (; i != (*n).vendorIdLst.end(); i++) {
-            AAA_LOG((LM_INFO, "(%P|%t)                        Vendor=%d\n",
-                    (*i)));
-        }
     }
 
     AAA_LOG((LM_INFO, "(%P|%t)          Dictionary : %s\n", 

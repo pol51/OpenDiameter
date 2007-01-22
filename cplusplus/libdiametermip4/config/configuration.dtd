@@ -13,7 +13,7 @@
      <!ELEMENT auth_application_id (#PCDATA)>
      <!ELEMENT acct_application_id (#PCDATA)>
 
-     <!ELEMENT vendor_specific_application_id (vendor_id+,
+     <!ELEMENT vendor_specific_application_id (vendor_id,
                                                auth_application_id?, acct_application_id?)>
 
      <!ELEMENT parser (dictionary)>
