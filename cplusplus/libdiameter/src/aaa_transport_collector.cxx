@@ -274,7 +274,7 @@ void DiameterRxMsgCollector::SendFailedAvp(DiameterErrorCode &st)
    // m_Handler->SendErrorAnswer(answerMsg);
 }
 
-int DiameterTxMsgCollector::SafeSend(std::auto_ptr<DiameterMsg> &msg,
+int DiameterTxMsgCollector::SafeSend(DiameterMsg *msg,
                                      Diameter_IO_Base *io)
 {
    do {

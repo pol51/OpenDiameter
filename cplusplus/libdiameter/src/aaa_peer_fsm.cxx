@@ -861,7 +861,7 @@ void DiameterPeerStateMachine::SendCER()
 
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleCE(*msg);
-   if (m_TxMsgCollector.Send(msg, m_Data.m_IOInitiator.get()) == 0) {
+   if (m_TxMsgCollector.Send(msg, m_Data.m_IOInitiator.get(), true) == 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Sent CER\n"));
    }
 }
@@ -924,7 +924,7 @@ void DiameterPeerStateMachine::SendCEA(diameter_unsigned32_t rcode,
    Diameter_IO_Base *io = (state == DIAMETER_PEER_ST_I_OPEN) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (m_TxMsgCollector.Send(msg, io) == 0) {
+   if (m_TxMsgCollector.Send(msg, io, true) == 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Sent CEA: rcode=%d\n",
                  rcode));
    }
@@ -956,7 +956,7 @@ void DiameterPeerStateMachine::SendDWR()
    Diameter_IO_Base *io = (state == DIAMETER_PEER_ST_I_OPEN) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (m_TxMsgCollector.Send(msg, io) < 0) {
+   if (m_TxMsgCollector.Send(msg, io, true) < 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Failed sending DWR\n"));
    }
 }
@@ -1000,7 +1000,7 @@ void DiameterPeerStateMachine::SendDWA(diameter_unsigned32_t rcode,
    Diameter_IO_Base *io = (state == DIAMETER_PEER_ST_I_OPEN) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (m_TxMsgCollector.Send(msg, io) < 0) {
+   if (m_TxMsgCollector.Send(msg, io, true) < 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Failed sending DWA: rcode=%d\n",
                  rcode));
    }
@@ -1034,7 +1034,7 @@ void DiameterPeerStateMachine::SendDPR(bool initiator)
    Diameter_IO_Base *io = (initiator) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (m_TxMsgCollector.Send(msg, io) < 0) {
+   if (m_TxMsgCollector.Send(msg, io, true) < 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Failed sending Disconnect\n"));
    }
 }
@@ -1069,7 +1069,7 @@ void DiameterPeerStateMachine::SendDPA(bool initiator,
    Diameter_IO_Base *io = (initiator) ?
                       m_Data.m_IOInitiator.get() :
                       m_Data.m_IOResponder.get();
-   if (m_TxMsgCollector.Send(msg, io) < 0) {
+   if (m_TxMsgCollector.Send(msg, io, true) < 0) {
        AAA_LOG((LM_INFO, "(%P|%t) Failed sending DWA: rcode=%d\n",
                  rcode));
    }

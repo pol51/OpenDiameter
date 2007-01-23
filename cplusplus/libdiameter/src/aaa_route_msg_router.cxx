@@ -113,7 +113,8 @@
 */
 
 AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                DiameterPeerEntry *&dest)
+                                                    std::auto_ptr<DiameterMsg> &p,
+                                                    DiameterPeerEntry *&dest)
 {
     /*
        6.1.4.  Processing Local Requests
@@ -187,7 +188,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                    DiameterPeerEntry *&dest)
+                                                        std::auto_ptr<DiameterMsg> &p,
+                                                        DiameterPeerEntry *&dest)
 {
     /*
        6.1.5.  Request Forwarding
@@ -197,12 +199,12 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMs
         able to directly communicate with.
 
         When a request is received, and the host encoded in the Destination-
-        Host AVP is one that is present in the peer table, the message SHOULD           
+        Host AVP is one that is present in the peer table, the message SHOULD
         be forwarded to the peer.
     */
     DiameterIdentityAvpContainerWidget destHost(msg->acl);
     diameter_identity_t *DestHost = destHost.GetAvp(DIAMETER_AVPNAME_DESTHOST);
-    
+
     if (DestHost) {
         DiameterPeerEntry *peer = DIAMETER_PEER_TABLE()->Lookup(*DestHost);
         if (peer) {
@@ -220,7 +222,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMs
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                 DiameterPeerEntry *&dest)
+                                                     std::auto_ptr<DiameterMsg> &p,
+                                                     DiameterPeerEntry *&dest)
 {
     /*
        6.1.6.  Request Routing
@@ -245,7 +248,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
         diameter_identity_t DestRealm;
         DiameterIdentityAvpContainerWidget destRealm(msg->acl);
         diameter_identity_t *LookupRealm = destRealm.GetAvp(DIAMETER_AVPNAME_DESTREALM);
-        
+
         if (! LookupRealm) {
             DiameterUtf8AvpContainerWidget username(msg->acl);
             diameter_utf8string_t *UserName = username.GetAvp(DIAMETER_AVPNAME_USERNAME);
@@ -258,7 +261,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
         else {
             DestRealm.assign(LookupRealm->data(), LookupRealm->length());
         }
-        
+
         DiameterRouteEntry *route = DIAMETER_ROUTE_TABLE()->Lookup(DestRealm);
         if (route == NULL) {
             AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) not in routing table\n",
@@ -314,6 +317,13 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
         }
 
         if (app) {
+            // Local action is to redirect
+            if (route->Action() == DIAMETER_ROUTE_ACTION_REDIRECT) {
+                AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) in routing table but it is set to re-direct\n",
+                       DestRealm.data()));
+                return (AAA_ROUTE_RESULT_SUCCESS);
+            }
+
             // get the first available/open peer
             DiameterPeerEntry *peer = NULL;
             DiameterRouteServerEntry *server = app->Servers().First();
@@ -331,7 +341,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
         else {
             AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) in routing table but no matching app Id\n",
                     DestRealm.data()));
-	}
+        }
     }
     catch (...) {
     }
@@ -340,7 +350,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::RcRejected::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                   DiameterPeerEntry *&dest)
+                                                       std::auto_ptr<DiameterMsg> &p,
+                                                       DiameterPeerEntry *&dest)
 {
     /*
        6.1.  Diameter Request Routing Overview
@@ -356,11 +367,12 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRejected::Lookup(std::auto_ptr<DiameterMsg
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::DcLocal::Process(std::auto_ptr<DiameterMsg> msg,
-                                                 DiameterPeerEntry *source,
-                                                 DiameterPeerEntry *dest)
+                                                     std::auto_ptr<DiameterMsg> &p,
+                                                     DiameterPeerEntry *source,
+                                                     DiameterPeerEntry *dest)
 {
     if (m_Arg.m_RedirectAgent.IsRedirected(msg)) {
-        return (m_Arg.m_RedirectAgent.Answer(msg, source, dest) == 0) ?
+        return (m_Arg.m_RedirectAgent.Answer(msg, p, source, dest) == 0) ?
             AAA_ROUTE_RESULT_SUCCESS: AAA_ROUTE_RESULT_FAILED;
     }
 
@@ -426,8 +438,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::DcLocal::ErrorHandling(std::auto_ptr<Diamete
 }
 
 int DiameterMsgRouter::DcLocal::RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                       DiameterPeerEntry *source,
-                                       DiameterPeerEntry *dest)
+                                           DiameterPeerEntry *source,
+                                           DiameterPeerEntry *dest)
 {
     if (source) {
         Add(msg->hdr.hh, msg, source, dest);
@@ -442,10 +454,11 @@ int DiameterMsgRouter::DcLocal::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::DcForward::Process(std::auto_ptr<DiameterMsg> msg,
-                                                   DiameterPeerEntry *source,
-                                                   DiameterPeerEntry *dest)
+                                                       std::auto_ptr<DiameterMsg> &p,
+                                                       DiameterPeerEntry *source,
+                                                       DiameterPeerEntry *dest)
 {
-    return m_Arg.m_rcLocal.Delivery().Process(msg, source, dest);
+    return m_Arg.m_rcLocal.Delivery().Process(msg, p, source, dest);
 }
 
 int DiameterMsgRouter::DcForward::LoopDetection(std::auto_ptr<DiameterMsg> &msg)
@@ -513,8 +526,8 @@ int DiameterMsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
         }
         h2hIndex = Add(msg->hdr.hh, msg, source, dest);
     }
-    
-    rcode = (dest->Send(msg) >= 0) ? 0 : (-1);    
+
+    rcode = (dest->Send(msg, false) >= 0) ? 0 : (-1);
     if (h2hIndex > 0) {
         StoreRequestMessage(h2hIndex, msg);
     }
@@ -522,8 +535,9 @@ int DiameterMsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::DcRouted::Process(std::auto_ptr<DiameterMsg> msg,
-                                                  DiameterPeerEntry *source,
-                                                  DiameterPeerEntry *dest)
+                                                      std::auto_ptr<DiameterMsg> &p,
+                                                      DiameterPeerEntry *source,
+                                                      DiameterPeerEntry *dest)
 {
     /*
       6.2.2.  Relaying and Proxying Answers
@@ -550,7 +564,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::DcRouted::Process(std::auto_ptr<DiameterMsg>
        original request from.
     */
     if (m_Arg.m_RedirectAgent.IsRedirected(msg)) {
-        return (m_Arg.m_RedirectAgent.Answer(msg, source, dest) == 0) ?
+        return (m_Arg.m_RedirectAgent.Answer(msg, p, source, dest) == 0) ?
             AAA_ROUTE_RESULT_SUCCESS: AAA_ROUTE_RESULT_FAILED;
     }
 
@@ -572,8 +586,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::DcRouted::Process(std::auto_ptr<DiameterMsg>
 }
 
 int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                        DiameterPeerEntry *source,
-                                        DiameterPeerEntry *dest)
+                                            DiameterPeerEntry *source,
+                                            DiameterPeerEntry *dest)
 {
     DiameterIdentityAvpContainerWidget originHost(msg->acl);
     DiameterIdentityAvpContainerWidget destRealm(msg->acl);
@@ -581,7 +595,7 @@ int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
     if (! DestRealm) {
         throw (0);
     }
-    
+
     DiameterRouteEntry *route = DIAMETER_ROUTE_TABLE()->Lookup(*DestRealm);
     if (route == NULL) {
         throw (0);
@@ -683,8 +697,8 @@ int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
             }
             h2hIndex = Add(msg->hdr.hh, msg, source, dest);
         }
-        
-        rcode = (dest->Send(msg) >= 0) ? 0 : (-1);    
+
+        rcode = (dest->Send(msg, false) >= 0) ? 0 : (-1);
         if (h2hIndex > 0) {
             StoreRequestMessage(h2hIndex, msg);
         }
@@ -694,8 +708,9 @@ int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::DcReject::Process(std::auto_ptr<DiameterMsg> msg,
-                                                  DiameterPeerEntry *source,
-                                                  DiameterPeerEntry *dest)
+                                                      std::auto_ptr<DiameterMsg> &p,
+                                                      DiameterPeerEntry *source,
+                                                      DiameterPeerEntry *dest)
 {
     /*
        6.2.1.  Processing received Answers
@@ -739,7 +754,8 @@ int DiameterMsgRouter::DcReject::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 }
 
 AAA_ROUTE_RESULT DiameterMsgRouter::DcReject::Lookup(std::auto_ptr<DiameterMsg> &msg,
-                                                 DiameterPeerEntry *&dest)
+                                                     std::auto_ptr<DiameterMsg> &p,
+                                                     DiameterPeerEntry *&dest)
 {
     /*
        6.2.1.  Processing received Answers
@@ -754,8 +770,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::DcReject::Lookup(std::auto_ptr<DiameterMsg> 
 }
 
 int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
-                                          DiameterPeerEntry *source,
-                                          DiameterPeerEntry *dest)
+                                              DiameterPeerEntry *source,
+                                              DiameterPeerEntry *dest)
 {
     /*
       6.1.7.  Redirecting requests
@@ -801,6 +817,8 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
 
     std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(*msg, AAA_REDIRECT_INDICATION);
 
+    AAA_LOG((LM_INFO, "(%P|%t) Request is being re-directed\n"));
+
     try {
         diameter_unsigned32_t *idPtr;
         char *avpNames[] = { DIAMETER_AVPNAME_AUTHAPPID,
@@ -812,8 +830,8 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
             }
         }
 
-        DiameterRouteApplication *app = NULL;
-        if (idPtr) {
+        DiameterRouteApplication *app = route->Lookup(msg->hdr.appId, 0);
+        if ((app == NULL) && idPtr) {
             app = route->Lookup(*idPtr, 0); // base protocol only
         }
         else {
@@ -848,14 +866,15 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
             DiameterDiamUriAvpWidget redirect(DIAMETER_AVPNAME_REDIRECTHOST);
             DiameterRouteServerEntry *server = app->Servers().First();
             while (server) {
-                redirect.Get().fqdn = server->Server();
+                diameter_uri_t &uri = redirect.Get();
+                uri.fqdn = server->Server();
                 server = app->Servers().Next(*server);
             }
             if (! redirect.empty()) {
                 DiameterEnumAvpWidget redirectUsage(DIAMETER_AVPNAME_REDIRECTHOSTUSAGE);
                 redirectUsage.Get() = route->RedirectUsage();
-                answerMsg->acl.add(redirect());
                 answerMsg->acl.add(redirectUsage());
+                answerMsg->acl.add(redirect());
             }
         }
     }
@@ -867,8 +886,9 @@ int DiameterMsgRouter::RedirectAgent::Request(std::auto_ptr<DiameterMsg> &msg,
 }
 
 int DiameterMsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
-                                         DiameterPeerEntry *source,
-                                         DiameterPeerEntry *dest)
+                                             std::auto_ptr<DiameterMsg> p,
+                                             DiameterPeerEntry *source,
+                                             DiameterPeerEntry *dest)
 {
     /*
       2.8.3.  Redirect Agents
@@ -921,9 +941,8 @@ int DiameterMsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
        applications, and therefore MUST advertise the Relay Application
        Identifier.
     */
-    
-    msg->hdr.flags.r = 1;
-    msg->hdr.flags.e = 0;
+
+    AAA_LOG((LM_INFO, "(%P|%t) Processing re-directed answer\n"));
 
     DiameterUInt32AvpContainerWidget resultCode(msg->acl);
     resultCode.DelAvp(DIAMETER_AVPNAME_RESULTCODE);
@@ -931,26 +950,40 @@ int DiameterMsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
     DiameterUriAvpContainerWidget redirect(msg->acl);
     diameter_uri_t *RedirectHost = redirect.GetAvp(DIAMETER_AVPNAME_REDIRECTHOST);
 
-    for (int p=1; RedirectHost; p++) {
+    for (int h=1; RedirectHost; h++) {
         DiameterPeerEntry *peer = DIAMETER_PEER_TABLE()->Lookup(RedirectHost->fqdn);
         if (peer) {
             if (peer->IsOpen()) {
-                DiameterIdentityAvpWidget destHost(DIAMETER_AVPNAME_DESTHOST);        
-                destHost.Get() = RedirectHost->fqdn;
-                msg->acl.add(destHost());
-                redirect.DelAvp(DIAMETER_AVPNAME_REDIRECTHOST);
-                return (peer->Send(msg) >= 0) ? 0 : (-1);
+                DiameterIdentityAvpContainerWidget dhost(p->acl);
+                diameter_identity_t *hostname = dhost.GetAvp(DIAMETER_AVPNAME_DESTHOST);
+                if (hostname) {
+                    *hostname = RedirectHost->fqdn;
+                }
+                else {
+                    DiameterIdentityAvpWidget destHost(DIAMETER_AVPNAME_DESTHOST);
+                    destHost.Get() = RedirectHost->fqdn;
+                    p->acl.add(destHost());
+                }
+                AAA_LOG((LM_INFO, "(%P|%t) Redirecting msg to [%s]\n",
+                        RedirectHost->fqdn.data()));
+                return (peer->Send(p) >= 0) ? 0 : (-1);
             }
             else {
+                AAA_LOG((LM_INFO, "(%P|%t) TBD: Have to try and connect to [%s]\n",
+                        RedirectHost->fqdn.data()));
                 // try opening it [TBD]
             }
         }
         else {
+            AAA_LOG((LM_INFO, "(%P|%t) TBD: Have to try and connect to [%s]\n",
+                    RedirectHost->fqdn.data()));
             // try to make connection to it [TBD]
         }
-        
-        RedirectHost = redirect.GetAvp(DIAMETER_AVPNAME_REDIRECTHOST, p);
+
+        RedirectHost = redirect.GetAvp(DIAMETER_AVPNAME_REDIRECTHOST, h);
     }
+
+    AAA_LOG((LM_INFO, "(%P|%t) No re-direct host present in the error message\n"));
     return (0);
 }
 

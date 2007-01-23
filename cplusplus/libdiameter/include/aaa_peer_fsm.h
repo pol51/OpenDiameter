@@ -573,7 +573,7 @@ class DiameterPeerStateMachine :
       AAA_GroupedJob &Job() {
           return *m_GroupedJob.get();
       }
-      virtual int Send(std::auto_ptr<DiameterMsg> &msg) {
+      virtual int Send(std::auto_ptr<DiameterMsg> &msg, bool consume = true) {
           ///  If using ASYNC SEND
           ///  EnqueueSendMsg(msg);
           ///  Notify(DIAMETER_PEER_EV_SEND_MESSAGE);
@@ -584,9 +584,9 @@ class DiameterPeerStateMachine :
           }
           switch (state) {
               case DIAMETER_PEER_ST_I_OPEN:
-                  return m_TxMsgCollector.Send(msg, m_Data.m_IOInitiator.get());
+                  return m_TxMsgCollector.Send(msg, m_Data.m_IOInitiator.get(), consume);
               case DIAMETER_PEER_ST_R_OPEN:
-                  return m_TxMsgCollector.Send(msg, m_Data.m_IOResponder.get());
+                  return m_TxMsgCollector.Send(msg, m_Data.m_IOResponder.get(), consume);
               default:
                   AAA_LOG((LM_INFO, "(%P|%t) Discarding msg to send, peer state is not open\n"));
                   break;

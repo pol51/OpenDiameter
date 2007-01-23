@@ -79,7 +79,7 @@ class DiameterRxMsgCollector : public Diameter_IO_RxHandler
             m_Handler->Error(DiameterRxMsgCollectorHandler::TRANSPORT_ERROR,
                     const_cast<Diameter_IO_Base*>(io)->Name());
         }
-                        
+
     protected:
         void SendFailedAvp(DiameterErrorCode &st);
 
@@ -97,23 +97,34 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
     private:
         class TransmitDatum {
             public:
-                TransmitDatum(std::auto_ptr<DiameterMsg> &msg,
-                              Diameter_IO_Base *io) :
+                TransmitDatum(DiameterMsg *msg,
+                              Diameter_IO_Base *io,
+                              bool consume) :
                      m_Msg(msg),
-                     m_IO(io) {
+                     m_IO(io),
+                     m_Consume(consume) {
                 }
-                std::auto_ptr<DiameterMsg> &GetMsg() {
+                virtual ~TransmitDatum() {
+                    if (m_Consume && m_Msg) {
+                        delete m_Msg;
+                    }
+                }
+                DiameterMsg *GetMsg() {
                     return m_Msg;
                 }
                 Diameter_IO_Base *GetIO() {
                     return m_IO;
                 }
-                
+                bool IsConsumed() {
+                    return m_Consume;
+                }
+
             private:
-                std::auto_ptr<DiameterMsg> m_Msg;
-                Diameter_IO_Base          *m_IO;
+                DiameterMsg      *m_Msg;
+                Diameter_IO_Base *m_IO;
+                bool              m_Consume;
         };
-        
+
     public:
         DiameterTxMsgCollector() :
             m_Active(false),
@@ -125,7 +136,7 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
             Stop();
             delete &(m_Condition.mutex());
             m_Buffer->Release();
-        }        
+        }
         bool Start() {
             if (! m_Active && (activate() == 0)) {
                 m_Active = true;
@@ -142,12 +153,14 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
             }
         }
         int Send(std::auto_ptr<DiameterMsg> &msg,
-                 Diameter_IO_Base *io) {
-            m_SendQueue.Enqueue(new TransmitDatum(msg, io));
+                 Diameter_IO_Base *io,
+                 bool consume) {
+            DiameterMsg *ptr = (consume) ? msg.release() : msg.get();
+            m_SendQueue.Enqueue(new TransmitDatum(ptr, io, consume));
             m_Condition.signal();
             return (0);
         }
-                                   
+
     private:
         //
         // Variables for transmitter thread
@@ -155,17 +168,17 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
         bool m_Active;
         ACE_Condition_Thread_Mutex m_Condition;
         AAA_ProtectedQueue<TransmitDatum*> m_SendQueue;
-        
+
         //
         // Variables for buffer pool
         //
         AAAMessageBlock *m_Buffer;
         short m_BlockCount;
-        
+
     private:
-        int SafeSend(std::auto_ptr<DiameterMsg> &msg,
+        int SafeSend(DiameterMsg *msg,
                      Diameter_IO_Base *io);
-         
+
         int svc() {
            do {
                m_Condition.wait();
