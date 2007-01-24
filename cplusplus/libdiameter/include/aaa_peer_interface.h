@@ -310,7 +310,9 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                               io_name.data(), error));
                    std::auto_ptr<PendingResponder> guard(this);
                    m_Acceptor.RemoveFromPendingList(*this);
-                   throw(error);
+
+                   throw DiameterBaseException(DiameterBaseException::IO_FAILURE,
+                                  "Failed to establish state");
                }
                int SendErrorAnswer(std::auto_ptr<DiameterMsg> &msg) {
                    AAA_LOG((LM_ERROR,

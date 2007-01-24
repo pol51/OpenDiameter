@@ -296,7 +296,8 @@ class DiameterBaseException
           INVALID_ID_TYPE,
           MISSING_SESSION_ID,
           MISSING_ORIGIN_HOST,
-          MISSING_ORIGIN_REALM
+          MISSING_ORIGIN_REALM,
+          IO_FAILURE
       } ERROR_CODE;
 
    public:

@@ -199,9 +199,20 @@ class Diameter_IO : public Diameter_IO_Base
                     // timeout
                 } 
                 else if (m_Running) {
-                    m_Transport->Close();
-                    m_Running = false;
                     m_RxHandler.Error(errno, this);
+                    throw DiameterBaseException(DiameterBaseException::IO_FAILURE,
+                                     "Receive error");
+                }
+             }
+             catch (DiameterBaseException &e) {
+                switch (e.Code()) {
+                   case DiameterBaseException::IO_FAILURE:
+                       m_Transport->Close();
+                       m_Running = false;
+                       break;
+                   default:
+                       // continue on
+                       break;
                 }
              }
              catch (...) {
@@ -272,13 +283,9 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
           TX_IF *newTransport;
           do {
               if ((rc = Create(newTransport)) > 0) {
-
-                  std::string childName(m_Name);
-                  childName += " - Child thread";
-
                   Diameter_IO<TX_IF, RX_HANDLER> *io =
                      new Diameter_IO<TX_IF, RX_HANDLER>
-                          (*newTransport, childName.data());
+                          (*newTransport, m_Name.data());
                   if (io) {
                       try {
                           Success(io);
