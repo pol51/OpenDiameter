@@ -343,7 +343,7 @@ class Diameter_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 
    protected:
       int Create(TX_IF *&newTransport) {
-          AAA_LOG((LM_INFO, "(%P|%t) Checking if connection attempt is accepted ...\n"));
+          AAA_LOG((LM_INFO, "(%P|%t) Waiting for incomming connection ...\n"));
           return Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Accept
               (reinterpret_cast<DiameterTransportInterface<ADDR_TYPE> *&>(newTransport));
       }
@@ -362,7 +362,7 @@ class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
           if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::Open() >= 0) {
              if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Connect
                  (hostname, port) >= 0) {
-                 AAA_LOG((LM_INFO, "(%P|%t) Connection attempt to %s:%d\n",
+                 AAA_LOG((LM_INFO, "(%P|%t) Trying to connect to to %s:%d\n",
                             hostname.data(), port));
                  return Diameter_IO_Factory<TX_IF, RX_HANDLER>::Activate();
              }
@@ -372,7 +372,7 @@ class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 
    protected:
       int Create(TX_IF *&newTransport) {
-          AAA_LOG((LM_INFO, "(%P|%t) Checking if connection completed ...\n"));
+          AAA_LOG((LM_INFO, "(%P|%t) Checking if connection attempt succeeded ...\n"));
           return Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Complete
                  ((DiameterTransportInterface<ADDR_TYPE> *&)newTransport);
       }

@@ -169,7 +169,7 @@ class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
                  (errno == EAGAIN)) { 
                 return (0);
              }
-             AAA_LOG((LM_ERROR, "(%P|%t) Async Transport Reports: %s\n",
+             AAA_LOG((LM_ERROR, "(%P|%t) Async Transport Setup Reports: %s\n",
                         strerror(errno)));
          }
          return (rc);
@@ -181,11 +181,12 @@ class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
                  (errno == EAGAIN)) { 
                 return (0);
              }
-             AAA_LOG((LM_ERROR, "(%P|%t) Async Transport Reports: %s\n",
+             AAA_LOG((LM_ERROR, "(%P|%t) Async IO Reports: %s\n",
                         strerror(errno)));
              rc = (-1);
          }
          else if (rc == 0) {
+             AAA_LOG((LM_ERROR, "(%P|%t) Async IO, peer has closed\n"));
              rc = (-1);
          }
          return (rc);
