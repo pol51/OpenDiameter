@@ -60,10 +60,11 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionEntry :
         AAA_JobData &m_Data;
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionEntryList : 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionEntryList :
      public std::list<DiameterSessionEntry*>
 {
      public:
+        DiameterSessionEntryList();
         bool Add(DiameterSessionId &id, 
                  AAA_JobData &data);
         bool Lookup(DiameterSessionId &id,
@@ -73,6 +74,8 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionEntryList :
      protected:
         typedef std::list<DiameterSessionEntry*>::iterator 
             EntryIterator;
+     private:
+        DiameterSessionCounter m_LastKnownCounter;
 };
 
 class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionEntryNode : 

@@ -36,23 +36,22 @@
 #include "aaa_session_db.h"
 #include "aaa_log_facility.h"
 
+DiameterSessionEntryList::DiameterSessionEntryList() 
+{
+     ACE_Time_Value tm = ACE_OS::gettimeofday();
+     m_LastKnownCounter.High() = tm.sec();
+     m_LastKnownCounter.Low() = tm.usec();
+}
+
 bool DiameterSessionEntryList::Add(DiameterSessionId &id, 
                                AAA_JobData &data)
 {
     DiameterSessionEntry *newEntry = new DiameterSessionEntry(data);
-    if (newEntry) {   
+    if (newEntry) {
         DiameterSessionCounter nullCounter, *idCounter = &id;
         if (*idCounter == nullCounter) {
-            if (empty()) {
-	        ACE_Time_Value tm = ACE_OS::gettimeofday();
-                newEntry->High() = tm.sec();
-                newEntry->Low() = tm.usec();
-            }
-            else {
-                DiameterSessionEntry *lastEntry = front();
-                *newEntry = *lastEntry;
-                ++ (*((DiameterSessionCounter*)newEntry));
-            }
+            ++ m_LastKnownCounter;
+            *((DiameterSessionCounter*)newEntry) = m_LastKnownCounter;
             id.High() = newEntry->High();
             id.Low() = newEntry->Low();
 	}
