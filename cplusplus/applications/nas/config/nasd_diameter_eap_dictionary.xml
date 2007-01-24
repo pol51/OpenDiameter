@@ -587,7 +587,7 @@
       <enum name="Do not want to talk to you" code="3"/>
     </avp>
     <avp name="Error-Message" code="281" mandatory="mustnot"
-	 protected="mustnot" may-encrypt="no">
+	 protected="may" may-encrypt="no">
       <type type-name="UTF8String"/>
     </avp>
     <avp name="Error-Reporting-Host" code="294" mandatory="must"
@@ -604,7 +604,7 @@
       <type type-name="OctetString"/>
     </avp>
     -->
-    <avp name="Firmware-Revision" code="267" mandatory="must"
+    <avp name="Firmware-Revision" code="267" mandatory="mustnot"
 	 protected="mustnot" may-encrypt="no">
       <type type-name="Unsigned32"/>
     </avp>
