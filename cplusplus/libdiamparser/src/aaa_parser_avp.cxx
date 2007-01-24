@@ -188,7 +188,8 @@ DiameterAvpHeaderParser::parseAppToRaw()// throw(DiameterErrorCode)
   DiameterErrorCode st;
 
   /* length check */
-  if ((unsigned)DIAMETER_AVP_HEADER_LEN(avp) > aBuffer->size())
+  if ((unsigned)DIAMETER_AVP_HEADER_LEN(avp) >
+      (aBuffer->size() - (aBuffer->wr_ptr() - aBuffer->base())))
     {
       AAA_LOG((LM_ERROR, "Header buffer overflow\n"));
       st.set(AAA_PARSE_ERROR_TYPE_BUG, AAA_PARSE_ERROR_INVALID_PARSER_USAGE);
@@ -330,9 +331,17 @@ DiameterAvpParser::parseAppToRaw()// throw(DiameterErrorCode)
 	  vp->setDictData(avp);
 	  vp->parseAppToRaw();
 
-          aBuffer->wr_ptr
-	    (aBuffer->base() + 
-	     adjust_word_boundary(aBuffer->wr_ptr() - aBuffer->base()));
+          if (adjust_word_boundary(aBuffer->wr_ptr() - aBuffer->base()) <=
+              aBuffer->size()) {
+              aBuffer->wr_ptr
+	        (aBuffer->base() + 
+	         adjust_word_boundary(aBuffer->wr_ptr() - aBuffer->base()));
+          }
+          else {
+              AAA_LOG((LM_ERROR, "AVP value parsing, out of space "));
+	      st.set(AAA_PARSE_ERROR_TYPE_NORMAL, AAA_OUT_OF_SPACE);
+	      throw st;
+          }
 
 	  delete vp;
 

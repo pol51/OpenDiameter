@@ -667,6 +667,7 @@ stest_proxy_request(unsigned char *buf, int size)
   msg.acl.prepend(c_any);
 
   pp.setRawData(aBuffer);
+  aBuffer->size(size);
   aBuffer->wr_ptr(aBuffer->base()+DIAMETER_HEADER_SIZE);
   try {
     pp.parseAppToRaw();
