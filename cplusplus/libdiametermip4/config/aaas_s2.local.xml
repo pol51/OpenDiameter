@@ -43,6 +43,7 @@
           <peer>
               <hostname>has.homedomain.com</hostname>
               <port>1904</port>
+              <use_sctp>0</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
           <peer>

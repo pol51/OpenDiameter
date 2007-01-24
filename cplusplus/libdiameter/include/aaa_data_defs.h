@@ -202,6 +202,7 @@ typedef struct {
 typedef struct {
    std::string hostname;                 // hostname of peer
    diameter_unsigned32_t port;           // port number
+   diameter_unsigned32_t use_sctp;       // Use SCTP for this connection
    diameter_unsigned32_t tls_enabled;    // TLS support
 } DiameterDataPeer;
 

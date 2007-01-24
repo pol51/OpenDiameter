@@ -46,6 +46,7 @@
           <peer>
               <hostname>aaaserver.telcordias.com</hostname>
               <port>1802</port>
+              <use_sctp>0</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
       </peer_table>

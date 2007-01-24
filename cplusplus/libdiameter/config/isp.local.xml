@@ -45,16 +45,19 @@
           <peer>
               <hostname>nas.access1.net</hostname>
               <port>1811</port>
+              <use_sctp>1</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
           <peer>
               <hostname>nas.access2.net</hostname>
               <port>1811</port>
+              <use_sctp>1</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
           <peer>
               <hostname>nas.access3.net</hostname>
               <port>1811</port>
+              <use_sctp>1</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
       </peer_table>

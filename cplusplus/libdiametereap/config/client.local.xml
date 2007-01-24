@@ -42,6 +42,7 @@
           <peer>
               <hostname>server.research2.org</hostname>
               <port>1812</port>
+              <use_sctp>0</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
       </peer_table>

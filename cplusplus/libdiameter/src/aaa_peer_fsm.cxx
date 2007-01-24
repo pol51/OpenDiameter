@@ -137,10 +137,10 @@ void DiameterPeer_Cleanup::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeer_ReConnect::operator()(DiameterPeerStateMachine &fsm)
 {
     AAA_LOG((LM_INFO,
-            "(%P|%t) Retrying peer connection for %d time\n", fsm.m_ReconnectAttempt));
+            "(%P|%t) Retrying peer connection. Number of attemps %d\n", fsm.m_ReconnectAttempt));
 
     fsm.StopReConnect();
-    reinterpret_cast<DiameterPeerEntry*>(&fsm)->Start(fsm.m_ReconnectAttempt % 2);
+    reinterpret_cast<DiameterPeerEntry*>(&fsm)->Start();
 }
 
 void DiameterPeerR_Accept::operator()(DiameterPeerStateMachine &fsm)

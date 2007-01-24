@@ -171,6 +171,10 @@
           <peer>
               <hostname>tari-dhcp163.research.telcordia.com</hostname>
               <port>1812</port>
+              <!-- This flag indicates whether this connection will
+                   be an SCTP connection. If set to 1, SCTP will be
+                   used. If set to 0, TCP will be used -->
+              <use_sctp>1</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
       </peer_table>

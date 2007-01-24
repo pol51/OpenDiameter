@@ -119,6 +119,7 @@ typedef struct
    int m_Expiration;
    bool m_Static;
    bool m_TLS;
+   bool m_UseSctp;
    std::auto_ptr<Diameter_IO_Base> m_IOInitiator;
    std::auto_ptr<Diameter_IO_Base> m_IOResponder;
    DiameterPeerCapabilities m_PeerCapabilities; 

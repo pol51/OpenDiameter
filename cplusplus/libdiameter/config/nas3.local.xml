@@ -43,6 +43,7 @@
           <peer>
               <hostname>server.isp.net</hostname>
               <port>1812</port>
+              <use_sctp>1</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
       </peer_table>

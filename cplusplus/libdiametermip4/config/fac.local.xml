@@ -44,6 +44,7 @@
           <peer>
               <hostname>aaaserver.homedomain.com</hostname>
               <port>1903</port>
+              <use_sctp>0</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
       </peer_table>

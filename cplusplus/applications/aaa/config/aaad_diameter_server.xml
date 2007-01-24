@@ -45,6 +45,7 @@
           <peer>
               <hostname>nas.access1.net</hostname>
               <port>1811</port>
+              <use_sctp>0</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
           <peer>

@@ -41,10 +41,11 @@
 
      <!ELEMENT expiration_time (#PCDATA)>
 
-     <!ELEMENT peer (hostname,  port,  tls_enabled)>
+     <!ELEMENT peer (hostname,  port,  use_sctp,  tls_enabled)>
 
      <!ELEMENT hostname (#PCDATA)>
      <!ELEMENT port (#PCDATA)>
+     <!ELEMENT use_sctp (#PCDATA)>
      <!ELEMENT tls_enabled (#PCDATA)>
 
      <!ELEMENT route_table (expire_time, route*, default_route)>

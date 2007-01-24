@@ -272,6 +272,7 @@ int main(int argc, char *argv[])
    DiameterPeerManager peerMngr(task);
    if (peerMngr.Add(peername, // hostname of peer to connect to
                     1812,     // port number of host
+                    false,    // Use TCP
                     false,    // tls support
                     50,
                     false)) {

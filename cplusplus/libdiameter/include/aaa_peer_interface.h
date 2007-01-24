@@ -62,12 +62,14 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeer :
       DiameterPeer(AAA_Task &task,
                std::string &peername,
                int peerport,
+               int use_sctp,
                int tls_enabled,
                int etime,
                bool is_static) :
           DiameterPeerEntry(task,
                         peername,
                         peerport,
+                        use_sctp,
                         tls_enabled,
                         etime,
                         is_static),
@@ -123,6 +125,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerManager
       }
       bool Add(std::string &peername,
                int peerport,
+               int use_sctp,
                int tls_enabled,
                int etime,
                bool is_static) {
@@ -130,11 +133,12 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerManager
              etime = DIAMETER_PEER_TABLE()->ExpirationTime();
          }
          DiameterPeer *p = new DiameterPeer(m_Task,
-                                    peername,
-                                    peerport,
-                                    tls_enabled,
-                                    etime,
-                                    is_static);
+                                            peername,
+                                            peerport,
+                                            use_sctp,
+                                            tls_enabled,
+                                            etime,
+                                            is_static);
          if (p) {
              DIAMETER_PEER_TABLE()->Add(p);
              return true;

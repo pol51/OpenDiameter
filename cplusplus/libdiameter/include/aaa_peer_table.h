@@ -43,11 +43,12 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
 {
    public:
       DiameterPeerEntry(AAA_Task &task,
-                    std::string &peername,
-                    int peerport,
-                    int tls_enabled,
-                    int etime,
-                    bool is_static) :
+                        std::string &peername,
+                        int peerport,
+                        int use_sctp,
+                        int tls_enabled,
+                        int etime,
+                        bool is_static) :
           DiameterPeerStateMachine(task),
           m_PeerInitiator(*this) {
           PeerData().m_Identity = peername;
@@ -55,6 +56,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
           PeerData().m_Static = is_static;
           PeerData().m_Expiration = etime;
           PeerData().m_TLS = tls_enabled ? true : false;
+          PeerData().m_UseSctp = use_sctp ? true : false;
           PeerData().m_DisconnectCause = AAA_DISCONNECT_DONTWANTTOTALK;
           AAA_StateMachineWithTimer<DiameterPeerStateMachine>::Start();
       }
@@ -62,7 +64,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
           DiameterPeerStateMachine::Stop();
       }
 
-      void Start(bool useSctp = true) throw (AAA_Error);
+      void Start() throw (AAA_Error);
       void Stop(DIAMETER_DISCONNECT_CAUSE cause);
 
       bool IsOpen() {
