@@ -58,21 +58,49 @@ PANA_PaaStateTable::PANA_PaaStateTable()
 
     ///////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Optimized Handshake) - - - - - - - - - - -
-    // (Rx:PCI ||               EAP_Restart();             WAIT_EAP_MSG_
-    //  PAC_FOUND) &&                                      IN_INIT
+    // (Rx:PCI ||               EAP_Restart();             OFFLINE
+    //  PAC_FOUND) &&                                      
     // OPTIMIZED_HANDSHAKE==Set
     //
     ev.Reset();
     ev.Event_App(PANA_EV_APP_PAC_FOUND);
     ev.EnableCfg_OptimizedHandshake();
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
-                       PANA_ST_WAIT_EAP_MSG_IN_INIT,
+                       PANA_ST_OFFLINE,
                        m_PaaExitActionPaaEapRestart);
 
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - - (Send PSR with EAP-Request) - - - - - - -
+    // EAP_REQUEST              PSR.insert_avp             OFFLINE
+    //                           ("EAP-Payload");          
+    //                          if (AUTH_ALGORITHM_IN_PSR
+    //                              ==Set)
+    //                            PSR.insert_avp
+    //                            ("Algorithm");
+    //                          Tx:PSR();
+    //                          if (RTX_PSR == Set)
+    //                            RtxTimerStart();
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_REQUEST);
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_OFFLINE,
+                       m_PaaExitActionTxPSR);
+
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - - - - (EAP timeout) - - - - - - - - - - - -
+    // EAP_TIMEOUT              if (RTX_PSR == Set)        OFFLINE
+    //                            RtxTimerStart();
+    //
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_OFFLINE,
+                       m_PaaExitActionTimeout);
+                       
     ///////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Non-Optimized Handshake) - - - - - - - - -
-    // (Rx:PCI ||               if (AUTH_ALGORITHM_IN_PSR  WAIT_PAC_
-    //  PAC_FOUND) &&               ==Set)                 IN_INIT
+    // (Rx:PCI ||               if (AUTH_ALGORITHM_IN_PSR  OFFLINE
+    //  PAC_FOUND) &&               ==Set)                 
     // OPTIMIZED_HANDSHAKE==      PSR.insert_avp
     //  Unset &&                  ("Algorithm");
     // RTX_PSR=Set              Tx:PSR();
@@ -81,18 +109,23 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     ev.Reset();
     ev.Event_App(PANA_EV_APP_PAC_FOUND);
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
-                       PANA_ST_WAIT_PAC_IN_INIT,
+                       PANA_ST_OFFLINE,
                        m_PaaExitActionTxPSR);
 
     /////////////////////////////////////////////////////////////////
-    // Rx:PSA                   EAP_Restart();             WAIT_EAP_MSG
-    //
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Rx:PSA                   if (PSA.exist_avp          WAIT_EAP_MSG
+    //                             ("EAP-Payload"))
+    //                            TxEAP();
+    //                          else
+    //                            EAP_Restart();
+    //                          RtxTimerStop();
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PSA);
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_WAIT_EAP_MSG,
                        m_PaaExitActionRxPSA);
-
+                       
     /////////////////////////////////////////////////////////////////
     // RTX_TIMEOUT &&           Disconnect();              CLOSED
     // RTX_COUNTER>=
@@ -123,94 +156,6 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     AddWildcardStateTableEntry(PANA_ST_OFFLINE,
                                PANA_ST_OFFLINE);
 #endif
-
-    // ---------------------------
-    // State: WAIT_EAP_MSG_IN_INIT
-    // ---------------------------
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - (Send PSR with EAP-Request) - - - - - - -
-    // EAP_REQUEST              PSR.insert_avp             WAIT_PAC_
-    //                           ("EAP-Payload");          IN_INIT
-    //                          if (AUTH_ALGORITHM_IN_PSR
-    //                              ==Set)
-    //                            PSR.insert_avp
-    //                            ("Algorithm");
-    //                          Tx:PSR();
-    //                          RtxTimerStart();
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_REQUEST);
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_PAC_IN_INIT,
-                       m_PaaExitActionTxPSR);
-
-    // -----------------------
-    // State: WAIT_PAC_IN_INIT
-    // -----------------------
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Rx:PSA                   if (PSA.exist_avp          WAIT_EAP_MSG
-    //                             ("EAP-Payload"))
-    //                            TxEAP();
-    //                          else
-    //                            EAP_Restart();
-    //                          RtxTimerStop();
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PSA);
-    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_EAP_MSG,
-                       m_PaaExitActionRxPSA);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - -(EAP retransmission) - - - - - - - - - -
-    // EAP_REQUEST              PSR.insert_avp             WAIT_PAC_
-    //                           ("EAP-Payload");          IN_INIT
-    //                          if (AUTH_ALGORITHM_IN_PSR
-    //                              ==Set)
-    //                            PSR.insert_avp
-    //                            ("Algorithm");
-    //                          Tx:PSR();
-    //                          RtxTimerStart();
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_REQUEST);
-    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_PAC_IN_INIT,
-                       m_PaaExitActionTxPSR);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - - - (EAP timeout) - - - - - - - - - - - -
-    // EAP_TIMEOUT              RtxTimerStop();            CLOSED
-    //                          Disconnect();
-    //
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_TIMEOUT);
-    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PaaExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
-    // RTX_TIMEOUT &&           Disconnect();              CLOSED
-    // RTX_COUNTER>=
-    // RTX_MAX_NUM
-    //
-    ev.Reset();
-    ev.Do_RetryTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PaaExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - (Reach maximum number of retransmission)- -
-    // RTX_TIMEOUT &&           Retransmit();              (no change)
-    // RTX_COUNTER<
-    // RTX_MAX_NUM
-    //
-    ev.Reset();
-    ev.Do_ReTransmission();
-    AddStateTableEntry(PANA_ST_WAIT_PAC_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_PAC_IN_INIT,
-                       m_PaaExitActionRetransmission);
 
     // -------------------
     // State: WAIT_EAP_MSG
@@ -1101,8 +1046,7 @@ class PANA_PsmRxPSA : public PANA_ServerRxStateFilter
    public:
       PANA_PsmRxPSA(PANA_Paa &a, PANA_PaaSession &s) :
           PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_OFFLINE,
-                                           PANA_ST_WAIT_PAC_IN_INIT };
+          static PANA_ST validStates[] = { PANA_ST_OFFLINE };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
       virtual void HandleMessage(PANA_Message &msg) {

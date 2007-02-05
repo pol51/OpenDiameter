@@ -56,6 +56,7 @@ void PANA_Client::NotifyEapRestart()
 {
     m_Timer.CancelSession();
     m_Event.EapStart();
+    m_SA.Reset();
 }
 
 void PANA_Client::NotifyAuthorization()

@@ -53,7 +53,16 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // RtxTimerStop();
 
     /////////////////////////////////////////////////////////////////////
-    // - - - - - - - - - -(PAA-initiated Handshake) - - - - - - - - -
+    // - - - - - - - - - - (PaC-initiated Handshake) - - - - - - - - -
+    // AUTH_USER                Tx:PCI();                  OFFLINE
+    ev.Reset();
+    ev.Event_App(PANA_EV_APP_AUTH_USER);
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_OFFLINE,
+                       m_PacOfflineExitActionAuthUser);
+
+    /////////////////////////////////////////////////////////////////////
+    //  - - - -(PAA-initiated Handshake, not optimized) - - - - - - - - -
     // Rx:PSR &&                Tx:PSA();                  WAIT_PAA
     // !PSR.exist_avp           EAP_Restart();
     // ("EAP-Payload") &&
@@ -71,8 +80,8 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - -(PAA-initiated Handshake, optimized) - - - - - -
-    // Rx:PSR &&                EAP_Restart();             WAIT_EAP_MSG_
-    // PSR.exist_avp            TxEAP();                   IN_INIT
+    // Rx:PSR &&                EAP_Restart();             OFFLINE
+    // PSR.exist_avp            TxEAP();                   
     // ("EAP-Payload") &&
     // (!PSR.exist_avp
     // ("Algorithm") ||
@@ -84,18 +93,56 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.MsgType(PANA_EV_MTYPE_PSR);
     ev.AvpExist_EapPayload();
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
-                       PANA_ST_WAIT_EAP_MSG_IN_INIT,
+                       PANA_ST_OFFLINE,
                        m_PacOfflineExitActionRxPSR);
 
     /////////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - (PaC-initiated Handshake) - - - - - - - - -
-    // AUTH_USER                Tx:PCI();                  OFFLINE
+    // EAP_RESPONSE             PSA.insert_avp             WAIT_PAA
+    //                            ("EAP-Payload")
+    //                          Tx:PSA();
     ev.Reset();
-    ev.Event_App(PANA_EV_APP_AUTH_USER);
+    ev.Event_Eap(PANA_EV_EAP_RESPONSE);
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_WAIT_PAA,
+                       m_PacWaitEapMsgInExitActionTxPSA);
+    // Required to deal with eap piggyback enabled flag enabled
+    // during call to EapSendResponse(..) method
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_RESPONSE);
+    ev.EnableCfg_EapPiggyback();
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_WAIT_PAA,
+                       m_PacWaitEapMsgInExitActionTxPSA);
+                       
+    /////////////////////////////////////////////////////////////////////
+    // EAP_RESP_TIMEOUT ||      None();                    OFFLINE
+    // EAP_INVALID_MSG
+
+    /////////////////////////////////////////////////////////////////////
+    // EAP_INVALID_MSG          None();                    OFFLINE
+    //
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_OFFLINE);
+
+    /////////////////////////////////////////////////////////////////////
+    // EAP_RESP_TIMEOUT         None();                    OFFLINE
+    //
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_OFFLINE,
-                       m_PacOfflineExitActionAuthUser);
-
+                       m_PacExitActionTimeout);
+    // Required to deal with eap piggyback enabled flag enabled
+    // during call to ScheduleEapResponse(..) method
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
+    ev.EnableCfg_EapPiggyback();
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_OFFLINE,
+                       m_PacExitActionTimeout);
+                       
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Reach maximum number of retransmission)- -
     // RTX_TIMEOUT &&           Retransmit();              (no change)
@@ -155,66 +202,6 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 #if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_OFFLINE,
                                PANA_ST_OFFLINE);
-#endif
-
-    // ---------------------------
-    // State: WAIT_EAP_MSG_IN_INIT
-    // ---------------------------
-
-    /////////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - (Return PSA with EAP-Payload) - - - - - -
-    // EAP_RESPONSE             PSA.insert_avp             WAIT_PAA
-    //                            ("EAP-Payload")
-    //                          Tx:PSA();
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_RESPONSE);
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_PAA,
-                       m_PacWaitEapMsgInExitActionTxPSA);
-    // Required to deal with eap piggyback enabled flag enabled
-    // during call to EapSendResponse(..) method
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_RESPONSE);
-    ev.EnableCfg_EapPiggyback();
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
-                       PANA_ST_WAIT_PAA,
-                       m_PacWaitEapMsgInExitActionTxPSA);
-
-    /////////////////////////////////////////////////////////////////////
-    // EAP_RESP_TIMEOUT ||      None();                    OFFLINE
-    // EAP_INVALID_MSG
-
-    /////////////////////////////////////////////////////////////////////
-    // EAP_INVALID_MSG          None();                    OFFLINE
-    //
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
-                       PANA_ST_OFFLINE);
-
-    /////////////////////////////////////////////////////////////////////
-    // EAP_RESP_TIMEOUT         None();                    OFFLINE
-    //
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
-                       PANA_ST_OFFLINE,
-                       m_PacExitActionTimeout);
-    // Required to deal with eap piggyback enabled flag enabled
-    // during call to ScheduleEapResponse(..) method
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_RESP_TIMEOUT);
-    ev.EnableCfg_EapPiggyback();
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT, ev.Get(),
-                       PANA_ST_OFFLINE,
-                       m_PacExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - (Catch all processing)- -
-    //
-#if !defined(PANA_DEBUG)
-    AddWildcardStateTableEntry(PANA_ST_WAIT_EAP_MSG_IN_INIT,
-                               PANA_ST_WAIT_EAP_MSG_IN_INIT);
 #endif
 
     // ---------------
@@ -633,6 +620,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // - - - - - - - - - (re-authentication initiated by PaC)- - - - - -
     // REAUTH                   if (key_available())       WAIT_PRA
     //                            PRR.insert_avp("AUTH");
+    //                          FIRST_AUTH_EXCHG=Set;
     //                          Tx:PRR();
     //                          RtxTimerStart();
     //                          SessionTimerStop();
@@ -646,6 +634,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // - - - - - - - - - (re-authentication initiated by PAA)- - - - - -
     // Rx:PAR &&                EAP_RespTimerStart();      WAIT_EAP_MSG
     // !eap_piggyback()         TxEAP();
+    //                          FIRST_AUTH_EXCHG=Set;
     //                          if (key_available())
     //                             PAN.insert_avp("AUTH");
     //                          Tx:PAN();
@@ -660,6 +649,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // - - - - - - - - - (re-authentication initiated by PAA)- - - - - -
     // Rx:PAR &&                EAP_RespTimerStart();      WAIT_EAP_MSG
     // eap_piggyback()          TxEAP();
+    //                          FIRST_AUTH_EXCHG=Set;
     //                          SessionTimerStop();
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PAR);
