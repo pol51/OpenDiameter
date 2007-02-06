@@ -45,7 +45,7 @@ DiameterMsgManager::DiameterMsgManager(int n_blocks) :
 
 DiameterMsgManager::~DiameterMsgManager()
 {
-    delete this->pool_;
+    delete[] this->pool_;
 }
 
 AAAMessageBlock *DiameterMsgManager::malloc()
