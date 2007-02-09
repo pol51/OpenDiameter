@@ -5,44 +5,40 @@
       <product>Open Diameter</product>
       <version>1</version>
       <vendor_id>0</vendor_id>
-      <supported_vendor_id>0</supported_vendor_id>
-      <supported_vendor_id>1</supported_vendor_id>
-      <auth_application_id>1</auth_application_id>
-      <auth_application_id>2</auth_application_id>
-      <auth_application_id>10000</auth_application_id>
-      <acct_application_id>3</acct_application_id>
-      <acct_application_id>4</acct_application_id>
-      <acct_application_id>20000</acct_application_id>
-      <vendor_specific_application_id>
-          <vendor_id>31</vendor_id>
-          <auth_application_id>1</auth_application_id>
-          <acct_application_id>4</acct_application_id>
-      </vendor_specific_application_id>
+      <auth_application_id>-1</auth_application_id>
+      <auth_application_id>5</auth_application_id>
+      <auth_application_id>4</auth_application_id>
       <vendor_specific_application_id>
           <vendor_id>41</vendor_id>
           <auth_application_id>5</auth_application_id>
           <acct_application_id>6</acct_application_id>
       </vendor_specific_application_id>
    </general>
-   <parser> 
+   <parser>
       <dictionary>config/dictionary.xml</dictionary>
    </parser>
    <transport_mngt>
-      <identity>nas.access1.net</identity>
-      <realm>access1.net</realm>
-      <tcp_listen_port>1810</tcp_listen_port>
-      <sctp_listen_port>1811</sctp_listen_port>
+      <identity>toshibapeer1.toshiba.com</identity>
+      <realm>toshiba.com</realm>
+      <tcp_listen_port>1812</tcp_listen_port>
+      <sctp_listen_port>1813</sctp_listen_port>
       <use_ipv6>0</use_ipv6>
-      <watchdog_timeout>3</watchdog_timeout>
-      <reconnect_interval>3</reconnect_interval>
-      <reconnect_max>6</reconnect_max>
+      <watchdog_timeout>4</watchdog_timeout>
+      <reconnect_interval>30</reconnect_interval>
+      <reconnect_max>3</reconnect_max>
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
-      <advertised_hostname>nas1.access1.net</advertised_hostname>
+      <advertised_hostname>toshibapeer1.toshiba.com</advertised_hostname>
       <peer_table>
           <expiration_time>1</expiration_time>
           <peer>
-              <hostname>server.isp.net</hostname>
+              <hostname>atospeer1.atos.com</hostname>
+              <port>1812</port>
+              <use_sctp>0</use_sctp>
+              <tls_enabled>0</tls_enabled>
+          </peer>
+          <peer>
+              <hostname>condorpeer2.condor.com</hostname>
               <port>1812</port>
               <use_sctp>0</use_sctp>
               <tls_enabled>0</tls_enabled>
@@ -51,38 +47,55 @@
       <route_table>
           <expire_time>0</expire_time>
           <route>
-             <realm>isp.net</realm>
+             <realm>condor.com</realm>
              <role>1</role> 
              <application>
-                <application_id>10000</application_id>
+                <application_id>4</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
-                    <server>server.isp.net</server>
+                    <server>condorpeer2.condor.com</server>
                     <metric>2</metric>
                 </peer_entry>
              </application>
              <application>
-                <application_id>0</application_id>
+                <application_id>5</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
-                    <server>server.isp.net</server>
+                    <server>condorpeer2.condor.com</server>
                     <metric>2</metric>
                 </peer_entry>
              </application>
           </route>
           <default_route>
-             <realm>isp.net</realm>
-             <role>0</role>
+          <route>
+             <realm>atos.com</realm>
+             <role>1</role> 
              <application>
-                <application_id>1</application_id>
+                <application_id>4</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
-                    <server>server.isp.net</server>
-                    <metric>4</metric>
+                    <server>atospeer1.atos.com</server>
+                    <metric>2</metric>
                 </peer_entry>
+             </application>
+             <application>
+                <application_id>5</application_id>
+                <vendor_id>0</vendor_id>
                 <peer_entry>
-                    <server>server.isp.net</server>
-                    <metric>5</metric>
+                    <server>atospeer1.condor.com</server>
+                    <metric>2</metric>
+                </peer_entry>
+             </application>
+          </route>
+          <default_route>
+             <realm>access1.net</realm>
+             <role>0</role> 
+             <application>
+                <application_id>0</application_id>
+                <vendor_id>0</vendor_id>
+                <peer_entry>
+                    <server>nas.access1.net</server>
+                    <metric>4</metric>
                 </peer_entry>
              </application>
           </default_route>
@@ -111,7 +124,7 @@
       </flags>
       <target>
          <console>enabled</console>
-         <syslog>disabled</syslog>
+         <syslog>enabled</syslog>
       </target>
    </log>
 </configuration>

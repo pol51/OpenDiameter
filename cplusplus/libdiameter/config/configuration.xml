@@ -35,13 +35,17 @@
 
       <!-- List of locally supported auth application 
            id's. This contains one or more auth application
-           id's that will be broadcasted to peers. -->
+           id's that will be broadcasted to peers. To
+	   advertise this node as a relay, place a '-1'
+	   in either auth_application_id or acct_application_id -->
       <auth_application_id>1</auth_application_id>
       <auth_application_id>2</auth_application_id>
 
       <!-- List of locally supported acct application
            id's. This contains one or more auth application
-           id's that will be broadcasted to peers. -->
+           id's that will be broadcasted to peers. To
+	   advertise this node as a relay, place a '-1'
+	   in either auth_application_id or acct_application_id -->
       <acct_application_id>3</acct_application_id>
       <acct_application_id>4</acct_application_id>
 

@@ -1217,8 +1217,14 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
         i++) {
        DiameterApplicationIdLst::iterator x = idList[i]->begin();
        for (; x != idList[i]->end(); x++) {
-           AAA_LOG((LM_INFO, "(%P|%t)  %s : %d\n",
-                   label[i], *x));
+           if ((i > 0) && ((*x) == DIAMETER_RELAY_APPLICATION_ID)) {
+               AAA_LOG((LM_INFO, "(%P|%t)  %s : Relay\n",
+                       label[i]));
+           }
+           else {
+               AAA_LOG((LM_INFO, "(%P|%t)  %s : %d\n",
+                       label[i], *x));
+           }
        }
    }
 
@@ -1232,10 +1238,20 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
             AAA_LOG((LM_INFO, "(%P|%t)      Vendor=--- "));
         }
        if ((*y).authAppId > 0) {
-           AAA_LOG((LM_INFO, " Auth=%d ", (*y).authAppId));
+           if ((*y).authAppId == DIAMETER_RELAY_APPLICATION_ID) {
+               AAA_LOG((LM_INFO, " Auth=Relay"));
+           }
+           else {
+               AAA_LOG((LM_INFO, " Auth=%d ", (*y).authAppId));
+           }
        }
        if ((*y).acctAppId > 0) {
-           AAA_LOG((LM_INFO, " Acct=%d ", (*y).acctAppId));
+           if ((*y).authAppId == DIAMETER_RELAY_APPLICATION_ID) {
+               AAA_LOG((LM_INFO, " Acct=Relay"));
+           }
+           else {
+               AAA_LOG((LM_INFO, " Acct=%d ", (*y).acctAppId));
+           }
        }
        AAA_LOG((LM_INFO, "%s\n", (((*y).authAppId == 0) && ((*y).acctAppId == 0)) ? "---" : ""));
    }

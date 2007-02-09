@@ -177,7 +177,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
             }
         }
 
-        AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) present but no ours or no supported id\n", 
+        AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) present but not ours or no supported id\n", 
                 DestRealm->data()));
         // next chain
     }
