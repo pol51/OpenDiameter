@@ -80,6 +80,7 @@ void DiameterRxMsgCollector::Message(void *data, size_t length)
       while (m_Offset > DIAMETER_HEADER_SIZE) {
 
          DiameterMsgHeader hdr;
+         memset(&hdr, 0x0, sizeof(hdr));
 
          if (m_MsgLength == 0) {
 
@@ -177,7 +178,23 @@ void DiameterRxMsgCollector::Message(void *data, size_t length)
                       throw (0);
                    }
 
-                   msg->hdr = hdr;
+                   if (hdr.getDictHandle() == 0) {
+
+                      DiameterMsgHeaderParser hp;
+                      hp.setRawData(aBuffer);
+                      hp.setAppData(&msg->hdr);
+                      hp.setDictData(DIAMETER_PARSE_STRICT);
+
+                      try {
+                         hp.parseRawToApp();
+                      }
+                      catch (DiameterErrorCode &st) {
+                         throw (0); 
+                      }
+                   }
+                   else {
+                      msg->hdr = hdr;
+                   }
 
                    DiameterMsgPayloadParser pp;
                    pp.setRawData(aBuffer);
@@ -235,7 +252,7 @@ void DiameterRxMsgCollector::Message(void *data, size_t length)
                 m_Handler->Message(msg);
 
                 m_PersistentError.Reset(0, 0,
-                    (m_BufSize * 
+                    (m_BufSize *
                      MSG_COLLECTOR_MAX_MSG_BLOCK)/sizeof(ACE_UINT32));
             }
             else {
