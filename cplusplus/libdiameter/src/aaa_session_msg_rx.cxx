@@ -34,7 +34,7 @@
 #include "aaa_session_db.h"
 #include "aaa_session_msg_rx.h"
 
-int AAA_SessionMsgRx::RxLocalMsgHandler::Request
+int DiameterSessionMsgRx::RxLocalMsgHandler::Request
   (std::auto_ptr<DiameterMsg> &msg, 
    DiameterPeerEntry *source, 
    DiameterPeerEntry *dest)
@@ -95,7 +95,7 @@ int AAA_SessionMsgRx::RxLocalMsgHandler::Request
     return (-1);
 }
 
-int AAA_SessionMsgRx::RxLocalMsgHandler::Answer
+int DiameterSessionMsgRx::RxLocalMsgHandler::Answer
   (std::auto_ptr<DiameterMsg> &msg, 
    DiameterPeerEntry *source, 
    DiameterPeerEntry *dest)
@@ -127,7 +127,7 @@ int AAA_SessionMsgRx::RxLocalMsgHandler::Answer
     return (-1);
 }
 
-AAAReturnCode AAA_SessionMsgRx::RxUnknownSession
+AAAReturnCode DiameterSessionMsgRx::RxUnknownSession
   (std::auto_ptr<DiameterMsg> msg)
 {
     // special base protocol handling for unknown session id
@@ -139,7 +139,7 @@ AAAReturnCode AAA_SessionMsgRx::RxUnknownSession
     return (AAA_ERR_FAILURE);
 }
 
-int AAA_SessionMsgRx::RxProxyMsgHandler::Request
+int DiameterSessionMsgRx::RxProxyMsgHandler::Request
   (std::auto_ptr<DiameterMsg> &msg, 
    DiameterPeerEntry *source, 
    DiameterPeerEntry *dest)
@@ -161,7 +161,7 @@ int AAA_SessionMsgRx::RxProxyMsgHandler::Request
     return (-1);
 }
 
-int AAA_SessionMsgRx::RxProxyMsgHandler::Answer
+int DiameterSessionMsgRx::RxProxyMsgHandler::Answer
   (std::auto_ptr<DiameterMsg> &msg, 
    DiameterPeerEntry *source, 
    DiameterPeerEntry *dest)
@@ -178,7 +178,7 @@ int AAA_SessionMsgRx::RxProxyMsgHandler::Answer
     return (-1);
 }
 
-int AAA_SessionMsgRx::RxErrorMsgHandler::LocalErrorHandling
+int DiameterSessionMsgRx::RxErrorMsgHandler::LocalErrorHandling
   (std::auto_ptr<DiameterMsg> &msg, 
    DiameterPeerEntry *source, 
    DiameterPeerEntry *dest) 
@@ -211,7 +211,7 @@ int AAA_SessionMsgRx::RxErrorMsgHandler::LocalErrorHandling
     return (-1);
 }
 
-void AAA_SessionMsgRx::TxASA(std::auto_ptr<DiameterMsg> &asr)
+void DiameterSessionMsgRx::TxASA(std::auto_ptr<DiameterMsg> &asr)
 {
     /*
         8.5.2.  Abort-Session-Answer

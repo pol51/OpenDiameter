@@ -70,7 +70,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ProxyHandler
         diameter_unsigned32_t m_ApplicationId;
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionFactoryMap : 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionFactoryMap : 
     private std::map<diameter_unsigned32_t, DiameterServerSessionFactory*>
 {
     private:
@@ -100,7 +100,7 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_SessionFactoryMap :
         }
 };
 
-class DIAMETERBASEPROTOCOL_EXPORT AAA_ProxyHandlerMap : 
+class DIAMETERBASEPROTOCOL_EXPORT DiameterProxyHandlerMap : 
     private std::map<diameter_unsigned32_t, AAA_ProxyHandler*> 
 {
     private:
@@ -126,10 +126,10 @@ class DIAMETERBASEPROTOCOL_EXPORT AAA_ProxyHandlerMap :
         }
 };
 
-class AAA_SessionMsgRx
+class DiameterSessionMsgRx
 {
     public:
-       AAA_SessionMsgRx() :
+       DiameterSessionMsgRx() :
            m_LocalHandler(*this),
            m_ProxyHandler(*this),
            m_ErrorHandler(*this) {
@@ -140,15 +140,15 @@ class AAA_SessionMsgRx
            DIAMETER_MSG_ROUTER()->RegisterHandler
                (DiameterMsgRouterHandlerTable::H_ERROR, &m_ErrorHandler);
        }
-       virtual ~AAA_SessionMsgRx() {
+       virtual ~DiameterSessionMsgRx() {
            DIAMETER_MSG_ROUTER()->RemoveHandler(DiameterMsgRouterHandlerTable::H_LOCAL);
            DIAMETER_MSG_ROUTER()->RemoveHandler(DiameterMsgRouterHandlerTable::H_PROXY);
            DIAMETER_MSG_ROUTER()->RemoveHandler(DiameterMsgRouterHandlerTable::H_ERROR);
        }
-       AAA_SessionFactoryMap &SessionFactoryMap() {
+       DiameterSessionFactoryMap &SessionFactoryMap() {
            return m_SessionFactoryMap;
        }
-       AAA_ProxyHandlerMap &ProxyHandlerMap() {
+       DiameterProxyHandlerMap &ProxyHandlerMap() {
            return m_ProxyHandlerMap;
        }
 
@@ -158,7 +158,7 @@ class AAA_SessionMsgRx
     protected:
        class RxLocalMsgHandler : public DiameterMsgRouterHandler {
            public:
-              RxLocalMsgHandler(AAA_SessionMsgRx &rx) :
+              RxLocalMsgHandler(DiameterSessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
               int Request(std::auto_ptr<DiameterMsg> &msg,
@@ -168,11 +168,11 @@ class AAA_SessionMsgRx
                          DiameterPeerEntry *source,
                          DiameterPeerEntry *dest);
            private:
-              AAA_SessionMsgRx &m_SessionRx;
+              DiameterSessionMsgRx &m_SessionRx;
        };
        class RxProxyMsgHandler : public DiameterMsgRouterHandler {
            public:
-              RxProxyMsgHandler(AAA_SessionMsgRx &rx) :
+              RxProxyMsgHandler(DiameterSessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
               int Request(std::auto_ptr<DiameterMsg> &msg,
@@ -182,11 +182,11 @@ class AAA_SessionMsgRx
                           DiameterPeerEntry *source,
                          DiameterPeerEntry *dest);
            private:
-              AAA_SessionMsgRx &m_SessionRx;
+              DiameterSessionMsgRx &m_SessionRx;
        };
        class RxErrorMsgHandler : public DiameterMsgRouterHandler {
            public:
-              RxErrorMsgHandler(AAA_SessionMsgRx &rx) :
+              RxErrorMsgHandler(DiameterSessionMsgRx &rx) :
                   m_SessionRx(rx) {
               }
               int Request(std::auto_ptr<DiameterMsg> &msg,
@@ -207,15 +207,15 @@ class AAA_SessionMsgRx
                                      DiameterPeerEntry *source,
                                      DiameterPeerEntry *dest);
            private:
-              AAA_SessionMsgRx &m_SessionRx;
+              DiameterSessionMsgRx &m_SessionRx;
        };
 
     private:
        void TxASA(std::auto_ptr<DiameterMsg> &msg);
 
     private:
-       AAA_SessionFactoryMap m_SessionFactoryMap;
-       AAA_ProxyHandlerMap m_ProxyHandlerMap;
+       DiameterSessionFactoryMap m_SessionFactoryMap;
+       DiameterProxyHandlerMap m_ProxyHandlerMap;
        RxLocalMsgHandler m_LocalHandler;
        RxProxyMsgHandler m_ProxyHandler;
        RxErrorMsgHandler m_ErrorHandler;

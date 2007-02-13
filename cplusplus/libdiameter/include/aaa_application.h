@@ -119,7 +119,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterApplication :
     private: // Global Classes
         AAA_Task &m_Task;
         DiameterPeerAcceptor m_PeerAcceptor;
-        AAA_SessionMsgRx m_SessionMsgRx;
+        DiameterSessionMsgRx m_SessionMsgRx;
         Diameter_IO_SigMask m_IOSigMask;
         ReTransmissionTimerHandler m_ReTxHandler;
 };
