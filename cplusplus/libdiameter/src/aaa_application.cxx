@@ -50,8 +50,13 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
         DiameterXMLConfigParser parser;
         parser.Load(m_Task, cfgfile);
     }
+    catch (OD_Utl_XML_SaxException e) {
+        AAA_LOG((LM_INFO, "(%P|%t) Parsing problem [%d]: %s, for file %s\n",
+                e.Code(), e.Description().data(), cfgfile));
+        return (AAA_ERR_PARSING_ERROR);
+    }
     catch (...) {
-        AAA_LOG((LM_INFO, "(%P|%t) % failed to parse %s\n",
+        AAA_LOG((LM_INFO, "(%P|%t) Unknown parsing problem for file %s\n",
                 cfgfile));
         return (AAA_ERR_PARSING_ERROR);
     }
