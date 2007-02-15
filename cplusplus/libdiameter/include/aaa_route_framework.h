@@ -215,6 +215,7 @@ class DiameterDeliveryRoutingNode : public DiameterRoutingNode
            PendingReqAgeCheck ageCheck(current, act);
            m_ReqMap.Iterate(ageCheck);
        }
+
    protected:
        DiameterDeliveryRoutingNode(ARG &a,
                                DiameterRoutingNode *next = NULL,
@@ -223,7 +224,7 @@ class DiameterDeliveryRoutingNode : public DiameterRoutingNode
            m_Arg(a) {
        }
        virtual ~DiameterDeliveryRoutingNode() {
-           Clear();
+           ClearQueuedMessages();
        }
 
        int Add(int localh2h,
@@ -243,16 +244,16 @@ class DiameterDeliveryRoutingNode : public DiameterRoutingNode
            }
            return (-1);
        }
-       DiameterRouterPendingReqPtr Lookup(int h2hId) {
+       DiameterRouterPendingReqPtr LookupQueuedMessage(int h2hId) {
            DiameterRouterPendingReqPtr r = NULL;
            m_ReqMap.Lookup(h2hId, r);
            return r;
        }
-       int Remove(int h2hId) {
+       int DeleteQueuedMessage(int h2hId) {
            PendingReqCleanup dealloc;
            return (m_ReqMap.Remove(h2hId, dealloc)) ? 0 : (-1);
        }
-       void Clear() {
+       void ClearQueuedMessages() {
            PendingReqCleanup dealloc;
            m_ReqMap.Iterate(dealloc);
        }
@@ -290,7 +291,7 @@ class DiameterDeliveryRoutingNode : public DiameterRoutingNode
                dest = r->m_Source;
                p = r->m_ReqMessage;
                m->hdr.hh = r->m_OrigHH;
-               Remove(localhh);
+               DeleteQueuedMessage(localhh);
                return (AAA_ROUTE_RESULT_SUCCESS);
            }
            return (AAA_ROUTE_RESULT_NEXT_CHAIN);

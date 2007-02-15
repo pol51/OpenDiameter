@@ -483,10 +483,14 @@ int DiameterMsgRouter::DcForward::LoopDetection(std::auto_ptr<DiameterMsg> &msg)
 }
 
 int DiameterMsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                         DiameterPeerEntry *source,
-                                         DiameterPeerEntry *dest)
+                                             DiameterPeerEntry *source,
+                                             DiameterPeerEntry *dest)
 {
-    if (LoopDetection(msg) == 0) {
+    if (msg->hdr.flags.t && LookupQueuedMessage(msg->hdr.hh)) {
+        // locally re-transmitted messages
+        DeleteQueuedMessage(msg->hdr.hh);
+    }
+    else if (LoopDetection(msg) == 0) {
         if (source) {
             std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(*msg, AAA_LOOP_DETECTED);
             return (source->Send(answerMsg) >= 0) ? 0 : (-1);
@@ -651,14 +655,20 @@ int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
         diameter_identity_t *oHost = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
         if (! oHost || ((*oHost) != DIAMETER_CFG_TRANSPORT()->identity)) {
 
-            if (m_Arg.m_rcForward.Delivery().LoopDetection(msg) == 0) {
-                std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(*msg, AAA_LOOP_DETECTED);
-                return (source->Send(answerMsg) >= 0) ? 0 : (-1);
+            if (msg->hdr.flags.t && LookupQueuedMessage(msg->hdr.hh)) {
+                // locally re-transmitted messages
+                DeleteQueuedMessage(msg->hdr.hh);
             }
+            else {
+                if (m_Arg.m_rcForward.Delivery().LoopDetection(msg) == 0) {
+                    std::auto_ptr<DiameterMsg> answerMsg = DiameterErrorMsg::Generate(*msg, AAA_LOOP_DETECTED);
+                    return (source->Send(answerMsg) >= 0) ? 0 : (-1);
+                }
 
-            DiameterIdentityAvpWidget rrecord(DIAMETER_AVPNAME_ROUTERECORD);
-            rrecord.Get() = DIAMETER_CFG_TRANSPORT()->identity;
-            msg->acl.add(rrecord());
+                DiameterIdentityAvpWidget rrecord(DIAMETER_AVPNAME_ROUTERECORD);
+                rrecord.Get() = DIAMETER_CFG_TRANSPORT()->identity;
+                msg->acl.add(rrecord());
+            }
         }
 
         if (route->Action() == DIAMETER_ROUTE_ACTION_PROXY) {
@@ -727,8 +737,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::DcReject::Process(std::auto_ptr<DiameterMsg>
 }
 
 int DiameterMsgRouter::DcReject::RequestMsg(std::auto_ptr<DiameterMsg> msg,
-                                        DiameterPeerEntry *source,
-                                        DiameterPeerEntry *dest)
+                                            DiameterPeerEntry *source,
+                                            DiameterPeerEntry *dest)
 {
     /*
        6.1.  Diameter Request Routing Overview
