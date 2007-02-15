@@ -1106,7 +1106,8 @@ parseXMLDictionary(char* xmlFile)
       }       
    }
    catch (...) {
-      exit(1);
+      AAA_LOG ((LM_ERROR, ACE_TEXT ("Exception occurred. Exiting...\n")));
+      throw;
    }
 }
 

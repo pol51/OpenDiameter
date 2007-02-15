@@ -1332,8 +1332,10 @@ class DiameterMsgParserWidgetChecked :
                 ErrorDump(st);
             }
             catch (...) {
-                AAA_LOG((LM_INFO, "Parser error: Unknown fatal !!!\n"));
-                exit (0);
+                AAA_LOG((LM_INFO, "Parser failure: Unknown Error !!!\n"));
+                DiameterErrorCode st;
+                st.set(AAA_PARSE_ERROR_TYPE_BUG, 0);
+                throw st;
             }
             return (-1);
         }
@@ -1358,8 +1360,10 @@ class DiameterMsgParserWidgetChecked :
                 ErrorDump(st);
             }
             catch (...) {
-                AAA_LOG((LM_INFO, "Parser error: Unknown fatal !!!\n"));
-                exit (0);
+                AAA_LOG((LM_INFO, "Parser failure: Unknown Error !!!\n"));
+                DiameterErrorCode st;
+                st.set(AAA_PARSE_ERROR_TYPE_BUG, 0);
+                throw st;
             }
             return (-1);
         }
