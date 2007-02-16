@@ -158,11 +158,27 @@ class DiameterRouteEntry : public OD_Utl_RbTreeData
    private:
       int operator < (OD_Utl_RbTreeData &cmp) {
           DiameterRouteEntry *e = reinterpret_cast<DiameterRouteEntry*>(&cmp);
-          return (m_Realm < e->Realm());
+          //
+          // Warning: This is a case in-sensitive lookup which may not
+          //          be generally appropriate if we consider FQDN as
+          //          a non ascii value.
+          //
+          // Deprecated:
+          //  return (m_Realm < e->Realm());
+          //
+          return (strcasecmp(m_Realm.c_str(), e->Realm().c_str()) < 0) ? 1 : 0;
       }
       int operator == (OD_Utl_RbTreeData &cmp) {
           DiameterRouteEntry *e = reinterpret_cast<DiameterRouteEntry*>(&cmp);
-          return (m_Realm == e->Realm());
+          //
+          // Warning: This is a case in-sensitive lookup which may not
+          //          be generally appropriate if we consider FQDN as
+          //          a non ascii value.
+          //
+          // Deprecated:
+          //  return (m_Realm == e->Realm());
+          //
+          return (strcasecmp(m_Realm.c_str(), e->Realm().c_str()) == 0) ? 1 : 0;
       }
       void clear(void *userData = 0);
 };

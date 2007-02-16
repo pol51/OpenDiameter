@@ -141,7 +141,16 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
     diameter_identity_t *DestRealm = destRealm.GetAvp(DIAMETER_AVPNAME_DESTREALM);
 
     if (DestHost) {
-        if (*DestHost == DIAMETER_CFG_TRANSPORT()->identity) {
+        //
+        // Warning: This is a case in-sensitive lookup which may not
+        //          be generally appropriate if we consider FQDN as
+        //          a non ascii value.
+        //
+        // Deprecated:
+        // if (*DestHost == DIAMETER_CFG_TRANSPORT()->identity) {
+        //
+        if (! strcasecmp((*DestHost).c_str(),
+                      DIAMETER_CFG_TRANSPORT()->identity.c_str())) {
             return (AAA_ROUTE_RESULT_SUCCESS);
         }
 
@@ -150,7 +159,16 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
         // next chain
     }
     else if (DestRealm) {
-        if (*DestRealm == DIAMETER_CFG_TRANSPORT()->realm) {
+        //
+        // Warning: This is a case in-sensitive lookup which may not
+        //          be generally appropriate if we consider FQDN as
+        //          a non ascii value.
+        //
+        // Deprecated:
+        // if (*DestRealm == DIAMETER_CFG_TRANSPORT()->realm) {
+        //
+        if (! strcasecmp((*DestRealm).c_str(),
+                      DIAMETER_CFG_TRANSPORT()->realm.c_str())) {
             DiameterApplicationIdLst *idList[] = {
                 &DIAMETER_CFG_GENERAL()->authAppIdLst,
                 &DIAMETER_CFG_GENERAL()->acctAppIdLst

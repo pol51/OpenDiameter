@@ -152,7 +152,15 @@ class DiameterPeerTable : private DiameterPeerList
           ACE_Read_Guard<ACE_RW_Mutex> guard(m_Lock);
           DiameterPeerList::iterator i;
           for (i = begin(); i != end(); i++) {
-              if ((*i)->Data().m_Identity == peername) {
+              //
+              // Warning: This is a case in-sensitive lookup which may not
+              //          be generally appropriate if we consider FQDN as
+              //          a non ascii value.
+              //
+              // Deprecated:
+              //  if ((*i)->Data().m_Identity == peername) {
+              //
+              if (! strcasecmp((*i)->Data().m_Identity.c_str(), peername.c_str())) {
                   return (*i);
               }
           }
@@ -162,7 +170,15 @@ class DiameterPeerTable : private DiameterPeerList
           ACE_Write_Guard<ACE_RW_Mutex> guard(m_Lock);
           DiameterPeerList::iterator i;
           for (i = begin(); i != end(); i++) {
-              if ((*i)->Data().m_Identity == peername) {
+              //
+              // Warning: This is a case in-sensitive lookup which may not
+              //          be generally appropriate if we consider FQDN as
+              //          a non ascii value.
+              //
+              // Deprecated:
+              //  if ((*i)->Data().m_Identity == peername) {
+              //
+              if (! strcasecmp((*i)->Data().m_Identity.c_str(), peername.c_str())) {
                   erase(i);
                   return (*i);
               }
