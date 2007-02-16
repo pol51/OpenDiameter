@@ -252,7 +252,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
             DiameterUtf8AvpContainerWidget username(msg->acl);
             diameter_utf8string_t *UserName = username.GetAvp(DIAMETER_AVPNAME_USERNAME);
             if (! UserName) {
-                AAA_LOG((LM_INFO, "(%P|%t) Can't determin DestRealm during realm routing\n"));
+                AAA_LOG((LM_INFO, "(%P|%t) Can't determine DestRealm during realm routing\n"));
                 throw (0);
             }
             DestRealm = UserName->substr(UserName->find("@",0), UserName->length()-1);
@@ -487,7 +487,9 @@ int DiameterMsgRouter::DcForward::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 {
     if (msg->hdr.flags.t && LookupQueuedMessage(msg->hdr.hh)) {
         // locally re-transmitted messages
-        DeleteQueuedMessage(msg->hdr.hh);
+        int rcode = (dest->Send(msg, false) >= 0) ? 0 : (-1);
+        StoreRequestMessage(msg->hdr.hh, msg);
+        return rcode;
     }
     else if (LoopDetection(msg) == 0) {
         if (source) {
@@ -651,12 +653,15 @@ int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
 
                         Figure 6: Routing of Diameter messages
         */
+        int h2hIndex, rcode;
         diameter_identity_t *oHost = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
         if (! oHost || ((*oHost) != DIAMETER_CFG_TRANSPORT()->identity)) {
 
             if (msg->hdr.flags.t && LookupQueuedMessage(msg->hdr.hh)) {
                 // locally re-transmitted messages
-                DeleteQueuedMessage(msg->hdr.hh);
+                rcode = (dest->Send(msg, false) >= 0) ? 0 : (-1);
+                StoreRequestMessage(msg->hdr.hh, msg);
+                return rcode;
             }
             else {
                 if (m_Arg.m_rcForward.Delivery().LoopDetection(msg) == 0) {
@@ -690,7 +695,6 @@ int DiameterMsgRouter::DcRouted::RequestMsg(std::auto_ptr<DiameterMsg> msg,
           A stateless agent is one that only maintains transaction
           state.
          */
-        int h2hIndex, rcode;
         if (source) {
             int localHH = DIAMETER_HOPBYHOP_GEN()->Get();
             h2hIndex = Add(localHH, msg, source, dest);

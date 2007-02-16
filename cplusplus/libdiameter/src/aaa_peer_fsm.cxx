@@ -48,6 +48,7 @@ class AAA_ApplicationIdLookup
           DiameterApplicationIdLst::iterator i = lst.begin();
           for (; i!= lst.end(); i++) {
               if ((id == DIAMETER_RELAY_APPLICATION_ID) ||
+                  (*i == DIAMETER_RELAY_APPLICATION_ID) ||
                   (*i == id)) {
                   return true;
               }
@@ -70,6 +71,8 @@ class AAA_ApplicationIdLookup
           for (; i != lst.end(); i++) {
               if (((*i).authAppId == id) ||
                   ((*i).acctAppId == id) ||
+                  ((*i).authAppId == DIAMETER_RELAY_APPLICATION_ID) ||
+                  ((*i).acctAppId == DIAMETER_RELAY_APPLICATION_ID) ||
                   (id == DIAMETER_RELAY_APPLICATION_ID) ||
                   (id == DIAMETER_RELAY_APPLICATION_ID)) {
                   return true;
