@@ -217,6 +217,8 @@
         <optional>
           <avprule name="Origin-State-Id" maximum="1" minimum="1"/>
           <avprule name="Error-Reporting-Host" maximum="1"/>
+	  <avprule name="Redirect-Host"/>
+	  <avprule name="Redirect-Host-Usage" maximum="1"/>
           <avprule name="Proxy-Info" maximum="1"/>
           <avprule name="AVP"/>
 	</optional>
@@ -237,6 +239,8 @@
           <avprule name="Origin-State-Id" maximum="1"/>
           <avprule name="Error-Reporting-Host" maximum="1"/>
           <avprule name="Proxy-Info" maximum="1"/>
+	  <avprule name="Redirect-Host"/>
+	  <avprule name="Redirect-Host-Usage" maximum="1"/>
           <avprule name="AVP"/>
 	</optional>
       </answerrules>
@@ -754,7 +758,7 @@
       <enum name="AUTHORIZE_AUTHENTICATE" code="3"/>
     </avp>
     <avp name="Re-Auth-Request-Type" code="285" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+	 may-encrypt="no" protected="must">
       <type type-name="Enumerated"/>
       <enum name="AUTHORIZE_ONLY" code="0"/>
       <enum name="AUTHORIZE_AUTHENTICATE" code="1"/>

@@ -195,7 +195,8 @@
 	<!-- ************************* Vendors **************************** -->
 	<!-- <vendor id="61" name="Merit Networks"/> -->
 	<!-- <vendor id="42" name="Sun Microsystems, Inc."/>  -->
-	<!-- <vendor id="429" name="US Robotics Corp."/> -->
+	<!-- <vendor id="429" name="US Robotics Corp."/>
+ -->
 	<!-- *********************** End Vendors ************************** -->
 
 	<!-- ***************** Base Protocol Definition ******************* -->
@@ -216,6 +217,8 @@
 				<optional>
 					<avprule name="Origin-State-Id" maximum="1" minimum="1"/>
 					<avprule name="Error-Reporting-Host" maximum="1"/>
+	                                <avprule name="Redirect-Host"/>
+	                                <avprule name="Redirect-Host-Usage" maximum="1"/>
 					<avprule name="Proxy-Info" maximum="1"/>
 					<avprule name="AVP"/>
 				</optional>
@@ -235,6 +238,8 @@
 				<optional>
 					<avprule name="Origin-State-Id" maximum="1"/>
 					<avprule name="Error-Reporting-Host" maximum="1"/>
+	                                <avprule name="Redirect-Host"/>
+	                                <avprule name="Redirect-Host-Usage" maximum="1"/>
 					<avprule name="Proxy-Info" maximum="1"/>
 					<avprule name="AVP"/>
 				</optional>

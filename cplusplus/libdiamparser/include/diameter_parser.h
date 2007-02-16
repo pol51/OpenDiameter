@@ -600,12 +600,20 @@ class AAA_PARSER_EXPORT DiameterMsgHeader
             this->appId = appId;
             this->hh = hh;
             this->ee = ee;
+            this->dictHandle = 0;
         }
 
         /*!
         * destructor
         */
         DiameterMsgHeader() {
+            this->ver = 0;
+            this->length = 0;
+            this->code = 0;
+            this->appId = 0;
+            this->hh = 0;
+            this->ee = 0;
+            this->dictHandle = 0;
         }
 
         /*!

@@ -1014,7 +1014,7 @@ int DiameterMsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
         RedirectHost = redirect.GetAvp(DIAMETER_AVPNAME_REDIRECTHOST, h);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) No re-direct host present in the error message\n"));
+    AAA_LOG((LM_INFO, "(%P|%t) Suggested re-direct host is un-available\n"));
     return (0);
 }
 
