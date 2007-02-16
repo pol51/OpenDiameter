@@ -152,7 +152,6 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
     else if (DestRealm) {
         if (*DestRealm == DIAMETER_CFG_TRANSPORT()->realm) {
             DiameterApplicationIdLst *idList[] = {
-                &DIAMETER_CFG_GENERAL()->supportedVendorIdLst,
                 &DIAMETER_CFG_GENERAL()->authAppIdLst,
                 &DIAMETER_CFG_GENERAL()->acctAppIdLst
             };

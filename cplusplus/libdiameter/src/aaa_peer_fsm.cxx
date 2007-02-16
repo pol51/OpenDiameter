@@ -47,7 +47,7 @@ class AAA_ApplicationIdLookup
                               DiameterApplicationIdLst &lst) {
           DiameterApplicationIdLst::iterator i = lst.begin();
           for (; i!= lst.end(); i++) {
-              if ((*i == DIAMETER_RELAY_APPLICATION_ID) ||
+              if ((id == DIAMETER_RELAY_APPLICATION_ID) ||
                   (*i == id)) {
                   return true;
               }
@@ -70,8 +70,8 @@ class AAA_ApplicationIdLookup
           for (; i != lst.end(); i++) {
               if (((*i).authAppId == id) ||
                   ((*i).acctAppId == id) ||
-                  ((*i).authAppId == DIAMETER_RELAY_APPLICATION_ID) ||
-                  ((*i).acctAppId == DIAMETER_RELAY_APPLICATION_ID)) {
+                  (id == DIAMETER_RELAY_APPLICATION_ID) ||
+                  (id == DIAMETER_RELAY_APPLICATION_ID)) {
                   return true;
               }
           }
@@ -1290,12 +1290,10 @@ bool DiameterPeerStateMachine::ValidatePeer(diameter_unsigned32_t &rcode,
    DiameterPeerCapabilities &cap = m_Data.m_PeerCapabilities;
 
    DiameterApplicationIdLst *localIdList[] = {
-       &DIAMETER_CFG_GENERAL()->supportedVendorIdLst,
        &DIAMETER_CFG_GENERAL()->authAppIdLst,
        &DIAMETER_CFG_GENERAL()->acctAppIdLst
    };
    DiameterApplicationIdLst *idList[] = {
-       &cap.m_SupportedVendorIdLst,
        &cap.m_AuthAppIdLst,
        &cap.m_AcctAppIdLst
    };
