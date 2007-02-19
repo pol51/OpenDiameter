@@ -44,7 +44,7 @@ class DiameterCCServerAction
   : public AAA_Action<DiameterCCServerStateMachine>
 {
   virtual void operator()(DiameterCCServerStateMachine&)=0;
- protected:
+protected:
   DiameterCCServerAction() {}
   ~DiameterCCServerAction() {}
 };
@@ -56,7 +56,7 @@ class DiameterCCServerStateTable_S
   friend class 
   ACE_Singleton<DiameterCCServerStateTable_S, ACE_Recursive_Thread_Mutex>;
 
- private:
+private:
   class AcValidateInitialRequest : public DiameterCCServerAction 
   {
     void operator()(DiameterCCServerStateMachine& sm)
@@ -73,45 +73,6 @@ class DiameterCCServerStateTable_S
     }
   };
 
-  class AcValidateEventRequest : public DiameterCCServerAction 
-  {
-    void operator()(DiameterCCServerStateMachine& sm)
-    {
-      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Event Request.\n"));
-      if(sm.ValidateEventRequest())
-        sm.Event(DiameterCCServerStateMachine::EvValidEventRequest);
-      else
-        sm.Event(DiameterCCServerStateMachine::EvInvalidEventRequest);
-    }
-  };
-
-  class AcValidateUpdateRequest : public DiameterCCServerAction 
-  {
-    void operator()(DiameterCCServerStateMachine& sm)
-    {
-      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Update Request.\n"));
-      if(sm.ValidateUpdateRequest())
-        sm.Event(DiameterCCServerStateMachine::EvValidUpdateRequest);
-      else
-        sm.Event(DiameterCCServerStateMachine::EvInvalidUpdateRequest);
-    }
-  };
-
-  class AcValidateTerminationRequest : public DiameterCCServerAction 
-  {
-    void operator()(DiameterCCServerStateMachine& sm)
-    {
-      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Termination Request.\n"));
-      if(sm.ValidateTerminationRequest())
-        {
-          AAA_LOG((LM_DEBUG, "(%P|%t) \tValid Termination Request.\n"));
-          sm.Event(DiameterCCServerStateMachine::EvValidTerminationRequest);
-        }
-      else
-        sm.Event(DiameterCCServerStateMachine::EvInvalidTerminationRequest);
-    }
-  };
-
   class AcInitialRequest : public DiameterCCServerAction 
   {
     void operator()(DiameterCCServerStateMachine& sm)
@@ -122,43 +83,6 @@ class DiameterCCServerStateTable_S
         sm.Event(DiameterCCServerStateMachine::EvInitialRequestSuccessful);
       else
         sm.Event(DiameterCCServerStateMachine::EvInitialRequestUnsuccessful);
-    }
-  };
-
-  class AcUpdateRequest : public DiameterCCServerAction 
-  {
-    void operator()(DiameterCCServerStateMachine& sm)
-    {
-      AAA_LOG((LM_DEBUG, "(%P|%t) Update Request.\n"));
-      if (sm.UpdateRequest())
-        sm.Event(DiameterCCServerStateMachine::EvUpdateRequestSuccessful);
-      else
-        sm.Event(DiameterCCServerStateMachine::EvUpdateRequestUnsuccessful);
-    }
-  };
-
-  class AcTerminationRequest : public DiameterCCServerAction 
-  {
-    void operator()(DiameterCCServerStateMachine& sm)
-    {
-      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Termination Request.\n"));
-      if (sm.TerminationRequest())
-        sm.Event(DiameterCCServerStateMachine::EvTerminationRequestSuccessful);
-      else
-        sm.Event(DiameterCCServerStateMachine::EvTerminationRequestUnsuccessful);
-    }
-  };
-
-  class AcEventRequest : public DiameterCCServerAction 
-  {
-    void operator()(DiameterCCServerStateMachine& sm)
-    {
-      AAA_LOG((LM_DEBUG, "(%P|%t) Event Request.\n"));
-
-      if (sm.EventRequest())
-        sm.Event(DiameterCCServerStateMachine::EvEventRequestSuccessful);
-      else
-        sm.Event(DiameterCCServerStateMachine::EvEventRequestUnsuccessful);
     }
   };
 
@@ -194,6 +118,30 @@ class DiameterCCServerStateTable_S
     }
   };
 
+  class AcValidateUpdateRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Update Request.\n"));
+      if(sm.ValidateUpdateRequest())
+        sm.Event(DiameterCCServerStateMachine::EvValidUpdateRequest);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvInvalidUpdateRequest);
+    }
+  };
+
+  class AcUpdateRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Update Request.\n"));
+      if (sm.UpdateRequest())
+        sm.Event(DiameterCCServerStateMachine::EvUpdateRequestSuccessful);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvUpdateRequestUnsuccessful);
+    }
+  };
+
   class AcSuccessfulUpdateAnswer : public DiameterCCServerAction 
   {
     void operator()(DiameterCCServerStateMachine& sm)
@@ -206,7 +154,7 @@ class DiameterCCServerStateTable_S
     }
   };
 
-  class AcUnsuccessfulAnswer : public DiameterCCServerAction 
+  class AcUnsuccessfulUpdateAnswer : public DiameterCCServerAction 
   {
     void operator()(DiameterCCServerStateMachine& sm)
     {
@@ -215,6 +163,33 @@ class DiameterCCServerStateTable_S
 
       CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
+    }
+  };
+
+  class AcValidateTerminationRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Termination Request.\n"));
+      if(sm.ValidateTerminationRequest())
+        {
+          AAA_LOG((LM_DEBUG, "(%P|%t) \tValid Termination Request.\n"));
+          sm.Event(DiameterCCServerStateMachine::EvValidTerminationRequest);
+        }
+      else
+        sm.Event(DiameterCCServerStateMachine::EvInvalidTerminationRequest);
+    }
+  };
+
+  class AcTerminationRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Termination Request.\n"));
+      if (sm.TerminationRequest())
+        sm.Event(DiameterCCServerStateMachine::EvTerminationRequestSuccessful);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvTerminationRequestUnsuccessful);
     }
   };
 
@@ -247,30 +222,225 @@ class DiameterCCServerStateTable_S
     }
   };
 
-  class AcSuccessfulEventAnswer : public DiameterCCServerAction 
+  class AcValidateDirectDebitingRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Direct Debiting Request.\n"));
+      if(sm.ValidateDirectDebitingRequest())
+        sm.Event(DiameterCCServerStateMachine::EvValidDirectDebitingRequest);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvInvalidDirectDebitingRequest);
+    }
+  };
+
+  class AcDirectDebitingRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Direct Debiting Request.\n"));
+
+      if (sm.DirectDebitingRequest())
+        sm.Event(DiameterCCServerStateMachine::EvDirectDebitingRequestSuccessful);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvDirectDebitingRequestUnsuccessful);
+    }
+  };
+
+  class AcSuccessfulDirectDebitingAnswer : public DiameterCCServerAction 
   {
     void operator()(DiameterCCServerStateMachine& sm)
     {
       AAA_LOG((LM_DEBUG, 
-               "(%P|%t) Sending Successful Event Answer.\n"));
+               "(%P|%t) Sending Successful Direct Debiting Answer.\n"));
+
+      CCA_Data& ccaData = sm.CCA_DATA();
+      CCR_Data& ccrData = sm.CCR_DATA();
+            
+      ccaData.CCRequestType = ccrData.CCRequestType;
+      ccaData.CCRequestNumber = ccrData.CCRequestNumber;
+      ccaData.ResultCode = AAA_SUCCESS;
+      sm.SendCCA(); 
+      
+    }
+  };
+
+  class AcUnsuccessfulDirectDebitingAnswer : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, 
+               "(%P|%t) Sending Unsuccessful Direct Debiting Answer.\n"));
 
       CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
     }
   };
 
-  class AcUnsuccessfulEventAnswer : public DiameterCCServerAction 
+  class AcValidateRefundAccountRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Refund Account Request.\n"));
+      if(sm.ValidateRefundAccountRequest())
+        sm.Event(DiameterCCServerStateMachine::EvValidRefundAccountRequest);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvInvalidRefundAccountRequest);
+    }
+  };
+
+  class AcRefundAccountRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Refund Account Request.\n"));
+
+      if (sm.RefundAccountRequest())
+        sm.Event(DiameterCCServerStateMachine::EvRefundAccountRequestSuccessful);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvRefundAccountRequestUnsuccessful);
+    }
+  };
+
+  class AcSuccessfulRefundAccountAnswer : public DiameterCCServerAction 
   {
     void operator()(DiameterCCServerStateMachine& sm)
     {
       AAA_LOG((LM_DEBUG, 
-               "(%P|%t) Sending Unsuccessful Event Answer.\n"));
+               "(%P|%t) Sending Successful Refund Account Answer.\n"));
+
+      CCA_Data& ccaData = sm.CCA_DATA();
+      CCR_Data& ccrData = sm.CCR_DATA();
+      ccaData.CCRequestType = ccrData.CCRequestType;
+      ccaData.CCRequestNumber = ccrData.CCRequestNumber;
+      ccaData.ResultCode = AAA_SUCCESS;
+      sm.SendCCA(); 
+    }
+  };
+
+  class AcUnsuccessfulRefundAccountAnswer : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, 
+               "(%P|%t) Sending Unsuccessful Refund Account Answer.\n"));
 
       CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
     }
   };
 
+  class AcValidateCheckBalanceRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Check Balance Request.\n"));
+      if(sm.ValidateCheckBalanceRequest())
+        sm.Event(DiameterCCServerStateMachine::EvValidCheckBalanceRequest);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvInvalidCheckBalanceRequest);
+    }
+  };
+
+  class AcCheckBalanceRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Check Balance Request.\n"));
+
+      if (sm.CheckBalanceRequest())
+        sm.Event(DiameterCCServerStateMachine::EvCheckBalanceRequestSuccessful);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvCheckBalanceRequestUnsuccessful);
+    }
+  };
+
+  class AcSuccessfulCheckBalanceAnswer : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, 
+               "(%P|%t) Sending Successful Check Balance Answer.\n"));
+
+      CCA_Data& ccaData = sm.CCA_DATA();
+      CCR_Data& ccrData = sm.CCR_DATA();
+      
+      ccaData.CCRequestType = ccrData.CCRequestType;
+      ccaData.CCRequestNumber = ccrData.CCRequestNumber;
+      ccaData.CheckBalanceResult = 0; //ENOUGH_CREDIT
+      ccaData.ResultCode = AAA_SUCCESS;
+      sm.SendCCA(); 
+
+    }
+  };
+
+  class AcUnsuccessfulCheckBalanceAnswer : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, 
+               "(%P|%t) Sending Unsuccessful Check Balance Answer.\n"));
+
+      CCA_Data& ccaData = sm.CCA_DATA();
+      CCR_Data& ccrData = sm.CCR_DATA();
+
+      ccaData.CCRequestType = ccrData.CCRequestType;
+      ccaData.CCRequestNumber = ccrData.CCRequestNumber;
+      ccaData.CheckBalanceResult = 1; //NO_CREDIT
+      ccaData.ResultCode = AAA_SUCCESS;
+      sm.SendCCA(); 
+      
+    }
+  };
+
+  class AcValidatePriceEnquiryRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Validating Price Enquiry Request.\n"));
+      if(sm.ValidatePriceEnquiryRequest())
+        sm.Event(DiameterCCServerStateMachine::EvValidPriceEnquiryRequest);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvInvalidPriceEnquiryRequest);
+    }
+  };
+
+  class AcPriceEnquiryRequest : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Price Enquiry Request.\n"));
+
+      if (sm.PriceEnquiryRequest())
+        sm.Event(DiameterCCServerStateMachine::EvPriceEnquiryRequestSuccessful);
+      else
+        sm.Event(DiameterCCServerStateMachine::EvPriceEnquiryRequestUnsuccessful);
+    }
+  };
+
+  class AcSuccessfulPriceEnquiryAnswer : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, 
+               "(%P|%t) Sending Successful Price Enquiry Answer.\n"));
+
+      CCA_Data& ccaData = sm.CCA_DATA();
+      sm.SendCCA(); 
+    }
+  };
+
+  class AcUnsuccessfulPriceEnquiryAnswer : public DiameterCCServerAction 
+  {
+    void operator()(DiameterCCServerStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, 
+               "(%P|%t) Sending Unsuccessful Price Enquiry Answer.\n"));
+
+      CCA_Data& ccaData = sm.CCA_DATA();
+      sm.SendCCA(); 
+    }
+  };
 
   class AcTccTimerExpired : public DiameterCCServerAction 
   {
@@ -294,28 +464,43 @@ class DiameterCCServerStateTable_S
   };
 
 
-
   AcValidateInitialRequest acValidateInitialRequest;
-  AcValidateEventRequest acValidateEventRequest;
-  
   AcInitialRequest acInitialRequest;
-  AcUnsuccessfulAnswer acUnsuccessfulAnswer;
-  AcEventRequest acEventRequest;
   AcSuccessfulInitialAnswer acSuccessfulInitialAnswer;
   AcUnsuccessfulInitialAnswer acUnsuccessfulInitialAnswer;
-  AcSuccessfulUpdateAnswer acSuccessfulUpdateAnswer;
-  AcUnsuccessfulInitialAnswer acUnsuccessfulUpdateAnswer;
-  AcSuccessfulTerminationAnswer acSuccessfulTerminationAnswer;
-  AcUnsuccessfulTerminationAnswer acUnsuccessfulTerminationAnswer;
-  AcSuccessfulEventAnswer acSuccessfulEventAnswer;
-  AcUnsuccessfulEventAnswer acUnsuccessfulEventAnswer;
 
   AcValidateUpdateRequest acValidateUpdateRequest;
+  AcUpdateRequest acUpdateRequest;
+  AcSuccessfulUpdateAnswer acSuccessfulUpdateAnswer;
+  AcUnsuccessfulUpdateAnswer acUnsuccessfulUpdateAnswer;
+
   AcValidateTerminationRequest acValidateTerminationRequest;
+  AcTerminationRequest acTerminationRequest;
+  AcSuccessfulTerminationAnswer acSuccessfulTerminationAnswer;
+  AcUnsuccessfulTerminationAnswer acUnsuccessfulTerminationAnswer;
+
+  AcValidateDirectDebitingRequest acValidateDirectDebitingRequest;
+  AcDirectDebitingRequest acDirectDebitingRequest;
+  AcSuccessfulDirectDebitingAnswer acSuccessfulDirectDebitingAnswer;
+  AcUnsuccessfulDirectDebitingAnswer acUnsuccessfulDirectDebitingAnswer;
+
+  AcValidateRefundAccountRequest acValidateRefundAccountRequest;
+  AcRefundAccountRequest acRefundAccountRequest;
+  AcSuccessfulRefundAccountAnswer acSuccessfulRefundAccountAnswer;
+  AcUnsuccessfulRefundAccountAnswer acUnsuccessfulRefundAccountAnswer;
+
+  AcValidateCheckBalanceRequest acValidateCheckBalanceRequest;
+  AcCheckBalanceRequest acCheckBalanceRequest;
+  AcSuccessfulCheckBalanceAnswer acSuccessfulCheckBalanceAnswer;
+  AcUnsuccessfulCheckBalanceAnswer acUnsuccessfulCheckBalanceAnswer;
+
+  AcValidatePriceEnquiryRequest acValidatePriceEnquiryRequest;
+  AcPriceEnquiryRequest acPriceEnquiryRequest;
+  AcSuccessfulPriceEnquiryAnswer acSuccessfulPriceEnquiryAnswer;
+  AcUnsuccessfulPriceEnquiryAnswer acUnsuccessfulPriceEnquiryAnswer;
+
   AcTccTimerExpired acTccTimerExpired;
 
-  AcTerminationRequest acTerminationRequest;
-  AcUpdateRequest acUpdateRequest;
 
   // Defined as a leaf class
   DiameterCCServerStateTable_S() 
@@ -324,8 +509,17 @@ class DiameterCCServerStateTable_S
                        DiameterCCServerStateMachine::EvInitialRequest,
                        StIdleValidateRequest, acValidateInitialRequest);
     AddStateTableEntry(StIdle, 
-                       DiameterCCServerStateMachine::EvEventRequest, 
-                       StIdleValidateRequest, acValidateEventRequest);
+                       DiameterCCServerStateMachine::EvDirectDebitingRequest, 
+                       StIdleValidateRequest, acValidateDirectDebitingRequest);
+    AddStateTableEntry(StIdle, 
+                       DiameterCCServerStateMachine::EvRefundAccountRequest, 
+                       StIdleValidateRequest, acValidateRefundAccountRequest);
+    AddStateTableEntry(StIdle, 
+                       DiameterCCServerStateMachine::EvCheckBalanceRequest, 
+                       StIdleValidateRequest, acValidateCheckBalanceRequest);
+    AddStateTableEntry(StIdle, 
+                       DiameterCCServerStateMachine::EvPriceEnquiryRequest, 
+                       StIdleValidateRequest, acValidatePriceEnquiryRequest);
     AddWildcardStateTableEntry(StIdle, StTerminated);
 
 
@@ -335,12 +529,34 @@ class DiameterCCServerStateTable_S
     AddStateTableEntry(StIdleValidateRequest,
                        DiameterCCServerStateMachine::EvInvalidInitialRequest, 
                        StIdle, acUnsuccessfulInitialAnswer);
+
     AddStateTableEntry(StIdleValidateRequest, 
-                       DiameterCCServerStateMachine::EvValidEventRequest, 
-                       StEventRequest, acEventRequest);
+                       DiameterCCServerStateMachine::EvValidDirectDebitingRequest, 
+                       StEventRequest, acDirectDebitingRequest);
     AddStateTableEntry(StIdleValidateRequest,
-                       DiameterCCServerStateMachine::EvInvalidEventRequest, 
-                       StIdle, acUnsuccessfulEventAnswer);
+                       DiameterCCServerStateMachine::EvInvalidDirectDebitingRequest, 
+                       StIdle, acUnsuccessfulDirectDebitingAnswer);
+
+    AddStateTableEntry(StIdleValidateRequest, 
+                       DiameterCCServerStateMachine::EvValidRefundAccountRequest, 
+                       StEventRequest, acRefundAccountRequest);
+    AddStateTableEntry(StIdleValidateRequest,
+                       DiameterCCServerStateMachine::EvInvalidRefundAccountRequest, 
+                       StIdle, acUnsuccessfulRefundAccountAnswer);
+
+    AddStateTableEntry(StIdleValidateRequest, 
+                       DiameterCCServerStateMachine::EvValidCheckBalanceRequest, 
+                       StEventRequest, acCheckBalanceRequest);
+    AddStateTableEntry(StIdleValidateRequest,
+                       DiameterCCServerStateMachine::EvInvalidCheckBalanceRequest, 
+                       StIdle, acUnsuccessfulCheckBalanceAnswer);
+
+    AddStateTableEntry(StIdleValidateRequest, 
+                       DiameterCCServerStateMachine::EvValidPriceEnquiryRequest, 
+                       StEventRequest, acPriceEnquiryRequest);
+    AddStateTableEntry(StIdleValidateRequest,
+                       DiameterCCServerStateMachine::EvInvalidPriceEnquiryRequest, 
+                       StIdle, acUnsuccessfulPriceEnquiryAnswer);
     AddWildcardStateTableEntry(StIdleValidateRequest, StTerminated);
 
 
@@ -352,12 +568,34 @@ class DiameterCCServerStateTable_S
                        StIdle, acUnsuccessfulInitialAnswer);
     AddWildcardStateTableEntry(StInitialRequest, StTerminated);
 
+
     AddStateTableEntry(StEventRequest,
-                       DiameterCCServerStateMachine::EvEventRequestSuccessful, 
-                       StIdle, acSuccessfulEventAnswer);
+                       DiameterCCServerStateMachine::EvDirectDebitingRequestSuccessful, 
+                       StIdle, acSuccessfulDirectDebitingAnswer);
     AddStateTableEntry(StEventRequest,
-                       DiameterCCServerStateMachine::EvEventRequestUnsuccessful, 
-                       StIdle, acUnsuccessfulEventAnswer);
+                       DiameterCCServerStateMachine::EvDirectDebitingRequestUnsuccessful, 
+                       StIdle, acUnsuccessfulDirectDebitingAnswer);
+
+    AddStateTableEntry(StEventRequest,
+                       DiameterCCServerStateMachine::EvRefundAccountRequestSuccessful, 
+                       StIdle, acSuccessfulRefundAccountAnswer);
+    AddStateTableEntry(StEventRequest,
+                       DiameterCCServerStateMachine::EvRefundAccountRequestUnsuccessful, 
+                       StIdle, acUnsuccessfulRefundAccountAnswer);
+
+    AddStateTableEntry(StEventRequest,
+                       DiameterCCServerStateMachine::EvCheckBalanceRequestSuccessful, 
+                       StIdle, acSuccessfulCheckBalanceAnswer);
+    AddStateTableEntry(StEventRequest,
+                       DiameterCCServerStateMachine::EvCheckBalanceRequestUnsuccessful, 
+                       StIdle, acUnsuccessfulCheckBalanceAnswer);
+
+    AddStateTableEntry(StEventRequest,
+                       DiameterCCServerStateMachine::EvPriceEnquiryRequestSuccessful, 
+                       StIdle, acSuccessfulPriceEnquiryAnswer);
+    AddStateTableEntry(StEventRequest,
+                       DiameterCCServerStateMachine::EvPriceEnquiryRequestUnsuccessful, 
+                       StIdle, acUnsuccessfulPriceEnquiryAnswer);
     AddWildcardStateTableEntry(StEventRequest, StTerminated);
 
 
@@ -372,37 +610,43 @@ class DiameterCCServerStateTable_S
                        StIdle, acTccTimerExpired);
     AddWildcardStateTableEntry(StOpen, StTerminated);
 
+
     AddStateTableEntry(StOpenValidateRequest,
                        DiameterCCServerStateMachine::EvValidUpdateRequest,
                        StUpdateRequest, acUpdateRequest);
     AddStateTableEntry(StOpenValidateRequest,
                        DiameterCCServerStateMachine::EvInvalidUpdateRequest,
-                       StIdle, acUnsuccessfulAnswer);
+                       StIdle, acUnsuccessfulUpdateAnswer);
+
     AddStateTableEntry(StOpenValidateRequest,
                        DiameterCCServerStateMachine::EvValidTerminationRequest,
                        StTerminationRequest, acTerminationRequest);
     AddStateTableEntry(StOpenValidateRequest,
                        DiameterCCServerStateMachine::EvInvalidTerminationRequest,
-                       StIdle, acUnsuccessfulAnswer);
+                       StIdle, acUnsuccessfulTerminationAnswer);
     AddWildcardStateTableEntry(StOpenValidateRequest, StTerminated);
+
 
     AddStateTableEntry(StUpdateRequest, 
                        DiameterCCServerStateMachine::EvUpdateRequestSuccessful,
                        StOpen, acSuccessfulUpdateAnswer);
     AddStateTableEntry(StUpdateRequest, 
                        DiameterCCServerStateMachine::EvUpdateRequestUnsuccessful,
-                       StIdle, acUnsuccessfulAnswer);
+                       StIdle, acUnsuccessfulUpdateAnswer);
     AddWildcardStateTableEntry(StUpdateRequest, StTerminated);
+
 
     AddStateTableEntry(StTerminationRequest, 
                        DiameterCCServerStateMachine::EvTerminationRequestSuccessful,
                        StIdle, acSuccessfulTerminationAnswer);
     AddStateTableEntry(StTerminationRequest, 
                        DiameterCCServerStateMachine::EvTerminationRequestUnsuccessful,
-                       StIdle, acUnsuccessfulAnswer);
+                       StIdle, acUnsuccessfulTerminationAnswer);
     AddWildcardStateTableEntry(StTerminationRequest, StTerminated);
 
+
     AddWildcardStateTableEntry(StTerminated, StTerminated);
+
 
     InitialState(StIdle);
   }
@@ -416,8 +660,8 @@ DiameterCCServerStateTable;
 DiameterCCServerStateMachine::DiameterCCServerStateMachine
 (DiameterCCServerSession& s, DiameterCCJobHandle &h)
   : AAA_StateMachine<DiameterCCServerStateMachine>
-  (*this, *DiameterCCServerStateTable::instance(), 
-   "AAA_CC_SERVER"),
+(*this, *DiameterCCServerStateTable::instance(), 
+ "AAA_CC_SERVER"),
     session(s),
     handle(h)
 {

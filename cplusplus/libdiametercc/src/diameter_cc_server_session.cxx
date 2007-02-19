@@ -136,21 +136,28 @@ CCR_Handler::HandleMessage (DiameterMsg &msg)
   
   if(session.CCR_DATA().CCRequestType.IsSet())
     {
-      if (session.CCR_DATA().CCRequestType == CCR_TYPE_INITIAL_REQUEST)
+      if (session.CCR_DATA().CCRequestType == CC_TYPE_INITIAL_REQUEST)
         {
           session.Notify(DiameterCCServerStateMachine::EvInitialRequest);
         }
-      else if(session.CCR_DATA().CCRequestType == CCR_TYPE_UPDATE_REQUEST)
+      else if(session.CCR_DATA().CCRequestType == CC_TYPE_UPDATE_REQUEST)
         {
             session.Notify(DiameterCCServerStateMachine::EvUpdateRequest);
         }
-      else if (session.CCR_DATA().CCRequestType == CCR_TYPE_TERMINATION_REQUEST)
+      else if (session.CCR_DATA().CCRequestType == CC_TYPE_TERMINATION_REQUEST)
         {
             session.Notify(DiameterCCServerStateMachine::EvTerminationRequest);
         }
-      else if (session.CCR_DATA().CCRequestType == CCR_TYPE_EVENT_REQUEST)
+      else if (session.CCR_DATA().CCRequestType == CC_TYPE_EVENT_REQUEST)
         {
-            session.Notify(DiameterCCServerStateMachine::EvEventRequest);
+          if (session.CCR_DATA().RequestedAction == CC_ACTION_DIRECT_DEBITING)
+            session.Notify(DiameterCCServerStateMachine::EvDirectDebitingRequest);
+          else if (session.CCR_DATA().RequestedAction == CC_ACTION_REFUND_ACCOUNT)
+            session.Notify(DiameterCCServerStateMachine::EvRefundAccountRequest);
+          else if (session.CCR_DATA().RequestedAction == CC_ACTION_CHECK_BALANCE)
+            session.Notify(DiameterCCServerStateMachine::EvCheckBalanceRequest);
+          else if (session.CCR_DATA().RequestedAction == CC_ACTION_PRICE_ENQUIRY)
+            session.Notify(DiameterCCServerStateMachine::EvPriceEnquiryRequest);
         }
     }
 

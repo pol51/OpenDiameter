@@ -75,26 +75,49 @@ class DIAMETER_CC_SERVER_EXPORTS DiameterCCServerStateMachine
 
   enum {
     EvInitialRequest,
-    EvEventRequest,
     EvValidInitialRequest,
     EvInvalidInitialRequest,
     EvInitialRequestSuccessful,
     EvInitialRequestUnsuccessful,
-    EvValidEventRequest,
-    EvInvalidEventRequest,
-    EvEventRequestSuccessful,
-    EvEventRequestUnsuccessful,
+
     EvUpdateRequest,
-    EvTerminationRequest,
-    EvTccExpired,
     EvValidUpdateRequest,
     EvInvalidUpdateRequest,
-    EvValidTerminationRequest,
-    EvInvalidTerminationRequest,
     EvUpdateRequestSuccessful,
     EvUpdateRequestUnsuccessful,
+
+    EvTerminationRequest,
+    EvValidTerminationRequest,
+    EvInvalidTerminationRequest,
     EvTerminationRequestSuccessful,
     EvTerminationRequestUnsuccessful,
+
+    EvDirectDebitingRequest,
+    EvValidDirectDebitingRequest,
+    EvInvalidDirectDebitingRequest,
+    EvDirectDebitingRequestSuccessful,
+    EvDirectDebitingRequestUnsuccessful,
+
+    EvRefundAccountRequest,
+    EvValidRefundAccountRequest,
+    EvInvalidRefundAccountRequest,
+    EvRefundAccountRequestSuccessful,
+    EvRefundAccountRequestUnsuccessful,
+
+    EvCheckBalanceRequest,
+    EvValidCheckBalanceRequest,
+    EvInvalidCheckBalanceRequest,
+    EvCheckBalanceRequestSuccessful,
+    EvCheckBalanceRequestUnsuccessful,
+
+    EvPriceEnquiryRequest,
+    EvValidPriceEnquiryRequest,
+    EvInvalidPriceEnquiryRequest,
+    EvPriceEnquiryRequestSuccessful,
+    EvPriceEnquiryRequestUnsuccessful,
+
+    EvTccExpired,
+
     EvSgDisconnect,
     EvSgSessionTimeout,
     EvSgTimeout
@@ -125,28 +148,46 @@ class DIAMETER_CC_SERVER_EXPORTS DiameterCCServerStateMachine
   /// Validate Initial Request.  
   virtual bool ValidateInitialRequest() {return true;};
 
-  /// Validate Update Request.  
-  virtual bool ValidateUpdateRequest() {return true;};
-
-  /// Validate Event Request.  
-  virtual bool ValidateEventRequest() {return true;};
-
-  /// Validate Termination Request.  
-  virtual bool ValidateTerminationRequest() {return true;};
-
   /// Initial Request action.  
   virtual bool InitialRequest() {return true;};
 
   virtual bool InitialAnswer() {return true;};
 
+  /// Validate Update Request.  
+  virtual bool ValidateUpdateRequest() {return true;};
+
   /// Update Request action.  
   virtual bool UpdateRequest() {return true;};
+
+  /// Validate Termination Request.  
+  virtual bool ValidateTerminationRequest() {return true;};
 
   /// Termination Request action.  
   virtual bool TerminationRequest() {return true;};
 
-  /// Event Request action.  
-  virtual bool EventRequest() {return true;};
+  /// Validate Direct Debiting Request.  
+  virtual bool ValidateDirectDebitingRequest() {return true;};
+
+  /// Direct Debiting Request action.  
+  virtual bool DirectDebitingRequest() {return true;};
+
+  /// Validate Refund Account Request.  
+  virtual bool ValidateRefundAccountRequest() {return true;};
+
+  /// Refund Account Request action.  
+  virtual bool RefundAccountRequest() {return true;};
+
+  /// Validate Check Balance Request.    
+  virtual bool ValidateCheckBalanceRequest() {return true;};
+
+  /// Check Balance Request action.  
+  virtual bool CheckBalanceRequest() {return true;};
+
+  /// Validate Price Enquiry Request.  
+  virtual bool ValidatePriceEnquiryRequest() {return true;};
+
+  /// Price Enquiry Request action.  
+  virtual bool PriceEnquiryRequest() {return true;};
 
   inline AAA_JobData& JobData() { return *handle.Job().Data(); }
 

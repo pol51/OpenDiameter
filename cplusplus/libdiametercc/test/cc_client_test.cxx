@@ -105,6 +105,24 @@ class CCClientSession : public DiameterCCClientSession
 
   bool TerminationRequest();
 
+  void SendDirectDebitingRequest();
+
+  bool DirectDebitingRequest();
+
+  bool DirectDebitingAnswer();
+
+  void SendCheckBalanceRequest();
+
+  bool CheckBalanceRequest();
+
+  bool CheckBalanceAnswer();
+
+  void SendRefundAccountRequest();
+
+  bool RefundAccountRequest();
+
+  bool RefundAccountAnswer();
+
 };
 
 void 
@@ -155,7 +173,7 @@ CCClientSession::InitialRequest()
 {
   ccrData.ServiceContextId = "opendiameter.org";
   
-  ccrData.CCRequestType = 1;
+  ccrData.CCRequestType = CC_TYPE_INITIAL_REQUEST;
 
   ccrData.CCRequestNumber = 0;
   
@@ -201,7 +219,7 @@ CCClientSession::TerminationRequest()
 {
   ccrData.ServiceContextId = "opendiameter.org";
   
-  ccrData.CCRequestType = 3;
+  ccrData.CCRequestType = CC_TYPE_TERMINATION_REQUEST;
 
   ccrData.CCRequestNumber = 2;
 
@@ -218,6 +236,140 @@ CCClientSession::TerminationRequest()
   DiameterCCClientSession::TerminationRequest(); 
 
   return true;
+}
+
+void
+CCClientSession::SendRefundAccountRequest()
+{
+  Notify(EvRefundAccountRequest);
+}
+
+bool
+CCClientSession::RefundAccountRequest()
+{
+  ccrData.ServiceContextId = "opendiameter.org";
+  
+  ccrData.CCRequestType = 4;
+  ccrData.RequestedAction = CC_ACTION_REFUND_ACCOUNT;
+  ccrData.CCRequestNumber = 0;
+
+  std::vector<subscriptionId_t> vec(1, subscriptionId_t(0,"1"));
+  ccrData.SubscriptionId = vec;
+
+
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tRefund %d Service Units to the Account.\n",40 ));   
+  unitValue_t unitValue (40, 0);
+  ccMoney_t ccMoney(unitValue,840);
+  requestedServiceUnit_t requestedServiceUnits(0,ccMoney);
+
+  ccrData.RequestedServiceUnit = requestedServiceUnits;  
+ 
+  DiameterCCClientSession::RefundAccountRequest(); 
+
+  return true;
+}
+
+bool
+CCClientSession::RefundAccountAnswer()
+{
+  grantedServiceUnit_t& grantedServiceUnit = ccaData.GrantedServiceUnit();
+  ccMoney_t& ccMoney = grantedServiceUnit.CCMoney();
+  unitValue_t& unitValue = ccMoney.UnitValue();
+  diameter_integer64_t& valueDigits = unitValue.ValueDigits();
+ 
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tRefunded %d Service Units.\n",valueDigits ));
+  
+  return true;  
+
+}
+
+void
+CCClientSession::SendDirectDebitingRequest()
+{
+  Notify(EvDirectDebitingRequest);
+}
+
+bool
+CCClientSession::DirectDebitingRequest()
+{
+  ccrData.ServiceContextId = "opendiameter.org";
+  
+  ccrData.CCRequestType = 4;
+  ccrData.RequestedAction = CC_ACTION_DIRECT_DEBITING;
+  ccrData.CCRequestNumber = 0;
+
+  std::vector<subscriptionId_t> vec(1, subscriptionId_t(0,"1"));
+  ccrData.SubscriptionId = vec;
+
+
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tDirect Debit %d Service Units.\n",20 ));   
+  unitValue_t unitValue (20, 0);
+  ccMoney_t ccMoney(unitValue,840);
+  requestedServiceUnit_t requestedServiceUnits(0,ccMoney);
+
+  ccrData.RequestedServiceUnit = requestedServiceUnits;  
+ 
+  DiameterCCClientSession::DirectDebitingRequest(); 
+
+  return true;
+}
+
+bool
+CCClientSession::DirectDebitingAnswer()
+{
+  grantedServiceUnit_t& grantedServiceUnit = ccaData.GrantedServiceUnit();
+  ccMoney_t& ccMoney = grantedServiceUnit.CCMoney();
+  unitValue_t& unitValue = ccMoney.UnitValue();
+  diameter_integer64_t& valueDigits = unitValue.ValueDigits();
+ 
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tDebited %d Service Units from Account.\n",valueDigits ));
+  
+  return true;  
+
+}
+
+void
+CCClientSession::SendCheckBalanceRequest()
+{
+  Notify(EvCheckBalanceRequest);
+}
+
+bool
+CCClientSession::CheckBalanceRequest()
+{
+  ccrData.ServiceContextId = "opendiameter.org";
+  
+  ccrData.CCRequestType = 4;
+  ccrData.RequestedAction = CC_ACTION_CHECK_BALANCE;
+  ccrData.CCRequestNumber = 0;
+  
+  std::vector<subscriptionId_t> vec(1, subscriptionId_t(0,"1"));
+  ccrData.SubscriptionId = vec;
+
+
+  AAA_LOG((LM_DEBUG, "(%P|%t) \t Check Balance for %d Service Units.\n",50 ));   
+  unitValue_t unitValue (50, 0);
+  ccMoney_t ccMoney(unitValue,840);
+  requestedServiceUnit_t requestedServiceUnits(0,ccMoney);
+
+  ccrData.RequestedServiceUnit = requestedServiceUnits;  
+ 
+  DiameterCCClientSession::CheckBalanceRequest(); 
+
+  return true;
+}
+
+bool
+CCClientSession::CheckBalanceAnswer()
+{
+  diameter_unsigned32_t& checkBalanceResult = ccaData.CheckBalanceResult();
+  if(checkBalanceResult == 0)
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tEnough Credit.\n"));
+  else if(checkBalanceResult == 1)
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tNo Credit.\n"));
+
+  return true;  
+
 }
 
 void 
@@ -258,6 +410,23 @@ class DiameterCCClientApplication : public AAA_JobData
   {
     ccClientSession->SendInitialRequest();
   }
+
+  void SendDirectDebitingRequest()
+  {
+    ccClientSession->SendDirectDebitingRequest();
+  }
+
+  void SendRefundAccountRequest()
+  {
+    ccClientSession->SendRefundAccountRequest();
+  }
+
+  void SendCheckBalanceRequest()
+  {
+    ccClientSession->SendCheckBalanceRequest();
+  }
+
+
   
   CCClientSession& getCCClientSession() { return *ccClientSession; }
 
@@ -339,7 +508,13 @@ main(int argc, char *argv[])
   } while (ccApplication.GetNumActivePeerConnections() == 0);
 
   clientApp->SendInitialRequest();
-  sleep (20);
+  sleep (10);
+  clientApp->SendDirectDebitingRequest();
+  sleep (10);
+  clientApp->SendRefundAccountRequest();
+  sleep (10);
+  clientApp->SendCheckBalanceRequest();
+  sleep (10);
   clientApp->SendInitialRequest();
 
   semaphore.acquire();

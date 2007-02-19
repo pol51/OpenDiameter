@@ -208,12 +208,95 @@ class DiameterCCClientStateTable_S
     }
   };
 
-  class AcEventRequest : public DiameterCCClientAction 
+  class AcDirectDebitingRequest : public DiameterCCClientAction 
   {
     void operator()(DiameterCCClientStateMachine& sm)
     {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Direct Debiting Request.\n"));
 
-      AAA_LOG((LM_DEBUG, "(%P|%t) Event Request.\n"));
+      if(sm.DirectDebitingRequest())
+        AAA_LOG((LM_DEBUG, "(%P|%t) \tSent Direct Debiting Request.\n"));
+      else
+        AAA_LOG((LM_DEBUG, "(%P|%t) \tCould not send Direct Debiting Request.\n"));
+    }
+  }; 
+
+  class AcDirectDebitingAnswer : public DiameterCCClientAction 
+  {
+    void operator()(DiameterCCClientStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Direct Debiting Answer.\n"));
+
+      sm.DirectDebitingAnswer();
+    }
+  }; 
+
+  class AcRefundAccountRequest : public DiameterCCClientAction 
+  {
+    void operator()(DiameterCCClientStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Refund Account Request.\n"));
+
+      if(sm.RefundAccountRequest())
+        AAA_LOG((LM_DEBUG, "(%P|%t) \tSent Refund Account Request.\n"));
+      else
+        AAA_LOG((LM_DEBUG, "(%P|%t) \tCould not send Refund Account Request.\n"));
+    }
+  }; 
+
+  class AcRefundAccountAnswer : public DiameterCCClientAction 
+  {
+    void operator()(DiameterCCClientStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Refund Account Answer.\n"));
+
+      sm.RefundAccountAnswer();
+    }
+  }; 
+
+  class AcCheckBalanceRequest : public DiameterCCClientAction 
+  {
+    void operator()(DiameterCCClientStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Check Balance Request.\n"));
+
+      if(sm.CheckBalanceRequest())
+        AAA_LOG((LM_DEBUG, "(%P|%t) \tSent Check Balance Request.\n"));
+      else
+        AAA_LOG((LM_DEBUG, "(%P|%t) \tCould not send Check Balance Request.\n"));
+    }
+  }; 
+
+  class AcCheckBalanceAnswer : public DiameterCCClientAction 
+  {
+    void operator()(DiameterCCClientStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Check Balancet Answer.\n"));
+
+      sm.CheckBalanceAnswer();
+    }
+  }; 
+
+  class AcPriceEnquiryRequest : public DiameterCCClientAction 
+  {
+    void operator()(DiameterCCClientStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Price Enquiry Request.\n"));
+
+      if(sm.PriceEnquiryRequest())
+        AAA_LOG((LM_DEBUG, "(%P|%t) \tSent Price Enquiry Request.\n"));
+      else
+        AAA_LOG((LM_DEBUG, "(%P|%t) \tCould not send Price Enquiry Request.\n"));
+    }
+  }; 
+
+  class AcPriceEnquiryAnswer : public DiameterCCClientAction 
+  {
+    void operator()(DiameterCCClientStateMachine& sm)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) Processing Price Enquiry Answer.\n"));
+
+      sm.PriceEnquiryAnswer();
     }
   }; 
 
@@ -262,7 +345,6 @@ class DiameterCCClientStateTable_S
     }
   };         
 
-
   enum state {
     StIdle,
     StPendingI,
@@ -274,16 +356,10 @@ class DiameterCCClientStateTable_S
     StTerminated
   };
 
-  enum {
-    EvSgSuccess,
-    EvSgFailure,
-    EvSgContinue
-  };
-
-
   AcInitialRequest acInitalRequest;
   AcSuccessfulAnswer acSuccessfulAnswer;
   AcInitialAnswer acInitialAnswer;
+  
   AcGrantService acGrantService;
   AcTerminateService acTerminateService;
   AcTerminationRequest acTerminationRequest;
@@ -297,7 +373,19 @@ class DiameterCCClientStateTable_S
   AcUpdateAnswer acUpdateAnswer;
   AcTccExpired acTccExpired;
   AcRARReceived acRARReceived;
-  AcEventRequest acEventRequest;
+ 
+  AcDirectDebitingRequest acDirectDebitingRequest;
+  AcDirectDebitingAnswer acDirectDebitingAnswer;
+  
+  AcRefundAccountRequest acRefundAccountRequest;
+  AcRefundAccountAnswer acRefundAccountAnswer;
+  
+  AcCheckBalanceRequest acCheckBalanceRequest;
+  AcCheckBalanceAnswer acCheckBalanceAnswer;
+  
+  AcPriceEnquiryRequest acPriceEnquiryRequest;
+  AcPriceEnquiryAnswer acPriceEnquiryAnswer;
+  
   AcServiceError acServiceError;
   AcStoreRequestWithTFlag acStoreRequestWithTFlag;
   AcStoreRequest acStoreRequest;
@@ -309,9 +397,19 @@ class DiameterCCClientStateTable_S
     AddStateTableEntry(StIdle, 
                        DiameterCCClientStateMachine::EvInitialRequest,
                        StPendingI, acInitalRequest);
+
     AddStateTableEntry(StIdle,
-                       DiameterCCClientStateMachine::EvEventRequest,
-                       StPendingE,acEventRequest);
+                       DiameterCCClientStateMachine::EvDirectDebitingRequest,
+                       StPendingE,acDirectDebitingRequest);
+    AddStateTableEntry(StIdle,
+                       DiameterCCClientStateMachine::EvRefundAccountRequest,
+                       StPendingE,acRefundAccountRequest);
+    AddStateTableEntry(StIdle,
+                       DiameterCCClientStateMachine::EvCheckBalanceRequest,
+                       StPendingE,acCheckBalanceRequest);
+    AddStateTableEntry(StIdle,
+                       DiameterCCClientStateMachine::EvPriceEnquiryRequest,
+                       StPendingE,acPriceEnquiryRequest);
     AddStateTableEntry(StIdle,
                        DiameterCCClientStateMachine::EvStoredEventSent,
                        StPendingB);
@@ -404,10 +502,18 @@ class DiameterCCClientStateTable_S
                        StPendingT);
     AddWildcardStateTableEntry(StPendingT, StTerminated);
 
-
     AddStateTableEntry(StPendingE,
-                       DiameterCCClientStateMachine::EvSuccessfulAnswer,
-                       StIdle,acSuccessfulAnswer);
+                       DiameterCCClientStateMachine::EvDirectDebitingAnswer,
+                       StIdle,acDirectDebitingAnswer);
+    AddStateTableEntry(StPendingE,
+                       DiameterCCClientStateMachine::EvRefundAccountAnswer,
+                       StIdle,acRefundAccountAnswer);
+    AddStateTableEntry(StPendingE,
+                       DiameterCCClientStateMachine::EvCheckBalanceAnswer,
+                       StIdle,acCheckBalanceAnswer);
+    AddStateTableEntry(StPendingE,
+                       DiameterCCClientStateMachine::EvPriceEnquiryAnswer,
+                       StIdle,acPriceEnquiryAnswer);
     AddStateTableEntry(StPendingE,
                        DiameterCCClientStateMachine::EvFailure,
                        StIdle,acServiceError);
@@ -496,6 +602,35 @@ DiameterCCClientStateMachine::InitialRequest()
 
 bool
 DiameterCCClientStateMachine::TerminationRequest()
+{
+  SendCCR();
+  return true;
+}
+
+
+bool
+DiameterCCClientStateMachine::DirectDebitingRequest()
+{
+  SendCCR();
+  return true;
+}
+
+bool
+DiameterCCClientStateMachine::RefundAccountRequest()
+{
+  SendCCR();
+  return true;
+}
+
+bool
+DiameterCCClientStateMachine::CheckBalanceRequest()
+{
+  SendCCR();
+  return true;
+}
+
+bool
+DiameterCCClientStateMachine::PriceEnquiryRequest()
 {
   SendCCR();
   return true;

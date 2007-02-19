@@ -113,21 +113,36 @@ CCA_Handler::HandleMessage (DiameterMsg &msg)
 
   if(session.CCA_DATA().CCRequestType.IsSet())
     {
-      if (session.CCA_DATA().CCRequestType == CCR_TYPE_INITIAL_REQUEST)
+      if (session.CCA_DATA().CCRequestType == CC_TYPE_INITIAL_REQUEST)
         {
           session.Notify(DiameterCCClientStateMachine::EvInitialAnswer);
         }
-      else if(session.CCA_DATA().CCRequestType == CCR_TYPE_UPDATE_REQUEST)
+      else if(session.CCA_DATA().CCRequestType == CC_TYPE_UPDATE_REQUEST)
         {
             session.Notify(DiameterCCClientStateMachine::EvUpdateAnswer);
         }
-      else if (session.CCA_DATA().CCRequestType == CCR_TYPE_TERMINATION_REQUEST)
+      else if (session.CCA_DATA().CCRequestType == CC_TYPE_TERMINATION_REQUEST)
         {
             session.Notify(DiameterCCClientStateMachine::EvTerminationAnswer);
         }
-      else if (session.CCA_DATA().CCRequestType == CCR_TYPE_EVENT_REQUEST)
+      else if (session.CCA_DATA().CCRequestType == CC_TYPE_EVENT_REQUEST)
         {
-            session.Notify(DiameterCCClientStateMachine::EvEventAnswer);
+          if (session.CCR_DATA().RequestedAction == CC_ACTION_DIRECT_DEBITING)
+            {
+              session.Notify(DiameterCCClientStateMachine::EvDirectDebitingAnswer);
+            }
+          else if (session.CCR_DATA().RequestedAction == CC_ACTION_REFUND_ACCOUNT)
+            {
+              session.Notify(DiameterCCClientStateMachine::EvRefundAccountAnswer);
+            }
+          else if (session.CCR_DATA().RequestedAction == CC_ACTION_CHECK_BALANCE)
+            {
+              session.Notify(DiameterCCClientStateMachine::EvCheckBalanceAnswer);
+            }
+          else if (session.CCR_DATA().RequestedAction == CC_ACTION_PRICE_ENQUIRY)
+            {
+              session.Notify(DiameterCCClientStateMachine::EvPriceEnquiryAnswer);
+            }
         }
     }
   return AAA_ERR_SUCCESS;

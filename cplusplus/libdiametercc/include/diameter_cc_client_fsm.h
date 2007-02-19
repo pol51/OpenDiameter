@@ -82,6 +82,11 @@ class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientStateMachine
     EvInitialRequest,
     EvInitialAnswer,
     EvSuccessfulAnswer,
+
+    EvTerminationRequest,
+    EvTerminationAnswer,
+    EvSuccessfulTerminationAnswer,
+
     EvGrantWOSession,
     EvTerminateService,
     EvTxExpired,
@@ -90,15 +95,26 @@ class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientStateMachine
     EvChangeInRating,
     EvGrantedUnitsElapsed,
     EvSentUpdateRequest,
-    EvTerminationRequest,
+
     EvRARReceived,
     EvUpdateAnswer,
     EvTccExpired,
-    EvSuccessfulTerminationAnswer,
-    EvTerminationAnswer,
+
+
     EvFailure,
-    EvEventRequest,
-    EvEventAnswer,
+
+    EvDirectDebitingRequest,
+    EvDirectDebitingAnswer,
+
+    EvRefundAccountRequest,
+    EvRefundAccountAnswer,
+
+    EvCheckBalanceRequest,
+    EvCheckBalanceAnswer,
+
+    EvPriceEnquiryRequest,
+    EvPriceEnquiryAnswer,
+
     EvStoredEventSent,
     EvGrantService,
     EvStoreRequestWithTFlag,
@@ -137,6 +153,22 @@ class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientStateMachine
   virtual bool TerminationRequest();
 
   virtual bool TerminationAnswer(){return true;}
+
+  virtual bool DirectDebitingRequest();
+
+  virtual bool DirectDebitingAnswer(){return true;}
+
+  virtual bool RefundAccountRequest();
+
+  virtual bool RefundAccountAnswer(){return true;}
+
+  virtual bool CheckBalanceRequest();
+
+  virtual bool CheckBalanceAnswer(){return true;}
+
+  virtual bool PriceEnquiryRequest();
+
+  virtual bool PriceEnquiryAnswer(){return true;}
 
   /// This virtual function is called when a continuation of the
   /// authentication is signaled to the application.

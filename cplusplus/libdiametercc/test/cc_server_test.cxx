@@ -77,7 +77,11 @@ class CCServerSession : public DiameterCCServerSession
 
   virtual bool TerminationRequest();
 
-  virtual bool CheckBalance ();
+  virtual bool DirectDebitingRequest();
+
+  virtual bool RefundAccountRequest ();
+
+  virtual bool CheckBalanceRequest ();
 
 private:
 
@@ -159,7 +163,69 @@ CCServerSession::TerminationRequest()
 }
 
 bool
-CCServerSession::CheckBalance()
+CCServerSession::DirectDebitingRequest()
+{
+  std::vector<subscriptionId_t>& vec = ccrData.SubscriptionId();
+  Account(diameterCCApplication.getAccount(vec[0]));
+
+  DiameterCCAccount& account = Account();
+  requestedServiceUnit_t& balanceUnit = account.BalanceUnits();
+  requestedServiceUnit_t& requestedServiceUnit = ccrData.RequestedServiceUnit();
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tRequested %d Service Units.\n",
+           requestedServiceUnit.CCMoney().UnitValue().ValueDigits()));
+  const requestedServiceUnit_t& units = balanceUnit - requestedServiceUnit;
+  if (units > 0)
+    {
+      account.BalanceUnits(units);
+      
+      AAA_LOG((LM_DEBUG, "(%P|%t) \tAccount has %d Balance Units.\n",
+               account.BalanceUnits().CCMoney().UnitValue().ValueDigits()));      
+
+      grantedServiceUnit_t grantedServiceUnit = ccrData.RequestedServiceUnit();
+      ccaData.GrantedServiceUnit = grantedServiceUnit;
+
+      diameterCCApplication.setAccount(ccrData.SubscriptionId()[0], account);
+      return true;
+    }
+  else
+    {
+      return false;
+    }
+}
+
+bool
+CCServerSession::RefundAccountRequest()
+{
+  std::vector<subscriptionId_t>& vec = ccrData.SubscriptionId();
+  Account(diameterCCApplication.getAccount(vec[0]));
+
+  DiameterCCAccount& account = Account();
+  requestedServiceUnit_t& balanceUnit = account.BalanceUnits();
+  requestedServiceUnit_t& requestedServiceUnit = ccrData.RequestedServiceUnit();
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tRequested %d Service Units.\n",
+           requestedServiceUnit.CCMoney().UnitValue().ValueDigits()));
+  const requestedServiceUnit_t& units = balanceUnit + requestedServiceUnit;
+  if (units > 0)
+    {
+      account.BalanceUnits(units);
+      
+      AAA_LOG((LM_DEBUG, "(%P|%t) \tAccount has %d Balance Units.\n",
+               account.BalanceUnits().CCMoney().UnitValue().ValueDigits()));      
+
+      grantedServiceUnit_t grantedServiceUnit = ccrData.RequestedServiceUnit();
+      ccaData.GrantedServiceUnit = grantedServiceUnit;
+
+      diameterCCApplication.setAccount(ccrData.SubscriptionId()[0], account);
+      return true;
+    }
+  else
+    {
+      return false;
+    }
+}
+
+bool
+CCServerSession::CheckBalanceRequest()
 {
   AAA_LOG((LM_DEBUG, "(%P|%t) \tCheck Balance.\n"));
 
@@ -168,11 +234,24 @@ CCServerSession::CheckBalance()
 
   DiameterCCAccount& account = Account();
   requestedServiceUnit_t& balanceUnits = account.BalanceUnits();
-
-  AAA_LOG((LM_DEBUG, "(%P|%t) \tAccount has %d Balance Units.\n"
-           ,account.BalanceUnits().CCMoney().UnitValue().ValueDigits()));
-  return true;
+  requestedServiceUnit_t& requestedServiceUnits = ccrData.RequestedServiceUnit();
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tCheck Balance for %d Service Units.\n",
+           requestedServiceUnits.CCMoney().UnitValue().ValueDigits()));
+  const requestedServiceUnit_t& units = balanceUnits - requestedServiceUnits;
+  if (units > 0)
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) \tAccount has %d Balance Units therefore Enough Credit.\n"
+               ,account.BalanceUnits().CCMoney().UnitValue().ValueDigits()));
+      return true;
+    }
+  else
+    {
+      AAA_LOG((LM_DEBUG, "(%P|%t) \tAccount has %d Balance Units therefore No Credit.\n"
+               ,account.BalanceUnits().CCMoney().UnitValue().ValueDigits()));
+      return false;
+    }
 }
+
 
 class CCServerSessionClassFactory : 
   public AAAServerSessionFactory
