@@ -1392,26 +1392,48 @@ bool DiameterPeerStateMachine::ValidatePeer(diameter_unsigned32_t &rcode,
 void DiameterPeerStateMachine::MsgIdTxMessage(DiameterMsg &msg)
 {
    if (msg.hdr.flags.r) {
-       m_Data.m_PeerCapabilities.m_MsgId.m_LastTxHopId = DIAMETER_HOPBYHOP_GEN()->Get();
-       m_Data.m_PeerCapabilities.m_MsgId.m_LastTxEndId = DIAMETER_ENDTOEND_GEN()->Get();
-       msg.hdr.hh = m_Data.m_PeerCapabilities.m_MsgId.m_LastTxHopId;
-       msg.hdr.ee = m_Data.m_PeerCapabilities.m_MsgId.m_LastTxEndId;
+       diameter_unsigned32_t hopId = DIAMETER_HOPBYHOP_GEN()->Get();
+       diameter_unsigned32_t endId = DIAMETER_ENDTOEND_GEN()->Get();
+
+       m_Data.m_PeerCapabilities.m_MsgId.m_LastTxHopId.Add(hopId, hopId);
+       m_Data.m_PeerCapabilities.m_MsgId.m_LastTxEndId.Add(endId, endId);
+
+       msg.hdr.hh = hopId;
+       msg.hdr.ee = endId;
    }
    else {
-       msg.hdr.hh = m_Data.m_PeerCapabilities.m_MsgId.m_LastRxHopId;
-       msg.hdr.ee = m_Data.m_PeerCapabilities.m_MsgId.m_LastRxEndId;
+       if (! m_Data.m_PeerCapabilities.m_MsgId.m_LastRxHopId.IsEmpty()) {
+           msg.hdr.hh = m_Data.m_PeerCapabilities.m_MsgId.m_LastRxHopId.Dequeue();
+       }
+       else {
+           AAA_LOG((LM_ERROR, "(%P|%t) Sending a peer message but Hop Id queue is empty\n"));
+           msg.hdr.hh = 0;
+       }
+       if (! m_Data.m_PeerCapabilities.m_MsgId.m_LastRxEndId.IsEmpty()) {
+           msg.hdr.ee = m_Data.m_PeerCapabilities.m_MsgId.m_LastRxEndId.Dequeue();
+       }
+       else {
+           AAA_LOG((LM_ERROR, "(%P|%t) Sending a peer message but End Id queue is empty\n"));
+           msg.hdr.ee = 0;
+       }
    }
 }
 
 bool DiameterPeerStateMachine::MsgIdRxMessage(DiameterMsg &msg)
 {
    if (msg.hdr.flags.r) {
-       m_Data.m_PeerCapabilities.m_MsgId.m_LastRxHopId = msg.hdr.hh;
-       m_Data.m_PeerCapabilities.m_MsgId.m_LastRxEndId = msg.hdr.ee;
+       m_Data.m_PeerCapabilities.m_MsgId.m_LastRxHopId.Enqueue(msg.hdr.hh);
+       m_Data.m_PeerCapabilities.m_MsgId.m_LastRxEndId.Enqueue(msg.hdr.ee);
        return (true);
    }
-   return ((msg.hdr.hh == m_Data.m_PeerCapabilities.m_MsgId.m_LastTxHopId) &&
-           (msg.hdr.ee == m_Data.m_PeerCapabilities.m_MsgId.m_LastTxEndId));
+   else {
+       AAA_IterActionDelete<diameter_unsigned32_t> delAct;
+       if (m_Data.m_PeerCapabilities.m_MsgId.m_LastTxHopId.Remove(msg.hdr.hh, delAct) &&
+           m_Data.m_PeerCapabilities.m_MsgId.m_LastTxEndId.Remove(msg.hdr.ee, delAct)) {
+           return (true);
+       }
+   }
+   return (false);
 }
 
 void DiameterPeerStateMachine::DoReConnect()

@@ -88,10 +88,10 @@ typedef enum {
 
 typedef struct
 {
-   diameter_unsigned32_t m_LastTxHopId;
-   diameter_unsigned32_t m_LastTxEndId;
-   diameter_unsigned32_t m_LastRxHopId;
-   diameter_unsigned32_t m_LastRxEndId;
+   AAA_ProtectedMap<diameter_unsigned32_t, diameter_unsigned32_t> m_LastTxHopId;
+   AAA_ProtectedMap<diameter_unsigned32_t, diameter_unsigned32_t> m_LastTxEndId;
+   AAA_ProtectedQueue<diameter_unsigned32_t> m_LastRxHopId;
+   AAA_ProtectedQueue<diameter_unsigned32_t> m_LastRxEndId;
 } DiameterMsgId;
 
 typedef struct

@@ -16,11 +16,9 @@
       <vendor_specific_application_id>
           <vendor_id>31</vendor_id>
           <auth_application_id>1</auth_application_id>
-          <acct_application_id>4</acct_application_id>
       </vendor_specific_application_id>
       <vendor_specific_application_id>
           <vendor_id>41</vendor_id>
-          <auth_application_id>5</auth_application_id>
           <acct_application_id>6</acct_application_id>
       </vendor_specific_application_id>
    </general>
@@ -34,8 +32,8 @@
       <sctp_listen_port>1811</sctp_listen_port>
       <use_ipv6>0</use_ipv6>
       <watchdog_timeout>3</watchdog_timeout>
-      <reconnect_interval>3</reconnect_interval>
-      <reconnect_max>6</reconnect_max>
+      <reconnect_interval>30</reconnect_interval>
+      <reconnect_max>3</reconnect_max>
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
       <advertised_hostname>nas1.access1.net</advertised_hostname>
@@ -44,6 +42,7 @@
           <peer>
               <hostname>server.isp.net</hostname>
               <port>1812</port>
+              <use_sctp>0</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
       </peer_table>
@@ -53,7 +52,7 @@
              <realm>isp.net</realm>
              <role>1</role> 
              <application>
-                <application_id>10000</application_id>
+                <application_id>1</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
                     <server>server.isp.net</server>

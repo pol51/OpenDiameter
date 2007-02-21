@@ -1526,6 +1526,34 @@ class AAA_IterAction
       }
 };
 
+template <class ARG>
+class AAA_IterActionDelete :
+   public AAA_IterAction<ARG>
+{
+   public:
+      // return TRUE to delete entry in iteration
+      // return FALSE to sustain entry
+      virtual bool operator()(ARG&) {
+         return true;
+      }
+      virtual ~AAA_IterActionDelete() {
+      }
+};
+
+template <class ARG>
+class AAA_IterActionNone :
+   public AAA_IterAction<ARG>
+{
+   public:
+      // return TRUE to delete entry in iteration
+      // return FALSE to sustain entry
+      virtual bool operator()(ARG&) {
+         return false;
+      }
+      virtual ~AAA_IterActionNone() {
+      }
+};
+
 template <class INDEX,
           class DATA>
 class AAA_ProtectedMap  :
