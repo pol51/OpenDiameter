@@ -721,11 +721,24 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
        uint32 = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
        vsid.vendorId = (uint32) ? *uint32 : 0;
        uint32 = gAuthId.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
-       vsid.authAppId = (uint32) ? *uint32 : 0;
-       uint32 = gAcctId.GetAvp(DIAMETER_AVPNAME_ACCTAPPID);
-       vsid.acctAppId = (uint32) ? *uint32 : 0;
+       if (uint32) {
+           vsid.authAppId = *uint32;
+       }
+       else {
+           vsid.authAppId = 0;
+           uint32 = gAcctId.GetAvp(DIAMETER_AVPNAME_ACCTAPPID);
+           if (uint32) {
+               vsid.acctAppId = *uint32;
+           }
+           else {
+               vsid.acctAppId = 0;
+               AAA_LOG((LM_INFO, "(%P|%t) WARNING: Peer advertising Vendor-Specific-App-Id with no Auth or Acct app Id AVPs\n"));
+           }
+       }
 
-       cap.m_VendorSpecificId.push_back(vsid);
+       if ((vsid.acctAppId != 0) || (vsid.authAppId != 0)) {
+           cap.m_VendorSpecificId.push_back(vsid);
+       }
        grouped = vendorSpecificId.GetAvp(DIAMETER_AVPNAME_VENDORAPPID, ndx);
    }
 

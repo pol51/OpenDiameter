@@ -125,7 +125,14 @@ class DiameterXmlAcctAppIdConv :
          else if (m_element->Parent()->Name() == std::string("vendor_specific_application_id")) {
               DiameterXmlVendorAppIdParser *vendorIdElm = 
                  (DiameterXmlVendorAppIdParser*)m_element->Parent();
+              if (vendorIdElm->Get().authAppId == 0) {
                  vendorIdElm->Get().acctAppId = ACE_OS::atoi(ch);
+              }
+              else {
+                 AAA_LOG((LM_ERROR,
+                      "While adding acct-app-id, Vendor specific application id already has auth-app-id\n"));
+                 throw;
+              }
          }
          else {
              AAA_LOG((LM_ERROR, 
@@ -152,7 +159,14 @@ class DiameterXmlAuthAppIdConv :
          else if (m_element->Parent()->Name() == std::string("vendor_specific_application_id")) {
               DiameterXmlVendorAppIdParser *vendorIdElm = 
                  (DiameterXmlVendorAppIdParser*)m_element->Parent();
+              if (vendorIdElm->Get().acctAppId == 0) {
                  vendorIdElm->Get().authAppId = ACE_OS::atoi(ch);
+              }
+              else {
+                 AAA_LOG((LM_ERROR,
+                      "While adding auth-app-id, Vendor specific application id already has acct-app-id\n"));
+                 throw;
+              }
          }
          else {
              AAA_LOG((LM_ERROR, 
@@ -743,7 +757,7 @@ void DiameterXMLConfigParser::dump()
         if ((*n).authAppId > 0) {
             AAA_LOG((LM_INFO, " Auth=%d ", (*n).authAppId));
         }
-        if ((*n).acctAppId > 0) {
+        else if ((*n).acctAppId > 0) {
             AAA_LOG((LM_INFO, " Acct=%d ", (*n).acctAppId));
         }
         AAA_LOG((LM_INFO, "%s\n", (((*n).authAppId == 0) && 

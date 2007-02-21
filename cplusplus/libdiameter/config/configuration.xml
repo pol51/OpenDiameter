@@ -64,14 +64,11 @@
           <!-- Exactly one instance of the
                vendor's auth application id -->
           <auth_application_id>1</auth_application_id>
-
-          <!-- Or Exactly one instance of the
-               vendor's acct application id -->
-          <acct_application_id>4</acct_application_id>
       </vendor_specific_application_id>
       <vendor_specific_application_id>
           <vendor_id>41</vendor_id>
-          <auth_application_id>5</auth_application_id>
+          <!-- Or Exactly one instance of the
+               vendor's acct application id -->
           <acct_application_id>6</acct_application_id>
       </vendor_specific_application_id>
    </general>
