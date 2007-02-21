@@ -89,7 +89,7 @@ AAAReturnCode DiameterSessionId::Get(DiameterMsg &msg)
          throw (AAA_ERR_PARSING_FAILED);
       }
       std::string stringHigh = sid->substr(where1, where2-where1);
-      High() = ACE_OS::atoi(stringHigh.c_str());
+      High() = ACE_OS::strtoul(stringHigh.c_str(), NULL, 10);
 
       where1 = sid->find(";", ++ where2);
       if (where1 == std::string::npos) {
@@ -114,7 +114,7 @@ AAAReturnCode DiameterSessionId::Set(DiameterMsg &msg)
    diameter_utf8string_t &sid = sidAvp.AddAvp(DIAMETER_AVPNAME_SESSIONID);
 
    char nums[64];
-   sprintf(nums, ";%d;%d", High(), Low());
+   sprintf(nums, ";%u;%u", High(), Low());
    sid = DiameterId() + nums;
 
    if (OptionalValue().length() > 0) {
