@@ -65,7 +65,7 @@
              <realm>access1.net</realm>
              <role>0</role> 
              <application>
-                <application_id>0</application_id>
+                <application_id>10000</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
                     <server>nas.access2.net</server>
@@ -74,7 +74,7 @@
              </application>
              <application>
                 <application_id>1</application_id>
-                <vendor_id>0</vendor_id>
+                <vendor_id>10000</vendor_id>
                 <peer_entry>
                     <server>nas.access1.net</server>
                     <metric>2</metric>
@@ -105,7 +105,7 @@
              <realm>access3.net</realm>
              <role>0</role> 
              <application>
-                <application_id>0</application_id>
+                <application_id>10000</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
                     <server>nas.access3.net</server>
@@ -141,7 +141,7 @@
              <realm>access1.net</realm>
              <role>0</role> 
              <application>
-                <application_id>0</application_id>
+                <application_id>10000</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
                     <server>nas.access1.net</server>

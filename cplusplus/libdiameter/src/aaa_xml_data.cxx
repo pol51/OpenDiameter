@@ -452,7 +452,15 @@ class DiameterXmlRteApplicationIdConv :
                   diameter_unsigned32_t &arg) {
          DiameterXmlRouteApplicationParser *rteAppElm = 
                (DiameterXmlRouteApplicationParser*)m_element->Parent();
-         rteAppElm->Get()->ApplicationId() = ACE_OS::atoi(ch);
+         diameter_unsigned32_t appId = ACE_OS::atoi(ch);
+         if (DiameterConfigValidation::IsApplicationIdSupported(appId)) {
+             rteAppElm->Get()->ApplicationId() = appId;
+         }
+         else {
+             AAA_LOG((LM_ERROR,
+                    "Configuration problem: Your advertising an app id in your route table for which your not advertising in your CER\n"));
+            throw;
+         }
      }
 };
 
@@ -829,5 +837,52 @@ void DiameterXMLConfigParser::dump()
                  root.log.targets.console ? "enabled" : "disabled"));
     AAA_LOG((LM_INFO, "(%P|%t)          Syslog Log : %s\n", 
                  root.log.targets.syslog  ? "enabled" : "disabled"));
+}
+
+bool DiameterConfigValidation::IsApplicationIdSupported(diameter_unsigned32_t appId)
+{
+    // Validate with acct app Id against what is advertised
+    DiameterApplicationIdLst::iterator i;
+    for (i = DIAMETER_CFG_GENERAL()->acctAppIdLst.begin();
+        i != DIAMETER_CFG_GENERAL()->acctAppIdLst.end();
+        i ++) {
+        if ((*i) == DIAMETER_RELAY_APPLICATION_ID) {
+            return (true);
+        }
+        else if ((*i) == appId) {
+            return (true);
+        }
+    }
+
+    // Validate with auth app Id against what is advertised
+    for (i = DIAMETER_CFG_GENERAL()->authAppIdLst.begin();
+        i != DIAMETER_CFG_GENERAL()->authAppIdLst.end();
+        i ++) {
+        if ((*i) == DIAMETER_RELAY_APPLICATION_ID) {
+            return (true);
+        }
+        else if ((*i) == appId) {
+            return (true);
+        }
+    }
+
+    // Validate with vendor-specific-app-id againts what is advertised
+    DiameterVendorSpecificIdLst::iterator y;
+    for (y = DIAMETER_CFG_GENERAL()->vendorSpecificId.begin();
+        y != DIAMETER_CFG_GENERAL()->vendorSpecificId.end();
+        y ++) {
+        if (((*y).authAppId == DIAMETER_RELAY_APPLICATION_ID) ||
+            ((*y).acctAppId == DIAMETER_RELAY_APPLICATION_ID)) {
+            return (true);
+        }
+        if (((*y).authAppId != 0) && ((*y).authAppId == appId)) {
+            return (true);
+        }
+        else if (((*y).acctAppId != 0) && ((*y).acctAppId == appId)) {
+            return (true);
+        }
+    }
+
+    return (false);
 }
 

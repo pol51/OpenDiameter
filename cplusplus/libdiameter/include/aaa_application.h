@@ -61,7 +61,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterApplication :
             private:
                long m_TimerHandle;
         };
-        
+
     public:
         DiameterApplication(AAA_Task &task,
                             char *cfgfile = NULL) :
@@ -85,31 +85,16 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterApplication :
 
         // Factory Registration
         AAAReturnCode RegisterServerSessionFactory
-            (DiameterServerSessionFactory &factory) {
-            return m_SessionMsgRx.SessionFactoryMap().Add(factory) ? 
-                 AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
-        }
+            (DiameterServerSessionFactory &factory);
 
         // Factory de-registration
-        AAAReturnCode RemoveServerSessionFactory
-            (diameter_unsigned32_t appId) {
-            return m_SessionMsgRx.SessionFactoryMap().Remove(appId) ? 
-                 AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
-        }
+        AAAReturnCode RemoveServerSessionFactory(diameter_unsigned32_t appId);
 
         // Proxy Handler Registration
-        AAAReturnCode RegisterProxyHandler
-            (AAA_ProxyHandler &handler) {
-            return m_SessionMsgRx.ProxyHandlerMap().Add(handler) ?
-                 AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
-        }
+        AAAReturnCode RegisterProxyHandler(AAA_ProxyHandler &handler);
 
         // Proxy Handler De-Registration
-        AAAReturnCode RemoveProxyHandler
-            (diameter_unsigned32_t appId) {
-            return m_SessionMsgRx.ProxyHandlerMap().Remove(appId) ? 
-                 AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
-        }
+        AAAReturnCode RemoveProxyHandler(diameter_unsigned32_t appId);
 
         // Framework task
         AAA_Task& Task() {

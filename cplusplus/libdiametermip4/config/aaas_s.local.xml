@@ -89,7 +89,7 @@
              <role>0</role> 
              <redirect_usage>0</redirect_usage>
              <application>
-                <application_id>0</application_id>
+                <application_id>3</application_id>
                 <vendor_id>0</vendor_id>
                 <peer_entry>
                     <server>hac.homedomain.com</server>

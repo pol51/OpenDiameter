@@ -49,6 +49,12 @@ class DiameterXMLConfigParser
       virtual void dump();
 };
 
+class DiameterConfigValidation
+{
+   public:
+      static bool IsApplicationIdSupported(diameter_unsigned32_t appId);
+};
+
 #endif // __AAA_XML_DATA_H__
 
 

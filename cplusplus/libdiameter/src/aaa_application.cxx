@@ -96,6 +96,38 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
     return (AAA_ERR_SUCCESS);
 }
 
+AAAReturnCode DiameterApplication::RegisterServerSessionFactory
+    (DiameterServerSessionFactory &factory)
+{
+    if (DiameterConfigValidation::IsApplicationIdSupported(factory.GetApplicationId())) {
+        return m_SessionMsgRx.SessionFactoryMap().Add(factory) ? 
+             AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
+    }
+    return AAA_ERR_FAILURE;
+}
+
+AAAReturnCode DiameterApplication::RemoveServerSessionFactory
+    (diameter_unsigned32_t appId)
+{
+    return m_SessionMsgRx.SessionFactoryMap().Remove(appId) ? 
+        AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
+}
+
+AAAReturnCode DiameterApplication::RegisterProxyHandler(AAA_ProxyHandler &handler)
+{
+    if (DiameterConfigValidation::IsApplicationIdSupported(handler.ApplicationId())) {
+        return m_SessionMsgRx.ProxyHandlerMap().Add(handler) ?
+            AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
+    }
+    return AAA_ERR_FAILURE;
+}
+
+AAAReturnCode DiameterApplication::RemoveProxyHandler(diameter_unsigned32_t appId)
+{
+    return m_SessionMsgRx.ProxyHandlerMap().Remove(appId) ? 
+            AAA_ERR_SUCCESS : AAA_ERR_FAILURE;
+}
+
 AAAReturnCode DiameterApplication::Close()
 {
     AAA_LOG((LM_INFO, "(%P|%t) Stopping diameter core\n"));
