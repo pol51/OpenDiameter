@@ -351,6 +351,9 @@ class DIAMETERBASEPROTOCOL_EXPORT AAAClientSession :
         virtual AAAReturnCode Disconnect() {
             return this->HandleDisconnect();
         }
+        virtual AAAReturnCode ReClaimSession() {
+            return this->HandleDisconnect();
+        }
         virtual AAAReturnCode SessionTimeout() {
 	    this->HandleTimeout();
 	    return this->HandleSessionTimeout();

@@ -169,7 +169,8 @@ typedef enum {
 //
 // Misc definitions
 //
-#define AAA_AUTH_SESSION_GRACE_PERIOD        5
+#define AAA_AUTH_SESSION_GRACE_PERIOD             5
+#define AAA_AUTH_SESSION_RECLAMATION_PERIOD       60
 
 //
 // Configuration Data Structures

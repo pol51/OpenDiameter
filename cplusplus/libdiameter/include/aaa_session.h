@@ -132,6 +132,11 @@ class DiameterSession :
             return (AAA_ERR_SUCCESS);
         }
 
+        /// This function is called when a stateless session is getting reclaimed
+        virtual AAAReturnCode ReClaimSession() {
+            return (AAA_ERR_SUCCESS);
+        }
+
         /// This function is called on session timeout
         virtual AAAReturnCode SessionTimeout() {
             return (AAA_ERR_SUCCESS);

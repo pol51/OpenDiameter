@@ -100,22 +100,35 @@ class DiameterSessAuthServer_TxSSA :
       virtual void operator()(DiameterAuthSessionServerStateMachine &fsm) {
           std::auto_ptr<DiameterMsg> msg = fsm.PendingMsg();
           fsm.Session().TxDelivery(msg);
-          
-          if (fsm.Attributes().AuthSessionState()() != 
+
+          if (fsm.Attributes().AuthSessionState()() !=
               DIAMETER_SESSION_STATE_MAINTAINED) {
               fsm.CancelAllTimer();
-              fsm.ScheduleTimer(DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
-                  fsm.Attributes().SessionTimeout()() +
-                  AAA_AUTH_SESSION_GRACE_PERIOD,
-                  0, DIAMETER_TIMER_TYPE_SESSION);
-                  
+
               AAA_LOG((LM_INFO, "(%P|%t) Server session in stateless mode, extending access time\n"));
-              AAA_LOG((LM_INFO, "(%P|%t) Session Timeout: %d\n", 
-                            fsm.Attributes().SessionTimeout()()));
-              AAA_LOG((LM_INFO, "(%P|%t) Auth Lifetime  : %d\n",
-                            fsm.Attributes().AuthLifetime()()));
-              AAA_LOG((LM_INFO, "(%P|%t) Grace Period   : %d\n",
-                            fsm.Attributes().AuthGrace()()));
+
+              if (fsm.Attributes().SessionTimeout()() > 0) {
+                  fsm.ScheduleTimer(DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
+                                    fsm.Attributes().SessionTimeout()() +
+                                    AAA_AUTH_SESSION_GRACE_PERIOD,
+                                    0, DIAMETER_TIMER_TYPE_SESSION);
+
+                  AAA_LOG((LM_INFO, "(%P|%t) Session Timeout: %d\n", 
+                                  fsm.Attributes().SessionTimeout()()));
+                  AAA_LOG((LM_INFO, "(%P|%t) Auth Lifetime  : %d\n",
+                                  fsm.Attributes().AuthLifetime()()));
+                  AAA_LOG((LM_INFO, "(%P|%t) Grace Period   : %d\n",
+                                  fsm.Attributes().AuthGrace()()));
+              }
+              else {
+                  fsm.ScheduleTimer(DIAMETER_SESSION_AUTH_EV_SESSION_RECLAIM,
+                                    AAA_AUTH_SESSION_RECLAMATION_PERIOD,
+                                    0, DIAMETER_TIMER_TYPE_SESSION);
+
+                  AAA_LOG((LM_INFO, "(%P|%t) Reclamation Timeout: %d\n",
+                                  AAA_AUTH_SESSION_RECLAMATION_PERIOD));
+              }
+
               fsm.Session().Success();
           }
       }
@@ -241,6 +254,28 @@ class DiameterSessAuthServer_SessionTimeout :
       }
 };
 
+class DiameterSessAuthServer_SessionReclaim :
+   public AAA_Action<DiameterAuthSessionServerStateMachine>
+{
+   public:
+      virtual void operator()(DiameterAuthSessionServerStateMachine &fsm) {
+          fsm.CancelAllTimer();
+          if (fsm.Session().ReClaimSession() == AAA_ERR_SUCCESS) {
+              fsm.Session().Disconnect();
+              fsm.ASRSent() = false;
+              fsm.Session().Reset();
+          }
+          else {
+              AAA_LOG((LM_INFO, "(%P|%t) Scheduling next reclamation Timeout: %d\n",
+                                  AAA_AUTH_SESSION_RECLAMATION_PERIOD));
+
+              fsm.ScheduleTimer(DIAMETER_SESSION_AUTH_EV_SESSION_RECLAIM,
+                                AAA_AUTH_SESSION_RECLAMATION_PERIOD,
+                                0, DIAMETER_TIMER_TYPE_SESSION);
+          }
+      }
+};
+
 class DiameterSessAuthServer_Cleanup : 
    public AAA_Action<DiameterAuthSessionServerStateMachine> 
 {
@@ -354,6 +389,19 @@ class AAA_SessAuthServerStateTable :
                            DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
                            DIAMETER_SESSION_AUTH_ST_IDLE,
                            m_acSessionTimeout);
+
+        /*
+           State     Event                          Action     New State
+           -------------------------------------------------------------
+            Idle      Authorization-Lifetime (and    Cleanup    Idle
+                      Auth-Grace-Period) expires
+                      on home server for stateless
+                      session.
+         */
+        AddStateTableEntry(DIAMETER_SESSION_AUTH_ST_IDLE,
+                           DIAMETER_SESSION_AUTH_EV_SESSION_RECLAIM,
+                           DIAMETER_SESSION_AUTH_ST_IDLE,
+                           m_acSessionReclaim);
 
         /*
            State     Event                          Action     New State
@@ -689,6 +737,7 @@ class AAA_SessAuthServerStateTable :
        DiameterSessAuthServer_TxSTACleanup_Idle            m_acTxSTACleanupIdle;
        DiameterSessAuthServer_AuthorizationTimeout         m_acAuthTimeout;
        DiameterSessAuthServer_SessionTimeout               m_acSessionTimeout;
+       DiameterSessAuthServer_SessionReclaim               m_acSessionReclaim;
        DiameterSessAuthServer_Cleanup                      m_acCleanup;
 };
 

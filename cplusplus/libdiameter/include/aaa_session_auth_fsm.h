@@ -71,6 +71,7 @@ typedef enum {
     DIAMETER_SESSION_AUTH_EV_LIFETIME_TOUT,
     DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_ST,
     DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
+    DIAMETER_SESSION_AUTH_EV_SESSION_RECLAIM,
     DIAMETER_SESSION_AUTH_EV_ABORT,
     DIAMETER_SESSION_AUTH_EV_STOP,
 } DIAMETER_SESSION_EV_AUTH;
@@ -106,6 +107,7 @@ class DiameterSessionAuthFsmDebug
                                         "DIAMETER_SESSION_AUTH_EV_LIFETIME_TOUT",
                                         "DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_ST",
                                         "DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST",
+                                        "DIAMETER_SESSION_AUTH_EV_SESSION_RECLAIM",
                                         "DIAMETER_SESSION_AUTH_EV_ABORT",
                                         "DIAMETER_SESSION_AUTH_EV_STOP"
           };

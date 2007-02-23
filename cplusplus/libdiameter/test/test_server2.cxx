@@ -135,6 +135,13 @@ class AAA_SampleServer : public DiameterServerAuthSession,
             AAA_LOG((LM_INFO, "(%P|%t) **** session disconnecting ****\n"));
             return (AAA_ERR_SUCCESS);
         }
+        virtual AAAReturnCode ReClaimSession() {
+            // notification of a stateless session being reclaimed
+            // return AAA_ERR_SUCCESS if you wish to delete this server
+            // session otherwise return AAA_ERR_FAILURE
+            AAA_LOG((LM_INFO, "(%P|%t) **** session re-claim ****\n"));
+            return (AAA_ERR_SUCCESS);
+        }
         virtual AAAReturnCode SessionTimeout() {
             // notification of session timeout
             AAA_LOG((LM_INFO, "(%P|%t) **** session timeout ****\n"));

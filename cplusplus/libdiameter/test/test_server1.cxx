@@ -63,7 +63,7 @@ class AAA_SampleServer : public DiameterServerAuthSession {
             // this server can dictate the session timeout 
             // to the client. If not overridden, the value 
             // in the config file is used
-            timeout = 30;
+            timeout = 0;
         }
         virtual void SetAuthLifetimeTimeout
         (DiameterScholarAttribute<diameter_unsigned32_t> &timeout)
@@ -169,6 +169,13 @@ class AAA_SampleServer : public DiameterServerAuthSession {
         virtual AAAReturnCode Disconnect() {
             // notification of completed STR/STA exchange
             AAA_LOG((LM_INFO, "(%P|%t) **** session disconnecting ****\n"));
+            return (AAA_ERR_SUCCESS);
+        }
+        virtual AAAReturnCode ReClaimSession() {
+            // notification of a stateless session being reclaimed
+            // return AAA_ERR_SUCCESS if you wish to delete this server
+            // session otherwise return AAA_ERR_FAILURE
+            AAA_LOG((LM_INFO, "(%P|%t) **** session re-claim ****\n"));
             return (AAA_ERR_SUCCESS);
         }
         virtual AAAReturnCode SessionTimeout() {

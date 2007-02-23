@@ -185,7 +185,7 @@ void DiameterClientAuthSession::RxAnswer(std::auto_ptr<DiameterMsg> msg)
         diameter_unsigned32_t *tout = timeoutAvp.GetAvp
             (DIAMETER_AVPNAME_SESSIONTIMEOUT);
         if (tout) {
-            Attributes().SessionTimeout().Set(*tout + 10);
+            Attributes().SessionTimeout().Set(*tout);
             AAA_LOG((LM_INFO, "(%P|%t) Server dictated session timeout: %d\n", 
                     Attributes().SessionTimeout()()));
         }

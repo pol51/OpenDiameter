@@ -174,7 +174,7 @@ void DiameterServerAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
 
         SetSessionTimeout(sessTout);
         if (sessTout.IsSet()) {
-            Attributes().SessionTimeout() = sessTout() - 10;
+            Attributes().SessionTimeout() = (sessTout() > 0) ? sessTout() : 0;
         }
 
         if (tout) {

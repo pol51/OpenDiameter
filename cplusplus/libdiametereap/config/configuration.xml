@@ -391,7 +391,11 @@
          <stateful>1</stateful>
 
          <!-- Timeout in seconds before a session requires 
-              re-authentication -->
+              re-authentication. For stateless sessions, a value
+              of zero(0) will cause the client session to be maintained
+              indefinitely. For stateless server sessions, the library
+              will ask you periodically if you want to reclaim the session
+              in ReClaimSession() method -->
          <session_timeout>30</session_timeout>
 
          <!-- Timeout in seconds before a session is 

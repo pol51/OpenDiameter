@@ -110,19 +110,27 @@ class DiameterSessAuthClient_RxSSAA_GrantAccess :
                   fsm.Attributes().AuthLifetime()() +
                   fsm.Attributes().AuthGrace()(),
                   0, DIAMETER_TIMER_TYPE_AUTH);
+
+              AAA_LOG((LM_INFO, "(%P|%t) Client session in open state\n"));
+              AAA_LOG((LM_INFO, "(%P|%t) Session Timeout: %d\n", 
+                                fsm.Attributes().SessionTimeout()()));
+              AAA_LOG((LM_INFO, "(%P|%t) Auth Lifetime  : %d\n",
+                                fsm.Attributes().AuthLifetime()()));
+              AAA_LOG((LM_INFO, "(%P|%t) Grace Period   : %d\n",
+                                fsm.Attributes().AuthGrace()()));
           }
-          else {
+          else if (fsm.Attributes().SessionTimeout()() > 0) {
               fsm.ScheduleTimer(DIAMETER_SESSION_AUTH_EV_SESSION_TOUT_NOST,
                   fsm.Attributes().SessionTimeout()(),
                   0, DIAMETER_TIMER_TYPE_SESSION);
+
+              AAA_LOG((LM_INFO, "(%P|%t) Client session is stateless but has session timeout\n"));
+              AAA_LOG((LM_INFO, "(%P|%t) Session Timeout: %d\n", 
+                                fsm.Attributes().SessionTimeout()()));
           }
-          AAA_LOG((LM_INFO, "(%P|%t) Client session in open state\n"));
-          AAA_LOG((LM_INFO, "(%P|%t) Session Timeout: %d\n", 
-                            fsm.Attributes().SessionTimeout()()));
-          AAA_LOG((LM_INFO, "(%P|%t) Auth Lifetime  : %d\n",
-                            fsm.Attributes().AuthLifetime()()));
-          AAA_LOG((LM_INFO, "(%P|%t) Grace Period   : %d\n",
-                            fsm.Attributes().AuthGrace()()));
+          else {
+              AAA_LOG((LM_INFO, "(%P|%t) Client session is stateless with no session expiration set\n"));
+          }
           fsm.Session().Success();
       }
 };
