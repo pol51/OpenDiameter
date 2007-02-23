@@ -128,7 +128,7 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
     public:
         DiameterTxMsgCollector() :
             m_Active(false),
-            m_Condition(*(new ACE_Thread_Mutex)),
+            m_Condition(m_Mutex),
             m_BlockCount(1) {
             m_Buffer = AAAMessageBlock::Acquire(MSG_COLLECTOR_MAX_MSG_LENGTH);
         }
@@ -147,10 +147,7 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
             m_Active = false;
             m_Condition.signal();
             // wait for thread to exit
-            while (thr_count() > 0) {
-                ACE_Time_Value tm(0, 100000);
-                ACE_OS::sleep(tm);
-            }
+            AAA_MutexScopeLock guard(m_Mutex);
         }
         int Send(std::auto_ptr<DiameterMsg> &msg,
                  Diameter_IO_Base *io,
@@ -166,7 +163,8 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
         // Variables for transmitter thread
         //
         bool m_Active;
-        ACE_Condition_Thread_Mutex m_Condition;
+        ACE_Mutex m_Mutex;
+        ACE_Condition<ACE_Mutex> m_Condition;
         AAA_ProtectedQueue<TransmitDatum*> m_SendQueue;
 
         //
@@ -180,6 +178,7 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
                      Diameter_IO_Base *io);
 
         int svc() {
+           AAA_MutexScopeLock guard(m_Mutex);
            do {
                m_Condition.wait();
                while (! m_SendQueue.IsEmpty()) {
