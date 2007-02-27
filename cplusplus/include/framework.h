@@ -1692,4 +1692,30 @@ class AAA_RangedValue
       int m_HighThreshold;
 };
 
+template<typename T>
+class AAA_SignaledEvent
+{
+   public:
+      AAA_SignaledEvent(T value) :
+         m_MonitoredValue(value),
+         m_Condition(m_Mutex) {
+      }
+      void Wait(T value) {
+         AAA_MutexScopeLock guard(m_Mutex);
+         while (m_MonitoredValue != value) {
+             m_Condition.wait();
+         }
+      }
+      void Signal(T value) {
+         AAA_MutexScopeLock guard(m_Mutex);
+         m_MonitoredValue = value;
+         m_Condition.signal();
+      }
+
+   private:
+      T &m_MonitoredValue;
+      ACE_Mutex m_Mutex;
+      ACE_Condition<ACE_Mutex> m_Condition;
+};
+
 #endif // __FRAMEWORK_H__

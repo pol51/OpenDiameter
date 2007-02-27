@@ -302,6 +302,11 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
                            DIAMETER_PEER_ST_CLOSED,
                            m_acError);
 
+        AddStateTableEntry(DIAMETER_PEER_ST_WAIT_CONN_ACK,
+                           DIAMETER_PEER_EV_STOP,
+                           DIAMETER_PEER_ST_CLOSED,
+                           m_acError);
+
         // ------------- DIAMETER_PEER_ST_WAIT_CEA ----------------  
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_I_CEA,
                            DIAMETER_PEER_EV_I_RCV_CEA,
@@ -325,6 +330,11 @@ class DiameterPeerStateTable : public AAA_StateTable<DiameterPeerStateMachine>
 
         AddStateTableEntry(DIAMETER_PEER_ST_WAIT_I_CEA,
                            DIAMETER_PEER_EV_TIMEOUT,
+                           DIAMETER_PEER_ST_CLOSED,
+                           m_acError);
+
+        AddStateTableEntry(DIAMETER_PEER_ST_WAIT_I_CEA,
+                           DIAMETER_PEER_EV_STOP,
                            DIAMETER_PEER_ST_CLOSED,
                            m_acError);
 
@@ -669,12 +679,16 @@ class DiameterPeerStateMachine :
       DiameterPeerStateMachine(AAA_Task &t) :
           AAA_StateMachineWithTimer<DiameterPeerStateMachine>
              (*this, m_StateTable, *t.reactor()),
+             m_CleanupFlag(false),
+             m_CleanupSignal(m_CleanupFlag),
              m_GroupedJob(&t.Job()) {
           m_ReconnectAttempt = 0;
           m_TxMsgCollector.Start();
       }
       virtual ~DiameterPeerStateMachine() {
-          WaitOnCleanup();
+          if (state != DIAMETER_PEER_ST_CLOSED) {
+              m_CleanupSignal.Wait(true);
+          }
           AAA_StateMachine<DiameterPeerStateMachine>::Stop();
           m_TxMsgCollector.Stop();
       }
@@ -770,7 +784,7 @@ class DiameterPeerStateMachine :
    protected: // Update of peer SCTP addresses
 
       int TransportProtocolInUse();
-      
+
    protected: // Message transmission thread
       DiameterTxMsgCollector m_TxMsgCollector;
 
@@ -787,15 +801,8 @@ class DiameterPeerStateMachine :
 
       virtual void Cleanup(unsigned int flags = CLEANUP_ALL);
 
-      bool m_CleanupEvent;
-      void WaitOnCleanup() {
-         m_CleanupEvent = (state != DIAMETER_PEER_ST_CLOSED) ? 
-                          false : true;
-         do {
-             ACE_Time_Value tv(0, 100000);
-             ACE_OS::sleep(tv);
-         } while (! m_CleanupEvent);
-      }
+      bool m_CleanupFlag;
+      AAA_SignaledEvent<bool> m_CleanupSignal;
 
    protected:
 
@@ -877,7 +884,7 @@ class DiameterPeerStateMachine :
 
    private:
 
-      AAA_JobHandle<AAA_GroupedJob> m_GroupedJob;    
+      AAA_JobHandle<AAA_GroupedJob> m_GroupedJob;
 
       DiameterPeerData m_Data;
       static DiameterPeerStateTable m_StateTable;

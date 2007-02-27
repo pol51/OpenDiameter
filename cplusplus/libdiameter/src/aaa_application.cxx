@@ -43,6 +43,22 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
         return (AAA_ERR_FAILURE);
     }
 
+    /// make sure we have a reactor
+    int i;
+    for (i = 0; i < 10; i ++) {
+       if (! m_Task.reactor()) {
+           ACE_Time_Value tm(0, 100);
+           ACE_OS::sleep(tm);
+       }
+       else {
+           break;
+       }
+    }
+    if (i >= 10) {
+        AAA_LOG((LM_ERROR, "(%P|%t) Task reactor is not running, aborting start\n"));
+        return (AAA_ERR_FAILURE);
+    }
+
     AAA_LOG((LM_INFO, "(%P|%t) Starting diameter core\n"));
 
     /// parse config filename
@@ -70,12 +86,6 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
     /// initialize dictionary 
     DiameterDictionaryManager dm;
     dm.init((char*)DIAMETER_CFG_PARSER()->dictionary.c_str());
-
-    /// make sure we have a reactor
-    do {
-       ACE_Time_Value tm(0, 100);
-       ACE_OS::sleep(tm);
-    } while (! m_Task.reactor());
 
     /// initialize garbage collectors
     DIAMETER_AUTH_SESSION_GC_ROOT()->Initialize(m_Task);

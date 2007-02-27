@@ -46,7 +46,6 @@ void DiameterPeerEntry::Stop(DIAMETER_DISCONNECT_CAUSE cause)
    PeerData().m_DisconnectCause = cause;
    Notify(DIAMETER_PEER_EV_STOP);
    m_PeerInitiator.Stop();
-   DiameterPeerStateMachine::WaitOnCleanup();
 }
 
 void DiameterPeerEntry::IncommingConnectionRequest(std::auto_ptr<Diameter_IO_Base> io,

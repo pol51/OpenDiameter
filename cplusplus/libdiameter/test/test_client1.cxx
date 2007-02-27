@@ -285,6 +285,7 @@ int main(int argc, char *argv[])
        //  handler to a peer entry. The event
        //  handler can be registered to any peer
        //  wether static or dynamic
+
        PeerEventHandler peerhandler;
        DiameterPeer *dyncPeer = NULL;
        std::string peername("dynamic.peer.com");
@@ -324,7 +325,7 @@ int main(int argc, char *argv[])
            ACE_OS::sleep(1);
        } while (! client.UserAuthorized());
 
-       sleep(25);
+       sleep(10);
 
        client.TxAuthenticationRequest();
 
@@ -349,6 +350,8 @@ int main(int argc, char *argv[])
            dyncPeer->RemoveUserEventHandler();
            dyncPeer->Stop(AAA_DISCONNECT_DONTWANTTOTALK);
        }
+
+       std::cout << "Session disconnected" << std::endl;
    }
 
    appCore.Close();

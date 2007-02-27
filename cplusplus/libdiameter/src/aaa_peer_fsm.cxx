@@ -167,8 +167,7 @@ void DiameterPeerR_Accept::operator()(DiameterPeerStateMachine &fsm)
 
 void DiameterPeer_Error::operator()(DiameterPeerStateMachine &fsm)
 {
-    AAA_LOG((LM_INFO,
-               "(%P|%t) Timeout occurred or non-CEA message received\n"));
+    AAA_LOG((LM_INFO, "(%P|%t) Peer connection did not complete, closing\n"));
     fsm.Cleanup();
     fsm.Error(AAA_LIMITED_SUCCESS);
 }
@@ -1199,7 +1198,7 @@ void DiameterPeerStateMachine::Cleanup(unsigned int flags)
        AAA_StateMachineWithTimer<DiameterPeerStateMachine>::Start();
    }
 
-   m_CleanupEvent = true;
+   m_CleanupSignal.Signal(true);
 }
 
 void DiameterPeerStateMachine::DumpPeerCapabilities()
