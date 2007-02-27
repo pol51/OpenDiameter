@@ -150,6 +150,13 @@ AAAReturnCode DiameterApplication::Close()
     DiameterPeerConnector::Stop(AAA_DISCONNECT_REBOOTING);
     m_PeerAcceptor.Stop();
 
+    /// wait for any open peers to close
+    AAA_LOG((LM_INFO, "(%P|%t) Waiting for peers to close connection\n"));
+    while (DiameterPeerConnector::GetNumOpenPeers() > 0) {
+        ACE_Time_Value tm(0, 100);
+        ACE_OS::sleep(tm);
+    }
+
     /// close logging facility
     DiameterLogFacility::Close();
 

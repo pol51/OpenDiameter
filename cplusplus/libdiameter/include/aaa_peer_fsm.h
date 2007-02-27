@@ -679,15 +679,14 @@ class DiameterPeerStateMachine :
       DiameterPeerStateMachine(AAA_Task &t) :
           AAA_StateMachineWithTimer<DiameterPeerStateMachine>
              (*this, m_StateTable, *t.reactor()),
-             m_CleanupFlag(false),
-             m_CleanupSignal(m_CleanupFlag),
+             m_CleanupSignal(m_CleanupMutex),
              m_GroupedJob(&t.Job()) {
           m_ReconnectAttempt = 0;
           m_TxMsgCollector.Start();
       }
       virtual ~DiameterPeerStateMachine() {
           if (state != DIAMETER_PEER_ST_CLOSED) {
-              m_CleanupSignal.Wait(true);
+              m_CleanupSignal.wait();
           }
           AAA_StateMachine<DiameterPeerStateMachine>::Stop();
           m_TxMsgCollector.Stop();
@@ -799,10 +798,10 @@ class DiameterPeerStateMachine :
           CLEANUP_ALL  = 0xffffffff
       } CLEANUP_FLG;
 
-      virtual void Cleanup(unsigned int flags = CLEANUP_ALL);
+      ACE_Mutex m_CleanupMutex;
+      ACE_Condition<ACE_Mutex> m_CleanupSignal;
 
-      bool m_CleanupFlag;
-      AAA_SignaledEvent<bool> m_CleanupSignal;
+      virtual void Cleanup(unsigned int flags = CLEANUP_ALL);
 
    protected:
 

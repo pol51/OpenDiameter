@@ -712,7 +712,7 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
    }
    diameter_grouped_t *grouped = vendorSpecificId.GetAvp(DIAMETER_AVPNAME_VENDORAPPID);
    for (ndx=1; grouped; ndx++) {
-       DiameterDataVendorSpecificApplicationId vsid;
+       DiameterDataVendorSpecificApplicationId vsid = { 0, 0, 0 };
        DiameterUInt32AvpContainerWidget gAuthId(*grouped);
        DiameterUInt32AvpContainerWidget gAcctId(*grouped);
        DiameterUInt32AvpContainerWidget gVendorId(*grouped);
@@ -1198,7 +1198,7 @@ void DiameterPeerStateMachine::Cleanup(unsigned int flags)
        AAA_StateMachineWithTimer<DiameterPeerStateMachine>::Start();
    }
 
-   m_CleanupSignal.Signal(true);
+   m_CleanupSignal.signal();
 }
 
 void DiameterPeerStateMachine::DumpPeerCapabilities()
