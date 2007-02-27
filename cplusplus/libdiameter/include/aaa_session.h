@@ -38,7 +38,7 @@
 #include "aaa_data_defs.h"
 #include "aaa_session_attributes.h"
 #include "aaa_route_msg_router.h"
-#include "aaa_session_garbage_collector.h"
+#include "aaa_garbage_collector.h"
 
 class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionIO :
     public AAA_JobData
@@ -63,7 +63,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterSessionIO :
 template<class ATTRIBUTE>
 class DiameterSession :
     public DiameterSessionIO,
-    public DiameterSessionGarbageCollectorAttribute
+    public DiameterGarbageCollectorAttribute
 {
     public:
         virtual ~DiameterSession() {

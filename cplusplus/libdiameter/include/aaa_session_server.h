@@ -137,9 +137,9 @@ class DiameterServerAcctSession :
 /// Internal garbage collector definitions
 ///
 
-typedef DiameterSessionGarbageCollectorSingleton<DiameterAuthSession>
+typedef DiameterGarbageCollectorSingleton<DiameterAuthSession>
              DiameterServerAuthSessionGC;
-typedef DiameterSessionGarbageCollectorSingleton<DiameterAcctSession>
+typedef DiameterGarbageCollectorSingleton<DiameterAcctSession>
              DiameterServerAcctSessionGC;
 
 typedef ACE_Singleton<DiameterServerAuthSessionGC,

@@ -275,6 +275,7 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                virtual ~PendingResponder() {
                }
                void Message(std::auto_ptr<DiameterMsg> msg) {
+
                    DiameterMsgQuery query(*msg);
                    if (query.IsCapabilities() && query.IsRequest()) {
                        DiameterIdentityAvpContainerWidget c_orhost(msg->acl);
@@ -315,8 +316,8 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                    std::auto_ptr<PendingResponder> guard(this);
                    m_Acceptor.RemoveFromPendingList(*this);
 
-                   throw DiameterBaseException(DiameterBaseException::IO_FAILURE,
-                                  "Failed to establish state");
+                   m_IO->Close();
+                   DIAMETER_IO_GC().ScheduleForDeletion(m_IO);
                }
                int SendErrorAnswer(std::auto_ptr<DiameterMsg> &msg) {
                    AAA_LOG((LM_ERROR,

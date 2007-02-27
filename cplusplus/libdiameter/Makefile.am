@@ -5,6 +5,7 @@ VPATH = @srcdir@
 
 INC = include/aaa_application.h \
       include/aaa_data_defs.h \
+      include/aaa_garbage_collector.h \
       include/aaa_log_facility.h \
       include/aaa_peer_data.h \
       include/aaa_peer_fsm.h \
@@ -26,7 +27,6 @@ INC = include/aaa_application.h \
       include/aaa_session_client.h \
       include/aaa_session_db.h \
       include/aaa_session_fsm.h \
-      include/aaa_session_garbage_collector.h \
       include/aaa_session_msg_mux.h \
       include/aaa_session_msg_rx.h \
       include/aaa_session_server.h \

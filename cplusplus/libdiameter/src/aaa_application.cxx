@@ -80,6 +80,7 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
     /// initialize garbage collectors
     DIAMETER_AUTH_SESSION_GC_ROOT()->Initialize(m_Task);
     DIAMETER_ACCT_SESSION_GC_ROOT()->Initialize(m_Task);
+    DIAMETER_IO_GC_ROOT()->Initialize(m_Task);
 
     /// start contacting peers
     int ports[DIAMETER_PEER_TTYPE_MAX] = { DIAMETER_CFG_TRANSPORT()->sctp_listen_port,

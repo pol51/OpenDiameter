@@ -38,6 +38,7 @@
 #include <iostream>
 #include "framework.h"
 #include "aaa_data_defs.h"
+#include "aaa_garbage_collector.h"
 #include "ace/Atomic_Op.h"
 
 #define AAA_IO_CONNECTOR_NAME "Connector"
@@ -100,7 +101,9 @@ class Diameter_IO_RxHandler
 };
 
 // Base class for IO object
-class Diameter_IO_Base : public ACE_Task<ACE_MT_SYNCH>
+class Diameter_IO_Base :
+   public ACE_Task<ACE_MT_SYNCH>,
+   public DiameterGarbageCollectorAttribute
 {
    public:
       virtual int Open() = 0;
@@ -142,12 +145,9 @@ class Diameter_IO : public Diameter_IO_Base
          m_Running(false) {
       }
       virtual ~Diameter_IO() {
-         Close();
          // wait for thread to exit
-         while (thr_count() > 0) {
-             ACE_Time_Value tm(0, 100000);
-             ACE_OS::sleep(tm);
-         }
+         Close();
+         AAA_MutexScopeLock guard(m_Mutex);
          m_Transport.release();
       }
       int Open() {
@@ -183,10 +183,12 @@ class Diameter_IO : public Diameter_IO_Base
 
       // thread signal
       bool m_Running;
+      ACE_Mutex m_Mutex;
 
    private:
       int svc() {
          int bytes;
+         AAA_MutexScopeLock guard(m_Mutex);
          do {
              // Reciever
              bytes = m_Transport->Receive(m_ReadBuffer,
@@ -199,7 +201,6 @@ class Diameter_IO : public Diameter_IO_Base
                     // timeout
                 } 
                 else if (m_Running) {
-                    m_RxHandler.Error(errno, this);
                     throw DiameterBaseException(DiameterBaseException::IO_FAILURE,
                                      "Receive error");
                 }
@@ -208,8 +209,9 @@ class Diameter_IO : public Diameter_IO_Base
                 switch (e.Code()) {
                    case DiameterBaseException::IO_FAILURE:
                        m_Transport->Close();
+                       m_RxHandler.Error(errno, this);
                        m_Running = false;
-                       break;
+                       return (0);
                    default:
                        // continue on
                        break;
@@ -258,6 +260,7 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
       bool m_Active;
       std::string m_Name;
       TX_IF m_Transport;
+      ACE_Mutex m_Mutex;
 
    protected:
       bool Activate() {
@@ -267,13 +270,10 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
           return m_Active;
       }
       void Shutdown() {
+          // wait for thread to exit
           if (m_Active) {
               m_Active = false;
-              // wait for thread to exit
-              while (thr_count() > 0) {
-                  ACE_Time_Value tm(0, 100000);
-                  ACE_OS::sleep(tm);
-              }
+              AAA_MutexScopeLock guard(m_Mutex);
           }
       }
 
@@ -281,6 +281,7 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
       int svc() {
           int rc = 0;
           TX_IF *newTransport;
+          AAA_MutexScopeLock guard(m_Mutex);
           do {
               if ((rc = Create(newTransport)) > 0) {
                   Diameter_IO<TX_IF, RX_HANDLER> *io =
@@ -384,5 +385,18 @@ class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
                  ((DiameterTransportInterface<ADDR_TYPE> *&)newTransport);
       }
 };
+
+///
+/// Internal garbage collector definitions
+///
+typedef DiameterGarbageCollectorSingleton<Diameter_IO_Base>
+             DiameterIOGC;
+
+typedef ACE_Singleton<DiameterIOGC,
+                      ACE_Recursive_Thread_Mutex> 
+                      DiameterIOGC_S;
+
+#define DIAMETER_IO_GC_ROOT() (DiameterIOGC_S::instance())
+#define DIAMETER_IO_GC()      (DiameterIOGC_S::instance()->Instance())
 
 #endif 

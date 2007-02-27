@@ -53,6 +53,11 @@ template<class ACE_ACCEPTOR,
 class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
 {
    public:
+      typedef enum {
+          ACCEPTOR_TIMEOUT = 10   // 10 sec
+      };
+
+   public:
       Diameter_ACE_Transport() : m_PendingStream(0) {
       }
       virtual ~Diameter_ACE_Transport() {
@@ -103,7 +108,8 @@ class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
       virtual int Accept(DiameterTransportInterface<ACE_ADDRESS> *&iface) {
          iface = 0;
          if (m_PendingStream) {
-            int rc = m_Acceptor.accept(m_PendingStream->Stream());
+            ACE_Time_Value wait(ACCEPTOR_TIMEOUT, 0);
+            int rc = m_Acceptor.accept(m_PendingStream->Stream(), 0, &wait);
             if (rc == 0) {
                 HandOverStream(iface, (DiameterTransportInterface<ACE_ADDRESS>*&)
                                m_PendingStream);

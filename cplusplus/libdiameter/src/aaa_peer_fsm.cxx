@@ -265,7 +265,7 @@ void DiameterPeerR_SendCEAOpen::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeerR_DisconnectResp::operator()(DiameterPeerStateMachine &fsm)
 {
     AAA_LOG((LM_DEBUG, "(%P|%t) Disconnecting responder\n"));
-    fsm.PeerData().m_IOResponder.reset();
+    DIAMETER_IO_GC().ScheduleForDeletion(fsm.PeerData().m_IOResponder);
 }
 
 void DiameterPeerR_DisconnectIOpen::operator()(DiameterPeerStateMachine &fsm)
@@ -281,7 +281,7 @@ void DiameterPeerR_DisconnectIOpen::operator()(DiameterPeerStateMachine &fsm)
                           DIAMETER_CFG_TRANSPORT()->watchdog_timeout,
                           0,
                           DIAMETER_PEER_EV_WATCHDOG);
-        fsm.PeerData().m_IOResponder.reset();
+        DIAMETER_IO_GC().ScheduleForDeletion(fsm.PeerData().m_IOResponder);
         AAA_LOG((LM_DEBUG, "(%P|%t) *** Initiator capabilities accepted ***\n"));
         fsm.Connected();
     }
@@ -308,7 +308,7 @@ void DiameterPeerR_Reject::operator()(DiameterPeerStateMachine &fsm)
 void DiameterPeerI_DisconnectSendCEA::operator()(DiameterPeerStateMachine &fsm)
 {
     std::string message = "Capabilities negotiation completed successfully (win-election)";
-    fsm.PeerData().m_IOInitiator.reset();
+    DIAMETER_IO_GC().ScheduleForDeletion(fsm.PeerData().m_IOInitiator);
     fsm.SendCEA(AAA_SUCCESS, message);
     fsm.CancelTimer(DIAMETER_PEER_EV_TIMEOUT);
     fsm.ScheduleTimer(DIAMETER_PEER_EV_WATCHDOG,
@@ -1187,15 +1187,15 @@ void DiameterPeerStateMachine::Cleanup(unsigned int flags)
    }
 
    if (flags & CLEANUP_IO_R) {
-       m_Data.m_IOResponder.reset();
+       DIAMETER_IO_GC().ScheduleForDeletion(m_Data.m_IOResponder);
    }
    if (flags & CLEANUP_IO_I) {
-       m_Data.m_IOInitiator.reset();
+       DIAMETER_IO_GC().ScheduleForDeletion(m_Data.m_IOInitiator);
    }
 
    if (flags & CLEANUP_FSM) {
        m_CurrentPeerEventParam->m_Msg.reset();
-       m_CurrentPeerEventParam->m_IO.reset();
+       DIAMETER_IO_GC().ScheduleForDeletion(m_CurrentPeerEventParam->m_IO);
        AAA_StateMachineWithTimer<DiameterPeerStateMachine>::Start();
    }
 

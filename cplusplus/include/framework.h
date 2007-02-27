@@ -96,6 +96,9 @@ class AAA_ScopeLock
   ~AAA_ScopeLock() {
     lock.release();
   }
+  LOCK &Lock() {
+    return lock;
+  }
 
  private:
   LOCK &lock;
