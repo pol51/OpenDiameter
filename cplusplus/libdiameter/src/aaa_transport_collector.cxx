@@ -326,6 +326,7 @@ int DiameterTxMsgCollector::SafeSend(DiameterMsg *msg,
           if ((type == AAA_PARSE_ERROR_TYPE_NORMAL) && (code == AAA_OUT_OF_SPACE)) {
               if (m_BlockCount < MSG_COLLECTOR_MAX_MSG_BLOCK) {
                   m_BlockCount ++;
+                  m_Buffer->Release();
                   m_Buffer = AAAMessageBlock::Acquire
                              (MSG_COLLECTOR_MAX_MSG_LENGTH * m_BlockCount);
                   continue;

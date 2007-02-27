@@ -128,14 +128,13 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
     public:
         DiameterTxMsgCollector() :
             m_Active(false),
-            m_Condition(m_Mutex),
+            m_Condition(*(new ACE_Mutex)),
+            m_Buffer(NULL),
             m_BlockCount(1) {
-            m_Buffer = AAAMessageBlock::Acquire(MSG_COLLECTOR_MAX_MSG_LENGTH);
         }
         virtual ~DiameterTxMsgCollector() {
             Stop();
             delete &(m_Condition.mutex());
-            m_Buffer->Release();
         }
         bool Start() {
             if (! m_Active && (activate() == 0)) {
@@ -147,13 +146,14 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
             m_Active = false;
             m_Condition.signal();
             // wait for thread to exit
-            AAA_MutexScopeLock guard(m_Mutex);
+            AAA_MutexScopeLock guard(m_ExitMutex);
         }
         int Send(std::auto_ptr<DiameterMsg> &msg,
                  Diameter_IO_Base *io,
                  bool consume) {
             DiameterMsg *ptr = (consume) ? msg.release() : msg.get();
             m_SendQueue.Enqueue(new TransmitDatum(ptr, io, consume));
+            AAA_MutexScopeLock guard(m_Condition.mutex());
             m_Condition.signal();
             return (0);
         }
@@ -163,7 +163,7 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
         // Variables for transmitter thread
         //
         bool m_Active;
-        ACE_Mutex m_Mutex;
+        ACE_Mutex m_ExitMutex;
         ACE_Condition<ACE_Mutex> m_Condition;
         AAA_ProtectedQueue<TransmitDatum*> m_SendQueue;
 
@@ -178,14 +178,17 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
                      Diameter_IO_Base *io);
 
         int svc() {
-           AAA_MutexScopeLock guard(m_Mutex);
+           AAA_MutexScopeLock guard(m_ExitMutex);
+           m_Buffer = AAAMessageBlock::Acquire(MSG_COLLECTOR_MAX_MSG_LENGTH);
            do {
+               AAA_MutexScopeLock guard(m_Condition.mutex());
                m_Condition.wait();
                while (! m_SendQueue.IsEmpty()) {
                    std::auto_ptr<TransmitDatum> datum(m_SendQueue.Dequeue());
                    SafeSend(datum->GetMsg(), datum->GetIO());
                }
            } while (m_Active);
+            m_Buffer->Release();
            return (0);
         }
 };

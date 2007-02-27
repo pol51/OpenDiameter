@@ -64,13 +64,13 @@ class DiameterGarbageCollector :
             m_GroupedJob(AAA_GroupedJob::Create(t.Job(),
 	                 (AAA_JobData*)this)),
             m_Enabled(true),
-            m_Condition(m_Mutex) {
+            m_ExitCondition(m_CondMutex) {
 	}
         virtual ~DiameterGarbageCollector() {
             m_Enabled = false;
-            AAA_MutexScopeLock guard(m_Mutex);
+            AAA_MutexScopeLock guard(m_CondMutex);
             while (! m_DeleteQueue.IsEmpty()) {
-                m_Condition.wait();
+                m_ExitCondition.wait();
             }
 	}
         void ScheduleForDeletion(T &obj) {
@@ -91,13 +91,13 @@ class DiameterGarbageCollector :
             return m_GroupedJob->Schedule(job, backlogSize);
         }
         int Serve() {
-            AAA_MutexScopeLock guard(m_Mutex);
+            AAA_MutexScopeLock guard(m_CondMutex);
 	    T *obj = m_DeleteQueue.Dequeue();
             if (obj->GracePeriod() > ACE_Time_Value::zero) {
                 ACE_OS::sleep(obj->GracePeriod());
             }
             delete obj;
-            m_Condition.signal();
+            m_ExitCondition.signal();
             return (0);
 	}
 
@@ -107,8 +107,8 @@ class DiameterGarbageCollector :
         bool m_Enabled;
 
     private: // exit protection
-        ACE_Condition<ACE_Mutex> m_Condition;
-        ACE_Mutex m_Mutex;
+        ACE_Condition<ACE_Mutex> m_ExitCondition;
+        ACE_Mutex m_CondMutex;
 };
 
 template <class T>
@@ -121,6 +121,9 @@ class DiameterGarbageCollectorSingleton
             m_Instance = std::auto_ptr< DiameterGarbageCollector<T> >
 		    (new DiameterGarbageCollector<T>(t));
 	}
+        void Release() {
+            m_Instance.reset();
+        }
         DiameterGarbageCollector<T> &Instance() {
             // this will throw when used improperly
             return (*m_Instance);

@@ -151,11 +151,17 @@ AAAReturnCode DiameterApplication::Close()
     m_PeerAcceptor.Stop();
 
     /// wait for any open peers to close
-    AAA_LOG((LM_INFO, "(%P|%t) Waiting for peers to close connection\n"));
     while (DiameterPeerConnector::GetNumOpenPeers() > 0) {
         ACE_Time_Value tm(0, 100);
         ACE_OS::sleep(tm);
     }
+    AAA_LOG((LM_INFO, "(%P|%t) All peers connection(s) closed\n"));
+    DIAMETER_PEER_TABLE()->Clear();
+
+    /// release garbage collectors
+    DIAMETER_AUTH_SESSION_GC_ROOT()->Release();
+    DIAMETER_ACCT_SESSION_GC_ROOT()->Release();
+    DIAMETER_IO_GC_ROOT()->Release();
 
     /// close logging facility
     DiameterLogFacility::Close();
