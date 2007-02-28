@@ -72,6 +72,7 @@ class DiameterGarbageCollector :
             while (! m_DeleteQueue.IsEmpty()) {
                 m_ExitCondition.wait();
             }
+            m_GroupedJob->Stop();
 	}
         void ScheduleForDeletion(T &obj) {
             if (m_Enabled) {

@@ -581,7 +581,7 @@ class DiameterPeerStateMachine :
          return m_Data;
       }
       AAA_GroupedJob &Job() {
-          return *m_GroupedJob.get();
+          return m_GroupedJob;
       }
       virtual int Send(std::auto_ptr<DiameterMsg> &msg, bool consume = true) {
           ///  If using ASYNC SEND
@@ -680,7 +680,7 @@ class DiameterPeerStateMachine :
           AAA_StateMachineWithTimer<DiameterPeerStateMachine>
              (*this, m_StateTable, *t.reactor()),
              m_CleanupSignal(m_CleanupMutex),
-             m_GroupedJob(&t.Job()) {
+             m_GroupedJob(t.Job()) {
           m_ReconnectAttempt = 0;
           m_TxMsgCollector.Start();
       }
@@ -728,7 +728,7 @@ class DiameterPeerStateMachine :
              <DiameterPeerStateMachine>::Running()) {
             return (-1);
          }
-         return m_GroupedJob->Schedule(job, backlogSize);
+         return m_GroupedJob.Schedule(job, backlogSize);
       }
       virtual void Timeout(AAA_Event ev) {
          Notify(ev);
@@ -883,8 +883,7 @@ class DiameterPeerStateMachine :
 
    private:
 
-      AAA_JobHandle<AAA_GroupedJob> m_GroupedJob;
-
+      AAA_GroupedJob &m_GroupedJob;
       DiameterPeerData m_Data;
       static DiameterPeerStateTable m_StateTable;
 };
