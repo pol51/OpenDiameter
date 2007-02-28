@@ -610,43 +610,45 @@ void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
                                    "request_retransmission_interval", parser);
     OD_Utl_XML_UInt32Element trans09(root.transport.retx_max_count, 
                                    "max_request_retransmission_count", parser);
-    DiameterXmlStringListElement trans10(root.transport.advertised_hostname,
+    OD_Utl_XML_UInt32Element trans10(root.transport.rx_buffer_size, 
+                                   "receive_buffer_size", parser);
+    DiameterXmlStringListElement trans11(root.transport.advertised_hostname,
                                    "advertised_hostname", parser);
 
     // Peer table
-    OD_Utl_XML_UInt32Element trans11((ACE_UINT32&)DIAMETER_PEER_TABLE()->ExpirationTime(), 
+    OD_Utl_XML_UInt32Element trans12((ACE_UINT32&)DIAMETER_PEER_TABLE()->ExpirationTime(), 
                                    "expiration_time", parser);
-    DiameterXmlPeerEntryParser trans12(task, parser);
+    DiameterXmlPeerEntryParser trans13(task, parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlHostnameConv> 
-               trans13(m_unused, "hostname", parser);
+               trans14(m_unused, "hostname", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlUseSctpConv> 
-               trans14(m_unused, "use_sctp", parser);
+               trans15(m_unused, "use_sctp", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlPortConv> 
-               trans15(m_unused, "port", parser);
+               trans16(m_unused, "port", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlTlsEnabledConv> 
-               trans16(m_unused, "tls_enabled", parser);
+               trans17(m_unused, "tls_enabled", parser);
 
     // Route table
     ACE_UINT32 transp_01 = 0;
-    OD_Utl_XML_UInt32Element trans17(transp_01, "expire_time", parser);
-    DiameterXmlRouteParser trans18("route", parser);
-    DiameterXmlRouteParser trans19("default_route", parser);
+    OD_Utl_XML_UInt32Element trans18(transp_01, "expire_time", parser);
+    DiameterXmlRouteParser trans19("route", parser);
+    DiameterXmlRouteParser trans20("default_route", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRoleConv> 
-               trans20(m_unused, "role", parser);
+               trans21(m_unused, "role", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRealmConv> 
-               trans21(m_unused, "realm", parser);
+               trans22(m_unused, "realm", parser);
 
     // Application table
-    DiameterXmlRouteApplicationParser trans22(parser);
+    DiameterXmlRouteApplicationParser trans23(parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteApplicationIdConv> 
-               trans23(m_unused, "application_id", parser);
+               trans24(m_unused, "application_id", parser);
 
    // Server entry
-   DiameterXmlRouteServerEntryParser trans24(parser);
+   DiameterXmlRouteServerEntryParser trans25(parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteServerConv> 
-               trans25(m_unused, "server", parser);
+               trans26(m_unused, "server", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteServerMetricConv> 
-               trans26(m_unused, "metric", parser);
+               trans27(m_unused, "metric", parser);
 
     // Session management
     OD_Utl_XML_UInt32Element sess01(root.session.maxSessions,
@@ -704,6 +706,15 @@ void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
         if (root.transport.retx_max_count &&
             (root.transport.retx_max_count > DIAMETER_ROUTER_MAX_RETX_COUNT)) {
              root.transport.retx_max_count = DIAMETER_ROUTER_MAX_RETX_COUNT;
+        }
+
+        // buffer size validation
+        if (root.transport.rx_buffer_size < MSG_COLLECTOR_MAX_MSG_LENGTH) {
+            root.transport.rx_buffer_size = MSG_COLLECTOR_MAX_MSG_LENGTH;
+        }
+        else if (root.transport.rx_buffer_size >
+            (MSG_COLLECTOR_MAX_MSG_LENGTH * MSG_COLLECTOR_MAX_MSG_BLOCK)) {
+            root.transport.rx_buffer_size = MSG_COLLECTOR_MAX_MSG_LENGTH * (MSG_COLLECTOR_MAX_MSG_BLOCK/2);
         }
 
         if (! root.session.authSessions.stateful) {
@@ -791,6 +802,8 @@ void DiameterXMLConfigParser::dump()
                   root.transport.retx_interval));
     AAA_LOG((LM_INFO, "(%P|%t)    Max Re-trans Int : %d\n", 
                   root.transport.retx_max_count));
+    AAA_LOG((LM_INFO, "(%P|%t)    Recv Buffer Size : %d\n", 
+                  root.transport.rx_buffer_size));
 
     std::list<std::string>::iterator i = 
          root.transport.advertised_hostname.begin();

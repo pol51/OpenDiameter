@@ -179,7 +179,7 @@ class DiameterTxMsgCollector : public ACE_Task<ACE_MT_SYNCH>
 
         int svc() {
            AAA_MutexScopeLock guard(m_ExitMutex);
-           m_Buffer = AAAMessageBlock::Acquire(MSG_COLLECTOR_MAX_MSG_LENGTH);
+           m_Buffer = AAAMessageBlock::Acquire(DIAMETER_CFG_TRANSPORT()->rx_buffer_size);
            do {
                AAA_MutexScopeLock guard(m_Condition.mutex());
                m_Condition.wait();

@@ -41,9 +41,9 @@ DiameterRxMsgCollector::DiameterRxMsgCollector() :
     m_Handler(NULL)
 {
    m_Buffer = (char*)ACE_OS::malloc(DIAMETER_HEADER_SIZE +
-                                    MSG_COLLECTOR_MAX_MSG_LENGTH);
+                                    DIAMETER_CFG_TRANSPORT()->rx_buffer_size);
    if (m_Buffer != NULL) {
-      m_BufSize = DIAMETER_HEADER_SIZE + MSG_COLLECTOR_MAX_MSG_LENGTH;
+      m_BufSize = DIAMETER_HEADER_SIZE + DIAMETER_CFG_TRANSPORT()->rx_buffer_size;
       ACE_OS::memset(m_Buffer, 0, m_BufSize);
       m_PersistentError.Reset(0, 0,
               (m_BufSize * 
@@ -328,7 +328,7 @@ int DiameterTxMsgCollector::SafeSend(DiameterMsg *msg,
                   m_BlockCount ++;
                   m_Buffer->Release();
                   m_Buffer = AAAMessageBlock::Acquire
-                             (MSG_COLLECTOR_MAX_MSG_LENGTH * m_BlockCount);
+                             (DIAMETER_CFG_TRANSPORT()->rx_buffer_size * m_BlockCount);
                   continue;
               }
               AAA_LOG((LM_ERROR, "(%P|%t) Not enough block space for transmission\n"));

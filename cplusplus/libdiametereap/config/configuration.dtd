@@ -23,7 +23,7 @@
      <!ELEMENT transport_mngt (identity, realm, tcp_listen_port, sctp_listen_port, use_ipv6,
                                port, watchdog_timeout, reconnect_interval, reconnect_max,
                                request_retransmission_interval, max_request_retransmission_count,
-                               advertised_hostname*, peer_table, route_table)>
+                               receive_buffer_size, advertised_hostname*, peer_table, route_table)>
 
      <!ELEMENT identity (#PCDATA)>
      <!ELEMENT realm (#PCDATA)>

@@ -36,6 +36,7 @@
       <reconnect_max>3</reconnect_max>
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
+      <receive_buffer_size>2048</receive_buffer_size>
       <advertised_hostname>agent1.isp.net</advertised_hostname>
       <peer_table>
           <expiration_time>1</expiration_time>
