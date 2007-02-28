@@ -83,7 +83,7 @@ class DIAMETERBASEPROTOCOL_EXPORT DiameterPeerEntry :
       void ConnectionRequestFailed();
       void Dump() {
           AAA_LOG((LM_INFO, "(%P|%t)                Peer : Host = %s, Port = %d, TLS = %d\n", 
-                  PeerData().m_Identity.data(), 
+                  PeerData().m_Identity.c_str(), 
                   PeerData().m_Port, 
                   PeerData().m_TLS));
       }

@@ -714,7 +714,7 @@ class DiameterPeerStateMachine :
          }
          catch (DiameterPeerFsmException &err) {
              AAA_LOG((LM_ERROR, "(%P|%t) FSM error[%d]: %s\n",
-                        err.Code(), err.Description().data()));
+                        err.Code(), err.Description().c_str()));
          }
          catch (...) {
              AAA_LOG((LM_ERROR, "(%P|%t) Unknown exception in FSM\n"));

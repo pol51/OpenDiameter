@@ -98,15 +98,15 @@ class DiameterRoutingNode
            switch (r) {
                case AAA_ROUTE_RESULT_NEXT_CHAIN:
                    AAA_LOG((LM_INFO, "(%P|%t) Route lookup %s defer to next chain\n",
-                             m_Name.data()));
+                             m_Name.c_str()));
                    break;
                case AAA_ROUTE_RESULT_SUCCESS:
                    AAA_LOG((LM_INFO, "(%P|%t) Route lookup %s successful, processing msg\n",
-                              m_Name.data()));
+                              m_Name.c_str()));
                    break;
                default:
                    AAA_LOG((LM_INFO, "(%P|%t) Route lookup %s failed, discarding msg\n",
-                              m_Name.data()));
+                              m_Name.c_str()));
                    break;
            }
 #endif

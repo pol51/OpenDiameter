@@ -142,13 +142,13 @@ class AAA_SampleClient : public DiameterClientAuthSession {
             diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
 
             if (host) {
-                AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
+                AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
             }
             if (realm) {
-                AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
+                AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->c_str()));
             }
             if (uname) {
-                AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
+                AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->c_str()));
             }
             if (authAppId) {
                 AAA_LOG((LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId));
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
        }
        else {       
           AAA_LOG((LM_INFO, "(%P|%t) **** failed to create dynamic peer: %s***\n",
-                  peername.data()));
+                  peername.c_str()));
        }
 
        /// Wait for connectivity

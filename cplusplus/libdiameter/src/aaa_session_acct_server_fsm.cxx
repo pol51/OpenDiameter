@@ -104,13 +104,13 @@ void DiameterAcctSessionServerStateMachine::RxACR(DiameterMsg &msg)
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Host  : %s\n", host->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Host  : %s\n", host->c_str()));
     }
     if (realm) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Realm : %s\n", realm->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm : %s\n", realm->c_str()));
     }
     if (uname) {
-        AAA_LOG((LM_INFO, "(%P|%t) From User  : %s\n", uname->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From User  : %s\n", uname->c_str()));
     }
     if (recType) {
         AAA_LOG((LM_INFO, "(%P|%t) Rec Type   : %d\n", *recType));

@@ -93,13 +93,13 @@ void DiameterAuthSessionServerStateMachine::RxSTR(DiameterMsg &msg)
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
     }
     if (realm) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->c_str()));
     }
     if (uname) {
-        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->c_str()));
     }
     if (termCause) {
         AAA_LOG((LM_INFO, "(%P|%t) Termination Cause: %d\n", *termCause));
@@ -172,13 +172,13 @@ void DiameterAuthSessionServerStateMachine::RxASA(DiameterMsg &msg)
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
     }
     if (realm) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->c_str()));
     }
     if (uname) {
-        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->c_str()));
     }
     if (rcode) {
         AAA_LOG((LM_INFO, "(%P|%t) Result-Code: %d\n", *rcode));
@@ -186,11 +186,11 @@ void DiameterAuthSessionServerStateMachine::RxASA(DiameterMsg &msg)
     if (errMsg) {
         if (errHost) {
             AAA_LOG((LM_INFO, "(%P|%t) Message from [%s]: %s\n", 
-                errHost->data(), errMsg->data()));
+                errHost->c_str(), errMsg->c_str()));
         }
         else {
             AAA_LOG((LM_INFO, "(%P|%t) Message: %s\n", 
-                errMsg->data()));
+                errMsg->c_str()));
         }
     }
 }
@@ -487,13 +487,13 @@ void DiameterAuthSessionServerStateMachine::RxRAA(DiameterMsg &msg)
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
     }
     if (realm) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->c_str()));
     }
     if (uname) {
-        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->c_str()));
     }
     if (rcode) {
         AAA_LOG((LM_INFO, "(%P|%t) Result-Code: %d\n", *rcode));
@@ -501,11 +501,11 @@ void DiameterAuthSessionServerStateMachine::RxRAA(DiameterMsg &msg)
     if (errMsg) {
         if (errHost) {
             AAA_LOG((LM_INFO, "(%P|%t) Message from [%s]: %s\n", 
-                errHost->data(), errMsg->data()));
+                errHost->c_str(), errMsg->c_str()));
         }
         else {
             AAA_LOG((LM_INFO, "(%P|%t) Message: %s\n", 
-                errMsg->data()));
+                errMsg->c_str()));
         }
     }
 }

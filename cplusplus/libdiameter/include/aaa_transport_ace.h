@@ -73,7 +73,7 @@ class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
              m_PendingStream = new Diameter_ACE_Transport
                   <ACE_ACCEPTOR, ACE_CONNECTOR, ACE_STREAM, ACE_ADDRESS, IP_PROTOCOL>;
              ACE_Time_Value tm(0, 0);
-             ACE_ADDRESS dest(port, hostname.data());
+             ACE_ADDRESS dest(port, hostname.c_str());
              int rc = m_Connector.connect(m_PendingStream->Stream(),
                                           dest, &tm, ACE_Addr::sap_any, true);
              return AceAsynchResults(rc);

@@ -104,7 +104,7 @@ void DiameterPeerR_AcceptSendCEA::operator()(DiameterPeerStateMachine &fsm)
 
     if (! valid) {
         AAA_LOG((LM_INFO, "(%P|%t) %s in connection attempt, discarding\n",
-                   message.data()));
+                   message.c_str()));
         fsm.Cleanup();
     }
     else {
@@ -157,7 +157,7 @@ void DiameterPeerR_Accept::operator()(DiameterPeerStateMachine &fsm)
     diameter_unsigned32_t rcode;
     if (! fsm.ValidatePeer(rcode, message)) {
         AAA_LOG((LM_INFO, "(%P|%t) %s during election, discarding\n",
-                   message.data()));
+                   message.c_str()));
         fsm.Cleanup();
     }
     else {
@@ -196,7 +196,7 @@ void DiameterPeer_ProcessCEA::operator()(DiameterPeerStateMachine &fsm)
        if (strMsg) {
            AAA_LOG((LM_INFO,
                  "(%P|%t) Peer returned an error on CEA: %s\n",
-                      strMsg->data()));
+                      strMsg->c_str()));
        }
        fsm.Cleanup();
     }
@@ -213,7 +213,7 @@ void DiameterPeerR_AcceptElect::operator()(DiameterPeerStateMachine &fsm)
     diameter_unsigned32_t rcode;
     if (! fsm.ValidatePeer(rcode, message)) {
         AAA_LOG((LM_INFO, "(%P|%t) %s during election, discarding\n",
-                   message.data()));
+                   message.c_str()));
         fsm.Cleanup(DiameterPeerStateMachine::CLEANUP_ALL &
                     ~DiameterPeerStateMachine::CLEANUP_IO_I);
     }
@@ -239,7 +239,7 @@ void DiameterPeerR_SendCEA::operator()(DiameterPeerStateMachine &fsm)
                       DIAMETER_CFG_TRANSPORT()->watchdog_timeout,
                       0,
                       DIAMETER_PEER_EV_WATCHDOG);
-    AAA_LOG((LM_DEBUG, "(%P|%t) %s\n", message.data()));
+    AAA_LOG((LM_DEBUG, "(%P|%t) %s\n", message.c_str()));
     fsm.Connected();
 }
 
@@ -253,7 +253,7 @@ void DiameterPeerR_SendCEAOpen::operator()(DiameterPeerStateMachine &fsm)
     diameter_unsigned32_t rcode;
     if (! fsm.ValidatePeer(rcode, message)) {
         AAA_LOG((LM_INFO, "(%P|%t) %s during cap re-negotiation\n",
-                   message.data()));
+                   message.c_str()));
     }
     else {
         AAA_LOG((LM_DEBUG, "(%P|%t) *** Peer capabilities accepted ***\n"));
@@ -291,7 +291,7 @@ void DiameterPeerR_DisconnectIOpen::operator()(DiameterPeerStateMachine &fsm)
        if (strMsg) {
            AAA_LOG((LM_INFO,
                  "(%P|%t) Peer returned an error on CEA: %s\n",
-                      strMsg->data()));
+                      strMsg->c_str()));
        }
        fsm.Cleanup();
     }
@@ -314,7 +314,7 @@ void DiameterPeerI_DisconnectSendCEA::operator()(DiameterPeerStateMachine &fsm)
                       DIAMETER_CFG_TRANSPORT()->watchdog_timeout,
                       0,
                       DIAMETER_PEER_EV_WATCHDOG);
-    AAA_LOG((LM_DEBUG, "(%P|%t) %s\n", message.data()));
+    AAA_LOG((LM_DEBUG, "(%P|%t) %s\n", message.c_str()));
     fsm.Connected();
 }
 
@@ -370,7 +370,7 @@ void DiameterPeer_ProcessDWA::operator()(DiameterPeerStateMachine &fsm)
         if (strMsg) {
             AAA_LOG((LM_INFO,
                   "(%P|%t) Peer returned an error on Watchdog: %s, closing peer\n",
-                       strMsg->data()));
+                       strMsg->c_str()));
         }
         fsm.Cleanup();
     }
@@ -397,7 +397,7 @@ void DiameterPeerI_SendCEA::operator()(DiameterPeerStateMachine &fsm)
     diameter_unsigned32_t rcode;
     if (! fsm.ValidatePeer(rcode, message)) {
         AAA_LOG((LM_INFO, "(%P|%t) %s during cap re-negotiation\n",
-                   message.data()));
+                   message.c_str()));
     }
     fsm.SendCEA(rcode, message);
 }
@@ -476,7 +476,7 @@ void DiameterPeer_DisconnectDPA::operator()(DiameterPeerStateMachine &fsm)
         if (strMsg) {
             AAA_LOG((LM_INFO,
                "(%P|%t) Peer returned an error on Watchdog: %s, closing peer\n",
-                    strMsg->data()));
+                    strMsg->c_str()));
         }
     }
 
@@ -528,7 +528,7 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
 
    // Host-IP-Address
    DiameterIpAddress tool;
-   ACE_INET_Addr identityAddr(0, DIAMETER_CFG_TRANSPORT()->identity.data(),
+   ACE_INET_Addr identityAddr(0, DIAMETER_CFG_TRANSPORT()->identity.c_str(),
 #ifdef ACE_HAS_IPV6
                               (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET);
 #else /* ! ACE_HAS_IPV6 */
@@ -545,7 +545,7 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
                DIAMETER_CFG_TRANSPORT()->advertised_hostname.begin();
            for (; i != DIAMETER_CFG_TRANSPORT()->advertised_hostname.end(); i++) {
                ACE_INET_Addr hostAddrs;
-               if (! hostAddrs.set(0, (*i).data(),
+               if (! hostAddrs.set(0, (*i).c_str(),
 #ifdef ACE_HAS_IPV6
                                    (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET)) {
 #else /* ! ACE_HAS_IPV6 */
@@ -791,7 +791,7 @@ void DiameterPeerStateMachine::DisassembleDW(DiameterMsg &msg)
    diameter_unsigned32_t OriginStateId = (uint32) ? *uint32 : 0;
 
    AAA_LOG((LM_INFO, "(%P|%t) Watchdog msg from [%s.%s], state=%d, time=%d\n",
-             Host.data(), Realm.data(), OriginStateId, time(0)));
+             Host.c_str(), Realm.c_str(), OriginStateId, time(0)));
 }
 
 void DiameterPeerStateMachine::AssembleDP(DiameterMsg &msg,
@@ -836,7 +836,7 @@ void DiameterPeerStateMachine::DisassembleDP(DiameterMsg &msg)
                 (identity) ? identity->length() : 0);
               
    AAA_LOG((LM_INFO, "(%P|%t) Disconnect msg from [%s.%s]\n",
-              Host.data(), Realm.data()));
+              Host.c_str(), Realm.c_str()));
 }
 
 void DiameterPeerStateMachine::SendCER()
@@ -1134,7 +1134,7 @@ void DiameterPeerStateMachine::Elect()
        }
    }
    AAA_LOG((LM_INFO, "(%P|%t) ***** Peer (%s) wins election *****\n",
-              peerHost.data()));
+              peerHost.c_str()));
 }
 
 void DiameterPeerStateMachine::Cleanup(unsigned int flags)
@@ -1206,17 +1206,17 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
    DiameterPeerCapabilities &cap = m_Data.m_PeerCapabilities;
 
    AAA_LOG((LM_INFO, "(%P|%t) Peer Capabilities\n"));
-   AAA_LOG((LM_INFO, "(%P|%t)             Hostname : %s\n", cap.m_Host.data()));
-   AAA_LOG((LM_INFO, "(%P|%t)                Realm : %s\n", cap.m_Realm.data()));
+   AAA_LOG((LM_INFO, "(%P|%t)             Hostname : %s\n", cap.m_Host.c_str()));
+   AAA_LOG((LM_INFO, "(%P|%t)                Realm : %s\n", cap.m_Realm.c_str()));
 
    DiameterHostIpLst::iterator x = cap.m_HostIpLst.begin();
    for (; x != cap.m_HostIpLst.end(); x++) {
        AAA_LOG((LM_INFO, "(%P|%t)              Host IP : type=%d, %s\n", (*x)->type,
-                  inet_ntoa(*((struct in_addr*)(*x)->value.data()))));
+                  inet_ntoa(*((struct in_addr*)(*x)->value.c_str()))));
    }
 
    AAA_LOG((LM_INFO, "(%P|%t)             VendorId : %d\n", cap.m_VendorId));
-   AAA_LOG((LM_INFO, "(%P|%t)         Product Name : %s\n", cap.m_ProductName.data()));
+   AAA_LOG((LM_INFO, "(%P|%t)         Product Name : %s\n", cap.m_ProductName.c_str()));
    AAA_LOG((LM_INFO, "(%P|%t)           Orig State : %d\n", cap.m_OriginStateId));
 
    DiameterApplicationIdLst *idList[] = {

@@ -155,7 +155,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
         }
 
         AAA_LOG((LM_INFO, "(%P|%t) DestHost(%s) present but not ours so try realm routing\n", 
-                DestHost->data()));
+                DestHost->c_str()));
         // next chain
     }
     else if (DestRealm) {
@@ -195,7 +195,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
         }
 
         AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) present but not ours or no supported id\n", 
-                DestRealm->data()));
+                DestRealm->c_str()));
         // next chain
     }
     else {
@@ -232,7 +232,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcForwarded::Lookup(std::auto_ptr<DiameterMs
             // try routing it
         }
         AAA_LOG((LM_INFO, "(%P|%t) DestHost(%s) does not match any peer\n", 
-            DestHost->data()));
+            DestHost->c_str()));
     }
 
     return (AAA_ROUTE_RESULT_NEXT_CHAIN);
@@ -282,7 +282,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
         DiameterRouteEntry *route = DIAMETER_ROUTE_TABLE()->Lookup(DestRealm);
         if (route == NULL) {
             AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) not in routing table\n",
-                    DestRealm.data()));
+                    DestRealm.c_str()));
             throw (0);
         }
 
@@ -312,7 +312,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
                     diameter_unsigned32_t *vid = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
                     if (vid == NULL) {
                         AAA_LOG((LM_INFO, "(%P|%t) Vendor-Specific-Application-Id has no vendor ID AVP\n",
-                                 DestRealm.data()));
+                                 DestRealm.c_str()));
                         return (AAA_ROUTE_RESULT_NEXT_CHAIN);
                     }
 
@@ -337,7 +337,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
             // Local action is to redirect
             if (route->Action() == DIAMETER_ROUTE_ACTION_REDIRECT) {
                 AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) in routing table but it is set to re-direct\n",
-                       DestRealm.data()));
+                       DestRealm.c_str()));
                 return (AAA_ROUTE_RESULT_SUCCESS);
             }
 
@@ -353,11 +353,11 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcRouted::Lookup(std::auto_ptr<DiameterMsg> 
                 server = app->Servers().Next(*server);
             }
             AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) in routing table but no open peers support it\n",
-                    DestRealm.data()));
+                    DestRealm.c_str()));
         }
         else {
             AAA_LOG((LM_INFO, "(%P|%t) DestRealm(%s) in routing table but no matching app Id\n",
-                    DestRealm.data()));
+                    DestRealm.c_str()));
         }
     }
     catch (...) {
@@ -996,18 +996,18 @@ int DiameterMsgRouter::RedirectAgent::Answer(std::auto_ptr<DiameterMsg> &msg,
                     p->acl.add(destHost());
                 }
                 AAA_LOG((LM_INFO, "(%P|%t) Redirecting msg to [%s]\n",
-                        RedirectHost->fqdn.data()));
+                        RedirectHost->fqdn.c_str()));
                 return (peer->Send(p) >= 0) ? 0 : (-1);
             }
             else {
                 AAA_LOG((LM_INFO, "(%P|%t) TBD: Have to try and connect to [%s]\n",
-                        RedirectHost->fqdn.data()));
+                        RedirectHost->fqdn.c_str()));
                 // try opening it [TBD]
             }
         }
         else {
             AAA_LOG((LM_INFO, "(%P|%t) TBD: Have to try and connect to [%s]\n",
-                    RedirectHost->fqdn.data()));
+                    RedirectHost->fqdn.c_str()));
             // try to make connection to it [TBD]
         }
 

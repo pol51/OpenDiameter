@@ -202,13 +202,13 @@ class AAA_SampleServerAction :
             diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
-                AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->data()));
+                AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
             }
             if (realm) {
-                AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->data()));
+                AAA_LOG((LM_INFO, "(%P|%t) From Realm: %s\n", realm->c_str()));
             }
             if (uname) {
-                AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->data()));
+                AAA_LOG((LM_INFO, "(%P|%t) From User: %s\n", uname->c_str()));
             }
             if (authAppId) {
                 AAA_LOG((LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId));
@@ -235,10 +235,10 @@ class AAA_SampleServerAction :
                 AAA_LOG((LM_INFO, "(%P|%t) Medium: %d\n", *tmedium));
             }
             if (sep) {
-                AAA_LOG((LM_INFO, "(%P|%t) Server EP: %s\n", sep->data()));
+                AAA_LOG((LM_INFO, "(%P|%t) Server EP: %s\n", sep->c_str()));
             }
             if (cep) {
-                AAA_LOG((LM_INFO, "(%P|%t) Client EP: %s\n", cep->data()));
+                AAA_LOG((LM_INFO, "(%P|%t) Client EP: %s\n", cep->c_str()));
             }
 
             AAA_LOG((LM_INFO, "(%P|%t) Request Message Count: %d\n", ++gReqMsgCount));

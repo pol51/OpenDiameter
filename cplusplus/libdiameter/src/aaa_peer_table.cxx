@@ -179,7 +179,7 @@ void DiameterPeerEntry::Error(COLLECTOR_ERROR error,
                               std::string &io_name)
 {
    AAA_LOG((LM_DEBUG, "(%P|%t) Message Collector reported [%s]\n",
-              io_name.data()));
+              io_name.c_str()));
 
    switch (error) {
        case CORRUPTED_BYTE_STREAM:

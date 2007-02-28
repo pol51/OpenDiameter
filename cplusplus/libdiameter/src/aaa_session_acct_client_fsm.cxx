@@ -276,13 +276,13 @@ void DiameterAcctSessionClientStateMachine::RxACA(DiameterMsg &msg)
     sid.Get(msg);
     sid.Dump();
     if (host) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Host   : %s\n", host->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Host   : %s\n", host->c_str()));
     }
     if (realm) {
-        AAA_LOG((LM_INFO, "(%P|%t) From Realm  : %s\n", realm->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From Realm  : %s\n", realm->c_str()));
     }
     if (uname) {
-        AAA_LOG((LM_INFO, "(%P|%t) From User   : %s\n", uname->data()));
+        AAA_LOG((LM_INFO, "(%P|%t) From User   : %s\n", uname->c_str()));
     }
     if (subSessId) {
         AAA_LOG((LM_INFO, "(%P|%t) Sub-Session : %d\n", *subSessId));
@@ -305,11 +305,11 @@ void DiameterAcctSessionClientStateMachine::RxACA(DiameterMsg &msg)
     if (errMsg) {
         if (errHost) {
             AAA_LOG((LM_INFO, "(%P|%t) Message from [%s]: %s\n", 
-                errHost->data(), errMsg->data()));
+                errHost->c_str(), errMsg->c_str()));
         }
         else {
             AAA_LOG((LM_INFO, "(%P|%t) Message: %s\n", 
-                errMsg->data()));
+                errMsg->c_str()));
         }
     }
 }

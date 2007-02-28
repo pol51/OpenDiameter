@@ -68,7 +68,7 @@ AAAReturnCode DiameterApplication::Open(char *cfgfile)
     }
     catch (OD_Utl_XML_SaxException e) {
         AAA_LOG((LM_INFO, "(%P|%t) Parsing problem [%d]: %s, for file %s\n",
-                e.Code(), e.Description().data(), cfgfile));
+                e.Code(), e.Description().c_str(), cfgfile));
         return (AAA_ERR_PARSING_ERROR);
     }
     catch (...) {

@@ -200,7 +200,7 @@ void DiameterRouteEntry::clear(void *userData)
 void DiameterRouteEntry::Dump(void *userData)
 {
     AAA_LOG((LM_INFO, "(%P|%t)              Route  : Realm = %s, Action = %d, Redirect-Usage = %d\n",
-            m_Realm.data(), m_Action, m_RedirectUsage));
+            m_Realm.c_str(), m_Action, m_RedirectUsage));
 
     DiameterRouteVendorIdMap::iterator x = m_Identifiers.begin();
     for (; x != m_Identifiers.end(); x++) {
@@ -213,7 +213,7 @@ void DiameterRouteEntry::Dump(void *userData)
             DiameterRouteServerEntry *server = app->Servers().First();
             while (server) {
                 AAA_LOG((LM_INFO, "(%P|%t)                          Server = %s, metric = %d\n", 
-                     server->Server().data(), server->Metric()));
+                     server->Server().c_str(), server->Metric()));
                 server = app->Servers().Next(*server);
             }
         }

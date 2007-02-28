@@ -197,13 +197,13 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
       void Start(int ports[DIAMETER_PEER_TTYPE_MAX]) {
           if (ports[DIAMETER_PEER_TTYPE_TCP] > 0) {
 #ifdef ACE_HAS_IPV6
-              ACE_INET_Addr hostIdentity(ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.data(),
+              ACE_INET_Addr hostIdentity(ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.c_str(),
                                          (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET);
 #else /* ! ACE_HAS_IPV6 */
-              ACE_INET_Addr hostIdentity(ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.data(), AF_INET);
+              ACE_INET_Addr hostIdentity(ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.c_str(), AF_INET);
 #endif /* ! ACE_HAS_IPV6 */
               AAA_LOG((LM_ERROR, "(%P|%t) TCP Acceptor Listening at %d, binding to %s \n",
-                      ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.data()));
+                      ports[DIAMETER_PEER_TTYPE_TCP], DIAMETER_CFG_TRANSPORT()->identity.c_str()));
               DiameterTcpAcceptor::Open(ports[DIAMETER_PEER_TTYPE_TCP], hostIdentity);
           }
           if (ports[DIAMETER_PEER_TTYPE_SCTP] > 0) {
@@ -213,11 +213,11 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
               char **name = new char*[DIAMETER_CFG_TRANSPORT()->advertised_hostname.size()];
               std::list<std::string>::iterator i = DIAMETER_CFG_TRANSPORT()->advertised_hostname.begin();
               for (int y = 0; i != DIAMETER_CFG_TRANSPORT()->advertised_hostname.end(); i++, y++) {
-                  name[y] = (char*)(*i).data();
+                  name[y] = (char*)(*i).c_str();
                   AAA_LOG((LM_ERROR, "%s ", name[y]));
               }
               AAA_LOG((LM_ERROR, "\n"));
-              hostAddresses.set(ports[DIAMETER_PEER_TTYPE_SCTP], DIAMETER_CFG_TRANSPORT()->identity.data(), 1,
+              hostAddresses.set(ports[DIAMETER_PEER_TTYPE_SCTP], DIAMETER_CFG_TRANSPORT()->identity.c_str(), 1,
 #ifdef ACE_HAS_IPV6
                                 (DIAMETER_CFG_TRANSPORT()->use_ipv6) ? AF_INET6 : AF_INET,
 #else /* ! ACE_HAS_IPV6 */
@@ -312,7 +312,7 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                    }
                    AAA_LOG((LM_ERROR,
                              "(%P|%t) %s peer failed establishing state [%d], closing\n",
-                              io_name.data(), error));
+                              io_name.c_str(), error));
                    std::auto_ptr<PendingResponder> guard(this);
                    m_Acceptor.RemoveFromPendingList(*this);
 

@@ -272,7 +272,7 @@ class DiameterXmlPeerEntryParser :
                         0,
                         true)) {   
              AAA_LOG((LM_INFO, "(%P|%t) WARING !!! - Unable to add peer: %s\n", 
-                     m_peerInfo.hostname.data()));
+                     m_peerInfo.hostname.c_str()));
          }
      	 return OD_Utl_XML_Element::endElement();
      }
@@ -740,7 +740,7 @@ void DiameterXMLConfigParser::dump()
     DiameterDataRoot &root = *DIAMETER_CFG_ROOT();
 
     AAA_LOG((LM_INFO, "(%P|%t)             Product : %s\n", 
-                  root.general.product.data()));
+                  root.general.product.c_str()));
     AAA_LOG((LM_INFO, "(%P|%t)             Version : %d\n", 
                   root.general.version));
     AAA_LOG((LM_INFO, "(%P|%t)           Vendor Id : %d\n", 
@@ -784,12 +784,12 @@ void DiameterXMLConfigParser::dump()
     }
 
     AAA_LOG((LM_INFO, "(%P|%t)          Dictionary : %s\n", 
-                  root.parser.dictionary.data()));  
+                  root.parser.dictionary.c_str()));  
 
     AAA_LOG((LM_INFO, "(%P|%t)            Identity : %s\n", 
-                  root.transport.identity.data()));
+                  root.transport.identity.c_str()));
     AAA_LOG((LM_INFO, "(%P|%t)               Realm : %s\n", 
-                  root.transport.realm.data()));
+                  root.transport.realm.c_str()));
     AAA_LOG((LM_INFO, "(%P|%t)          TCP Listen : %d\n", 
                   root.transport.tcp_listen_port));
     AAA_LOG((LM_INFO, "(%P|%t)         SCTP Listen : %d\n", 
@@ -809,7 +809,7 @@ void DiameterXMLConfigParser::dump()
          root.transport.advertised_hostname.begin();
     for (; i != root.transport.advertised_hostname.end(); i++) {
          AAA_LOG((LM_INFO, "(%P|%t)      Hostnames Used : %s\n",
-                       (*i).data()));
+                       (*i).c_str()));
     }
 
     // peer table

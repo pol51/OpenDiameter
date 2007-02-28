@@ -286,7 +286,7 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
               if ((rc = Create(newTransport)) > 0) {
                   Diameter_IO<TX_IF, RX_HANDLER> *io =
                      new Diameter_IO<TX_IF, RX_HANDLER>
-                          (*newTransport, m_Name.data());
+                          (*newTransport, m_Name.c_str());
                   if (io) {
                       try {
                           Success(io);
@@ -300,7 +300,7 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
                       catch (...) {
                           AAA_LOG((LM_ERROR,
                                   "(%P|%t) Factory %s error\n",
-                                  m_Name.data()));
+                                  m_Name.c_str()));
                       }
                       newTransport->Close();
                       delete newTransport;
@@ -308,14 +308,14 @@ class Diameter_IO_Factory : public ACE_Task<ACE_MT_SYNCH>
                   else {
                       AAA_LOG((LM_ERROR,
                               "(%P|%t) Factory %s memory allocation error\n",
-                              m_Name.data()));
+                              m_Name.c_str()));
                   }
                   Failed();
                   m_Active = false;
               }
               else if (rc < 0) {
                   AAA_LOG((LM_ERROR, "(%P|%t) IO Factory error: %s [%d=%s]\n",
-                          m_Name.data(), errno, strerror(errno)));
+                          m_Name.c_str(), errno, strerror(errno)));
                   Failed();
                   m_Active = false;
               }
@@ -371,7 +371,7 @@ class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
              if (Diameter_IO_Factory<TX_IF, RX_HANDLER>::m_Transport.Connect
                  (hostname, port) >= 0) {
                  AAA_LOG((LM_INFO, "(%P|%t) Trying to connect to to %s:%d\n",
-                            hostname.data(), port));
+                            hostname.c_str(), port));
                  return Diameter_IO_Factory<TX_IF, RX_HANDLER>::Activate();
              }
           }

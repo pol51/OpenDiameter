@@ -74,8 +74,8 @@ AAAReturnCode DiameterAccountingXMLRecTransformer::Convert(DiameterMsg *msg)
    writer.writeToString(msg, output);
 
    if (output.length()) {
-      m_Record = reinterpret_cast<void*>(ACE_OS::strdup(output.data()));
-      m_RecordSize = ACE_OS::strlen(output.data());
+      m_Record = reinterpret_cast<void*>(ACE_OS::strdup(output.c_str()));
+      m_RecordSize = ACE_OS::strlen(output.c_str());
    }
    else {
       m_Record = NULL;
