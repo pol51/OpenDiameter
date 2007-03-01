@@ -1,7 +1,7 @@
 /* BEGIN_COPYRIGHT
 Open Diameter: Open-source software for the Diameter protocol
 
-Copyright (C) 2004 Open Diameter Project
+Copyright (C) 2007 Open Diameter Project
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as

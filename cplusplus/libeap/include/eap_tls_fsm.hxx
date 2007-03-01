@@ -34,7 +34,7 @@
                           eap_tls_fsm.hxx  -  description
                              -------------------
     begin                : jue mar 18 2004
-    copyright            : (C) 2004 by 
+    copyright            : (C) 2007 by 
     email                : 
  ***************************************************************************/
 

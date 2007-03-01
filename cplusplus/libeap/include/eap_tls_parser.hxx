@@ -34,7 +34,7 @@
                           eap_tls_parser.cxx  -  description
                              -------------------
     begin                : vie mar 12 2004
-    copyright            : (C) 2004 by 
+    copyright            : (C) 2007 by 
     email                : 
  ***************************************************************************/
 

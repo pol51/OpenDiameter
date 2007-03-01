@@ -34,7 +34,7 @@
                           eap_tls_mng.cxx  -  description
                              -------------------
     begin                : jue mar 11 2004
-    copyright            : (C) 2004 by 
+    copyright            : (C) 2007 by 
     email                : 
  ***************************************************************************/
 
