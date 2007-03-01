@@ -29,7 +29,7 @@ pacd_LDADD = @L_LIBS@ \
              $(top_builddir)/libodutl/libodutl.la
 
 if compile_EAPTLS
-client_pana_eaptls_SOURCES = pac_eaptls/client_pana_eap-tls.cxx
+client_pana_eaptls_SOURCES = client_pana_eap-tls.cxx
 client_pana_eaptls_LDADD = @L_LIBS@ \
              $(top_builddir)/libpana/libpana.la \
              $(top_builddir)/libeap/libeap.la \

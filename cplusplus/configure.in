@@ -1,6 +1,6 @@
 #                                               -*- Autoconf -*-A
 # Process this file with autoconf to produce a configure script.
-AC_INIT(OpenDiameter, 1.0.7-h, yohba@tari.toshiba.com)
+AC_INIT(OpenDiameter, 1.0.7-i, vfajardo@tari.toshiba.com)
 AM_INIT_AUTOMAKE([subdir-objects])
 
 # Program Defaults
@@ -110,7 +110,6 @@ AC_CONFIG_FILES([Makefile
                  libdiametereap/Makefile
                  libdiametermip4/Makefile
                  libdiameternasreq/Makefile
-                 libradius/Makefile
                  applications/Makefile
                  applications/nas/Makefile
                  applications/aaa/Makefile

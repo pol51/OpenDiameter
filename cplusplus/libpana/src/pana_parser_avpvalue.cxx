@@ -3,7 +3,7 @@
 /* Open PANA_: Open-source software for the PANA_ and               */
 /*                PANA_ related protocols                              */
 /*                                                                        */
-/* Copyright (C) 2002-2004 Open PANA_ Project                          */
+/* Copyright (C) 2002-2007 Open PANA_ Project                          */
 /*                                                                        */
 /* This library is free software; you can redistribute it and/or modify   */
 /* it under the terms of the GNU Lesser General Public License as         */

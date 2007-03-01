@@ -2,7 +2,7 @@
 /*                                                                        */
 /* OpenDiameter: Open-source software for the Diameter protocol           */
 /*                                                                        */
-/* Copyright (C) 2002-2004 Toshiba America Research, Inc.                 */
+/* Copyright (C) 2002-2007 Toshiba America Research, Inc.                 */
 /*                                                                        */
 /* This library is free software; you can redistribute it and/or modify   */
 /* it under the terms of the GNU Lesser General Public License as         */

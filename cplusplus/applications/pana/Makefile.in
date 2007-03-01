@@ -46,11 +46,9 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am__client_pana_eaptls_SOURCES_DIST =  \
-	pac_eaptls/client_pana_eap-tls.cxx
-am__dirstamp = $(am__leading_dot)dirstamp
+am__client_pana_eaptls_SOURCES_DIST = client_pana_eap-tls.cxx
 @compile_EAPTLS_TRUE@am_client_pana_eaptls_OBJECTS =  \
-@compile_EAPTLS_TRUE@	pac_eaptls/client_pana_eap-tls.$(OBJEXT)
+@compile_EAPTLS_TRUE@	client_pana_eap-tls.$(OBJEXT)
 client_pana_eaptls_OBJECTS = $(am_client_pana_eaptls_OBJECTS)
 @compile_EAPTLS_TRUE@client_pana_eaptls_DEPENDENCIES =  \
 @compile_EAPTLS_TRUE@	$(top_builddir)/libpana/libpana.la \
@@ -224,7 +222,7 @@ pacd_LDADD = @L_LIBS@ \
              $(top_builddir)/libdiamparser/libdiamparser.la \
              $(top_builddir)/libodutl/libodutl.la
 
-@compile_EAPTLS_TRUE@client_pana_eaptls_SOURCES = pac_eaptls/client_pana_eap-tls.cxx
+@compile_EAPTLS_TRUE@client_pana_eaptls_SOURCES = client_pana_eap-tls.cxx
 @compile_EAPTLS_TRUE@client_pana_eaptls_LDADD = @L_LIBS@ \
 @compile_EAPTLS_TRUE@             $(top_builddir)/libpana/libpana.la \
 @compile_EAPTLS_TRUE@             $(top_builddir)/libeap/libeap.la \
@@ -273,14 +271,6 @@ clean-noinstPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-pac_eaptls/$(am__dirstamp):
-	@$(mkdir_p) pac_eaptls
-	@: > pac_eaptls/$(am__dirstamp)
-pac_eaptls/$(DEPDIR)/$(am__dirstamp):
-	@$(mkdir_p) pac_eaptls/$(DEPDIR)
-	@: > pac_eaptls/$(DEPDIR)/$(am__dirstamp)
-pac_eaptls/client_pana_eap-tls.$(OBJEXT): pac_eaptls/$(am__dirstamp) \
-	pac_eaptls/$(DEPDIR)/$(am__dirstamp)
 client_pana_eaptls$(EXEEXT): $(client_pana_eaptls_OBJECTS) $(client_pana_eaptls_DEPENDENCIES) 
 	@rm -f client_pana_eaptls$(EXEEXT)
 	$(CXXLINK) $(client_pana_eaptls_LDFLAGS) $(client_pana_eaptls_OBJECTS) $(client_pana_eaptls_LDADD) $(LIBS)
@@ -290,14 +280,13 @@ pacd$(EXEEXT): $(pacd_OBJECTS) $(pacd_DEPENDENCIES)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f pac_eaptls/client_pana_eap-tls.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/client_pana_eap-tls.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pacd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pacd_config.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@pac_eaptls/$(DEPDIR)/client_pana_eap-tls.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`; \
@@ -435,8 +424,6 @@ clean-generic:
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
-	-rm -f pac_eaptls/$(DEPDIR)/$(am__dirstamp)
-	-rm -f pac_eaptls/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -447,7 +434,7 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR) pac_eaptls/$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -473,7 +460,7 @@ install-man:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR) pac_eaptls/$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

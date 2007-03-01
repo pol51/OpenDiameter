@@ -1,7 +1,7 @@
 Open Diameter: Open-source software for the Diameter 
                and Diameter related protocols
 
-Copyright (C) 2002-2006 Open Diameter Project
+Copyright (C) 2002-2007 Open Diameter Project
 
 Plese read the accompanying COPYING file for the terms and conditions
 of the licences applied to this software.
@@ -9,36 +9,168 @@ of the licences applied to this software.
 RELEASE NOTES
 -------------
 
-Contents
---------
-    1. Release Version 1.0.7-i
-        1.1 Diameter Parser Re-factoring
-        1.2 Diameter Base Protocol Re-factoring
-        1.3 PANA library updates
-        1.4 Diameter Bug Fixes
+Whats new
+---------
 
-1. Release Version 1.0.7-h
-   Release Date    : 10/02/2006
-   
-    This is the next interim release for 1.0.7 that concentrates
-    on re-factoring of the libdiamparser and libdiameter library
-    for performance improvements. This release also supports the
-    latest draft version of the PANA protocol.
-    
-     1.1 Diameter Parser Re-factoring
+The major changes for release 1.0.7-i includes:
 
-         - creation of a new generic parser framework
-	 - remove support for multi protocol dictionary
-	 - created generic avp and dictionary data structures
+1. Parser Re-factoring
 
-     1.2 Diameter Base Protocol Re-factoring
+   The diameter parser has been divided into a generic parsing framework
+   and library specific parser. The generic framework can be found in
+   include/aaa_parser_api.h. The library specific parser for diameter
+   is still in libdiamparser but libdiamparser now only serves as a
+   Diameter base protocol parser. It does not serve as a parser for
+   libpana anymore. libpana now has a built-in parser based on
+   include/aaa_parser_api.h.
 
-         - renaming of API's
+2. Deprecated the use of Xerces XML Parser
 
-     1.3 PANA library updates
+   Xerces XML Parser has now been replaced by ACEXML. ACEXML was chosen
+   becuase it had a smaller memory footprint compared to Xerces. ACEXML
+   currently supports SAX and DTD only so the existing XML schema's now
+   refer to DTD files.
 
-         - use new generic parser framework
-	 - created separate parsing support for pana
-	 - created separate dictionary support for pana
+3. Updated PANA Library
 
-     1.4 Diameter Bug Fixes
+   The PANA library (libpana) has now been updated to draft-ietf-pana-pana-13.
+   It supports all the functionality required in that specification. Additionaly,
+   libpana now has a built-in parser separate from libdiamparser. You can also
+   look into libpana/config/dictionary.xml for additional changes related to
+   parsing.
+
+4. Diameter Library Re-factoring
+
+   A lot of re-factoring was done in libdiameter. Mostly for fixing existing
+   issues. It took a while to get some of these things accomplised since
+   there are very few resources to dedicate to this work. However, the new
+   re-engineering should improve the base protocol performace a little bit.
+   These improvements are based on reports from users who have suggested
+   solutions/scheme that works better than the schemes present in 1.0.7-h.
+   A summary of the changes include:
+
+    1. A new threading model for peer IO's where each peer would have
+       two(2) dedicated threads specific to sending and receiving
+       messages respectively. The advantage of this model is that the
+       expensive message parsing and IO queuing can be done within these
+       threads. The dis-advantage (which is hopefully minimal) is that
+       as the number of threads increases along with the number of connections.
+
+    2. Granularity of the AAA_Jobs scheduled in the thread pool has been
+       increased to make sure that event queueing is managed better and
+       that there is no un-necessary increase in queued jobs because of
+       piecemeal processing. This means that when a peer fsm event or a
+       session fsm event is queued, it has to complete all processing
+       within its AAA_Job and do not the processing into small amounts of
+       work each if which means that the AAA_Job is re-queued in the thread
+       pool. This should result in a more efficient use of the thread pool.
+
+    3. Re-factoring of the API's. To cleanup the existing APIs, most of it
+       has been renamed from an AAA_* prefix to Diameter* prefix. This is done
+       so as not to have naming collision between the generic framework classes
+       and libdiameter classes. A backward compatibility header exists so as not
+       to break existing implementations. These is in libdiameter/include/
+       diameter_compatibility_api.h and libdiameter/include/diameter_api.h.
+
+    4. SCTP support has now been added. This is done via the ACE abstraction
+       classes ACE_SOCK_SEQPACK*. In linux, these classes uses LKSCTP by
+       default. The drawback maybe for other platforms that may not have
+       native SCTP support in thier socket calls. This is something that
+       may need additional work. In the current implementation, libdiameter
+       can listen to both TCP and SCTP ports. When connecting to peers, each
+       entry in the peer table now has an extra configuration parameter <use_sctp>
+       which tells the library to use SCTP when connecting to a peer.
+
+    5. Better support for IPv6. This include fixes to IPv6 support. To abstract
+       IPv6 addresses from the configuration files, only hostnames are allowed
+       in the configuration. The flag <use_ipv6> tells the library whether these
+       hostnames needs to be resolved to IPv6 addresses as opposed to IPv4. This
+       flag would only be useful if the ACE library has IPv6 support enabled.
+
+    6. Better localized message retransmission. In addition to the failover/failback
+       scheme, OpenDiameter re-transmits queued message if no corresponding response
+       is received within a specified period of time. This retransmission scheme is
+       controlled by <request_retransmission_interval> and <max_request_retransmission_count>.
+
+    7. Re-Architecture of Redirect Agent. Redirect support has been re-factored so
+       that a libdiameter node acting as a redirect will respond with a proper
+       redirect notification. The node will use the <peer_entry> in the <application>
+       section of the route table as values for Redirect-Host. At the moment,
+       redirect usage is supported only through the APIs so some coding has to
+       be done to set other redirect usage values. Also, the reception of redirect
+       indication by a libdiameter node only allows forwarding to an already
+       connected peer. The scheme of pro-actively connecting to an un-connected
+       redirect host is not yet supported.
+
+    8. A few configuration parameters has been added to the library. This
+       includes:
+
+         a. SCTP support - <sctp_listen_port>, <use_sctp>
+         b. Receive Buffer Size - <receive_buffer_size>
+         c. Peer reconnection attempt - <reconnect_interval>
+         d. Others ... related to bug fixes.
+
+       In general, the configuration file change little in terms of structure
+       thought there are some things to watch out for when migrating to these
+       new configuration files. First is that the configuration now uses DTD
+       and second you may need to migrate the new features over to your existing
+       configuration files instead of the other way around. This is because majority
+       of the changes are additions instead of changes and deletions. This makes
+       it easier to upgrade.
+
+       Another file to look into is the dictionary files. Since migrating to
+       DTD, there are also some changes here as well. As with the configuration
+       files, it maybe easier to migrate the new changes to your existing
+       configuration.
+
+    9. Bug fixes. The following are the bugs that has been resolved for this
+       release (See OpenDiameter Bug Tracker in http://www.sourceforge.net):
+
+                1452335       1452351
+                1513343       1554207
+                1604271       1566852
+                1575899       1653469
+                1344604       1653440
+                1450400       1645240
+                1452312       1642883
+                1480507       1553900
+                1550429       1534597
+                1566845       1518031
+                1297865       1480383
+                1298811       1648149
+                1336702       1645510
+                1498724       1528465
+                1351951       1606836
+                1517745       1450398
+                1566834       1574542
+
+       Pls note that we did our best to capture and fix the bugs that have
+       been reported. We apologize if for one reason or another, the issues
+       you have reported has not been captured in the bug tracker or have not
+       been address in any way. In some sense, we would like to ask help from
+       the community itself to aid us not only in tracking but in contributing
+       fixes to improve the quality of Open Diameter.
+
+   10. Kdevelop support. This release comes with a kdevelop 3.5.5 project files.
+       It is located in the root of the distribution, opendiameter.kdevelop.
+
+Whats not included
+------------------
+
+Work the is currently ongoing but did not make it to this release:
+
+1. Diameter CC library
+2. EAP-TLS re-factoring
+3. TLS support for libdiameter
+4. Diameter/RADIUS Translator
+5. Applications deamon (nasd/aaad) re-factoring
+6. Remaining open bugs
+7. Updates for Windows Development Environment
+8. More documentation !!!!
+
+Notes
+-----
+
+Since this release note is just a summary, pls post any additional questions you
+may have in diameter-developers@lists.sourceforge.net. We appreciate your continued
+support.

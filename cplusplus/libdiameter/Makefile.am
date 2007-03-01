@@ -98,8 +98,8 @@ noinst_PROGRAMS = aaa_test_client1 aaa_test_server1 \
                   aaa_test_server6 \
                   aaa_test_agent
 
-aaa_test_client1_SOURCES = test/test_client1.cxx test/test_client1.h
-aaa_test_server1_SOURCES = test/test_server1.cxx test/test_server1.h
+aaa_test_client1_SOURCES = test/test_client1.cxx
+aaa_test_server1_SOURCES = test/test_server1.cxx
 aaa_test_client2_SOURCES = test/test_client2.cxx
 aaa_test_server2_SOURCES = test/test_server2.cxx
 aaa_test_client3_SOURCES = test/test_client3.cxx

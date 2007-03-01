@@ -208,10 +208,12 @@ MISC = $(top_srcdir)/docs/msvc-solution-usage.txt \
        $(top_srcdir)/docs/libeap \
        $(top_srcdir)/docs/libpana \
        $(top_srcdir)/docs/nasreq \
+       $(top_srcdir)/opendiameter.kdevelop \
        $(top_srcdir)/tools/getopt.patch \
        $(top_srcdir)/tools/getopt1.patch \
+       $(top_srcdir)/autogen.sh \
        $(top_srcdir)/RELEASE \
-       $(top_srcdir)/README 
+       $(top_srcdir)/README
 
 EXTRA_DIST = $(MISC)
 data_DATA = $(MISC)

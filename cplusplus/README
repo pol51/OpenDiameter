@@ -1,22 +1,20 @@
 Open Diameter: Open-source software for the Diameter 
                and Diameter related protocols
 
-Copyright (C) 2002-2006 Open Diameter Project
+Copyright (C) 2002-2007 Open Diameter Project
 
 Plese read the accompanying COPYING file for the terms and conditions
 of the licences applied to this software.
-
 
 Table of Contents
 -----------------
 
 1. Required external libraries and tools
     1.1 GNU g++ versions
-    1.2 Xerces C++ XML Parser
-    1.3 ACE library 
-    1.4 BOOST library 
-    1.5 OpenSSL library
-    1.6 Autoconf/Automake/libtool versions
+    1.2 ACE library
+    1.3 BOOST library
+    1.4 OpenSSL library
+    1.5 Autoconf/Automake/libtool versions
 2. How to compile
     2.1 Open diameter libraries
     2.2 Open diameter applications
@@ -25,11 +23,8 @@ Table of Contents
     2.5 Win32 Platforms
 3. Installation
 4. How to use
-    4.1 General Diameter Parser Library Notes
-    4.2 General Diameter Library Notes
-    4.3 Sample programs 
-    4.4 Parser Usage Notes for String Container
-    4.5 Directory changes for 1.0.7
+    4.1 Sample programs 
+    4.2 Parser Usage Notes for String Container
 4. Platform Support Table
 5. Contact Information
 
@@ -38,41 +33,25 @@ Table of Contents
 1. Required external libraries and tools
 ----------------------------------------
 
+The following are external libraries and tools for use with
+Open Diameter 1.0.7-i. For earlier versions of Open Diameter,
+pls look in the the release notes of each version.
+
 1.1 GNU g++ versions
 
-    We have successfully compiled the Open Diameter libraries 
+    Open Diameter libraries currently compiles under
     with the following g++ versions:
 
-    3.2.1 and above (latest is 3.4.x)
+       4.x.x and above
 
-    Note that when using a particular version of g++, it is 
-    recommended that the ACE library as well as the Xerces 
-    C++ library that your linking with is also compile with 
-    the same version of g++. If not, then linking errors 
-    migth occur. See gcc notes on version compatability
-    issues. 
-    
-1.2 Xerces C++ XML Parser
+    The latest version supported is 4.1.2.
 
-    Open diameter uses Xerces C++ 2.1.0 and higher. It is 
-    recommended that Xerces C++ 2.6.0 and above is used 
-    on non-FreeBSD systems. Version 2.1.0 support is 
-    maintained because it is the latest version to have 
-    FreeBSD support.
- 
-    Xerces C++ XML Parser's home is:
-       http://xml.apache.org/xerces-c
-
-    Acknowledgment:
-        This product includes software developed by the
-        Apache Software Foundation (http://www.apache.org/).
-
-1.3 ACE library
+1.2 ACE library
 
     Open diameter makes extensive use of the ACE framework
     including threading, communications, logging etc. The
     latest ACE version that has been tested with Open Diameter
-    is ACE Release 5.4.x.
+    is ACE Release 5.5.x.
 
     You can get the source code of the ACE library from:
        http://www.cs.wustl.edu/%7Eschmidt/ACE.html
@@ -85,22 +64,16 @@ Table of Contents
 
 1.4 Boost library
 
-    Beginning version 1.0.3, the use bison and flex for parser
-    generators haved been obsoleted. It has been replaced by
-    the Spirit parser framework contained in the Boost library
-    set. This resolves the frequent compile issues that results 
-    from incompatible flex and bison version (which was very 
-    restrictive in porting to Windows OS). In addition, the Diameter
-    message parser has made extensive use of the Boost libraries functor 
-    defintions as well as other advanced C++ design patterns such as
-    Type2Type template.
+    Open Diameter libraries currently uses boost library
+    version:
 
-    Boost URL is:
+       1.33.x and above
+
+    The latest version supported is 1.33.1. Boost URL is:
+
        http://www.boost.org
 
     Compiler Notes:
-       Pls. note that there has been compilation issues with regards
-       to boost and gcc (especially with gcc version older than 3.0.0). 
        For the latest information in compiler version compatibility 
        pls see the boost compiler/build status available in thier website.
 
@@ -118,22 +91,19 @@ Table of Contents
     has the cipher specifications built into it (i.e. DO NOT use
     no-cipher parameter in building OpenSSL). This is required by 
     EAP libraries. If building OpenSSL, make sure that the shared 
-    libraries version is also build. For win32 systems, OpenSSL 
-    has extensive build instructions. You will most likely need 
-    active perl or other win32 perl packages to build OpenSSL 
-    properly on win32 systems.
-    
-    Acknowledgment:
-	This product includes software developed by the OpenSSL
-	Project for use in the OpenSSL Toolkit
-	(http://www.openssl.org/).
+    libraries version is also build.
 
-	This product includes cryptographic software written by
+    Acknowledgment:
+        This product includes software developed by the OpenSSL
+        Project for use in the OpenSSL Toolkit
+        (http://www.openssl.org/).
+
+        This product includes cryptographic software written by
         Eric Young (eay@cryptsoft.com).
 
         This product includes software written by Tim Hudson
         (tjh@cryptsoft.com).
- 
+
 1.6 Autoconf/Automake/libtool versions
 
     It is recommended that you use the latest version of autoconf
@@ -144,8 +114,8 @@ Table of Contents
     any Makefiles or build options not configurable by the
     config scripts.
 
-       1. Autoconf - version 2.59
-       2. Automake - version 1.8.5
+       1. Autoconf - version 2.61
+       2. Automake - version 1.9.6
        3. Libtool  - 1.5.6
 
 2. How to compile
@@ -153,7 +123,7 @@ Table of Contents
 
 2.1 Open diameter libraries
 
-    As of version 1.0.7-h, the Open Diameter build will result in 
+    As of version 1.0.7-i, the Open Diameter build will result in 
     nine(10) libraries:
 
       1. libdiamparser     - Diameter message parser 
@@ -164,9 +134,9 @@ Table of Contents
       6. libdiametereap    - Diameter/EAP library
       7. libdiameternasreq - Diameter/NASREQ library
       8. libdiametermip4   - Diameter/MIP4 library
-      9. libodutl          - General support library for 
+      9. libodutl          - General support library for
                              all protocols
- 
+
     Note that libeap-archie is built inside the libeap 
     directory. The Test programs for each library are also
     built. 
@@ -199,9 +169,6 @@ Table of Contents
                        and debian. Kernel version restrictions 
                        are dictated by the ACE library.
       2. FreeBSD     - tested versions include 4.8 and 5.0
-      3. Win 2000/XP - The open diameter set of libraries
-                       are built as DLL's. Export libraries
-                       are provided as well.
 
 2.4 Build environment
 
@@ -209,13 +176,11 @@ Table of Contents
     are a few environment variables that need to be set. This
     applies to unix systems only.
 
-      a. XERCESCROOT - must be set to the proper Xerces C++ root 
-                       directory. See Sec. 1.2 for details.
-      b. ACE_ROOT    - must be set to the root directory of the 
+      a. ACE_ROOT    - must be set to the root directory of the 
                        ACE installation. This is also required 
                        before building ACE. See Sec. 1.3 for
                        details.
-      c. BOOST_ROOT  - must be set to the root directory of the 
+      b. BOOST_ROOT  - must be set to the root directory of the 
                        boost installation. See Sec. 1.4 for 
                        details.
 
@@ -226,23 +191,24 @@ Table of Contents
    A complete options list for the configure scripts is located in
    the INSTALL doc.
 
+   If you are using KDevelop, this distribution also contains a
+   KDevelop 3.5.5 project file. You can simply open this project
+   file and build Open Diameter under KDevelop as you would any
+   other project. Note however, that the environment variables
+   above still applies and you can configure this in your local
+   KDevelop environment.
+
 2.5 Win32 Platforms
 
-   As of release 1.0.5, building on win32 platforms requires the
-   use of Microsoft .NET 2003 version (VC++ 7.1). A "Solutions"
-   directory has been provided which mimics the Open Diameter
-   directory structur. At the root of the Solutions directory
-   is a .NET solutions object file (OpenDiameter.sln). This 
-   references all other VC++ 7.1 project files residing in thier 
-   respective sub-directory. With the use of .NET environment, 
-   third-party libraries and include paths can now be set as a 
-   .NET environment option. This can be accessed under Tools->
-   Options->Projects->VC++ Directories. Therefore, the include and 
-   library paths in each project file does not need to be adjusted. 
-   Further details can be found in the docs directory under 
-   msvc-solution-usage.txt.
-   
-3. Installation 
+   Previous versions of Open Diameter has support for Win32 build
+   environments. Although, those project and solutions files for
+   Visual Studio still applies, they have not been upgraded for
+   this release. There are plans to upgrade them for subsequent
+   release. There are no special Win32 requirements that applies
+   to this release so you may upgdate your current Win32 project files
+   as well.
+
+3. Installation
 
    The Open Diameter libraries can installed using the exsting
    root configure script. Installation can be done using the steps:
@@ -261,46 +227,13 @@ Table of Contents
    Note that the --prefix is optional and if not supplied the default
    prefix is /usr/local.
 
+   For KDevelop, you may also perform an install in either the debug
+   or release build subdirectories generated by KDevelop.
+
 4. How to use
 -------------
 
-4.1 General Diameter Parser Library Notes
-
-   The Diameter parser library is maintained in libdiamparser
-   directory. It is a generic AVP based parser that is used
-   by all other libraries under Open Diameter. Valid AVP's 
-   and commands are defined inside an XML dictionary file
-   dictionary.xml and it's corresponding DTD dictionary.dtd.
-   
-   As of version 1.0.7, the dictionary files are partitioned
-   on a per protocol basis using the <dictionary> tags. Each
-   <dictionary> tag has a required 'protocol' attribute that
-   dictates which protocol the section belongs too. The following
-   is a table of currently assigned protocol values:
-
-       a. 0 - Diameter base protocol
-       b. 1 - PANA protocol
-
-   Future assignments will be made depending on the protocol 
-   implementation if it will use libdiamparser.
-
-   For the diameter base protocol section, there is <base> 
-   section which defines base protocol AVP's and commands
-   and an <application> section which defines diameter 
-   application AVP's and commands. The <application> section
-   has an id attribute which defines the diameter application
-   id. User applications wishing to add thier own AVP's and 
-   commands MUST edit the dictionary file. 
-
-4.2 General Diameter Library Notes
-
-   For libdiameter, the configuration files are in 
-   libdiameter/config. As of version 1.0.7, there has
-   been many changes and additions to the configuration
-   file. Pls. see the sample configuration file
-   config/configuration.xml for details.
-
-4.3 Sample programs
+4.1 Sample programs
 
    All libraries in Open Diameter maintains a test directory
    which contains sample programs. The sample code shows how
@@ -309,7 +242,7 @@ Table of Contents
    of every API, the sample code is the best source for usage 
    reference.
 
-4.4 Parser Usage Notes for String Container
+4.2 Parser Usage Notes for String Container
 
    The libdiamparser relies heavily on the STL string class 
    to represent diameter data types. However, there has been 
@@ -336,24 +269,6 @@ Table of Contents
    if the source_string data is not null-terminated. The use 
    of data() in such scenario is not recommended. 
 
-4.5 Directory changes for 1.0.7
-
-   All header files specific to each library are now maintained
-   in each librarie's source and include directory. Each libraries
-   API is located in thier respective include directory. The top 
-   level include directory contians a set of headers that are used 
-   globally by all libraries and applications. This includes the 
-   following:
-
-      1. framework.h - Header file for the Open diameter framework
-                       architecture. See Open Diameter C++ framework
-                       documentation for details.
-      2. callback_patterns.h - Generic C++ callback patterns used
-                       by some libraries
-      3. resultcodes.h - Defines all the diameter base protocol
-                       result codes. 
- 
-  
 5. Platform Support Table
 -------------------------
 
