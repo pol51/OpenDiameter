@@ -191,7 +191,7 @@ class OD_UTL_EXPORT OD_Utl_XML_SaxParser
 };
 
 template<class T, class C>
-class OD_UTL_EXPORT OD_Utl_XML_RegisteredElement :
+class OD_Utl_XML_RegisteredElement :
   public OD_Utl_XML_Element
 {
   public:
@@ -205,7 +205,7 @@ class OD_UTL_EXPORT OD_Utl_XML_RegisteredElement :
      T &Arg() {
      	return m_arg;
      }
-     
+
   protected:
      virtual bool characters(const ACEXML_Char *ch,
                              int start,
@@ -223,7 +223,7 @@ class OD_UTL_EXPORT OD_Utl_XML_RegisteredElement :
 };
 
 template<class T>
-class OD_UTL_EXPORT OD_Utl_XML_ContentConv
+class OD_Utl_XML_ContentConv
 {
   public:
      OD_Utl_XML_ContentConv(OD_Utl_XML_Element *element = 0) :
@@ -241,7 +241,7 @@ class OD_UTL_EXPORT OD_Utl_XML_ContentConv
 };
 
 template<class T>
-class OD_UTL_EXPORT OD_Utl_XML_ContentConvNull :
+class OD_Utl_XML_ContentConvNull :
   public OD_Utl_XML_ContentConv<T>
 {
   public:
