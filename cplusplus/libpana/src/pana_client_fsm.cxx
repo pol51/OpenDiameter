@@ -1239,7 +1239,9 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
          m_arg.RxValidateMsg(msg);
 
          // save address of Paa
-         m_arg.PaaAddress() = msg.srcAddress();
+         if (msg.flags().request) {
+             m_arg.PaaAddress() = msg.srcAddress();
+         }
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1331,7 +1333,9 @@ class PANA_CsmRxPP : public PANA_ClientRxStateFilter
          m_arg.RxValidateMsg(msg);
 
          // save address of Paa
-         m_arg.PaaAddress() = msg.srcAddress();
+         if (msg.flags().request) {
+             m_arg.PaaAddress() = msg.srcAddress();
+         }
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1362,7 +1366,9 @@ class PANA_CsmRxPU : public PANA_ClientRxStateFilter
          m_arg.RxValidateMsg(msg);
 
          // save address of Paa
-         m_arg.PaaAddress() = msg.srcAddress();
+         if (msg.flags().request) {
+             m_arg.PaaAddress() = msg.srcAddress();
+         }
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1393,7 +1399,9 @@ class PANA_CsmRxPT : public PANA_ClientRxStateFilter
          m_arg.RxValidateMsg(msg);
 
          // save address of Paa
-         m_arg.PaaAddress() = msg.srcAddress();
+         if (msg.flags().request) {
+             m_arg.PaaAddress() = msg.srcAddress();
+         }
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1428,9 +1436,6 @@ class PANA_CsmRxPRA : public PANA_ClientRxStateFilter
          // second level validation
          m_arg.RxValidateMsg(msg);
 
-         // save address of Paa
-         m_arg.PaaAddress() = msg.srcAddress();
-
          // save last received header
          m_arg.LastRxHeader() = msg;
 
@@ -1464,7 +1469,9 @@ class PANA_CsmRxPE : public PANA_ClientRxStateFilter
           m_arg.RxValidateMsg(msg);
 
           // save address of Paa
-          m_arg.PaaAddress() = msg.srcAddress();
+         if (msg.flags().request) {
+             m_arg.PaaAddress() = msg.srcAddress();
+         }
 
           // resolve the event
           PANA_PacEventVariable ev;

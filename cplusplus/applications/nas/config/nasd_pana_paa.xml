@@ -65,6 +65,9 @@
              a more stateless PAA if disabled -->
         <retry_psr>0</retry_psr>
 
+        <!-- PAC port number. -->
+        <pac_port_number>3001</pac_port_number>
+        
     </agent>
 
 </pana_configuration>

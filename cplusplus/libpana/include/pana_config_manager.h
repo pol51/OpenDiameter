@@ -63,6 +63,7 @@ typedef struct {
     ACE_UINT32 m_OptimizedHandshake;
     ACE_UINT32 m_CarryLifetime;
     ACE_UINT32 m_RetryPSR;
+    ACE_UINT32 m_PacPortNumber;
 } PANA_CfgAgent;
 
 // General configuration

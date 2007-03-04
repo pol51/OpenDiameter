@@ -81,6 +81,8 @@ void PANA_CfgManager::open(std::string &cfg_file)
                                    "carry_lifetime", parser);
     OD_Utl_XML_UInt32Element paa03(m_Data.m_Paa.m_RetryPSR,
                                    "retry_psr", parser);
+    OD_Utl_XML_UInt32Element paa04(m_Data.m_Paa.m_PacPortNumber,
+                                   "pac_port_number", parser);
 
     try {
         parser.Load((char*)cfg_file.c_str());
@@ -122,5 +124,6 @@ void PANA_CfgManager::dump()
         AAA_LOG((LM_INFO, "      Optimized Handshake : %d\n", m_Data.m_Paa.m_OptimizedHandshake));
         AAA_LOG((LM_INFO, "           Carry Lifetime : %d\n", m_Data.m_Paa.m_CarryLifetime));
         AAA_LOG((LM_INFO, "                Retry PSR : %d\n", m_Data.m_Paa.m_RetryPSR));
+        AAA_LOG((LM_INFO, "          PaC Port Number : %d\n", m_Data.m_Paa.m_PacPortNumber));
     }
 }

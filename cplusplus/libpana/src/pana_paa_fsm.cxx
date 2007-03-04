@@ -1059,9 +1059,6 @@ class PANA_PsmRxPSA : public PANA_ServerRxStateFilter
           // second level validation
           m_arg.RxValidateMsg(msg);
 
-          // save address of PaC
-          m_arg.PacAddress() = msg.srcAddress();
-
           // save last received header
           m_arg.LastRxHeader() = msg;
 
@@ -1095,9 +1092,6 @@ class PANA_PsmRxPBA : public PANA_ServerRxStateFilter
 
           // second level validation
           m_arg.RxValidateMsg(msg);
-
-          // save address of PaC
-          m_arg.PacAddress() = msg.srcAddress();
 
           // save last received header
           m_arg.LastRxHeader() = msg;
@@ -1164,7 +1158,9 @@ class PANA_PsmRxPT : public PANA_ServerRxStateFilter
           m_arg.RxValidateMsg(msg);
 
           // save address of PaC
-          m_arg.PacAddress() = msg.srcAddress();
+          if (msg.flags().request) {
+             m_arg.PacAddress() = msg.srcAddress();
+          }
 
           // save last received header
           m_arg.LastRxHeader() = msg;
@@ -1195,7 +1191,9 @@ class PANA_PsmRxPU : public PANA_ServerRxStateFilter
           m_arg.RxValidateMsg(msg);
 
           // save address of PaC
-          m_arg.PacAddress() = msg.srcAddress();
+          if (msg.flags().request) {
+              m_arg.PacAddress() = msg.srcAddress();
+          }
 
           // save last received header
           m_arg.LastRxHeader() = msg;
@@ -1203,9 +1201,6 @@ class PANA_PsmRxPU : public PANA_ServerRxStateFilter
           // resolve the event
           PANA_PaaEventVariable ev;
           if (msg.flags().request) {
-              if (m_arg.PacAddress() != msg.srcAddress()) {
-                  AAA_LOG((LM_INFO, "(%P|%t) New IP address detected for Pac ... updating\n"));
-              }
               ev.MsgType(PANA_EV_MTYPE_PUR);
           }
           else {
@@ -1234,7 +1229,9 @@ class PANA_PsmRxPP : public PANA_ServerRxStateFilter
           m_arg.RxValidateMsg(msg);
 
           // save address of PaC
-          m_arg.PacAddress() = msg.srcAddress();
+          if (msg.flags().request) {
+              m_arg.PacAddress() = msg.srcAddress();
+          }
 
           // save last received header
           m_arg.LastRxHeader() = msg;
@@ -1264,7 +1261,9 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           m_arg.RxValidateMsg(msg);
 
           // save address of PaC
-          m_arg.PacAddress() = msg.srcAddress();
+          if (msg.flags().request) {
+              m_arg.PacAddress() = msg.srcAddress();
+          }
 
           // save last received header
           m_arg.LastRxHeader() = msg;
@@ -1311,7 +1310,9 @@ class PANA_PsmRxPE : public PANA_ServerRxStateFilter
           m_arg.RxValidateMsg(msg);
 
           // save address of PaC
-          m_arg.PacAddress() = msg.srcAddress();
+          if (msg.flags().request) {
+              m_arg.PacAddress() = msg.srcAddress();
+          }
 
           // tell the session
           m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);

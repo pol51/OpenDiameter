@@ -520,7 +520,16 @@ void PANA_Client::RxPRA()
 
 void PANA_Client::TxPrepareMessage(PANA_Message &msg)
 {
-    msg.srcAddress() = this->PacAddress();
+    msg.srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
     msg.destAddress() = this->PaaAddress();
+
+    if (msg.flags().request || (msg.type() == PANA_MTYPE_PCI)) {
+        // request message
+        msg.destAddress().set_port_number(PANA_CFG_PAC().m_PaaPortNumber);
+    }
+    else {
+        // answer message
+        msg.destAddress().set_port_number(this->PaaAddress().get_port_number());
+    }
 }
 
