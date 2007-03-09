@@ -67,6 +67,7 @@ class PANA_EXPORT PANA_Channel :
                 throw (PANA_Exception(PANA_Exception::TRANSPORT_FAILED,
                                       "Failed to schedule channel"));
             }
+            SetLocalAddr() = addr;
         }
         virtual void Close() {
             PANA_IngressReceiver::Stop();

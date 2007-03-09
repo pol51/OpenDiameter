@@ -82,9 +82,11 @@ class PANA_EXPORT PANA_IngressMsgParser :
       PANA_IngressMsgParser(AAA_GroupedJob &g,
                             PANA_MessageBuffer &msg,
                             ACE_INET_Addr &srcAddr,
+                            ACE_INET_Addr &dstAddr,
                             const char *name = "") :
          PANA_IngressJob(g, name),
          m_SrcAddr(srcAddr),
+         m_DestAddr(dstAddr),
          m_Message(msg) {
       }
       virtual ~PANA_IngressMsgParser() {
@@ -94,6 +96,7 @@ class PANA_EXPORT PANA_IngressMsgParser :
 
    private:
       ACE_INET_Addr m_SrcAddr;
+      ACE_INET_Addr m_DestAddr;
       PANA_MessageBuffer &m_Message;
 };
 
@@ -115,12 +118,16 @@ class PANA_EXPORT PANA_IngressReceiver :
              PANA_IngressJob(g, name),
                              m_Socket(so),
                              m_Running(false) {
+             m_localAddr.set_port_number(0);
       }
       bool Running() {
          return m_Running;
       }
       void Stop() {
          m_Socket.close();
+      }
+      ACE_INET_Addr &SetLocalAddr() {
+         return m_localAddr;
       }
       virtual int Serve();
       virtual void Wait() {
@@ -131,6 +138,7 @@ class PANA_EXPORT PANA_IngressReceiver :
       }
 
    protected:
+      ACE_INET_Addr m_localAddr;
       PANA_Socket &m_Socket;
       bool m_Running;
 };

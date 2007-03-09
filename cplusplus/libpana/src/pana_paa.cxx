@@ -524,14 +524,5 @@ void PANA_Paa::TxPrepareMessage(PANA_Message &msg)
 {
     msg.srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
     msg.destAddress() = this->PacAddress();
-
-    if (msg.flags().request) {
-        // request message
-        msg.destAddress().set_port_number(PANA_CFG_PAA().m_PacPortNumber);
-    }
-    else {
-        // answer message
-        msg.destAddress().set_port_number(this->PacAddress().get_port_number());
-    }
 }
 

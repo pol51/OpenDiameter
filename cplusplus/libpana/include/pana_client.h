@@ -72,9 +72,15 @@ class PANA_EXPORT PANA_Client :
       PANA_SessionTimerInterface &Timer() {
           return m_Timer;
       }
+      ACE_INET_Addr &LastUsedChannel() {
+          return m_LastUsedChannel;
+      }
 
    private:
       virtual void TxPrepareMessage(PANA_Message &msg);
+
+   private:
+      ACE_INET_Addr m_LastUsedChannel;
 };
 
 #endif /* __PANA_CLIENT_H__ */

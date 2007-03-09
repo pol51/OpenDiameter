@@ -1188,6 +1188,7 @@ class PANA_CsmRxPSR : public PANA_ClientRxStateFilter
 
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
+         m_arg.LastUsedChannel() = msg.destAddress();
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1242,6 +1243,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
          if (msg.flags().request) {
              m_arg.PaaAddress() = msg.srcAddress();
          }
+         m_arg.LastUsedChannel() = msg.destAddress();
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1283,6 +1285,7 @@ class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
 
          // save address of Paa
          m_arg.PaaAddress() = msg.srcAddress();
+         m_arg.LastUsedChannel() = msg.destAddress();
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1336,6 +1339,7 @@ class PANA_CsmRxPP : public PANA_ClientRxStateFilter
          if (msg.flags().request) {
              m_arg.PaaAddress() = msg.srcAddress();
          }
+         m_arg.LastUsedChannel() = msg.destAddress();
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1369,6 +1373,7 @@ class PANA_CsmRxPU : public PANA_ClientRxStateFilter
          if (msg.flags().request) {
              m_arg.PaaAddress() = msg.srcAddress();
          }
+         m_arg.LastUsedChannel() = msg.destAddress();
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1402,6 +1407,7 @@ class PANA_CsmRxPT : public PANA_ClientRxStateFilter
          if (msg.flags().request) {
              m_arg.PaaAddress() = msg.srcAddress();
          }
+         m_arg.LastUsedChannel() = msg.destAddress();
 
          // save last received header
          m_arg.LastRxHeader() = msg;
@@ -1439,6 +1445,9 @@ class PANA_CsmRxPRA : public PANA_ClientRxStateFilter
          // save last received header
          m_arg.LastRxHeader() = msg;
 
+         // save last used address
+         m_arg.LastUsedChannel() = msg.destAddress();
+
          // resolve the event
          PANA_PacEventVariable ev;
          ev.MsgType(PANA_EV_MTYPE_PRA);
@@ -1472,6 +1481,7 @@ class PANA_CsmRxPE : public PANA_ClientRxStateFilter
          if (msg.flags().request) {
              m_arg.PaaAddress() = msg.srcAddress();
          }
+         m_arg.LastUsedChannel() = msg.destAddress();
 
           // resolve the event
           PANA_PacEventVariable ev;
@@ -1501,15 +1511,16 @@ class PANA_CsmRxPE : public PANA_ClientRxStateFilter
 PANA_PacSession::PANA_PacSession(PANA_Node &n,
                                  PANA_ClientEventInterface &eif) :
    PANA_StateMachine<PANA_Client, PANA_Channel>
-            (m_PaC, m_StateTable, n, m_Channel),
+            (m_PaC, m_StateTable, n, m_PacChannel),
    m_Node(n),
-   m_Channel(n.Job(), "Pac UDP Channel"),
+   m_PanaChannel(n.Job(), "Pac Well known UDP Channel"),
+   m_PacChannel(n.Job(), "Pac Specific UDP Channel"),
    m_Timer(*this),
    m_PaC(m_TxChannel, m_Timer, eif)
 {
-   OD_Utl_SCSIAdapter1<PANA_PacSession, 
+   OD_Utl_SCSIAdapter1<PANA_PacSession,
                    void(PANA_PacSession::*)(PANA_Message&),
-                   PANA_Message&> 
+                   PANA_Message&>
                msgHandler(*this, &PANA_PacSession::Receive);
 
    ACE_INET_Addr addr;
@@ -1521,22 +1532,30 @@ PANA_PacSession::PANA_PacSession(PANA_Node &n,
    addr.string_to_addr(strAddr);
    m_PaC.PaaAddress() = addr;
 
-   // Listen to a specific port
+   // Listen to a well known port
+   addr.set((u_short)PANA_CFG_GENERAL().m_ListenPort);
    sprintf(strAddr, "%d", PANA_CFG_GENERAL().m_ListenPort);
    addr.string_to_addr(strAddr);
-   m_Channel.Open(addr);
-   m_Channel.RegisterHandler(msgHandler);
+   m_PanaChannel.Open(addr);
+   m_PanaChannel.RegisterHandler(msgHandler);
+
+   // Listen to a PaC specific port - some pseudo random value
+   m_PaC.PacAddress().set((u_short)(PANA_CFG_GENERAL().m_ListenPort + ((int)this / 1000)));
+   m_PacChannel.Open(m_PaC.PacAddress());
+   m_PacChannel.RegisterHandler(msgHandler);
 
    InitializeMsgMaps();
    PANA_StateMachine<PANA_Client, PANA_Channel>::Start();
 }
 
 PANA_PacSession::~PANA_PacSession()
-{ 
+{
    PANA_StateMachine<PANA_Client, PANA_Channel>::Stop();
    FlushMsgMaps();
-   m_Channel.Close();
-   m_Channel.RemoveHandler();
+   m_PanaChannel.Close();
+   m_PanaChannel.RemoveHandler();
+   m_PacChannel.Close();
+   m_PacChannel.RemoveHandler();
 }
 
 void PANA_PacSession::InitializeMsgMaps()

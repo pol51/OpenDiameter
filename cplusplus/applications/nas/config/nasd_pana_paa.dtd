@@ -26,10 +26,8 @@
      <!ELEMENT eap_response_timeout (#PCDATA)>
      <!ELEMENT eap_piggyback (#PCDATA)>
 
-     <!ELEMENT agent (optimized_handshake, carry_lifetime,
-                      retry_psr, pac_port_number)>
+     <!ELEMENT agent (optimized_handshake, carry_lifetime, retry_psr)>
 
      <!ELEMENT optimized_handshake (#PCDATA)>
      <!ELEMENT carry_lifetime (#PCDATA)>
      <!ELEMENT retry_psr (#PCDATA)>
-     <!ELEMENT pac_port_number (#PCDATA)>

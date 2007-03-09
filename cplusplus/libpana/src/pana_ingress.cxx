@@ -64,6 +64,7 @@ int PANA_IngressMsgParser::Serve()
 
        // migrate source address
        parsedMsg->srcAddress() = m_SrcAddr;
+       parsedMsg->destAddress() = m_DestAddr;
 
        (*m_MsgHandler)(*parsedMsg);
     }
@@ -107,7 +108,8 @@ int PANA_IngressReceiver::Serve()
             ACE_NEW_NORETURN(parser,
                              PANA_IngressMsgParser(m_Group,
                                                    *msg_buffer,
-                                                   srcAddr));
+                                                   srcAddr,
+                                                   m_localAddr));
             if (parser) {
                 msg_buffer->size(bytes);
                 parser->RegisterHandler(*m_MsgHandler);

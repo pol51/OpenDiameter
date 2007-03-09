@@ -382,7 +382,8 @@ class PANA_EXPORT PANA_PacSession : public
    private:
       // auxillary members
       PANA_Node &m_Node;
-      PANA_Channel m_Channel;
+      PANA_Channel m_PanaChannel;
+      PANA_Channel m_PacChannel;
       FsmTimer<PANA_PacEventVariable, PANA_PacSession> m_Timer;
 
    private:

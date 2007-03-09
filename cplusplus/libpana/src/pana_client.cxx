@@ -50,6 +50,7 @@ PANA_Client::PANA_Client(PANA_SessionTxInterface &tp,
     //   RTX_COUNTER=0;
     //   RtxTimerStop();
     Reset();
+    m_LastUsedChannel.set((u_short)0);
 }
 
 void PANA_Client::NotifyEapRestart()
@@ -520,16 +521,16 @@ void PANA_Client::RxPRA()
 
 void PANA_Client::TxPrepareMessage(PANA_Message &msg)
 {
-    msg.srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
     msg.destAddress() = this->PaaAddress();
 
     if (msg.flags().request || (msg.type() == PANA_MTYPE_PCI)) {
         // request message
         msg.destAddress().set_port_number(PANA_CFG_PAC().m_PaaPortNumber);
+        msg.srcAddress() = this->PacAddress();
     }
     else {
         // answer message
-        msg.destAddress().set_port_number(this->PaaAddress().get_port_number());
+        msg.srcAddress() = this->LastUsedChannel();
     }
 }
 

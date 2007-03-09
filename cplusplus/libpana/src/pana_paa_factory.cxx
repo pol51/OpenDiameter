@@ -181,7 +181,6 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
 
     // proper addresses
     msg->destAddress() = addr;
-    msg->destAddress().set_port_number(PANA_CFG_PAA().m_PacPortNumber);
     msg->srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPSR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
