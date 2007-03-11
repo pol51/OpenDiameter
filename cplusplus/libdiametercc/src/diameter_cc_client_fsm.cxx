@@ -37,7 +37,6 @@
 #include "diameter_cc_client_session.h"
 #include "diameter_cc_client_fsm.h"
 #include "diameter_cc_parser.h"
-#include "diameter_cc_account.h"
 
 class DiameterCCClientAction 
   : public AAA_Action<DiameterCCClientStateMachine>
@@ -62,7 +61,9 @@ class DiameterCCClientStateTable_S
       AAA_LOG((LM_DEBUG, "(%P|%t) Processing Initial Request.\n"));
 
       if(sm.InitialRequest())
-        AAA_LOG((LM_DEBUG, "(%P|%t) \tSent Initial Request.\n"));
+        {
+          AAA_LOG((LM_DEBUG, "(%P|%t) \tSent Initial Request.\n"));
+        }
       else
         AAA_LOG((LM_DEBUG, "(%P|%t) \tCould not send Initial Request.\n"));
     }
@@ -81,7 +82,7 @@ class DiameterCCClientStateTable_S
     {
       AAA_LOG((LM_DEBUG, "(%P|%t) Processing Initial Answer.\n"));
 
-      sm.InitialAnswer();
+      sm.InitialAnswer(); 
     }
   }; 
 
@@ -90,7 +91,7 @@ class DiameterCCClientStateTable_S
     void operator()(DiameterCCClientStateMachine& sm)
     {
 
-      AAA_LOG((LM_DEBUG, "(%P|%t) Grant Service.\n"));
+      AAA_LOG((LM_DEBUG, "(%P|%t) Service Granted.\n"));
     }
   }; 
 
@@ -99,7 +100,7 @@ class DiameterCCClientStateTable_S
     void operator()(DiameterCCClientStateMachine& sm)
     {
 
-      AAA_LOG((LM_DEBUG, "(%P|%t) Terminate Service.\n"));
+      AAA_LOG((LM_DEBUG, "(%P|%t) Service Terminated.\n"));
     }
   }; 
 
@@ -131,6 +132,7 @@ class DiameterCCClientStateTable_S
     {
 
       AAA_LOG((LM_DEBUG, "(%P|%t) Tx Expired.\n"));
+      sm.TxExpired();
     }
   }; 
 
@@ -413,6 +415,10 @@ class DiameterCCClientStateTable_S
     AddStateTableEntry(StIdle,
                        DiameterCCClientStateMachine::EvStoredEventSent,
                        StPendingB);
+    // Late answer received
+    AddStateTableEntry(StIdle,
+                       DiameterCCClientStateMachine::EvInitialAnswer,
+                       StIdle);
     
     AddWildcardStateTableEntry(StIdle, StTerminated);
 
@@ -430,7 +436,7 @@ class DiameterCCClientStateTable_S
                        StPendingI,acTxExpired);
 
     AddStateTableEntry(StPendingI,
-                       DiameterCCClientStateMachine::EvTxContinue,
+                       DiameterCCClientStateMachine::EvGrantService,
                        StPendingI,acGrantService);
     AddStateTableEntry(StPendingI,
                        DiameterCCClientStateMachine::EvServiceTerminated,
@@ -474,7 +480,7 @@ class DiameterCCClientStateTable_S
                        DiameterCCClientStateMachine::EvTccExpired,
                        StPendingU,acTccExpired);
     AddStateTableEntry(StPendingU,
-                       DiameterCCClientStateMachine::EvTxContinue,
+                       DiameterCCClientStateMachine::EvGrantService,
                        StPendingU,acGrantService);
     AddStateTableEntry(StPendingU,
                        DiameterCCClientStateMachine::EvServiceTerminated,
@@ -555,9 +561,9 @@ ACE_Singleton<DiameterCCClientStateTable_S, ACE_Recursive_Thread_Mutex>
 DiameterCCClientStateTable;
 
 DiameterCCClientStateMachine::DiameterCCClientStateMachine
-(DiameterCCClientSession& s, DiameterJobHandle &h)
-  : AAA_StateMachine<DiameterCCClientStateMachine>
-  (*this, *DiameterCCClientStateTable::instance(), "AAA_CC_CLIENT"),
+(DiameterCCClientSession& s, DiameterJobHandle &h, ACE_Reactor &reactor)
+  : AAA_StateMachineWithTimer<DiameterCCClientStateMachine>
+(*this, *DiameterCCClientStateTable::instance(), reactor, "AAA_CC_CLIENT"),
     session(s),
     handle(h),
     account
@@ -596,7 +602,18 @@ bool
 DiameterCCClientStateMachine::InitialRequest()
 {
   SendCCR();
-  //Start Timer;
+  ScheduleTimer(EvTxExpired,
+                10,
+                0,
+                EvTxExpired);
+  return true;
+}
+
+bool
+DiameterCCClientStateMachine::InitialAnswer()
+{
+  CancelTimer(EvTxExpired);
+  AAA_LOG((LM_DEBUG, "(%P|%t) \tTimer Cancelled.\n"));
   return true;
 }
 
@@ -636,3 +653,16 @@ DiameterCCClientStateMachine::PriceEnquiryRequest()
   return true;
 }
 
+bool
+DiameterCCClientStateMachine::TxExpired()
+{
+  CancelTimer(EvTxExpired);
+  if(ccrData.CCRequestType() == CC_TYPE_EVENT_REQUEST)
+    {
+    }
+  else
+    {
+      CreditControlFailureHandling();
+    }
+  return true;
+}

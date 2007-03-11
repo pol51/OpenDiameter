@@ -51,9 +51,12 @@ public:
   // getAccount function will return DiameterCCAccount from diameterCCAccounts
   // based on the subscriptionId.
   void addAccount(const subscriptionId_t& subscriptionId,
-                  const requestedServiceUnit_t& balanceUnits) 
+                  const requestedServiceUnit_t& balanceUnits,
+                  const CreditControlFailureHandlingEnum& creditControlFailureHandlingEnum) 
   { 
-    DiameterCCAccount diameterCCAccount(subscriptionId,balanceUnits);
+    DiameterCCAccount diameterCCAccount(subscriptionId,
+                                        balanceUnits,
+                                        creditControlFailureHandlingEnum);
     diameterCCAccounts.addAccount(subscriptionId,
                                   diameterCCAccount);
   }

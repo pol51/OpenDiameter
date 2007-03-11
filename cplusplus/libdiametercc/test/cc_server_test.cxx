@@ -326,13 +326,39 @@ class CCInitializer
       }
     
 
-    subscriptionId_t subscriptionId(0,"1"); //END_USER_E164
-    unitValue_t unitValue (100, 0);
-    ccMoney_t ccMoney(unitValue,840);
-    AAA_LOG((LM_DEBUG, "(%P|%t) Account has %d Balance Units.\n",unitValue.ValueDigits() ));
+    //subscriptionId_t subscriptionId(0,"1"); //END_USER_E164
 
-    requestedServiceUnit_t balanceunits(0,ccMoney);
-    diameterCCApplication.addAccount(subscriptionId, balanceunits);
+    subscriptionId_t subscriptionId;
+    unitValue_t unitValue;
+    ccMoney_t ccMoney;
+    requestedServiceUnit_t balanceunits;
+
+    subscriptionId = subscriptionId_t(0,"1"); //END_USER_E164
+    unitValue = unitValue_t(100, 0);
+    ccMoney = ccMoney_t(unitValue,840);
+    balanceunits = requestedServiceUnit_t(0,ccMoney);
+
+    AAA_LOG((LM_DEBUG, 
+             "(%P|%t) Account has %d Balance Units.\n",
+             unitValue.ValueDigits() ));
+
+    diameterCCApplication.addAccount(subscriptionId, 
+                                     balanceunits,
+                                     CREDIT_CONTROL_FAILURE_HANDLING_TERMINATE);
+
+    subscriptionId = subscriptionId_t(0,"2"); //END_USER_E164
+    unitValue = unitValue_t(200, 0);
+    ccMoney = ccMoney_t(unitValue,840);
+    balanceunits = requestedServiceUnit_t(0,ccMoney);
+
+    AAA_LOG((LM_DEBUG, 
+             "(%P|%t) Account has %d Balance Units.\n",
+             unitValue.ValueDigits() ));
+
+
+    diameterCCApplication.addAccount(subscriptionId, 
+                                     balanceunits,
+                                     CREDIT_CONTROL_FAILURE_HANDLING_TERMINATE);
   }
 
   AAA_Task &task;

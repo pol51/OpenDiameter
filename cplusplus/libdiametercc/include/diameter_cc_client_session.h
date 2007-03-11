@@ -40,6 +40,7 @@
 #include "diameter_api.h"
 #include "diameter_cc_client_fsm.h"
 #include "diameter_cc_parser.h"
+#include "diameter_cc_application.h"
 
 class DiameterCCClientSession;
 
@@ -49,8 +50,8 @@ class DIAMETER_CC_CLIENT_EXPORTS CCA_Handler :
 {
  public:
   CCA_Handler
-  (AAAApplicationCore &appCore, DiameterCCClientSession &s) 
-    : AAASessionMessageHandler(appCore, CC_CommandCode),
+  (DiameterCCApplication &diameterCCApplication, DiameterCCClientSession &s) 
+    : AAASessionMessageHandler(diameterCCApplication, CC_CommandCode),
       session(s)
   {}
  private:
@@ -64,10 +65,10 @@ class DIAMETER_CC_CLIENT_EXPORTS CCA_Handler :
 class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientSession : 
     public AAAClientSession, public DiameterCCClientStateMachine
 {
- public:
+public:
 
   /// Constuctor.
-  DiameterCCClientSession(AAAApplicationCore&, DiameterJobHandle &h);
+  DiameterCCClientSession(DiameterCCApplication&, DiameterJobHandle &h);
 
   /// Destructor.
   ~DiameterCCClientSession() {}
@@ -110,14 +111,20 @@ class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientSession :
   /// and capture this events if it is interested in it.
   AAAReturnCode HandleAbort() { return AAA_ERR_SUCCESS; }
 
+  virtual bool CreditControlFailureHandling();
+
   void Start() throw (AAA_Error)
   {
     DiameterCCClientStateMachine::Start();
     AAAClientSession::Start();
   }
 
- protected:
- private:
+  DiameterCCApplication& DiameterCCApp();
+
+protected:
+  DiameterCCApplication& diameterCCApplication;
+
+private:
 
   CCA_Handler ccaHandler;
 };

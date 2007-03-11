@@ -60,17 +60,19 @@ typedef AAA_JobHandle<AAA_GroupedJob> DiameterCCJobHandle;
 class DiameterCCServerSession;
 
 class DIAMETER_CC_SERVER_EXPORTS DiameterCCServerStateMachine 
-  : public AAA_StateMachine<DiameterCCServerStateMachine>,
+  : public AAA_StateMachineWithTimer<DiameterCCServerStateMachine>,
     public AAA_EventQueueJob
 {
  public:
   /// Constructor.
   DiameterCCServerStateMachine(DiameterCCServerSession& s,
-                               DiameterCCJobHandle &h);
+                               DiameterCCJobHandle &h,
+                               ACE_Reactor &reactor);
 
   ~DiameterCCServerStateMachine() 
   {
     handle.Job().Remove(this); 
+    AAA_StateMachineWithTimer<DiameterCCServerStateMachine>::Stop(); 
   }
 
   enum {
@@ -132,6 +134,10 @@ class DIAMETER_CC_SERVER_EXPORTS DiameterCCServerStateMachine
 
     if (handle.Job().Schedule(this) < 0)
       Abort();
+  }
+
+  virtual void Timeout(AAA_Event ev) {
+    Notify(ev);
   }
 
   /// This is used for obtaining the reference to the server session

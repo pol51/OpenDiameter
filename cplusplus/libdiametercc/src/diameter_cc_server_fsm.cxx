@@ -100,7 +100,11 @@ private:
           ccaData.CCRequestType = ccrData.CCRequestType;
           ccaData.CCRequestNumber = ccrData.CCRequestNumber;
           ccaData.ResultCode = AAA_SUCCESS;
-          sm.SendCCA(); 
+          sm.SendCCA();
+          sm.ScheduleTimer(DiameterCCServerStateMachine::EvTccExpired,
+                           15,
+                           0,
+                           DiameterCCServerStateMachine::EvTccExpired); 
         }
     }
   };
@@ -151,6 +155,10 @@ private:
 
       CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
+      sm.ScheduleTimer(DiameterCCServerStateMachine::EvTccExpired,
+                       15,
+                       0,
+                       DiameterCCServerStateMachine::EvTccExpired); 
     }
   };
 
@@ -187,7 +195,10 @@ private:
     {
       AAA_LOG((LM_DEBUG, "(%P|%t) Processing Termination Request.\n"));
       if (sm.TerminationRequest())
-        sm.Event(DiameterCCServerStateMachine::EvTerminationRequestSuccessful);
+        {
+          sm.Event(DiameterCCServerStateMachine::EvTerminationRequestSuccessful);
+          sm.CancelTimer(DiameterCCServerStateMachine::EvTccExpired);
+        }
       else
         sm.Event(DiameterCCServerStateMachine::EvTerminationRequestUnsuccessful);
     }
@@ -261,7 +272,6 @@ private:
       ccaData.CCRequestNumber = ccrData.CCRequestNumber;
       ccaData.ResultCode = AAA_SUCCESS;
       sm.SendCCA(); 
-      
     }
   };
 
@@ -442,12 +452,13 @@ private:
     }
   };
 
-  class AcTccTimerExpired : public DiameterCCServerAction 
+  class AcTccExpired : public DiameterCCServerAction 
   {
     void operator()(DiameterCCServerStateMachine& sm)
     {
       AAA_LOG((LM_DEBUG, 
                "(%P|%t) Tcc Timer Expired.\n"));
+      sm.CancelTimer(DiameterCCServerStateMachine::EvTccExpired);
     }
   };
 
@@ -499,7 +510,7 @@ private:
   AcSuccessfulPriceEnquiryAnswer acSuccessfulPriceEnquiryAnswer;
   AcUnsuccessfulPriceEnquiryAnswer acUnsuccessfulPriceEnquiryAnswer;
 
-  AcTccTimerExpired acTccTimerExpired;
+  AcTccExpired acTccExpired;
 
 
   // Defined as a leaf class
@@ -607,7 +618,7 @@ private:
                        StOpenValidateRequest, acValidateTerminationRequest);
     AddStateTableEntry(StOpen,
                        DiameterCCServerStateMachine::EvTccExpired,
-                       StIdle, acTccTimerExpired);
+                       StIdle, acTccExpired);
     AddWildcardStateTableEntry(StOpen, StTerminated);
 
 
@@ -658,10 +669,10 @@ ACE_Singleton<DiameterCCServerStateTable_S, ACE_Recursive_Thread_Mutex>
 DiameterCCServerStateTable;
 
 DiameterCCServerStateMachine::DiameterCCServerStateMachine
-(DiameterCCServerSession& s, DiameterCCJobHandle &h)
-  : AAA_StateMachine<DiameterCCServerStateMachine>
+(DiameterCCServerSession& s, DiameterCCJobHandle &h, ACE_Reactor &reactor)
+  : AAA_StateMachineWithTimer<DiameterCCServerStateMachine>
 (*this, *DiameterCCServerStateTable::instance(), 
- "AAA_CC_SERVER"),
+ reactor, "AAA_CC_SERVER"),
     session(s),
     handle(h)
 {

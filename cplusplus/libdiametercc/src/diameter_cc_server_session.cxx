@@ -42,7 +42,9 @@
 DiameterCCServerSession::DiameterCCServerSession
   (DiameterCCApplication &ccApplication, diameter_unsigned32_t appId)
     : AAAServerSession(ccApplication, appId),
-      DiameterCCServerStateMachine(*this, ccApplication.GetTask().JobHandle()),
+      DiameterCCServerStateMachine(*this, 
+                                   ccApplication.GetTask().JobHandle(),
+                                   *(ccApplication.GetTask().reactor())),
       diameterCCApplication(ccApplication),
       requestHandler(CCR_Handler(ccApplication, *this))
 

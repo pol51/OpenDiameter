@@ -47,8 +47,7 @@
 #include "diameter_api.h"
 #include "diameter_cc_parser.h"
 #include "diameter_cc_client_session.h"
-
-class DiameterCCClientApplication;
+#include "diameter_cc_application.h"
 
 typedef AAA_JobHandle<AAA_GroupedJob> CCJobHandle;
 
@@ -66,13 +65,10 @@ class CCTask : public AAA_Task
 class CCClientSession : public DiameterCCClientSession
 {
  public:
-  CCClientSession(AAAApplicationCore & ccApp, CCJobHandle h) 
+  CCClientSession(DiameterCCApplication & ccApp, CCJobHandle h) 
     : DiameterCCClientSession(ccApp, h)
   {}
 
-  /// This virtual function is called when a NASREQ client session is
-  /// aborted due to enqueue failure of a job or an event inside
-  /// Diametger NASREQ client state machine.
   void Abort();
 
   void SignalContinue(DiameterCCAccount&);
@@ -95,29 +91,33 @@ class CCClientSession : public DiameterCCClientSession
   void SetDestinationHost
   (DiameterScholarAttribute<diameter_utf8string_t> &host);
 
-  void SendInitialRequest();
+  void SendInitialRequest(subscriptionId_t& subscriptionId);
 
   bool InitialRequest();
 
   bool InitialAnswer();
 
+
   void SendTerminationRequest();
 
   bool TerminationRequest();
 
-  void SendDirectDebitingRequest();
+
+  void SendDirectDebitingRequest(subscriptionId_t& subscriptionId);
 
   bool DirectDebitingRequest();
 
   bool DirectDebitingAnswer();
 
-  void SendCheckBalanceRequest();
+
+  void SendCheckBalanceRequest(subscriptionId_t& subscriptionId);
 
   bool CheckBalanceRequest();
 
   bool CheckBalanceAnswer();
 
-  void SendRefundAccountRequest();
+
+  void SendRefundAccountRequest(subscriptionId_t& subscriptionId);
 
   bool RefundAccountRequest();
 
@@ -163,8 +163,11 @@ CCClientSession::SignalReauthentication()
 }
 
 void
-CCClientSession::SendInitialRequest()
+CCClientSession::SendInitialRequest(subscriptionId_t& subscriptionId)
 {
+  ACE_DEBUG((LM_DEBUG, "(%P|%t) Notify Intial Request\n"));
+  std::vector<subscriptionId_t> vec(1, subscriptionId);
+  ccrData.SubscriptionId = vec;
   Notify(EvInitialRequest);
 }
 
@@ -177,19 +180,15 @@ CCClientSession::InitialRequest()
 
   ccrData.CCRequestNumber = 0;
   
-  std::vector<subscriptionId_t> vec(1, subscriptionId_t(0,"1"));
-  ccrData.SubscriptionId = vec;
-
-
   AAA_LOG((LM_DEBUG, "(%P|%t) \tRequested %d Service Units.\n",50 ));   
   unitValue_t unitValue (50, 0);
   ccMoney_t ccMoney(unitValue,840);
   requestedServiceUnit_t requestedServiceUnits(0,ccMoney);
 
   ccrData.RequestedServiceUnit = requestedServiceUnits;  
- 
-  DiameterCCClientSession::InitialRequest(); 
 
+  DiameterCCClientStateMachine::InitialRequest();
+  
   return true;
 }
 
@@ -203,6 +202,8 @@ CCClientSession::InitialAnswer()
  
   AAA_LOG((LM_DEBUG, "(%P|%t) \tGranted %d Service Units.\n",valueDigits ));
 
+  DiameterCCClientStateMachine::InitialAnswer();
+
   SendTerminationRequest();
   return true;  
 
@@ -211,6 +212,7 @@ CCClientSession::InitialAnswer()
 void
 CCClientSession::SendTerminationRequest()
 {
+  ACE_DEBUG((LM_DEBUG, "(%P|%t) Notify Termination Request\n"));
   Notify(EvTerminationRequest);
 }
 
@@ -222,9 +224,6 @@ CCClientSession::TerminationRequest()
   ccrData.CCRequestType = CC_TYPE_TERMINATION_REQUEST;
 
   ccrData.CCRequestNumber = 2;
-
-  std::vector<subscriptionId_t> vec(1, subscriptionId_t(0,"1"));
-  ccrData.SubscriptionId = vec;
 
   unitValue_t unitValue (20, 0);
   ccMoney_t ccMoney(unitValue,840); 
@@ -239,8 +238,11 @@ CCClientSession::TerminationRequest()
 }
 
 void
-CCClientSession::SendRefundAccountRequest()
+CCClientSession::SendRefundAccountRequest(subscriptionId_t& subscriptionId)
 {
+  ACE_DEBUG((LM_DEBUG, "(%P|%t) Notify Refund Account Request\n"));
+  std::vector<subscriptionId_t> vec(1, subscriptionId);
+  ccrData.SubscriptionId = vec;
   Notify(EvRefundAccountRequest);
 }
 
@@ -252,10 +254,6 @@ CCClientSession::RefundAccountRequest()
   ccrData.CCRequestType = 4;
   ccrData.RequestedAction = CC_ACTION_REFUND_ACCOUNT;
   ccrData.CCRequestNumber = 0;
-
-  std::vector<subscriptionId_t> vec(1, subscriptionId_t(0,"1"));
-  ccrData.SubscriptionId = vec;
-
 
   AAA_LOG((LM_DEBUG, "(%P|%t) \tRefund %d Service Units to the Account.\n",40 ));   
   unitValue_t unitValue (40, 0);
@@ -284,8 +282,11 @@ CCClientSession::RefundAccountAnswer()
 }
 
 void
-CCClientSession::SendDirectDebitingRequest()
+CCClientSession::SendDirectDebitingRequest(subscriptionId_t& subscriptionId)
 {
+  ACE_DEBUG((LM_DEBUG, "(%P|%t) Notify Direct Debiting Request\n"));
+  std::vector<subscriptionId_t> vec(1, subscriptionId);
+  ccrData.SubscriptionId = vec;
   Notify(EvDirectDebitingRequest);
 }
 
@@ -297,10 +298,6 @@ CCClientSession::DirectDebitingRequest()
   ccrData.CCRequestType = 4;
   ccrData.RequestedAction = CC_ACTION_DIRECT_DEBITING;
   ccrData.CCRequestNumber = 0;
-
-  std::vector<subscriptionId_t> vec(1, subscriptionId_t(0,"1"));
-  ccrData.SubscriptionId = vec;
-
 
   AAA_LOG((LM_DEBUG, "(%P|%t) \tDirect Debit %d Service Units.\n",20 ));   
   unitValue_t unitValue (20, 0);
@@ -329,8 +326,11 @@ CCClientSession::DirectDebitingAnswer()
 }
 
 void
-CCClientSession::SendCheckBalanceRequest()
+CCClientSession::SendCheckBalanceRequest(subscriptionId_t& subscriptionId)
 {
+  ACE_DEBUG((LM_DEBUG, "(%P|%t) Notify Check Balance Request\n"));
+  std::vector<subscriptionId_t> vec(1, subscriptionId);
+  ccrData.SubscriptionId = vec;
   Notify(EvCheckBalanceRequest);
 }
 
@@ -343,10 +343,6 @@ CCClientSession::CheckBalanceRequest()
   ccrData.RequestedAction = CC_ACTION_CHECK_BALANCE;
   ccrData.CCRequestNumber = 0;
   
-  std::vector<subscriptionId_t> vec(1, subscriptionId_t(0,"1"));
-  ccrData.SubscriptionId = vec;
-
-
   AAA_LOG((LM_DEBUG, "(%P|%t) \t Check Balance for %d Service Units.\n",50 ));   
   unitValue_t unitValue (50, 0);
   ccMoney_t ccMoney(unitValue,840);
@@ -369,7 +365,6 @@ CCClientSession::CheckBalanceAnswer()
   AAA_LOG((LM_DEBUG, "(%P|%t) \tNo Credit.\n"));
 
   return true;  
-
 }
 
 void 
@@ -389,12 +384,12 @@ CCClientSession::SetDestinationRealm
 class DiameterCCClientApplication : public AAA_JobData
 {
  public:
-  DiameterCCClientApplication(CCTask &task, AAAApplicationCore& appCore,
+  DiameterCCClientApplication(CCTask &task, DiameterCCApplication& diameterCCApplication,
                               ACE_Semaphore &sem)
     : handle(CCJobHandle
-             (AAA_GroupedJob::Create(appCore.GetTask().Job(), this, "DiameterCCClientApplication"))),
+             (AAA_GroupedJob::Create(diameterCCApplication.GetTask().Job(), this, "DiameterCCClientApplication"))),
       ccClientSession(boost::shared_ptr<CCClientSession>
-                      (new CCClientSession(appCore, handle))),
+                      (new CCClientSession(diameterCCApplication, handle))),
       semaphore(sem)
   {
     semaphore.acquire();
@@ -406,27 +401,25 @@ class DiameterCCClientApplication : public AAA_JobData
   { 
     ccClientSession->Start();     
   }
-  void SendInitialRequest()
+  void SendInitialRequest(subscriptionId_t& subscriptionId)
   {
-    ccClientSession->SendInitialRequest();
+    ccClientSession->SendInitialRequest(subscriptionId);
   }
 
-  void SendDirectDebitingRequest()
+  void SendDirectDebitingRequest(subscriptionId_t& subscriptionId)
   {
-    ccClientSession->SendDirectDebitingRequest();
+    ccClientSession->SendDirectDebitingRequest(subscriptionId);
   }
 
-  void SendRefundAccountRequest()
+  void SendRefundAccountRequest(subscriptionId_t& subscriptionId)
   {
-    ccClientSession->SendRefundAccountRequest();
+    ccClientSession->SendRefundAccountRequest(subscriptionId);
   }
 
-  void SendCheckBalanceRequest()
+  void SendCheckBalanceRequest(subscriptionId_t& subscriptionId)
   {
-    ccClientSession->SendCheckBalanceRequest();
+    ccClientSession->SendCheckBalanceRequest(subscriptionId);
   }
-
-
   
   CCClientSession& getCCClientSession() { return *ccClientSession; }
 
@@ -441,8 +434,8 @@ class DiameterCCClientApplication : public AAA_JobData
 class CCInitializer
 {
  public:
-  CCInitializer(CCTask &t, AAAApplicationCore &ccApp) 
-    : task(t), ccApplication(ccApp)
+  CCInitializer(CCTask &t, DiameterCCApplication &ccApplication) 
+    : task(t), diameterCCApplication(ccApplication)
   {
     Start();
   }
@@ -478,44 +471,70 @@ class CCInitializer
   void InitCCApplication()
   {
     ACE_DEBUG((LM_DEBUG, "(%P|%t) Application starting\n"));
-    if (ccApplication.Open("config/client.local.xml",
-                           task) != AAA_ERR_SUCCESS)
+    if (diameterCCApplication.Open("config/client.local.xml",
+                                   task) != AAA_ERR_SUCCESS)
       {
         AAA_LOG((LM_ERROR, "(%P|%t) Can't open configuraiton file."));
         exit(1);
       }
+    subscriptionId_t subscriptionId;
+    unitValue_t unitValue (0, 0);
+    ccMoney_t ccMoney(unitValue,840);
+    requestedServiceUnit_t balanceunits(0,ccMoney);
+
+    subscriptionId = subscriptionId_t(0,"1"); //END_USER_E164
+    AAA_LOG((LM_DEBUG, 
+             "(%P|%t) Account for Subscription Id 1 setup for Continue for Credit Control Failure Handling.\n")); 
+    diameterCCApplication.addAccount(subscriptionId, 
+                                     balanceunits,
+                                     CREDIT_CONTROL_FAILURE_HANDLING_CONTINUE);
+
+    subscriptionId =  subscriptionId_t(0,"2"); //END_USER_E164
+    AAA_LOG((LM_DEBUG, 
+             "(%P|%t) Account for Subscription Id 2 setup for Terminate for Credit Control Failure Handling.\n"));
+    diameterCCApplication.addAccount(subscriptionId, 
+                                     balanceunits,
+                                     CREDIT_CONTROL_FAILURE_HANDLING_TERMINATE);
+   
+    
   }
+
   CCTask &task;
-  AAAApplicationCore &ccApplication;
+  DiameterCCApplication &diameterCCApplication;
 };
 
 int
 main(int argc, char *argv[])
 {
   CCTask task;
-  AAAApplicationCore ccApplication;
-  CCInitializer initializer(task, ccApplication);
+  DiameterCCApplication diameterCCApplication;
+  CCInitializer initializer(task, diameterCCApplication);
 
   ACE_Semaphore semaphore;
 
-  std::auto_ptr<DiameterCCClientApplication> clientApp 
+  std::auto_ptr<DiameterCCClientApplication> clientApp
     = std::auto_ptr<DiameterCCClientApplication>
-	(new DiameterCCClientApplication(task, ccApplication, semaphore));
+	(new DiameterCCClientApplication(task, diameterCCApplication, semaphore));
   clientApp->Start();
   do {
     ACE_DEBUG((LM_INFO, "(%P|%t) Waiting till this AAA has connectivity\n"));
     ACE_OS::sleep(1);
-  } while (ccApplication.GetNumActivePeerConnections() == 0);
+  } while (diameterCCApplication.GetNumActivePeerConnections() == 0);
 
-  clientApp->SendInitialRequest();
+  subscriptionId_t subscriptionId;
+  subscriptionId = subscriptionId_t(0,"1"); //END_USER_E164
+
+  clientApp->SendInitialRequest(subscriptionId);
+  sleep (13);
+  clientApp->SendDirectDebitingRequest(subscriptionId);
   sleep (10);
-  clientApp->SendDirectDebitingRequest();
+  clientApp->SendRefundAccountRequest(subscriptionId);
   sleep (10);
-  clientApp->SendRefundAccountRequest();
+  clientApp->SendCheckBalanceRequest(subscriptionId);
   sleep (10);
-  clientApp->SendCheckBalanceRequest();
-  sleep (10);
-  clientApp->SendInitialRequest();
+
+  subscriptionId = subscriptionId_t(0,"2"); //END_USER_E164
+  clientApp->SendInitialRequest(subscriptionId);
 
   semaphore.acquire();
 

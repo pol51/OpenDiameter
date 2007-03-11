@@ -33,12 +33,17 @@
 
 #include "diameter_parser.h"
 #include "diameter_cc_client_session.h"
+#include "diameter_cc_application.h"
 
 DiameterCCClientSession::DiameterCCClientSession
-(AAAApplicationCore &appCore, DiameterJobHandle &h)
-  : AAAClientSession(appCore, CCApplicationId),
-    DiameterCCClientStateMachine(*this, h),
-    ccaHandler(CCA_Handler(appCore, *this))
+(DiameterCCApplication &ccApplication, DiameterJobHandle &h)
+  : AAAClientSession(ccApplication, CCApplicationId),
+    DiameterCCClientStateMachine(*this, 
+                                 h,
+                                 *(ccApplication.GetTask().reactor())),
+    diameterCCApplication(ccApplication),
+    ccaHandler(CCA_Handler(ccApplication, *this))
+
 {
   // Register the DEA message handler
   if (RegisterMessageHandler(&ccaHandler) != AAA_ERR_SUCCESS)
@@ -86,6 +91,33 @@ DiameterCCClientSession::HandleTimeout()
   AAA_LOG((LM_ERROR, "[%N] Session timeout received.\n"));
   Notify(DiameterCCClientStateMachine::EvSgTimeout);
   return AAA_ERR_SUCCESS; 
+}
+
+bool 
+DiameterCCClientSession::CreditControlFailureHandling()
+{
+  std::vector<subscriptionId_t>& vec = ccrData.SubscriptionId();
+  DiameterCCAccount account = diameterCCApplication.getAccount(vec[0]); 
+
+  AAA_LOG((LM_DEBUG, "(%P|%t) CreditControlFailureHandling %d.\n",
+           account.CreditControlFailureHandling()));
+
+  switch(account.CreditControlFailureHandling())
+    {
+    case CREDIT_CONTROL_FAILURE_HANDLING_TERMINATE:
+      Notify(DiameterCCClientStateMachine::EvTerminateService);
+      break;
+    case CREDIT_CONTROL_FAILURE_HANDLING_CONTINUE:
+    case CREDIT_CONTROL_FAILURE_HANDLING_RETRY_AND_TERMINATE:
+      Notify(DiameterCCClientStateMachine::EvGrantService);
+      break;
+    }      
+}
+
+DiameterCCApplication& 
+DiameterCCClientSession:: DiameterCCApp()
+{
+  return diameterCCApplication;
 }
 
 AAAReturnCode 

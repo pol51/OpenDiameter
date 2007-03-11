@@ -51,14 +51,19 @@ public:
   {}
 
   DiameterCCAccount(const subscriptionId_t& subscriptionid,
-                    const requestedServiceUnit_t& balanceunits)
-    : subscriptionId(subscriptionid), balanceUnits(balanceunits)
-  {}
+                    const requestedServiceUnit_t& balanceunits,
+                    const CreditControlFailureHandlingEnum& creditControlFailureHandlingEnum)
+    : subscriptionId(subscriptionid), 
+      balanceUnits(balanceunits),
+      ccFailureHandling(creditControlFailureHandlingEnum)
+  {
+  }
 
   DiameterCCAccount operator = (const DiameterCCAccount& b)
   {
     subscriptionId = b.subscriptionId;
     balanceUnits = b.balanceUnits;
+    ccFailureHandling = b.ccFailureHandling;
     return *this;
   }
 
@@ -87,12 +92,24 @@ public:
     reservedUnits = reservedUnit;
   }
 
+  CreditControlFailureHandlingEnum& CreditControlFailureHandling()
+  { 
+    return ccFailureHandling;
+  }
+
+  void CreditControlFailureHandling(const CreditControlFailureHandlingEnum& creditControlFailureHandlingEnum)
+  { 
+    ccFailureHandling = creditControlFailureHandlingEnum;
+  }
+
 protected:
   subscriptionId_t subscriptionId;
-
+  
   requestedServiceUnit_t balanceUnits;
-
+  
   requestedServiceUnit_t reservedUnits;
+  
+  CreditControlFailureHandlingEnum ccFailureHandling;
 };
 
 #endif

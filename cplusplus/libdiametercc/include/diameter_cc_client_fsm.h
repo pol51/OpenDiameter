@@ -63,19 +63,21 @@ typedef AAA_JobHandle<AAA_GroupedJob> DiameterJobHandle;
 class DiameterCCClientSession;
 
 class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientStateMachine 
-  : public AAA_StateMachine<DiameterCCClientStateMachine>,
+  : public AAA_StateMachineWithTimer<DiameterCCClientStateMachine>,
     public AAA_EventQueueJob
 {
   friend class DiameterJobMultiplexor;
 
  public:
   /// Constructor.
-  DiameterCCClientStateMachine(DiameterCCClientSession& s,
-                               DiameterJobHandle &h);
+  DiameterCCClientStateMachine(DiameterCCClientSession& s,                               
+                               DiameterJobHandle &h,
+                               ACE_Reactor &reactor);
   
   ~DiameterCCClientStateMachine() 
   {
-    handle.Job().Remove(this); 
+    handle.Job().Remove(this);
+    AAA_StateMachineWithTimer<DiameterCCClientStateMachine>::Stop(); 
   }
 
   enum {
@@ -99,7 +101,6 @@ class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientStateMachine
     EvRARReceived,
     EvUpdateAnswer,
     EvTccExpired,
-
 
     EvFailure,
 
@@ -136,7 +137,11 @@ class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientStateMachine
     if (handle.Job().Schedule(this) < 0)
       Abort();
   }
-
+  
+  virtual void Timeout(AAA_Event ev) {
+    Notify(ev);
+  }
+  
   inline DiameterCCClientSession& Session() { return session; }
 
   /// This is used for aborting the state machine.  Usually called
@@ -148,7 +153,7 @@ class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientStateMachine
   
   virtual bool InitialRequest();
 
-  virtual bool InitialAnswer(){return true;}
+  virtual bool InitialAnswer();
 
   virtual bool TerminationRequest();
 
@@ -169,6 +174,10 @@ class DIAMETER_CC_CLIENT_EXPORTS DiameterCCClientStateMachine
   virtual bool PriceEnquiryRequest();
 
   virtual bool PriceEnquiryAnswer(){return true;}
+
+  virtual bool TxExpired();
+  
+  virtual bool CreditControlFailureHandling(){return true;}
 
   /// This virtual function is called when a continuation of the
   /// authentication is signaled to the application.
