@@ -49,7 +49,7 @@
 
 class CCServerSession : public DiameterCCServerSession
 {
- public:
+public:
   CCServerSession(DiameterCCApplication& ccApp,
                   diameter_unsigned32_t appId=CCApplicationId) 
     : DiameterCCServerSession(ccApp, appId)
@@ -253,14 +253,14 @@ CCServerSession::CheckBalanceRequest()
 }
 
 
-class CCServerSessionClassFactory : 
+class DiameterCCServerSessionFactory : 
   public AAAServerSessionFactory
 {
-    public:
-  CCServerSessionClassFactory(DiameterCCApplication &c,
-                              diameter_unsigned32_t appId) : 
-    AAAServerSessionFactory(c.GetTask(), appId),
-    m_Core(c)
+public:
+  DiameterCCServerSessionFactory(DiameterCCApplication &diameterCCApp,
+                                 diameter_unsigned32_t appId) : 
+    AAAServerSessionFactory(diameterCCApp.GetTask(), appId),
+    diameterCCApplication(diameterCCApp)
     
   {
   }
@@ -268,19 +268,18 @@ class CCServerSessionClassFactory :
   DiameterSessionIO *CreateInstance() 
   {        
     CCServerSession *s = new CCServerSession
-      (m_Core, GetApplicationId());
+      (diameterCCApplication, GetApplicationId());
     return s->IO();
   }
   
 private:
-  DiameterCCApplication &m_Core;
+  DiameterCCApplication &diameterCCApplication;
 };
 
-typedef CCServerSessionClassFactory CCServerFactory;
 
 class CCInitializer
 {
- public:
+public:
   CCInitializer(AAA_Task &t, DiameterCCApplication &diameterCCApp) 
     : task(t), diameterCCApplication(diameterCCApp)
   {
@@ -292,42 +291,39 @@ class CCInitializer
     Stop();
   }
 
- private:
+private:
 
   void Start()
   {
     InitTask();
     InitCCApplication();
-    ccServerFactory = std::auto_ptr<CCServerFactory>
-      (new CCServerFactory(diameterCCApplication, CCApplicationId));
-    diameterCCApplication.RegisterServerSessionFactory(ccServerFactory.get());
+    diameterCCServerSessionFactory = std::auto_ptr<DiameterCCServerSessionFactory>
+      (new DiameterCCServerSessionFactory(diameterCCApplication, CCApplicationId));
+    diameterCCApplication.RegisterServerSessionFactory(diameterCCServerSessionFactory.get());
   }
 
   void Stop() {}
 
   void InitTask()
   {
-     try {
-        task.Start(10);
-     }
-     catch (...) {
-        ACE_ERROR((LM_ERROR, "(%P|%t) Server: Cannot start task\n"));
-        exit(1);
-     }
+    try {
+      task.Start(10);
+    }
+    catch (...) {
+      ACE_ERROR((LM_ERROR, "(%P|%t) Server: Cannot start task\n"));
+      exit(1);
+    }
   }
   void InitCCApplication()
   {
     AAA_LOG((LM_DEBUG, "(%P|%t) Application starting\n"));
     if (diameterCCApplication.Open("config/server.local.xml",
-                   task) != AAA_ERR_SUCCESS)
+                                   task) != AAA_ERR_SUCCESS)
       {
         AAA_LOG((LM_ERROR, "(%P|%t) Can't open configuraiton file."));
         exit(1);
       }
-    
-
-    //subscriptionId_t subscriptionId(0,"1"); //END_USER_E164
-
+ 
     subscriptionId_t subscriptionId;
     unitValue_t unitValue;
     ccMoney_t ccMoney;
@@ -359,11 +355,25 @@ class CCInitializer
     diameterCCApplication.addAccount(subscriptionId, 
                                      balanceunits,
                                      CREDIT_CONTROL_FAILURE_HANDLING_TERMINATE);
+
+    subscriptionId = subscriptionId_t(0,"3"); //END_USER_E164
+    unitValue = unitValue_t(300, 0);
+    ccMoney = ccMoney_t(unitValue,840);
+    balanceunits = requestedServiceUnit_t(0,ccMoney);
+
+    AAA_LOG((LM_DEBUG, 
+             "(%P|%t) Account has %d Balance Units.\n",
+             unitValue.ValueDigits() ));
+
+
+    diameterCCApplication.addAccount(subscriptionId, 
+                                     balanceunits,
+                                     CREDIT_CONTROL_FAILURE_HANDLING_TERMINATE);
   }
 
   AAA_Task &task;
   DiameterCCApplication &diameterCCApplication;
-  std::auto_ptr<CCServerFactory> ccServerFactory;
+  std::auto_ptr<DiameterCCServerSessionFactory> diameterCCServerSessionFactory;
 };
 
 int
@@ -374,7 +384,7 @@ main(int argc, char *argv[])
   CCInitializer initializer(ccTask, diameterCCApplication);
 
   while (1) 
-      ACE_OS::sleep(1);
+    ACE_OS::sleep(1);
   return 0;
 }
 
