@@ -429,7 +429,6 @@ class PANA_EXPORT PANA_PaaSession : public
       virtual void EapFailure(AAAMessageBlock *req = 0);
       virtual void EapTimeout();
       virtual void EapReAuthenticate();
-      virtual void Update(ACE_INET_Addr &addr);
       virtual void Ping();
       virtual void Stop();
 

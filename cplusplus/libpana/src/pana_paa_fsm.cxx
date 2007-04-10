@@ -1041,87 +1041,155 @@ class PANA_PsmRxPCI : public PANA_ServerRxStateFilter
       }
 };
 
-class PANA_PsmRxPSA : public PANA_ServerRxStateFilter
+class PANA_PsmRxPA : public PANA_ServerRxStateFilter
 {
    public:
-      PANA_PsmRxPSA(PANA_Paa &a, PANA_PaaSession &s) :
+      PANA_PsmRxPA(PANA_Paa &a, PANA_PaaSession &s) :
           PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_OFFLINE };
+          static PANA_ST validStates[] = { PANA_ST_OFFLINE,
+                                           PANA_ST_WAIT_PAN_OR_PAR,
+                                           PANA_ST_OPEN }
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
       virtual void HandleMessage(PANA_Message &msg) {
-          // first level validation
-          if (msg.flags().request) {
-             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
-                    "PSR recevied, invalid message"));
-          }
 
-          // second level validation
-          m_arg.RxValidateMsg(msg);
-
-          // save last received header
-          m_arg.LastRxHeader() = msg;
-
-          // resolve the event
           PANA_PaaEventVariable ev;
-          ev.MsgType(PANA_EV_MTYPE_PSA);
-          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
+          ev.MsgType(PANA_EV_MTYPE_PAR);
 
-          m_Session.Notify(ev.Get());
-      }
-      virtual PANA_ServerRxStateFilter *clone() {
-          return (new PANA_PsmRxPSA(*this));
-      }
-};
-
-class PANA_PsmRxPBA : public PANA_ServerRxStateFilter
-{
-   public:
-      PANA_PsmRxPBA(PANA_Paa &a, PANA_PaaSession &s) :
-          PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_SUCC_PBA,
-                                           PANA_ST_WAIT_FAIL_PBA };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-          // first level validation
-          if (msg.flags().request) {
-             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
-                    "PBR message with request flag set, invalid message"));
+          if (msg.flags().auth ||
+              msg.flags().ping ||
+              msg.flags().error) {
+              throw (PANA_Exception(PANA_Exception::AAA_INVALID_BIT_IN_HEADER,
+                     "PA recevied, invalid flag settings"));
           }
-
-          // second level validation
-          m_arg.RxValidateMsg(msg);
-
-          // save last received header
-          m_arg.LastRxHeader() = msg;
-
-          // resolve the event
-          PANA_PaaEventVariable ev;
-          ev.MsgType(PANA_EV_MTYPE_PBA);
+          else if (msg.flags().start) {
+              HandleStart(msg, ev);
+          }
+          else if (msg.flags().complete) {
+              HandleComplete(msg, ev);
+          }
+          else {
+              HandleNormal(msg, ev);
+          }
 
           m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
           m_Session.Notify(ev.Get());
       };
       virtual PANA_ServerRxStateFilter *clone() {
-          return (new PANA_PsmRxPBA(*this));
+          return (new PANA_PsmRxPA(*this));
+      }
+
+   protected:
+      virtual void HandleStart(PANA_Message &msg,
+                               PANA_PaaEventVariable &ev) {
+          // first level validation
+          if (msg.flags().request) {
+             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                    "PAR-Start recevied, invalid message"));
+          }
+
+          // second level validation
+          m_arg.RxValidateMsg(msg);
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve event
+          ev.FlagStart() = true;
+      }
+      virtual void HandleComplete(PANA_Message &msg,
+                                  PANA_PaaEventVariable &ev) {
+          // first level validation
+          if (msg.flags().request) {
+             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                    "PAR-Complete message with request flag set, invalid message"));
+          }
+
+          // second level validation
+          m_arg.RxValidateMsg(msg);
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve event
+          ev.FlagComplete() = true;
+      }
+      virtual void HandleNormal(PANA_Message &msg,
+                                PANA_PaaEventVariable &ev) {
+          // first level validation
+          m_arg.RxValidateMsg(msg);
+
+          // save address of PaC
+          if (msg.flags().request) {
+              m_arg.PacAddress() = msg.srcAddress();
+          }
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve the event
+          ev.MsgType(msg.flags().request ?
+                     PANA_EV_MTYPE_PAR : PANA_EV_MTYPE_PAN);
+          if (! msg.flags().request) {
+              PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+              pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+              if (payload) {
+                  ev.AvpExist_EapPayload();
+              }
+          }
       }
 };
 
-class PANA_PsmRxPRR : public PANA_ServerRxStateFilter
+class PANA_PsmRxPN : public PANA_ServerRxStateFilter
 {
    public:
-      PANA_PsmRxPRR(PANA_Paa &a, PANA_PaaSession &s) :
+      PANA_PsmRxPN(PANA_Paa &a, PANA_PaaSession &s) :
           PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_OPEN,
-                                           PANA_ST_WAIT_EAP_MSG };
+          static PANA_ST validStates[] = { PANA_ST_WAIT_SUCC_PBA,
+                                           PANA_ST_WAIT_PNA,
+                                           PANA_ST_WAIT_PAN_OR_PAR,
+                                           PANA_ST_WAIT_FAIL_PBA,
+                                           PANA_ST_OPEN,
+                                           PANA_ST_WAIT_EAP_MSG,
+                                           PANA_ST_SESS_TERM,
+                                           PANA_ST_CLOSED };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
       virtual void HandleMessage(PANA_Message &msg) {
+
+          PANA_PaaEventVariable ev;
+          ev.MsgType(PANA_EV_MTYPE_PNR);
+
+          if (msg.flags().start ||
+              msg.flags().complete) {
+              throw (PANA_Exception(PANA_Exception::AAA_INVALID_BIT_IN_HEADER,
+                     "PN recevied, invalid flag settings"));
+          }
+          else if (msg.flags().auth) {
+              HandleAuth(msg, ev);
+          }
+          else if (msg.flags().ping) {
+              HandlePing(msg, ev);
+          }
+          else if (msg.flags().error) {
+              HandleError(msg, ev);
+          }
+
+          // post the event
+          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
+          m_Session.Notify(ev.Get());
+      };
+      virtual PANA_ServerRxStateFilter *clone() {
+          return (new PANA_PsmRxPN(*this));
+      }
+
+   protected:
+      virtual void HandleAuth(PANA_Message &msg,
+                               PANA_PaaEventVariable &ev) {
           // first level validation
           if (! msg.flags().request) {
              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
-                    "PRA message with request flag set, invalid message"));
+                    "PNR-Auth message with request flag set, invalid message"));
           }
 
           // second level validation
@@ -1134,13 +1202,45 @@ class PANA_PsmRxPRR : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve the event
-          PANA_PaaEventVariable ev;
-          ev.MsgType(PANA_EV_MTYPE_PRR);
+          ev.FlagAuth() = true;
+      }
+      virtual void HandlePing(PANA_Message &msg,
+                              PANA_PaaEventVariable &ev) {
+          // first level validation
+          m_arg.RxValidateMsg(msg);
+
+          // save address of PaC
+          if (msg.flags().request) {
+              m_arg.PacAddress() = msg.srcAddress();
+          }
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve the event
+          ev.FlagPing() = true;
+      }
+      virtual void HandleError(PANA_Message &msg,
+                               PANA_PaaEventVariable &ev) {
+          // first level validation
+          m_arg.RxValidateMsg(msg);
+
+          // save address of PaC
+          if (msg.flags().request) {
+              m_arg.PacAddress() = msg.srcAddress();
+          }
+
+          // tell the session
           m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-          m_Session.Notify(ev.Get());
-      };
-      virtual PANA_ServerRxStateFilter *clone() {
-          return (new PANA_PsmRxPRR(*this));
+          m_arg.RxPNRError();
+
+          // resolve the event
+          if (msg.flags().request) {
+              if (m_arg.IsFatalError()) {
+                  ev.Do_FatalError();
+              }
+          }
+          ev.FlagError() = true;
       }
 };
 
@@ -1177,207 +1277,27 @@ class PANA_PsmRxPT : public PANA_ServerRxStateFilter
       }
 };
 
-class PANA_PsmRxPU : public PANA_ServerRxStateFilter
-{
-   public:
-      PANA_PsmRxPU(PANA_Paa &a, PANA_PaaSession &s) :
-          PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_OPEN,
-                                           PANA_ST_WAIT_PUA };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-          // msg validation
-          m_arg.RxValidateMsg(msg);
-
-          // save address of PaC
-          if (msg.flags().request) {
-              m_arg.PacAddress() = msg.srcAddress();
-          }
-
-          // save last received header
-          m_arg.LastRxHeader() = msg;
-
-          // resolve the event
-          PANA_PaaEventVariable ev;
-          if (msg.flags().request) {
-              ev.MsgType(PANA_EV_MTYPE_PUR);
-          }
-          else {
-              ev.MsgType(PANA_EV_MTYPE_PUA);
-          }
-
-          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-          m_Session.Notify(ev.Get());
-      };
-      virtual PANA_ServerRxStateFilter *clone() {
-          return (new PANA_PsmRxPU(*this));
-      }
-};
-
-class PANA_PsmRxPP : public PANA_ServerRxStateFilter
-{
-   public:
-      PANA_PsmRxPP(PANA_Paa &a, PANA_PaaSession &s) :
-          PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_OPEN,
-                                           PANA_ST_WAIT_PPA };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-          // first level validation
-          m_arg.RxValidateMsg(msg);
-
-          // save address of PaC
-          if (msg.flags().request) {
-              m_arg.PacAddress() = msg.srcAddress();
-          }
-
-          // save last received header
-          m_arg.LastRxHeader() = msg;
-
-          // resolve the event
-          PANA_PaaEventVariable ev;
-          ev.MsgType(msg.flags().request ?
-                     PANA_EV_MTYPE_PPR : PANA_EV_MTYPE_PPA);
-          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-          m_Session.Notify(ev.Get());
-      };
-      virtual PANA_ServerRxStateFilter *clone() {
-          return (new PANA_PsmRxPP(*this));
-      }
-};
-
-class PANA_PsmRxPA : public PANA_ServerRxStateFilter
-{
-   public:
-      PANA_PsmRxPA(PANA_Paa &a, PANA_PaaSession &s) :
-          PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_PAN_OR_PAR };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-          // first level validation
-          m_arg.RxValidateMsg(msg);
-
-          // save address of PaC
-          if (msg.flags().request) {
-              m_arg.PacAddress() = msg.srcAddress();
-          }
-
-          // save last received header
-          m_arg.LastRxHeader() = msg;
-
-          // resolve the event
-          PANA_PaaEventVariable ev;
-          ev.MsgType(msg.flags().request ?
-                     PANA_EV_MTYPE_PAR : PANA_EV_MTYPE_PAN);
-          if (! msg.flags().request) {
-              PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-              pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
-              if (payload) {
-                  ev.AvpExist_EapPayload();
-              }
-          }
-          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-          m_Session.Notify(ev.Get()); 
-      };
-      virtual PANA_ServerRxStateFilter *clone() {
-          return (new PANA_PsmRxPA(*this));
-      }
-};
-
-class PANA_PsmRxPE : public PANA_ServerRxStateFilter
-{
-   public:
-      PANA_PsmRxPE(PANA_Paa &a, PANA_PaaSession &s) :
-          PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_SUCC_PBA,
-                                           PANA_ST_WAIT_PEA,
-                                           PANA_ST_WAIT_PAN_OR_PAR,
-                                           PANA_ST_WAIT_FAIL_PBA,
-                                           PANA_ST_WAIT_PEA,
-                                           PANA_ST_OPEN,
-                                           PANA_ST_WAIT_EAP_MSG,
-                                           PANA_ST_WAIT_PPA,
-                                           PANA_ST_WAIT_PAN_OR_PAR,
-                                           PANA_ST_SESS_TERM,
-                                           PANA_ST_CLOSED };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-          // first level validation
-          m_arg.RxValidateMsg(msg);
-
-          // save address of PaC
-          if (msg.flags().request) {
-              m_arg.PacAddress() = msg.srcAddress();
-          }
-
-          // tell the session
-          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-          m_arg.RxPER();
-
-          // resolve the event
-          PANA_PaaEventVariable ev;
-          if (msg.flags().request) {
-              ev.MsgType(PANA_EV_MTYPE_PER);
-              if (m_arg.IsFatalError()) {
-                  ev.Do_FatalError();
-              }
-          }
-          else {
-              ev.MsgType(PANA_EV_MTYPE_PEA);
-          }
-          m_Session.Notify(ev.Get());
-      };
-      virtual PANA_ServerRxStateFilter *clone() {
-          return (new PANA_PsmRxPE(*this));
-      }
-};
-
 void PANA_PaaSession::InitializeMsgMaps()
 {
    PANA_PsmRxPCI PCI(m_PAA, *this);
    m_MsgHandlers.Register(PANA_MTYPE_PCI, PCI);
 
-   PANA_PsmRxPSA PSA(m_PAA, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PSA, PSA);
-
    PANA_PsmRxPA PA(m_PAA, *this);
    m_MsgHandlers.Register(PANA_MTYPE_PAR, PA);
 
-   PANA_PsmRxPBA PBA(m_PAA, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PBA, PBA);
-
-   PANA_PsmRxPRR PRR(m_PAA, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PRR, PRR);
+   PANA_PsmRxPN PN(m_PAA, *this);
+   m_MsgHandlers.Register(PANA_MTYPE_PRR, PN);
 
    PANA_PsmRxPT PT(m_PAA, *this);
    m_MsgHandlers.Register(PANA_MTYPE_PTR, PT);
-
-   PANA_PsmRxPU PU(m_PAA, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PUR, PU);
-
-   PANA_PsmRxPP PP(m_PAA, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PPR, PP);
-
-   PANA_PsmRxPE PE(m_PAA, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PER, PE);
 }
 
 void PANA_PaaSession::FlushMsgMaps()
 {
    m_MsgHandlers.Remove(PANA_MTYPE_PCI);
-   m_MsgHandlers.Remove(PANA_MTYPE_PSA);
-   m_MsgHandlers.Remove(PANA_MTYPE_PAN);
-   m_MsgHandlers.Remove(PANA_MTYPE_PBA);
-   m_MsgHandlers.Remove(PANA_MTYPE_PRR);
+   m_MsgHandlers.Remove(PANA_MTYPE_PAR);
    m_MsgHandlers.Remove(PANA_MTYPE_PTR);
-   m_MsgHandlers.Remove(PANA_MTYPE_PUR);
-   m_MsgHandlers.Remove(PANA_MTYPE_PPA);
-   m_MsgHandlers.Remove(PANA_MTYPE_PAN);
-   m_MsgHandlers.Remove(PANA_MTYPE_PER);
+   m_MsgHandlers.Remove(PANA_MTYPE_PNR);
 }
 
 void PANA_PaaSession::EapSendRequest(AAAMessageBlock *req)
@@ -1433,14 +1353,6 @@ void PANA_PaaSession::EapReAuthenticate()
     PANA_PaaEventVariable ev;
     ev.Event_App(PANA_EV_APP_REAUTH);
     Notify(ev.Get());
-}
-
-void PANA_PaaSession::Update(ACE_INET_Addr &addr)
-{
-   m_PAA.PacAddress() = addr;
-   PANA_PaaEventVariable ev;
-   ev.Event_App(PANA_EV_APP_UPDATE);
-   Notify(ev.Get());
 }
 
 void PANA_PaaSession::Ping()
