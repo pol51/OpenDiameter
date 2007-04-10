@@ -164,9 +164,15 @@ bool PANA_SessionTimerInterface::ReScheduleTxRetry()
    return (true);
 }
 
-void PANA_Session::NotifyScheduleLifetime()
+void PANA_Session::NotifyScheduleLifetime(pana_unsigned32_t timeout)
 {
-    m_Timer.ScheduleSession(SessionLifetime());
+    m_Timer.CancelSession();
+    if (timeout > 0) {
+        m_Timer.ScheduleSession(timeout);
+    }
+    else if (SessionLifetime() > 0) {
+        m_Timer.ScheduleSession(SessionLifetime());
+    }
 }
 
 bool PANA_Session::IsFatalError()

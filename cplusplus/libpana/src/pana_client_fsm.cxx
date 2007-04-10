@@ -705,6 +705,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //                          Tx:PNR();
     //                          RtxTimerStart();
     //                          SessionTimerStop();
+    //
     ev.Reset();
     ev.Event_App(PANA_EV_APP_REAUTH);
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),

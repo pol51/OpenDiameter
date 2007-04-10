@@ -48,6 +48,12 @@ class PANA_PaaEventVariable
             struct {
                ACE_UINT32 m_Type_Msg             : 5;
 
+               ACE_UINT32 m_Flag_Start           : 1;
+               ACE_UINT32 m_Flag_Complete        : 1;
+               ACE_UINT32 m_Flag_Auth            : 1;
+               ACE_UINT32 m_Flag_Ping            : 1;
+               ACE_UINT32 m_Flag_Error           : 1;
+
                ACE_UINT32 m_Event_Eap            : 4;
                ACE_UINT32 m_Event_App            : 4;
 
@@ -63,7 +69,7 @@ class PANA_PaaEventVariable
 
                ACE_UINT32 m_AvpExist_EapPayload  : 1;
 
-               ACE_UINT32 m_Reserved             : 10;
+               ACE_UINT32 m_Reserved             : 5;
             } i;
             ACE_UINT32 p;
         } EventParams;
@@ -74,6 +80,21 @@ class PANA_PaaEventVariable
         }
         void MsgType(PANA_MSG_TYPE type) {
             m_Event.i.m_Type_Msg = type;
+        }
+        void FlagStart(bool set = true) {
+            m_Event.i.m_Flag_Start = set;
+        }
+        void FlagComplete(bool set = true) {
+            m_Event.i.m_Flag_Complete = set;
+        }
+        void FlagAuth(bool set = true) {
+            m_Event.i.m_Flag_Auth = set;
+        }
+        void FlagPing(bool set = true) {
+            m_Event.i.m_Flag_Ping = set;
+        }
+        void FlagError(bool set = true) {
+            m_Event.i.m_Flag_Error = set;
         }
         void Event_Eap(PANA_EAP_EVENT event) {
             m_Event.i.m_Event_Eap = event;
@@ -127,6 +148,16 @@ class PANA_PaaEventVariable
                 AAA_LOG((LM_DEBUG, "App[%d] ", m_Event.i.m_Event_App));
             if (m_Event.i.m_Event_Eap)
                 AAA_LOG((LM_DEBUG, "Eap[%d] ", m_Event.i.m_Event_Eap));
+            if (m_Event.i.m_Flag_Start)
+                AAA_LOG((LM_DEBUG, "Start flag "));
+            if (m_Event.i.m_Flag_Complete)
+                AAA_LOG((LM_DEBUG, "Complete flag "));
+            if (m_Event.i.m_Flag_Auth)
+                AAA_LOG((LM_DEBUG, "Auth flag "));
+            if (m_Event.i.m_Flag_Ping)
+                AAA_LOG((LM_DEBUG, "Ping flag "));
+            if (m_Event.i.m_Flag_Error)
+                AAA_LOG((LM_DEBUG, "Error flag "));
             if (m_Event.i.m_Cfg_OptimizedHshk)
                 AAA_LOG((LM_DEBUG, "EapOptimized "));
             if (m_Event.i.m_Do_Authorize)

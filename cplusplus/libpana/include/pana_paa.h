@@ -69,18 +69,18 @@ class PANA_EXPORT PANA_Paa : public PANA_Session
 
       virtual bool IsUserAuthorized();
 
-      virtual void TxPSR();
+      virtual void TxPARStart();
       virtual void TxPAR();
-      virtual void TxPBR(pana_unsigned32_t rcode,
-                         EAP_EVENT ev);
+      virtual void TxPARComplete(pana_unsigned32_t rcode,
+                                 EAP_EVENT ev);
       virtual void TxPAN();
-      virtual void TxPRA();
+      virtual void TxPNAAuth();
 
-      virtual void RxPSA();
-      virtual void RxPBA(bool success);
+      virtual void RxPANStart();
+      virtual void RxPANComplete(bool success);
       virtual void RxPAR();
       virtual void RxPAN();
-      virtual void RxPRR();
+      virtual void RxPNRAuth();
 
       PANA_SessionTimerInterface &Timer() {
           return m_Timer;

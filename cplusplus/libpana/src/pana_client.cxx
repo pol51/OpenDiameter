@@ -120,6 +120,9 @@ void PANA_Client::RxPARStart()
     // start eap
     NotifyEapRestart();
 
+    // start session timer to detect stalled sessions
+    NotifyScheduleLifetime(STALLED_SESSION_TIMEOUT);
+
     // PSR.exist_avp("EAP-Payload")
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
@@ -280,7 +283,6 @@ void PANA_Client::RxPAN()
             msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
-    m_Timer.CancelSession();
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
@@ -557,6 +559,9 @@ void PANA_Client::TxPNRAuth()
     if (SecurityAssociation().Auth().IsSet()) {
         SecurityAssociation().AddAuthAvp(*msg);
     }
+
+    // cancel current session timer
+    m_Timer.CancelSession();
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Auth: id=%d seq=%d\n",
             msg->sessionId(), msg->seq()));

@@ -277,7 +277,7 @@ class PANA_EXPORT PANA_Session :
    public PANA_SessionAttribute
 {
    public:
-      virtual void NotifyScheduleLifetime();
+      virtual void NotifyScheduleLifetime(pana_unsigned32_t timeout = 0);
 
       virtual bool IsFatalError();
 

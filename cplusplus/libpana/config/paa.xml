@@ -63,7 +63,7 @@
         <!-- This tells the PAA whether the PANA-Start-Request
              will be retransmitted. This aids in keeping
              a more stateless PAA if disabled -->
-        <retry_psr>0</retry_psr>
+        <retry_start_par>0</retry_start_par>
 
     </agent>
 

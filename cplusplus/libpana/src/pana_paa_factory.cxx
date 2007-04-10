@@ -47,24 +47,26 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
              case PANA_MTYPE_PCI:
                  RxPCI(msg);
                  break;
-             case PANA_MTYPE_PSA:
-                 StatelessRxPSA(msg);
+             case PANA_MTYPE_PAN:
+                 StatelessRxPANStart(msg);
                  break;
              default:
-                 AAA_LOG((LM_ERROR, "(%P|%t) Unknown msg during handshake, discarding: seq=%d\n", msg.seq()));
+                 AAA_LOG((LM_ERROR, "(%P|%t) Unknown msg during handshake, discarding: seq=%d\n",\
+                          msg.seq()));
                  break;
           }
       }
       return;
    }
    catch (...) {
-      AAA_LOG((LM_ERROR, "(%P|%t) Unknown error receipt of msg, discarding: seq=%d\n", msg.seq()));
+      AAA_LOG((LM_ERROR, "(%P|%t) Unknown error receipt of msg, discarding: seq=%d\n",
+               msg.seq()));
    }
 }
 
 void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
 {
-   if (PANA_CFG_PAA().m_OptimizedHandshake || PANA_CFG_PAA().m_RetryPSR) {
+   if (PANA_CFG_PAA().m_OptimizedHandshake || PANA_CFG_PAA().m_RetryPARStart) {
 
        ///////////////////////////////////////////////////////////////
        // - - - - - - - - - - (Optimized Handshake) - - - - - - - - - - -
@@ -99,7 +101,7 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
        ev.Event_App(PANA_EV_APP_PAC_FOUND);
        if (PANA_CFG_PAA().m_OptimizedHandshake) {
            ev.EnableCfg_OptimizedHandshake();
-           PANA_CFG_PAA().m_RetryPSR = true;
+           PANA_CFG_PAA().m_RetryPARStart = true;
            AAA_LOG((LM_INFO, "(%P|%t) PAA is using EAP optimization\n"));
        }
        else {
@@ -110,14 +112,17 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
    else {
        ///////////////////////////////////////////////////////////////
        // - - - - - - - - - - (Non-Optimized Handshake) - - - - - - - - -
-       // (Rx:PCI ||               if (AUTH_ALGORITHM_IN_PSR  OFFLINE
+       // (Rx:PCI ||               if (AUTH_ALGORITHM_IN_PAR  OFFLINE
        //  PAC_FOUND) &&               ==Set)
-       // OPTIMIZED_HANDSHAKE==      PSR.insert_avp
-       //  Unset &&                  ("Algorithm");
-       // RTX_PSR=Unset            Tx:PSR();
+       // OPTIMIZED_HANDSHAKE==    PAR.insert_avp
+       //  Unset                      ("Algorithm");
+       //                          PAR.S_flag=Set;
+       //                          Tx:PAR();
+       //                          if (RTX_START_PAR == Set)
+       //                            RtxTimerStart();
        //
        AAA_LOG((LM_INFO, "(%P|%t) PAA is acting stateless\n"));
-       StatelessTxPSR(addr);
+       StatelessTxPARStart(addr);
    }
 }
 
@@ -135,7 +140,8 @@ void PANA_PaaSessionFactory::RxPCI(PANA_Message &msg)
 
    */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: id=%d seq=%d\n",
+            msg.sessionId(), msg.seq()));
 
    // validate sequence number
    if (msg.seq() != 0) {
@@ -153,27 +159,33 @@ void PANA_PaaSessionFactory::RxPCI(PANA_Message &msg)
    delete &msg;
 }
 
-void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
+void PANA_PaaSessionFactory::StatelessTxPARStart(ACE_INET_Addr &addr)
 {
    /*
-     7.2.  PANA-Start-Request (PSR)
+    7.2.  PANA-Auth-Request (PAR)
 
-        The PANA-Start-Request (PSR) message is sent by the PAA to the PaC to
-        start PANA authentication.  The PAA sets the Sequence Number field to
-        an initial random value and sets the Session Identifier field to a
-        newly assigned value.
+      The PANA-Auth-Request (PAR) message is either sent by the PAA or the
+      PaC.
 
-        PANA-Start-Request ::= < PANA-Header: 2, REQ >
-                            [ EAP-Payload ]
-                            [ Algorithm ]
-                         *  [ AVP ]
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Request ::= < PANA-Header: 2, REQ[,STA][,COM] >
+                          [ EAP-Payload ]
+                          [ Algorithm ]
+                          [ Nonce ]
+                          [ Result-Code ]
+                          [ Session-Lifetime ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
     */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PSR;
+    msg->type() = PANA_MTYPE_PAR;
     msg->seq() = PANA_SerialNumber::GenerateISN();
     msg->flags().request = true;
+    msg->flags().start = true;
 
     // generate a new session identifier
     ACE_Time_Value tv = ACE_OS::gettimeofday();
@@ -183,26 +195,32 @@ void PANA_PaaSessionFactory::StatelessTxPSR(ACE_INET_Addr &addr)
     msg->destAddress() = addr;
     msg->srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPSR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%d seq=%d\n",
+             msg->sessionId(), msg->seq()));
 
     m_Channel.Send(msg);
 }
 
-void PANA_PaaSessionFactory::StatelessRxPSA(PANA_Message &msg)
+void PANA_PaaSessionFactory::StatelessRxPANStart(PANA_Message &msg)
 {
     /*
-      7.3.  PANA-Start-Answer (PSA)
+      7.3.  PANA-Auth-Answer (PAN)
 
-         The PANA-Start-Answer (PSA) message is sent by the PaC to the PAA in
-         response to a PANA-Start-Request message.  This message completes the
-         handshake to start PANA authentication.
+        The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
+        PAA in response to a PANA-Auth-Request message.
 
-         PANA-Start-Answer ::= < PANA-Header: 2 >
-                             [ EAP-Payload ]
+        The message MUST NOT have both 'S' and 'C' bits set.
+
+        PANA-Auth-Answer ::= < PANA-Header: 2 [,STA][,COM] >
+                            [ Nonce ]
+                            [ EAP-Payload ]
+                            [ Key-Id ]
                           *  [ AVP ]
+                        0*1 < AUTH >
     */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPSA: Stateless, id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+   AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Start: Stateless, id=%d seq=%d\n",
+           msg.sessionId(), msg.seq()));
 
    if (msg.sessionId() == 0) {
        throw (PANA_Exception(PANA_Exception::NO_MEMORY,

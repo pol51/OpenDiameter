@@ -65,8 +65,8 @@ class PANA_EXPORT PANA_PaaSessionFactory :
 
    private:
       virtual void RxPCI(PANA_Message &msg);
-      virtual void StatelessTxPSR(ACE_INET_Addr &addr);
-      virtual void StatelessRxPSA(PANA_Message &msg);
+      virtual void StatelessTxPARStart(ACE_INET_Addr &addr);
+      virtual void StatelessRxPANStart(PANA_Message &msg);
 };
 
 template<class PAA_SESSION, class ARG>
