@@ -311,7 +311,6 @@ class PeerChannel : public PANA_ClientEventInterface
      PANA_AuthScriptCtl::Print(args);
      typedef enum {
         REAUTH,
-        UPDATE,
         PING
      } TEST_STATE;
      static TEST_STATE testState = REAUTH;
@@ -319,12 +318,6 @@ class PeerChannel : public PANA_ClientEventInterface
         case REAUTH:
           // just for testing -- reauthenticate ourselves
           pana.ReAuthenticate();
-          testState = UPDATE;
-          break;
-        case UPDATE: {
-            ACE_INET_Addr newAddr("192.168.1.1:0");
-            pana.Update(newAddr);
-          }
           testState = PING;
           break;
         case PING:

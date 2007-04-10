@@ -61,6 +61,9 @@ class PANA_AuxillarySessionVariables {
         bool &AlgorithmIsSet() {
             return m_AlgorithmIsSet;
         }
+        bool &OptimizedPAN() {
+            return m_OptimizedPAN;
+        }
         PANA_MsgQueue &RxMsgQueue() {
             return m_RxMessageQueue;
         }
@@ -72,6 +75,7 @@ class PANA_AuxillarySessionVariables {
     private:
         bool m_Authorized; // Set to true if authorize() returns true
         bool m_AlgorithmIsSet; // Set to true if algorithm avp is agreed upon
+        bool m_OptimizedPAN; // When the PaC receives a PAN with eap-payload
         PANA_MsgQueue m_RxMessageQueue; // Receive message queue
         PANA_BufferQueue m_TxEapMessageQueue; // EAP Tx message queue
 };
@@ -277,23 +281,19 @@ class PANA_EXPORT PANA_Session :
 
       virtual bool IsFatalError();
 
-      virtual void TxPPR();
-      virtual void TxPPA();
-      virtual void TxPUR();
-      virtual void TxPUA();
       virtual void TxPTR(ACE_UINT32 cause);
       virtual void TxPTA();
-      virtual void TxPER(pana_unsigned32_t rcode);
-      virtual void TxPEA();
+      virtual void TxPNRPing();
+      virtual void TxPNAPing();
+      virtual void TxPNRError(pana_unsigned32_t rcode);
+      virtual void TxPNAError();
 
-      virtual void RxPPR();
-      virtual void RxPPA();
-      virtual void RxPUR();
-      virtual void RxPUA();
       virtual void RxPTR();
       virtual void RxPTA();
-      virtual void RxPER();
-      virtual void RxPEA();
+      virtual void RxPNRPing();
+      virtual void RxPNAPing();
+      virtual void RxPNRError();
+      virtual void RxPNAError();
 
       virtual void SendReqMsg(boost::shared_ptr<PANA_Message> msg,
                               bool allowRetry = true);

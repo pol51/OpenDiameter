@@ -66,24 +66,14 @@
 #define UCHAR unsigned char
 #endif
 
-// Message type definition based on draft 13
+// Message type definition based on draft 15
 #define PANA_MTYPE_PCI         0x01
-#define PANA_MTYPE_PSR         0x02
-#define PANA_MTYPE_PSA         0x02
-#define PANA_MTYPE_PAR         0x03
-#define PANA_MTYPE_PAN         0x03
-#define PANA_MTYPE_PRR         0x04
-#define PANA_MTYPE_PRA         0x04
-#define PANA_MTYPE_PBR         0x05
-#define PANA_MTYPE_PBA         0x05
-#define PANA_MTYPE_PPR         0x06
-#define PANA_MTYPE_PPA         0x06
-#define PANA_MTYPE_PTR         0x07
-#define PANA_MTYPE_PTA         0x07
-#define PANA_MTYPE_PER         0x08
-#define PANA_MTYPE_PEA         0x08
-#define PANA_MTYPE_PUR         0x09
-#define PANA_MTYPE_PUA         0x09
+#define PANA_MTYPE_PAR         0x02
+#define PANA_MTYPE_PAN         0x02
+#define PANA_MTYPE_PTR         0x03
+#define PANA_MTYPE_PTA         0x03
+#define PANA_MTYPE_PNR         0x04
+#define PANA_MTYPE_PNA         0x04
 
 // AVP names
 #define PANA_AVPNAME_ALGORITHM        "Algorithm"
@@ -151,11 +141,6 @@ typedef ACE_UINT32        PANA_VendorId;
 // in the AVP header. It indicates whether an AVP is vendor or mandatory.
 //
 typedef ACE_UINT16        PANA_AvpFlag;
-
-//
-// Container for IP address and port numbers
-//
-typedef std::list<ACE_INET_Addr>  PANA_AddressList;
 
 //
 //==================================================

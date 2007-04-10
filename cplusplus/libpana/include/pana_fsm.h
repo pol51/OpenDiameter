@@ -44,39 +44,26 @@
 typedef enum {
   PANA_ST_OFFLINE = 1,
   PANA_ST_WAIT_PAA,
-  PANA_ST_WAIT_SUCC_PBA,
-  PANA_ST_WAIT_FAIL_PBA,
+  PANA_ST_WAIT_SUCC_PNA,
+  PANA_ST_WAIT_FAIL_PNA,
   PANA_ST_WAIT_EAP_MSG,
   PANA_ST_WAIT_EAP_RESULT,
   PANA_ST_WAIT_EAP_RESULT_CLOSE,
   PANA_ST_OPEN,
-  PANA_ST_WAIT_PRA,
+  PANA_ST_WAIT_PNA,
   PANA_ST_WAIT_PAN_OR_PAR,
-  PANA_ST_WAIT_PPA,
-  PANA_ST_WAIT_PUA,
-  PANA_ST_WAIT_PEA,
   PANA_ST_SESS_TERM,
   PANA_ST_CLOSED
 } PANA_ST;
 
 typedef enum {
   PANA_EV_MTYPE_PCI = 1,
-  PANA_EV_MTYPE_PSR,
-  PANA_EV_MTYPE_PSA,
   PANA_EV_MTYPE_PAR,
   PANA_EV_MTYPE_PAN,
-  PANA_EV_MTYPE_PRR,
-  PANA_EV_MTYPE_PRA,
-  PANA_EV_MTYPE_PBR,
-  PANA_EV_MTYPE_PBA,
-  PANA_EV_MTYPE_PPR,
-  PANA_EV_MTYPE_PPA,
+  PANA_EV_MTYPE_PNR,
+  PANA_EV_MTYPE_PNA,
   PANA_EV_MTYPE_PTR,
-  PANA_EV_MTYPE_PTA,
-  PANA_EV_MTYPE_PER,
-  PANA_EV_MTYPE_PEA,
-  PANA_EV_MTYPE_PUR,
-  PANA_EV_MTYPE_PUA
+  PANA_EV_MTYPE_PTA
 } PANA_MSG_TYPE;
 
 typedef enum {
@@ -95,7 +82,6 @@ typedef enum {
   PANA_EV_APP_REAUTH,
   PANA_EV_APP_TERMINATE,
   PANA_EV_APP_AUTH_USER,
-  PANA_EV_APP_UPDATE,
   PANA_EV_APP_PING
 } PANA_APP_EVENT;
 
@@ -277,20 +263,15 @@ class PANA_EXPORT PANA_StateMachine :
    private:
        const char *StrState(int state) {
            static char *str[] = { "OFFLINE",
-                                  "WAIT_EAP_MSG_IN_INIT",
-                                  "WAIT_PAC_IN_INIT",
                                   "WAIT_PAA",
-                                  "WAIT_SUCC_PBA",
-                                  "WAIT_FAIL_PBA",
+                                  "WAIT_SUCC_PNA",
+                                  "WAIT_FAIL_PNA",
                                   "WAIT_EAP_MSG",
                                   "WAIT_EAP_RESULT",
                                   "WAIT_EAP_RESULT_CLOSE",
                                   "OPEN",
-                                  "WAIT_PRA",
+                                  "WAIT_PNA",
                                   "WAIT_PAN_OR_PAR",
-                                  "WAIT_PPA",
-                                  "WAIT_PUA",
-                                  "WAIT_PEA",
                                   "SESS_TERM",
                                   "CLOSED" };
            return str[state - 1];

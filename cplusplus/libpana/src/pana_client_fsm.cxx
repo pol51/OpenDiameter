@@ -62,49 +62,54 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacOfflineExitActionAuthUser);
 
     /////////////////////////////////////////////////////////////////////
-    //  - - - -(PAA-initiated Handshake, not optimized) - - - - - - - - -
-    // Rx:PSR &&                Tx:PSA();                  WAIT_PAA
-    // !PSR.exist_avp           EAP_Restart();
-    // ("EAP-Payload") &&
-    // (!PSR.exist_avp
+    // - - - - - - -(PAA-initiated Handshake, not optimized) - - - - -
+    // Rx:PAR &&                PAN.S_flag=Set;            WAIT_PAA
+    // PAR.S_flag &&            Tx:PAN();
+    // !PAR.exist_avp           EAP_Restart();
+    // ("EAP-Payload") &&       SessionTimerStart
+    // (!PAR.exist_avp            (FAILED_SESS_TIMEOUT);
     // ("Algorithm") ||
-    // (PSR.exist_avp
+    // (PAR.exist_avp
     // ("Algorithm") &&
     // algorithm_supported()))
-    //
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PSR);
+    ev.MsgType(PANA_EV_MTYPE_PAR);
+    ev.FlagStart();
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_WAIT_PAA,
-                       m_PacOfflineExitActionRxPSR);
+                       m_PacOfflineExitActionRxPAR);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - -(PAA-initiated Handshake, optimized) - - - - - -
-    // Rx:PSR &&                EAP_Restart();             OFFLINE
-    // PSR.exist_avp            TxEAP();                   
-    // ("EAP-Payload") &&
-    // (!PSR.exist_avp
+    // Rx:PAR &&                EAP_Restart();             OFFLINE
+    // PAR.S_flag &&            TxEAP();
+    // PAR.exist_avp            SessionTimerStart
+    // ("EAP-Payload") &&         (FAILED_SESS_TIMEOUT);
+    // (!PAR.exist_avp
     // ("Algorithm") ||
-    // (PSR.exist_avp
+    // (PAR.exist_avp
     // ("Algorithm") &&
     // algorithm_supported()))
-    //
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PSR);
+    ev.MsgType(PANA_EV_MTYPE_PAR);
+    ev.FlagStart();
     ev.AvpExist_EapPayload();
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_OFFLINE,
-                       m_PacOfflineExitActionRxPSR);
+                       m_PacOfflineExitActionRxPAR);
 
     /////////////////////////////////////////////////////////////////////
-    // EAP_RESPONSE             PSA.insert_avp             WAIT_PAA
-    //                            ("EAP-Payload")
-    //                          Tx:PSA();
+    // EAP_RESPONSE             PAN.insert_avp             WAIT_PAA
+    //                            ("EAP-Payload");
+    //                          PAN.S_flag=Set;
+    //                          Tx:PAN();
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_RESPONSE);
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_WAIT_PAA,
-                       m_PacWaitEapMsgInExitActionTxPSA);
+                       m_PacWaitEapMsgInExitActionTxPAN);
     // Required to deal with eap piggyback enabled flag enabled
     // during call to EapSendResponse(..) method
     ev.Reset();
@@ -112,8 +117,8 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.EnableCfg_EapPiggyback();
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_WAIT_PAA,
-                       m_PacWaitEapMsgInExitActionTxPSA);
-                       
+                       m_PacWaitEapMsgInExitActionTxPAN);
+
     /////////////////////////////////////////////////////////////////////
     // EAP_RESP_TIMEOUT ||      None();                    OFFLINE
     // EAP_INVALID_MSG
@@ -142,7 +147,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_OFFLINE,
                        m_PacExitActionTimeout);
-                       
+
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Reach maximum number of retransmission)- -
     // RTX_TIMEOUT &&           Retransmit();              (no change)
@@ -168,33 +173,34 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (PANA-Error-Message-Processing)- -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
+    // Rx:PNR &&                PNA.insert_avp("AUTH");    CLOSED
+    // PNR.E_flag &&            PNA.E_flag=Set;
+    // fatal                    Tx:PNA();
+    // (PNR.RESULT_CODE) &&     Disconnect();
+    // PNR.exist_avp("AUTH") &&
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
                         // PER.exist_avp("AUTH") &&
                         // key_available()
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_CLOSED,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
     /////////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
-    // !fatalRx
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
+    // Rx:PNR &&                PNA.E_flag=Set;            (no change)
+    // PNR.E_flag &&            Tx:PNA();
+    // !fatal
+    // (PNR.RESULT_CODE) ||
+    // !PNR.exist_avp("AUTH") ||
     // !key_available()
-    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_OFFLINE,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
@@ -211,8 +217,8 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - - - - - -(PAR-PAN exchange) - - - - - - - -
     // Rx:PAR &&                RtxTimerStop();            WAIT_EAP_MSG
-    // !eap_piggyback()         TxEAP();
-    //                          EAP_RespTimerStart();
+    // PAR.flg_clr() &&         TxEAP();
+    // !eap_piggyback()         EAP_RespTimerStart();
     //                          if (key_available())
     //                              PAN.insert_avp("AUTH");
     //                          if (FIRST_AUTH_EXCHG==Set)
@@ -227,8 +233,9 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////////
     // Rx:PAR &&                RtxTimerStop();            WAIT_EAP_MSG
-    // eap_piggyback()          TxEAP();
-    //                          EAP_RespTimerStart();
+    // PAR.flg_clr() &&         TxEAP();
+    // eap_piggyback()          EAP_RespTimerStart();
+    //
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PAR);
     ev.EnableCfg_EapPiggyback();
@@ -237,7 +244,11 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacWaitPaaExitActionRxPAR);
 
     /////////////////////////////////////////////////////////////////////
-    // Rx:PAN                   RtxTimerStop();            WAIT_PAA
+    // Rx:PAN &&                RtxTimerStop();            WAIT_PAA
+    // PAN.flg_clr() &&         OPTIMIZED_PAN=Unset;
+    // !PAN.exist_avp
+    // ("EAP-Payload")
+    //
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PAN);
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
@@ -245,69 +256,94 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacWaitPaaExitActionRxPAN);
 
     /////////////////////////////////////////////////////////////////////
+    // Rx:PAN &&                RtxTimerStop();            WAIT_EAP_MSG
+    // PAN.flg_clr() &&         OPTIMIZED_PAN=Set;
+    // PAN.exist_avp            TxEAP();
+    // ("EAP-Payload")          EAP_RespTimerStart();
+    //
+    ev.Reset();
+    ev.MsgType(PANA_EV_MTYPE_PAN);
+    ev.AvpExist_EapPayload();
+    AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
+                       PANA_ST_WAIT_EAP_MSG,
+                       m_PacWaitPaaExitActionRxPAN);
+
+    /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - - - - - -(EAP result) - - - - - - - - - - -
-    // Rx:PBR &&                TxEAP();                   WAIT_EAP_RESULT
-    // PBR.RESULT_CODE==
-    //   PANA_SUCCESS &&
-    // (!PBR.exist_avp
+    // Rx:PAR &&                TxEAP();                   WAIT_EAP_RESULT
+    // PAR.C_flag &&
+    // PAR.RESULT_CODE==
+    //  PANA_SUCCESS &&
+    // (!PAR.exist_avp
     // ("Algorithm") ||
-    // (PBR.exist_avp
+    // (PAR.exist_avp
     // ("Algorithm") &&
     // algorithm_supported())) &&
-    // PBR.exist_avp
+    // PAR.exist_avp
     // ("EAP-Payload")
+    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PBR);
+    ev.MsgType(PANA_EV_MTYPE_PAR);
+    ev.FlagComplete();
     ev.AvpExist_EapPayload();
     ev.ResultCode(PANA_RESULT_CODE_SUCCESS);
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_WAIT_EAP_RESULT,
-                       m_PacWaitPaaExitActionRxPBR);
+                       m_PacWaitPaaExitActionRxPARComplete);
 
     /////////////////////////////////////////////////////////////////////
-    // Rx:PBR &&                TxEAP()                    WAIT_EAP_RESULT_
-    // PBR.RESULT_CODE==                                   CLOSE
-    //   PANA_SUCCESS &&
-    // (PBR.exist_avp
+    // Rx:PAR &&                TxEAP()                    WAIT_EAP_RESULT_
+    // PAR.C_flag &&                                       CLOSE
+    // PAR.RESULT_CODE==
+    //  PANA_SUCCESS &&
+    // (PAR.exist_avp
     // ("Algorithm") &&
     // !algorithm_supported()) &&
-    // PBR.exist_avp
+    // PAR.exist_avp
     // ("EAP-Payload")
+    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PBR);
+    ev.MsgType(PANA_EV_MTYPE_PAR);
+    ev.FlagComplete();
     ev.AvpExist_EapPayload();
     ev.AlgorithmNotSupported();
     ev.ResultCode(PANA_RESULT_CODE_SUCCESS);
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_WAIT_EAP_RESULT_CLOSE,
-                       m_PacWaitPaaExitActionRxPBR);
+                       m_PacWaitPaaExitActionRxPARComplete);
 
     /////////////////////////////////////////////////////////////////////
-    // Rx:PBR &&                TxEAP();                   WAIT_EAP_RESULT_
-    // PBR.RESULT_CODE!=                                   CLOSE
-    //   PANA_SUCCESS &&
-    // PBR.exist_avp
+    // Rx:PAR &&                TxEAP();                   WAIT_EAP_RESULT_
+    // PAR.C_flag &&                                       CLOSE
+    // PAR.RESULT_CODE!=
+    //  PANA_SUCCESS &&
+    // PAR.exist_avp
     // ("EAP-Payload")
+    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PBR);
+    ev.MsgType(PANA_EV_MTYPE_PAR);
+    ev.FlagComplete();
     ev.ResultCode(PANA_RESULT_CODE_FAIL);
     ev.AvpExist_EapPayload();
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_WAIT_EAP_RESULT_CLOSE,
-                       m_PacWaitPaaExitActionRxPBR);
+                       m_PacWaitPaaExitActionRxPARComplete);
 
     /////////////////////////////////////////////////////////////////////
-    // Rx:PBR &&                alt_reject();              WAIT_EAP_RESULT_
-    // PBR.RESULT_CODE!=                                   CLOSE
-    //   PANA_SUCCESS &&
-    // !PBR.exist_avp
+    // Rx:PAR &&                alt_reject();              WAIT_EAP_RESULT_
+    // PAR.C_flag &&                                       CLOSE
+    // PAR.RESULT_CODE!=
+    //  PANA_SUCCESS &&
+    // !PAR.exist_avp
     // ("EAP-Payload")
+    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PBR);
+    ev.MsgType(PANA_EV_MTYPE_PAR);
+    ev.FlagComplete();
     ev.ResultCode(PANA_RESULT_CODE_FAIL);
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_WAIT_EAP_RESULT_CLOSE,
-                       m_PacWaitPaaExitActionRxPBR);
+                       m_PacWaitPaaExitActionRxPARComplete);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - (Reach maximum number of retransmission)- - - - -
@@ -332,35 +368,36 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
 
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
+    /////////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - (PANA-Error-Message-Processing)- -
+    // Rx:PNR &&                PNA.insert_avp("AUTH");    CLOSED
+    // PNR.E_flag &&            PNA.E_flag=Set;
+    // fatal                    Tx:PNA();
+    // (PNR.RESULT_CODE) &&     Disconnect();
+    // PNR.exist_avp("AUTH") &&
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
                         // PER.exist_avp("AUTH") &&
                         // key_available()
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_CLOSED,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
-    /////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
+    /////////////////////////////////////////////////////////////////////
+    // Rx:PNR &&                PNA.E_flag=Set;            (no change)
+    // PNR.E_flag &&            Tx:PNA();
     // !fatal
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
+    // (PNR.RESULT_CODE) ||
+    // !PNR.exist_avp("AUTH") ||
     // !key_available()
-    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_WAIT_PAA,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
@@ -407,6 +444,22 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacWaitEapMsgExitActionTxPAR);
 
     /////////////////////////////////////////////////////////////////
+    // EAP_RESPONSE &&          EAP_RespTimerStop()        WAIT_PAA
+    // OPTIMIZED_PAN            PAR.insert_avp
+    //                          ("EAP-Payload");
+    //                          if (key_available())
+    //                            PAR.insert_avp("AUTH");
+    //                          Tx:PAR();
+    //                          OPTIMIZED_PAN=Unset;
+    //
+    ev.Reset();
+    ev.Event_Eap(PANA_EV_EAP_RESPONSE);
+    ev.OptimizedPAN();
+    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
+                       PANA_ST_WAIT_PAA,
+                       m_PacWaitEapMsgExitActionTxPAR);
+
+    /////////////////////////////////////////////////////////////////
     // EAP_RESP_TIMEOUT &&      if (key_available())       WAIT_PAA
     // eap_piggyback()            PAN.insert_avp("AUTH");
     //                          Tx:PAN();
@@ -433,47 +486,48 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPER);
+                       m_PacExitActionTxPNRError);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPER);
+                       m_PacExitActionTxPNRError);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPER);
+                       m_PacExitActionTxPNRError);
 
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
+    /////////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - (PANA-Error-Message-Processing)- -
+    // Rx:PNR &&                PNA.insert_avp("AUTH");    CLOSED
+    // PNR.E_flag &&            PNA.E_flag=Set;
+    // fatal                    Tx:PNA();
+    // (PNR.RESULT_CODE) &&     Disconnect();
+    // PNR.exist_avp("AUTH") &&
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
                         // PER.exist_avp("AUTH") &&
                         // key_available()
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_CLOSED,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
-    /////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
+    /////////////////////////////////////////////////////////////////////
+    // Rx:PNR &&                PNA.E_flag=Set;            (no change)
+    // PNR.E_flag &&            Tx:PNA();
     // !fatal
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
+    // (PNR.RESULT_CODE) ||
+    // !PNR.exist_avp("AUTH") ||
     // !key_available()
-    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_EAP_MSG,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- - - - - - - - - -
@@ -488,11 +542,15 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // ----------------------
 
     /////////////////////////////////////////////////////////////////
-    // EAP_SUCCESS &&          PBA.insert_avp("AUTH");     OPEN
-    // PBR.exist_avp           PBA.insert_avp("Key-Id");
-    // ("Key-Id")              Tx:PBA();
+    // EAP_SUCCESS &&          PAN.insert_avp("AUTH");     OPEN
+    // PAR.exist_avp           PAN.insert_avp("Key-Id");
+    // ("Key-Id")              PAN.C_flag=Set;
+    //                         Tx:PAN();
     //                         Authorize();
-    //                         SessionTimerStart();
+    //                         SessionTimerStop();
+    //                         SessionTimerStart
+    //                           (LIFETIME_SESS_TIMEOUT);
+    //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
     ev.AvpExist_KeyId();
@@ -502,10 +560,14 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////
     // EAP_SUCCESS &&          if (key_available())        OPEN
-    // !PBR.exist_avp            PBA.insert_avp("AUTH");
-    // ("Key-Id")              Tx:PBA();
+    // !PAR.exist_avp            PAN.insert_avp("AUTH");
+    // ("Key-Id")              PAN.C_flag=Set;
+    //                         Tx:PAN();
     //                         Authorize();
-    //                         SessionTimerStart();
+    //                         SessionTimerStop();
+    //                         SessionTimerStart
+    //                           (LIFETIME_SESS_TIMEOUT);
+    //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
     AddStateTableEntry(PANA_ST_WAIT_EAP_RESULT, ev.Get(),
@@ -513,8 +575,11 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacWaitEapResultExitActionEapOpen);
 
     /////////////////////////////////////////////////////////////////
-    // EAP_FAILURE             Tx:PBA();                   CLOSED
+    // EAP_FAILURE             PAN.C_flag=Set;             CLOSED
+    //                         Tx:PAN();
+    //                         SessionTimerStop();
     //                         Disconnect();
+    //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
     AddStateTableEntry(PANA_ST_WAIT_EAP_RESULT, ev.Get(),
@@ -523,6 +588,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////
     // EAP_INVALID_MSG         None();                     WAIT_PAA
+    //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
     AddStateTableEntry(PANA_ST_WAIT_EAP_RESULT, ev.Get(),
@@ -542,10 +608,13 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - - - - (EAP Result) - - - - - - - - - - - - -
-    // EAP_SUCCESS &&          PBA.insert_avp("AUTH");     CLOSED
-    // PBR.exist_avp           PBA.insert_avp("Key-Id");
-    // ("Key-Id")              Tx:PBA();
+    // EAP_SUCCESS &&          PAN.insert_avp("AUTH");     CLOSED
+    // PAR.exist_avp           PAN.insert_avp("Key-Id");
+    // ("Key-Id")              PAN.C_flag=Set;
+    //                         Tx:PAR();
+    //                         SessionTimerStop();
     //                         Disconnect();
+    //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
     ev.AvpExist_KeyId();
@@ -555,9 +624,12 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////
     // EAP_SUCCESS &&          if (key_available())        CLOSED
-    // !PBR.exist_avp            PBA.insert_avp("AUTH");
-    // ("Key-Id")              Tx:PBA();
+    // !PAR.exist_avp            PAN.insert_avp("AUTH");
+    // ("Key-Id")              PAN.C_flag=Set;
+    //                         Tx:PAN();
+    //                         SessionTimerStop();
     //                         Disconnect();
+    //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
     AddStateTableEntry(PANA_ST_WAIT_EAP_RESULT_CLOSE, ev.Get(),
@@ -565,8 +637,11 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacWaitEapSuccessExitActionClose);
 
     /////////////////////////////////////////////////////////////////
-    // EAP_FAILURE             Tx:PBA();                   CLOSED
+    // EAP_FAILURE             PAN.C_flag=Set;             CLOSED
+    //                         Tx:PAN();
+    //                         SessionTimerStop();
     //                         Disconnect();
+    //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
     AddStateTableEntry(PANA_ST_WAIT_EAP_RESULT_CLOSE, ev.Get(),
@@ -575,6 +650,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////
     // EAP_INVALID_MSG         None();                     WAIT_PAA
+    //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
     AddStateTableEntry(PANA_ST_WAIT_EAP_RESULT_CLOSE, ev.Get(),
@@ -594,51 +670,59 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (liveness test initiated by PAA)- - - - - -
-    // Rx:PPR                   if (key_available())       OPEN
-    //                            PPA.insert_avp("AUTH");
-    //                          Tx:PPA();
+    // Rx:PNR &&                if (key_available())       OPEN
+    // PNR.P_flag                 PNA.insert_avp("AUTH");
+    //                          PNA.P_flag=Set;
+    //                          Tx:PNA();
+    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PPR);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagPing();
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_OPEN,
-                       m_PacOpenExitActionRxPPR);
+                       m_PacOpenExitActionRxPNRPing);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (liveness test initiated by PaC)- - - - - -
-    // PANA_PING                if (key_available())       WAIT_PPA
-    //                            PPR.insert_avp("AUTH");
-    //                          Tx:PPR();
+    // PANA_PING                if (key_available())       WAIT_PNA
+    //                            PNR.insert_avp("AUTH");
+    //                          PNR.P_flag=Set;
+    //                          Tx:PNR();
     //                          RtxTimerStart();
     //
     ev.Reset();
     ev.Event_App(PANA_EV_APP_PING);
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
-                       PANA_ST_WAIT_PPA,
-                       m_PacOpenExitActionTxPPR);
+                       PANA_ST_WAIT_PNA,
+                       m_PacOpenExitActionTxPNRPing);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - (re-authentication initiated by PaC)- - - - - -
-    // REAUTH                   if (key_available())       WAIT_PRA
-    //                            PRR.insert_avp("AUTH");
+    // REAUTH                   if (key_available())       WAIT_PNA
+    //                            PNR.insert_avp("AUTH");
     //                          FIRST_AUTH_EXCHG=Set;
-    //                          Tx:PRR();
+    //                          PNR.A_flag=Set;
+    //                          Tx:PNR();
     //                          RtxTimerStart();
     //                          SessionTimerStop();
     ev.Reset();
     ev.Event_App(PANA_EV_APP_REAUTH);
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_WAIT_PRA,
-                       m_PacOpenExitActionTxPRR);
+                       m_PacOpenExitActionTxPNRAuth);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - (re-authentication initiated by PAA)- - - - - -
     // Rx:PAR &&                EAP_RespTimerStart();      WAIT_EAP_MSG
-    // !eap_piggyback()         TxEAP();
-    //                          FIRST_AUTH_EXCHG=Set;
+    // PAR.flg_clr() &&         TxEAP();
+    // !eap_piggyback()         FIRST_AUTH_EXCHG=Set;
     //                          if (key_available())
     //                             PAN.insert_avp("AUTH");
     //                          Tx:PAN();
     //                          SessionTimerStop();
+    //                          SessionTimerStart
+    //                            (FAILED_SESS_TIMEOUT);
+    //
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PAR);
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
@@ -646,11 +730,12 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacOpenExitActionRxPAR);
 
     /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - (re-authentication initiated by PAA)- - - - - -
     // Rx:PAR &&                EAP_RespTimerStart();      WAIT_EAP_MSG
-    // eap_piggyback()          TxEAP();
-    //                          FIRST_AUTH_EXCHG=Set;
+    // PAR.flg_clr() &&         TxEAP();
+    // eap_piggyback()          FIRST_AUTH_EXCHG=Set;
     //                          SessionTimerStop();
+    //                          SessionTimerStart
+    //                            (FAILED_SESS_TIMEOUT);
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PAR);
     ev.EnableCfg_EapPiggyback();
@@ -663,6 +748,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // Rx:PTR                   if (key_available())       CLOSED
     //                            PTA.insert_avp("AUTH");
     //                          Tx:PTA();
+    //                          SessionTimerStop();
     //                          Disconnect();
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PTR);
@@ -676,34 +762,13 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //                            PTR.insert_avp("AUTH");
     //                          Tx:PTR();
     //                          RtxTimerStart();
+    //                          SessionTimerStop();
+    //
     ev.Reset();
     ev.Event_App(PANA_EV_APP_TERMINATE);
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_SESS_TERM,
                        m_PacOpenExitActionTxPTR);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - (PaC updates PAA with new IP or attributes)- - - - -
-    // UPDATE                   if (key_available())       WAIT_PUA
-    //                            PUR.insert_avp("AUTH");
-    //                          Tx:PUR();
-    //                          RtxTimerStart();
-    ev.Reset();
-    ev.Event_App(PANA_EV_APP_UPDATE);
-    AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
-                       PANA_ST_WAIT_PUA,
-                       m_PacOpenExitActionTxPUR);
-
-    /////////////////////////////////////////////////////////////////
-    //  - - - - - - - - - - - (Attribute update)  - - - - - - - - - - -
-    // Rx:PUR                   If (key_avaialble())       OPEN
-    //                            PUA.insert_avp("AUTH");
-    //                          Tx:PUA();
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PUR);
-    AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
-                       PANA_ST_OPEN,
-                       m_PacOpenExitActionRxPUR);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - - - -(Session timeout)- - - - - - - - - - -
@@ -715,35 +780,36 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
 
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
+    /////////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - (PANA-Error-Message-Processing)- -
+    // Rx:PNR &&                PNA.insert_avp("AUTH");    CLOSED
+    // PNR.E_flag &&            PNA.E_flag=Set;
+    // fatal                    Tx:PNA();
+    // (PNR.RESULT_CODE) &&     Disconnect();
+    // PNR.exist_avp("AUTH") &&
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
                         // PER.exist_avp("AUTH") &&
                         // key_available()
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_CLOSED,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
-    /////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
+    /////////////////////////////////////////////////////////////////////
+    // Rx:PNR &&                PNA.E_flag=Set;            (no change)
+    // PNR.E_flag &&            Tx:PNA();
     // !fatal
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
+    // (PNR.RESULT_CODE) ||
+    // !PNR.exist_avp("AUTH") ||
     // !key_available()
-    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_OPEN,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- - - - - - - - - -
@@ -754,18 +820,47 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 #endif
 
     // ----------------
-    // State: WAIT_PRA
+    // State: WAIT_PNA
     // ----------------
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - -(re-authentication initiated by PaC) - - - - -
-    // Rx:PRA                  RtxTimerStop();            WAIT_PAA
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Rx:PNA &&                RtxTimerStop();            WAIT_PAA
+    // PNR.A_flag               SessionTimerStart
+    //                            (FAILED_SESS_TIMEOUT);
+    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PRA);
-    AddStateTableEntry(PANA_ST_WAIT_PRA, ev.Get(),
+    ev.MsgType(PANA_EV_MTYPE_PNA);
+    ev.FlagAuth();
+    AddStateTableEntry(PANA_ST_WAIT_PNA, ev.Get(),
                        PANA_ST_WAIT_PAA,
-                       m_PacWaitPRAAExitActionRxPRA);
+                       m_PacWaitPNAExitActionRxPNAAuth);
+
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - -(liveness test initiated by PaC) - - - - - - -
+    // Rx:PNA &&                RtxTimerStop();            OPEN
+    // PNR.P_flag
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ev.Reset();
+    ev.MsgType(PANA_EV_MTYPE_PNA);
+    ev.FlagPing();
+    AddStateTableEntry(PANA_ST_WAIT_PNA, ev.Get(),
+                       PANA_ST_OPEN,
+                       m_PacWaitPNAExitActionRxPNAPing);
+
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - - -(error processing) - - - - - - - - - - -
+    // Rx:PNA &&                RtxTimerStop();            CLOSED
+    // PNA.E_flag               SessionTimerStop();
+    //                          Disconnect();
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ev.Reset();
+    ev.MsgType(PANA_EV_MTYPE_PNA);
+    ev.FlagError();
+    AddStateTableEntry(PANA_ST_WAIT_PNA, ev.Get(),
+                       PANA_ST_CLOSED,
+                       m_PacWaitPNAExitActionRxPNAError);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - - - -(Session timeout)- - - - - - - - - - -
@@ -773,7 +868,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ev.Reset();
     ev.Do_SessTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PRA, ev.Get(),
+    AddStateTableEntry(PANA_ST_WAIT_PNA, ev.Get(),
                        PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
 
@@ -785,8 +880,8 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //
     ev.Reset();
     ev.Do_ReTransmission();
-    AddStateTableEntry(PANA_ST_WAIT_PRA, ev.Get(),
-                       PANA_ST_WAIT_PRA,
+    AddStateTableEntry(PANA_ST_WAIT_PNA, ev.Get(),
+                       PANA_ST_WAIT_PNA,
                        m_PacExitActionRetransmission);
 
     /////////////////////////////////////////////////////////////////
@@ -797,215 +892,47 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //
     ev.Reset();
     ev.Do_RetryTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PRA, ev.Get(),
+    AddStateTableEntry(PANA_ST_WAIT_PNA, ev.Get(),
                        PANA_ST_CLOSED,
                        m_PacExitActionRetransmission);
 
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
+    /////////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - (PANA-Error-Message-Processing)- -
+    // Rx:PNR &&                PNA.insert_avp("AUTH");    CLOSED
+    // PNR.E_flag &&            PNA.E_flag=Set;
+    // fatal                    Tx:PNA();
+    // (PNR.RESULT_CODE) &&     Disconnect();
+    // PNR.exist_avp("AUTH") &&
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
                         // PER.exist_avp("AUTH") &&
                         // key_available()
-    AddStateTableEntry(PANA_ST_WAIT_PRA, ev.Get(),
+    AddStateTableEntry(PANA_ST_WAIT_PNA, ev.Get(),
                        PANA_ST_CLOSED,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
-    /////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
+    /////////////////////////////////////////////////////////////////////
+    // Rx:PNR &&                PNA.E_flag=Set;            (no change)
+    // PNR.E_flag &&            Tx:PNA();
     // !fatal
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
+    // (PNR.RESULT_CODE) ||
+    // !PNR.exist_avp("AUTH") ||
     // !key_available()
-    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
-    AddStateTableEntry(PANA_ST_WAIT_PRA, ev.Get(),
-                       PANA_ST_WAIT_PRA,
-                       m_PacExitActionTxPEA);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
+    AddStateTableEntry(PANA_ST_WAIT_PNA, ev.Get(),
+                       PANA_ST_WAIT_PNA,
+                       m_PacExitActionTxPNAError);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
     //
 #if !defined(PANA_DEBUG)
-    AddWildcardStateTableEntry(PANA_ST_WAIT_PRA,
-                               PANA_ST_WAIT_PRA);
-#endif
-
-    // ----------------
-    // State: WAIT_PPA
-    // ----------------
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - -(liveness test initiated by PAA) - - - - - - -
-    // Rx:PPA                   RtxTimerStop();            OPEN
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PPA);
-    AddStateTableEntry(PANA_ST_WAIT_PPA, ev.Get(),
-                       PANA_ST_OPEN,
-                       m_PacWaitPPAExitActionRxPPA);
-
-    /////////////////////////////////////////////////////////////////
-    // SESS_TIMEOUT             Disconnect();              CLOSED
-    //
-    ev.Reset();
-    ev.Do_SessTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PPA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
-    // RTX_TIMEOUT &&           Disconnect();              CLOSED
-    // RTX_COUNTER>=
-    // RTX_MAX_NUM
-    //
-    ev.Reset();
-    ev.Do_RetryTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PPA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - (Reach maximum number of retransmission)- -
-    // RTX_TIMEOUT &&           Retransmit();              (no change)
-    // RTX_COUNTER<
-    // RTX_MAX_NUM
-    //
-    ev.Reset();
-    ev.Do_ReTransmission();
-    AddStateTableEntry(PANA_ST_WAIT_PPA, ev.Get(),
-                       PANA_ST_WAIT_PPA,
-                       m_PacExitActionRetransmission);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
-    ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
-                        // PER.exist_avp("AUTH") &&
-                        // key_available()
-    AddStateTableEntry(PANA_ST_WAIT_PPA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacExitActionTxPEA);
-
-    /////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
-    // !fatal
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
-    // !key_available()
-    //
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
-    AddStateTableEntry(PANA_ST_WAIT_PPA, ev.Get(),
-                       PANA_ST_WAIT_PPA,
-                       m_PacExitActionTxPEA);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - (Catch all processing)- -
-    //
-#if !defined(PANA_DEBUG)
-    AddWildcardStateTableEntry(PANA_ST_WAIT_PPA,
-                               PANA_ST_WAIT_PPA);
-#endif
-
-    // ----------------
-    // State: WAIT_PUA
-    // ----------------
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - - - (PUA processing)- - - - - - - - - - -
-    // Rx:PUA                   RtxTimerStop();            OPEN
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PUA);
-    AddStateTableEntry(PANA_ST_WAIT_PUA, ev.Get(),
-                       PANA_ST_OPEN,
-                       m_PacWaitPUAExitActionRxPUA);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - - -(Session timeout)- - - - - - - - - - -
-    // SESS_TIMEOUT             Disconnect();              CLOSED
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ev.Reset();
-    ev.Do_SessTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PUA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
-    // RTX_TIMEOUT &&           Disconnect();              CLOSED
-    // RTX_COUNTER>=
-    // RTX_MAX_NUM
-    //
-    ev.Reset();
-    ev.Do_RetryTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PUA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (Reach maximum number of retransmission)- - - 
-    // RTX_TIMEOUT &&           Retransmit();              (no change)
-    // RTX_COUNTER<
-    // RTX_MAX_NUM
-    //
-    ev.Reset();
-    ev.Do_ReTransmission();
-    AddStateTableEntry(PANA_ST_WAIT_PUA, ev.Get(),
-                       PANA_ST_WAIT_PUA,
-                       m_PacExitActionRetransmission);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
-    ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
-                        // PER.exist_avp("AUTH") &&
-                        // key_available()
-    AddStateTableEntry(PANA_ST_WAIT_PUA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacExitActionTxPEA);
-
-    /////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
-    // !fatal
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
-    // !key_available()
-    //
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
-    AddStateTableEntry(PANA_ST_WAIT_PUA, ev.Get(),
-                       PANA_ST_WAIT_PUA,
-                       m_PacExitActionTxPEA);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - (Catch all processing)- -
-    //
-#if !defined(PANA_DEBUG)
-    AddWildcardStateTableEntry(PANA_ST_WAIT_PUA,
-                               PANA_ST_WAIT_PUA);
+    AddWildcardStateTableEntry(PANA_ST_WAIT_PNA,
+                               PANA_ST_WAIT_PNA);
 #endif
 
     // ----------------
@@ -1055,35 +982,36 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        PANA_ST_SESS_TERM,
                        m_PacExitActionRetransmission);
 
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (PANA-Error-Message-Processing)- - - - - - -
-    // Rx:PER &&                PEA.insert_avp("AUTH");     CLOSED
-    // fatal                    Tx:PEA();
-    // (PER.RESULT_CODE) &&     Disconnect();
-    // PER.exist_avp("AUTH") &&
-    // key_available()
-    //
+    /////////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - (PANA-Error-Message-Processing)- -
+    // Rx:PNR &&                PNA.insert_avp("AUTH");    CLOSED
+    // PNR.E_flag &&            PNA.E_flag=Set;
+    // fatal                    Tx:PNA();
+    // (PNR.RESULT_CODE) &&     Disconnect();
+    // PNR.exist_avp("AUTH") &&
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     ev.Do_FatalError(); // fatal(PER.RESULT_CODE) &&
                         // PER.exist_avp("AUTH") &&
                         // key_available()
     AddStateTableEntry(PANA_ST_SESS_TERM, ev.Get(),
                        PANA_ST_CLOSED,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
-    /////////////////////////////////////////////////////////////////
-    // Rx:PER &&                Tx:PEA();                  (no change)
+    /////////////////////////////////////////////////////////////////////
+    // Rx:PNR &&                PNA.E_flag=Set;            (no change)
+    // PNR.E_flag &&            Tx:PNA();
     // !fatal
-    // (PER.RESULT_CODE) ||
-    // !PER.exist_avp("AUTH") ||
+    // (PNR.RESULT_CODE) ||
+    // !PNR.exist_avp("AUTH") ||
     // !key_available()
-    //
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PER);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
+    ev.FlagError();
     AddStateTableEntry(PANA_ST_SESS_TERM, ev.Get(),
                        PANA_ST_SESS_TERM,
-                       m_PacExitActionTxPEA);
+                       m_PacExitActionTxPNAError);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
@@ -1091,62 +1019,6 @@ PANA_ClientStateTable::PANA_ClientStateTable()
 #if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_SESS_TERM,
                                PANA_ST_SESS_TERM);
-#endif
-
-    // ----------------
-    // State: WAIT_PEA
-    // ----------------
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - - - -(PEA processing) - - - - - - - - - -
-    // Rx:PEA                   RtxTimerStop();            CLOSED
-    //                          Disconnect();
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PEA);
-    AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacWaitPEAExitActionRxPEA);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - - -(Session timeout)- - - - - - - - - - -
-    // SESS_TIMEOUT             Disconnect();              CLOSED
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ev.Reset();
-    ev.Do_SessTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
-    // RTX_TIMEOUT &&           Disconnect();              CLOSED
-    // RTX_COUNTER>=
-    // RTX_MAX_NUM
-    //
-    ev.Reset();
-    ev.Do_RetryTimeout();
-    AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PacExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - (Reach maximum number of retransmission)- - - 
-    // RTX_TIMEOUT &&           Retransmit();              (no change)
-    // RTX_COUNTER<
-    // RTX_MAX_NUM
-    //
-    ev.Reset();
-    ev.Do_ReTransmission();
-    AddStateTableEntry(PANA_ST_WAIT_PEA, ev.Get(),
-                       PANA_ST_WAIT_PEA,
-                       m_PacExitActionRetransmission);
-
-    /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - (Catch all processing)- -
-    //
-#if !defined(PANA_DEBUG)
-    AddWildcardStateTableEntry(PANA_ST_WAIT_PEA,
-                               PANA_ST_WAIT_PEA);
 #endif
 
     // -------------
@@ -1164,68 +1036,6 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     InitialState(PANA_ST_OFFLINE);
 }
 
-class PANA_CsmRxPSR : public PANA_ClientRxStateFilter
-{
-   public:
-      PANA_CsmRxPSR(PANA_Client &c,
-                    PANA_PacSession &s) :
-         PANA_ClientRxStateFilter(c, s) {
-         static PANA_ST validStates[] = { PANA_ST_OFFLINE };
-         AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-         // first level validation
-         if (! msg.flags().request) {
-            throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
-                   "PSA recevied, invalid message"));
-         }
-
-         // consume the session identifier
-         m_arg.SessionId() = msg.sessionId();
-
-         // second level validation
-         m_arg.RxValidateMsg(msg);
-
-         // save address of Paa
-         m_arg.PaaAddress() = msg.srcAddress();
-         m_arg.LastUsedChannel() = msg.destAddress();
-
-         // save last received header
-         m_arg.LastRxHeader() = msg;
-
-         // resolve the event
-         PANA_PacEventVariable ev;
-         ev.MsgType(PANA_EV_MTYPE_PSR);
-
-         // verify algorithm if present and supported
-         PANA_UInt32AvpContainerWidget algoAvp(msg.avpList());
-         pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
-         if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
-             // - - - - - - - - - - (un-supported Algorithm) - - - - - - - - -
-             // Rx:PSR &&                None();                    OFFLINE
-             // (PSR.exist_avp
-             // ("Algorithm") &&
-             // !algorithm_supported())
-             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-             AAA_LOG((LM_INFO, "(%P|%t) Supplied algorithm [0x%x] is not supported, session will close\n",
-                     *algo));
-             throw (PANA_Exception(PANA_Exception::FAILED,
-                    "PSA recevied, unsupported algorithm"));
-         }
-
-         PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-         if (eapAvp.GetAvp(PANA_AVPNAME_EAP)) {
-             ev.AvpExist_EapPayload();
-         }
-
-         m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-         m_Session.Notify(ev.Get());
-      }
-      virtual PANA_ClientRxStateFilter *clone() {
-         return (new PANA_CsmRxPSR(*this));
-      }
-};
-
 class PANA_CsmRxPA : public PANA_ClientRxStateFilter
 {
    public:
@@ -1236,157 +1046,246 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
       virtual void HandleMessage(PANA_Message &msg) {
-         // first level validation
-         m_arg.RxValidateMsg(msg);
 
-         // save address of Paa
-         if (msg.flags().request) {
-             m_arg.PaaAddress() = msg.srcAddress();
-         }
-         m_arg.LastUsedChannel() = msg.destAddress();
+          PANA_PacEventVariable ev;
+          ev.MsgType(PANA_EV_MTYPE_PAR);
 
-         // save last received header
-         m_arg.LastRxHeader() = msg;
+          if (msg.flags().auth ||
+              msg.flags().ping ||
+              msg.flags().error) {
+              throw (PANA_Exception(PANA_Exception::AAA_INVALID_BIT_IN_HEADER,
+                     "PA recevied, invalid flag settings"));
+          }
+          else if (msg.flags().start) {
+              HandleStart(msg, ev);
+          }
+          else if (msg.flags().complete) {
+              HandleComplete(msg, ev);
+          }
+          else {
+              HandleNormal(msg, ev);
+          }
 
-         // resolve the event
-         PANA_PacEventVariable ev;
-         if (msg.flags().request) {
-            ev.MsgType(PANA_EV_MTYPE_PAR);
-            ev.EnableCfg_EapPiggyback(PANA_CFG_PAC().m_EapPiggyback ? 1 : 0);
-         }
-         else {
-            ev.MsgType(PANA_EV_MTYPE_PAN);
-         }
-         m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-         m_Session.Notify(ev.Get());
+          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
+          m_Session.Notify(ev.Get());
       }
       virtual PANA_ClientRxStateFilter *clone() {
-         return (new PANA_CsmRxPA(*this));
+          return (new PANA_CsmRxPA(*this));
+      }
+
+   protected:
+      virtual void HandleStart(PANA_Message &msg,
+                               PANA_PacEventVariable &ev) {
+          // first level validation
+          if (! msg.flags().request) {
+              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                  "PAN recevied, invalid message"));
+          }
+
+          // consume the session identifier
+          m_arg.SessionId() = msg.sessionId();
+
+          // second level validation
+          m_arg.RxValidateMsg(msg);
+
+          // save address of Paa
+          m_arg.PaaAddress() = msg.srcAddress();
+          m_arg.LastUsedChannel() = msg.destAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve the event
+          ev.FlagStart();
+
+          // verify algorithm if present and supported
+          PANA_UInt32AvpContainerWidget algoAvp(msg.avpList());
+          pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
+          if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
+              // - - - - - - - - - - (un-supported Algorithm) - - - - - - - - -
+              // Rx:PAR &&                None();                    OFFLINE
+              // PAR.S_flag &&
+              // (PAR.exist_avp
+              // ("Algorithm") &&
+              // !algorithm_supported())
+              // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+              AAA_LOG((LM_INFO, "(%P|%t) Supplied algorithm [0x%x] is not supported, session will close\n",
+                      *algo));
+              throw (PANA_Exception(PANA_Exception::FAILED,
+                      "PAR recevied, unsupported algorithm"));
+          }
+
+          PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+          if (eapAvp.GetAvp(PANA_AVPNAME_EAP)) {
+              ev.AvpExist_EapPayload();
+          }
+      }
+      virtual void HandleNormal(PANA_Message &msg,
+                               PANA_PacEventVariable &ev) {
+          // first level validation
+          m_arg.RxValidateMsg(msg);
+
+          // save address of paa
+          if (msg.flags().request) {
+              m_arg.PaaAddress() = msg.SrcAddress();
+          }
+          m_arg.LastUsedChannel() = msg.DestAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve the event
+          if (msg.flags().request) {
+              ev.MsgType(PANA_EV_MTYPE_PAR);
+              ev.enablecfg_eappiggyback(pana_cfg_pac().m_eappiggyback ? 1 : 0);
+          }
+          else {
+              ev.MsgType(PANA_EV_MTYPE_PAN);
+              PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+              pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+              if (payload) {
+                  ev.AvpExist_EapPayload();
+              }
+          }
+      }
+      virtual void HandleComplete(PANA_Message &msg,
+                                  PANA_PacEventVariable &ev) {
+          // first level validation
+          if (! msg.flags().request) {
+              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                     "PNA received, invalid message"));
+          }
+
+          // second level validation
+          m_arg.RxValidateMsg(msg, true);
+
+          // save address of Paa
+          m_arg.PaaAddress() = msg.srcAddress();
+          m_arg.LastUsedChannel() = msg.destAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve the event
+          ev.FlagComplete();
+
+          // resolve the eap event
+          PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+          pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+          if (payload) {
+              ev.AvpExist_EapPayload();
+          }
+          PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
+          pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
+          if (rcode && (ACE_NTOHL(*rcode) == PANA_RCODE_SUCCESS)) {
+              // third level validation
+              PANA_UInt32AvpContainerWidget algoAvp(msg.avpList());
+              pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
+              if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
+                  ev.AlgorithmNotSupported();
+              }
+              ev.ResultCode(PANA_RESULT_CODE_SUCCESS);
+          }
+          else {
+              ev.ResultCode(PANA_RESULT_CODE_FAIL);
+          }
       }
 };
 
-class PANA_CsmRxPBR : public PANA_ClientRxStateFilter
+class PANA_CsmRxPN : public PANA_ClientRxStateFilter
 {
    public:
-      PANA_CsmRxPBR(PANA_Client &c, PANA_PacSession &s) :
-          PANA_ClientRxStateFilter(c, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_PAA };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-         // first level validation
-         if (! msg.flags().request) {
-            throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
-                   "PBA received, invalid message"));
-         }
-
-         // second level validation
-         m_arg.RxValidateMsg(msg, true);
-
-         // save address of Paa
-         m_arg.PaaAddress() = msg.srcAddress();
-         m_arg.LastUsedChannel() = msg.destAddress();
-
-         // save last received header
-         m_arg.LastRxHeader() = msg;
-
-         // resolve the event
-         PANA_PacEventVariable ev;
-         ev.MsgType(PANA_EV_MTYPE_PBR);
-
-         // resolve the eap event
-         PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-         pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
-         if (payload) {
-            ev.AvpExist_EapPayload();
-         }
-         PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
-         pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
-         if (rcode && (ACE_NTOHL(*rcode) == PANA_RCODE_SUCCESS)) {
-            // third level validation
-            PANA_UInt32AvpContainerWidget algoAvp(msg.avpList());
-            pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
-            if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
-                ev.AlgorithmNotSupported();
-            }
-            ev.ResultCode(PANA_RESULT_CODE_SUCCESS);
-         }
-         else {
-            ev.ResultCode(PANA_RESULT_CODE_FAIL);
-         }
-         m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-         m_Session.Notify(ev.Get());
-      };
-      virtual PANA_ClientRxStateFilter *clone() {
-         return (new PANA_CsmRxPBR(*this));
-      }
-};
-
-class PANA_CsmRxPP : public PANA_ClientRxStateFilter
-{
-   public:
-      PANA_CsmRxPP(PANA_Client &c, PANA_PacSession &s) :
+      PANA_CsmRxPN(PANA_Client &c, PANA_PacSession &s) :
          PANA_ClientRxStateFilter(c, s) {
           static PANA_ST validStates[] = { PANA_ST_WAIT_PPA,
                                            PANA_ST_OPEN };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
       virtual void HandleMessage(PANA_Message &msg) {
-         // first level validation
-         m_arg.RxValidateMsg(msg);
 
-         // save address of Paa
-         if (msg.flags().request) {
-             m_arg.PaaAddress() = msg.srcAddress();
-         }
-         m_arg.LastUsedChannel() = msg.destAddress();
+          PANA_PacEventVariable ev;
+          ev.MsgType(PANA_EV_MTYPE_PNR);
 
-         // save last received header
-         m_arg.LastRxHeader() = msg;
+          // first level validation
+          m_arg.RxValidateMsg(msg);
 
-         // resolve the event
-         PANA_PacEventVariable ev;
-         ev.MsgType(msg.flags().request ?
-                    PANA_EV_MTYPE_PPR : PANA_EV_MTYPE_PPA);
-         m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-         m_Session.Notify(ev.Get());
-      };
-      virtual PANA_ClientRxStateFilter *clone() { 
-         return (new PANA_CsmRxPP(*this)); 
-      }
-};
+          if (msg.flags().start ||
+              msg.flags().complete) {
+              throw (PANA_Exception(PANA_Exception::AAA_INVALID_BIT_IN_HEADER,
+                     "PN recevied, invalid flag settings"));
+          }
+          else if (msg.flags().auth) {
+              HandleAuth(msg, ev);
+          }
+          else if (msg.flags().ping) {
+              HandlePing(msg, ev);
+          }
+          else if (msg.flags().error) {
+              HandleError(msg, ev);
+          }
 
-class PANA_CsmRxPU : public PANA_ClientRxStateFilter
-{
-   public:
-      PANA_CsmRxPU(PANA_Client &c, PANA_PacSession &s) :
-         PANA_ClientRxStateFilter(c, s) {
-          static PANA_ST validStates[] = { PANA_ST_OPEN,
-                                           PANA_ST_WAIT_PUA };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-         // msg validation
-         m_arg.RxValidateMsg(msg);
-
-         // save address of Paa
-         if (msg.flags().request) {
-             m_arg.PaaAddress() = msg.srcAddress();
-         }
-         m_arg.LastUsedChannel() = msg.destAddress();
-
-         // save last received header
-         m_arg.LastRxHeader() = msg;
-
-         // resolve the event
-         PANA_PacEventVariable ev;
-         ev.MsgType(msg.flags().request ?
-                    PANA_EV_MTYPE_PUR : PANA_EV_MTYPE_PUA);
-         m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-         m_Session.Notify(ev.Get());
+          // post the event
+          m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
+          m_Session.Notify(ev.Get());
       };
       virtual PANA_ClientRxStateFilter *clone() {
-         return (new PANA_CsmRxPU(*this));
+         return (new PANA_CsmRxPN(*this));
+      }
+
+   protected:
+      virtual void HandleAuth(PANA_Message &msg,
+                              PANA_PacEventVariable &ev) {
+          // second level validation
+          if (msg.flags().request) {
+              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                     "PN received, invalid message"));
+          }
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // save last used address
+          m_arg.LastUsedChannel() = msg.destAddress();
+
+          // resolve event
+          ev.FlagAuth();
+      }
+      virtual void HandlePing(PANA_Message &msg,
+                              PANA_PacEventVariable &ev) {
+          // save address of Paa
+          if (msg.flags().request) {
+              m_arg.PaaAddress() = msg.srcAddress();
+          }
+          m_arg.LastUsedChannel() = msg.destAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve the event
+          ev.FlagPing();
+      }
+      virtual void HandleError(PANA_Message &msg,
+                               PANA_PacEventVariable &ev) {
+          // save address of Paa
+          if (msg.flags().request) {
+              m_arg.PaaAddress() = msg.srcAddress();
+          }
+          m_arg.LastUsedChannel() = msg.destAddress();
+
+          // resolve the event
+          ev.FlagError();
+          if (msg.flags().request) {
+              if (m_arg.IsFatalError()) {
+                  PANA_StringAvpContainerWidget authAvp(msg.avpList());
+                  pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
+                  if (auth && m_arg.SecurityAssociation().Auth().IsSet()) {
+                      ev.Do_FatalError();
+                  }
+              }
+              // tell the session
+              m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
+              m_arg.RxPNRError();
+          }
       }
 };
 
@@ -1421,90 +1320,6 @@ class PANA_CsmRxPT : public PANA_ClientRxStateFilter
       };
       virtual PANA_ClientRxStateFilter *clone() {
          return (new PANA_CsmRxPT(*this));
-      }
-};
-
-class PANA_CsmRxPRA : public PANA_ClientRxStateFilter
-{
-   public:
-      PANA_CsmRxPRA(PANA_Client &c, PANA_PacSession &s) :
-         PANA_ClientRxStateFilter(c, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_PRA };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-         // first level validation
-         if (msg.flags().request) {
-            throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
-                   "PRR received, invalid message"));
-         }
-
-         // second level validation
-         m_arg.RxValidateMsg(msg);
-
-         // save last received header
-         m_arg.LastRxHeader() = msg;
-
-         // save last used address
-         m_arg.LastUsedChannel() = msg.destAddress();
-
-         // resolve the event
-         PANA_PacEventVariable ev;
-         ev.MsgType(PANA_EV_MTYPE_PRA);
-         m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-         m_Session.Notify(ev.Get());
-      };
-      virtual PANA_ClientRxStateFilter *clone() {
-         return (new PANA_CsmRxPRA(*this));
-      }
-};
-
-class PANA_CsmRxPE : public PANA_ClientRxStateFilter
-{
-   public:
-      PANA_CsmRxPE(PANA_Client &c, PANA_PacSession &s) :
-         PANA_ClientRxStateFilter(c, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_PAA,
-                                           PANA_ST_OPEN,
-                                           PANA_ST_WAIT_EAP_MSG,
-                                           PANA_ST_WAIT_PRA,
-                                           PANA_ST_WAIT_PPA,
-                                           PANA_ST_SESS_TERM,
-                                           PANA_ST_WAIT_PUA };
-          AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
-      }
-      virtual void HandleMessage(PANA_Message &msg) {
-          // first level validation
-          m_arg.RxValidateMsg(msg);
-
-          // save address of Paa
-         if (msg.flags().request) {
-             m_arg.PaaAddress() = msg.srcAddress();
-         }
-         m_arg.LastUsedChannel() = msg.destAddress();
-
-          // resolve the event
-          PANA_PacEventVariable ev;
-          if (msg.flags().request) {
-              ev.MsgType(PANA_EV_MTYPE_PER);
-              if (m_arg.IsFatalError()) {
-                  PANA_StringAvpContainerWidget authAvp(msg.avpList());
-                  pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
-                  if (auth && m_arg.SecurityAssociation().Auth().IsSet()) {
-                      ev.Do_FatalError();
-                  }
-              }
-              // tell the session
-              m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
-              m_arg.RxPER();
-          }
-          else {
-              ev.MsgType(PANA_EV_MTYPE_PEA);
-          }
-          m_Session.Notify(ev.Get());
-      };
-      virtual PANA_ClientRxStateFilter *clone() {
-         return (new PANA_CsmRxPE(*this));
       }
 };
 
@@ -1560,41 +1375,21 @@ PANA_PacSession::~PANA_PacSession()
 
 void PANA_PacSession::InitializeMsgMaps()
 {
-   PANA_CsmRxPSR PSR(m_PaC, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PSR, PSR);
-
    PANA_CsmRxPA PA(m_PaC, *this);
    m_MsgHandlers.Register(PANA_MTYPE_PAR, PA);
 
-   PANA_CsmRxPBR PBR(m_PaC, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PBR, PBR);
-
-   PANA_CsmRxPP PP(m_PaC, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PPR, PP);
-
-   PANA_CsmRxPRA PRA(m_PaC, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PRR, PRA);
-
-   PANA_CsmRxPU PU(m_PaC, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PUR, PU);
+   PANA_CsmRxPN PN(m_PaC, *this);
+   m_MsgHandlers.Register(PANA_MTYPE_PNR, PN);
 
    PANA_CsmRxPT PT(m_PaC, *this);
    m_MsgHandlers.Register(PANA_MTYPE_PTR, PT);
-
-   PANA_CsmRxPE PE(m_PaC, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PER, PE);
 }
 
 void PANA_PacSession::FlushMsgMaps()
 {
-   m_MsgHandlers.Remove(PANA_MTYPE_PSR);
    m_MsgHandlers.Remove(PANA_MTYPE_PAR);
-   m_MsgHandlers.Remove(PANA_MTYPE_PBR);
-   m_MsgHandlers.Remove(PANA_MTYPE_PPR);
-   m_MsgHandlers.Remove(PANA_MTYPE_PRA);
-   m_MsgHandlers.Remove(PANA_MTYPE_PUA);
+   m_MsgHandlers.Remove(PANA_MTYPE_PNR);
    m_MsgHandlers.Remove(PANA_MTYPE_PTR);
-   m_MsgHandlers.Remove(PANA_MTYPE_PER);
 }
 
 void PANA_PacSession::Start() throw (AAA_Error)
@@ -1610,9 +1405,11 @@ void PANA_PacSession::EapSendResponse(AAAMessageBlock *response)
    m_PaC.AuxVariables().TxEapMessageQueue().Enqueue(guard.Release());
    PANA_PacEventVariable ev;
    ev.Event_Eap(PANA_EV_EAP_RESPONSE);
-   if (PANA_CFG_PAC().m_EapPiggyback) {
+   if (PANA_CFG_PAC().m_EapPiggyback &&
+       ! m_PaC.AuxVariables().OptimizedPAN()) {
        ev.EnableCfg_EapPiggyback();
    }
+   m_PaC.AuxVariables().OptimizedPAN() = false;
    Notify(ev.Get());
 }
 
@@ -1651,14 +1448,6 @@ void PANA_PacSession::ReAuthenticate()
 {
    PANA_PacEventVariable ev;
    ev.Event_App(PANA_EV_APP_REAUTH);
-   Notify(ev.Get());
-}
-
-void PANA_PacSession::Update(ACE_INET_Addr &addr)
-{
-   m_PaC.PacAddress() = addr;
-   PANA_PacEventVariable ev;
-   ev.Event_App(PANA_EV_APP_UPDATE);
    Notify(ev.Get());
 }
 

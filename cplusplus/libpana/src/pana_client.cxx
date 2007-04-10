@@ -88,25 +88,31 @@ void PANA_Client::NotifyEapRequest(pana_octetstring_t &payload)
     }
 }
 
-void PANA_Client::RxPSR()
+void PANA_Client::RxPARStart()
 {
    /*
-      7.2.  PANA-Start-Request (PSR)
+    7.2.  PANA-Auth-Request (PAR)
 
-         The PANA-Start-Request (PSR) message is sent by the PAA to the PaC to
-         start PANA authentication.  The PAA sets the Sequence Number field to
-         an initial random value and sets the Session Identifier field to a
-         newly assigned value.
+      The PANA-Auth-Request (PAR) message is either sent by the PAA or the
+      PaC.
 
-         PANA-Start-Request ::= < PANA-Header: 2, REQ >
-                             [ EAP-Payload ]
-                             [ Algorithm ]
-                          *  [ AVP ]
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Request ::= < PANA-Header: 2, REQ[,STA][,COM] >
+                          [ EAP-Payload ]
+                          [ Algorithm ]
+                          [ Nonce ]
+                          [ Result-Code ]
+                          [ Session-Lifetime ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
     */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPSR: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR-Start: id=%d seq=%d\n",
+            msg.sessionId(), msg.seq()));
 
     // RtxTimerStop()
     m_Timer.CancelTxRetry();
@@ -122,28 +128,33 @@ void PANA_Client::RxPSR()
        m_Timer.ScheduleEapResponse();
     }
     else {
-       TxPSA(false);
+       TxPANStart(false);
     }
 }
 
-void PANA_Client::TxPSA(bool eapOptimization)
+void PANA_Client::TxPANStart(bool eapOptimization)
 {
    /*
-     7.3.  PANA-Start-Answer (PSA)
+    7.3.  PANA-Auth-Answer (PAN)
 
-        The PANA-Start-Answer (PSA) message is sent by the PaC to the PAA in
-        response to a PANA-Start-Request message.  This message completes the
-        handshake to start PANA authentication.
+      The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
+      PAA in response to a PANA-Auth-Request message.
 
-        PANA-Start-Answer ::= < PANA-Header: 2 >
-                            [ EAP-Payload ]
-                         *  [ AVP ]
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Answer ::= < PANA-Header: 2 [,STA][,COM] >
+                          [ Nonce ]
+                          [ EAP-Payload ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
      */
 
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PSR;
+    msg->type() = PANA_MTYPE_PAN;
+    msg->flags().start = true;
     msg->seq() = LastRxSeqNum().Value();
     msg->sessionId() = this->SessionId();
 
@@ -155,7 +166,8 @@ void PANA_Client::TxPSA(bool eapOptimization)
         msg->avpList().add(eapAvp());
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPSA: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN-Start: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -180,7 +192,8 @@ void PANA_Client::TxPCI()
     msg->seq() = 0;
     this->SessionId() = 0;
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPCI: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPCI: id=%d seq=%d\n",
+             msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
 }
@@ -188,22 +201,29 @@ void PANA_Client::TxPCI()
 void PANA_Client::RxPAR()
 {
     /*
-      7.4.  PANA-Auth-Request (PAR)
+    7.2.  PANA-Auth-Request (PAR)
 
-         The PANA-Auth-Request (PAR) message is either sent by the PAA or the
-         PaC.  Its main task is to carry an EAP-Payload AVP.
+      The PANA-Auth-Request (PAR) message is either sent by the PAA or the
+      PaC.
 
-         PANA-Auth-Request ::= < PANA-Header: 3, REQ >
-                             < EAP-Payload >
-                             [ Nonce ]
-                          *  [ AVP ]
-                         0*1 < AUTH >
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Request ::= < PANA-Header: 2, REQ[,STA][,COM] >
+                          [ EAP-Payload ]
+                          [ Algorithm ]
+                          [ Nonce ]
+                          [ Result-Code ]
+                          [ Session-Lifetime ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
     */
 
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: id=%d seq=%d\n",
+             msg.sessionId(), msg.seq()));
 
     // Stop any RtxTimerStop()
     m_Timer.CancelTxRetry();
@@ -237,42 +257,64 @@ void PANA_Client::RxPAR()
 
 void PANA_Client::RxPAN()
 {
-    /*
-      7.5.  PANA-Auth-Answer (PAN)
+   /*
+    7.3.  PANA-Auth-Answer (PAN)
 
-         The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
-         PAA in response to a PANA-Auth-Request message.  It MAY carry an
-         EAP-Payload AVP.
+      The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
+      PAA in response to a PANA-Auth-Request message.
 
-         PANA-Auth-Answer ::= < PANA-Header: 3 >
-                             [ Nonce ]
-                             [ EAP-Payload ]
-                          *  [ AVP ]
-                         0*1 < AUTH >
-    */
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Answer ::= < PANA-Header: 2 [,STA][,COM] >
+                          [ Nonce ]
+                          [ EAP-Payload ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
+     */
+
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: id=%d seq=%d\n",
+            msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
     m_Timer.CancelSession();
+
+    PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+    pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+    if (payload) {
+        NotifyEapRequest(*payload);
+
+        // EAP response timeout should be less than retry
+        m_Timer.ScheduleEapResponse();
+
+        // set optimized PAN flag
+        AuxVariables().OptimizedPAN() = true;
+    }
 }
 
 void PANA_Client::TxPAR()
 {
     /*
-      7.4.  PANA-Auth-Request (PAR)
+    7.2.  PANA-Auth-Request (PAR)
 
-         The PANA-Auth-Request (PAR) message is either sent by the PAA or the
-         PaC.  Its main task is to carry an EAP-Payload AVP.
+      The PANA-Auth-Request (PAR) message is either sent by the PAA or the
+      PaC.
 
-         PANA-Auth-Request ::= < PANA-Header: 3, REQ >
-                             < EAP-Payload >
-                             [ Nonce ]
-                          *  [ AVP ]
-                         0*1 < AUTH >
-     */
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Request ::= < PANA-Header: 2, REQ[,STA][,COM] >
+                          [ EAP-Payload ]
+                          [ Algorithm ]
+                          [ Nonce ]
+                          [ Result-Code ]
+                          [ Session-Lifetime ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
+    */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
@@ -298,26 +340,29 @@ void PANA_Client::TxPAR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
 }
 
 void PANA_Client::TxPAN(bool eapPiggyBack)
 {
-    /*
-      7.5.  PANA-Auth-Answer (PAN)
+   /*
+    7.3.  PANA-Auth-Answer (PAN)
 
-         The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
-         PAA in response to a PANA-Auth-Request message.  It MAY carry an
-         EAP-Payload AVP.
+      The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
+      PAA in response to a PANA-Auth-Request message.
 
-         PANA-Auth-Answer ::= < PANA-Header: 3 >
-                             [ Nonce ]
-                             [ EAP-Payload ]
-                          *  [ AVP ]
-                         0*1 < AUTH >
-    */
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Answer ::= < PANA-Header: 2 [,STA][,COM] >
+                          [ Nonce ]
+                          [ EAP-Payload ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
+     */
 
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
@@ -352,40 +397,45 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
 }
 
-void PANA_Client::RxPBR()
+void PANA_Client::RxPARComplete()
 {
     /*
-      7.8.  PANA-Bind-Request (PBR)
+    7.2.  PANA-Auth-Request (PAR)
 
-         The PANA-Bind-Request (PBR) message is sent by the PAA to the PaC to
-         deliver the result of PANA authentication.
+      The PANA-Auth-Request (PAR) message is either sent by the PAA or the
+      PaC.
 
-         PANA-Bind-Request ::= < PANA-Header: 5, REQ >
-                             { Result-Code }
-                             [ EAP-Payload ]
-                             [ Session-Lifetime ]
-                             [ Key-Id ]
-                             [ Algorithm ]
-                          *  [ AVP ]
-                         0*1 < AUTH >
-     */
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Request ::= < PANA-Header: 2, REQ[,STA][,COM] >
+                          [ EAP-Payload ]
+                          [ Algorithm ]
+                          [ Nonce ]
+                          [ Result-Code ]
+                          [ Session-Lifetime ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
+    */
 
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPBR: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR-Complete: id=%d seq=%d\n",
+             msg.sessionId(), msg.seq()));
 
     // lookup result code
     PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
     pana_unsigned32_t *pRcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
     if (pRcode == NULL) {
         throw (PANA_Exception(PANA_Exception::FAILED, 
-               "No Result-Code AVP in PBR message"));
+               "No Result-Code AVP in PNR message"));
     }
     pana_unsigned32_t rcode = ACE_NTOHL(*pRcode);
 
@@ -414,28 +464,33 @@ void PANA_Client::RxPBR()
         Error(rcode);
     }
     else {
-        throw (PANA_Exception(PANA_Exception::FAILED, 
+        throw (PANA_Exception(PANA_Exception::FAILED,
                "No EAP-Payload on PANA_SUCCESS result code"));
     }
 }
 
-void PANA_Client::TxPBA(bool authSuccess)
+void PANA_Client::TxPANComplete(bool authSuccess)
 {
-    /*
-      7.9.  PANA-Bind-Answer (PBA)
+   /*
+    7.3.  PANA-Auth-Answer (PAN)
 
-         The PANA-Bind-Answer (PBA) message is sent by the PaC to the PAA in
-         response to a PANA-Bind-Request message.
+      The PANA-Auth-Answer (PAN) message is sent by either the PaC or the
+      PAA in response to a PANA-Auth-Request message.
 
-         PANA-Bind-Answer ::= < PANA-Header: 5 >
-                             [ Key-Id ]
-                          *  [ AVP ]
-                         0*1 < AUTH >
+      The message MUST NOT have both 'S' and 'C' bits set.
+
+      PANA-Auth-Answer ::= < PANA-Header: 2 [,STA][,COM] >
+                          [ Nonce ]
+                          [ EAP-Payload ]
+                          [ Key-Id ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
      */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PBA;
+    msg->type() = PANA_MTYPE_PAN;
+    msg->flags().complete = true;
     msg->seq() = LastRxSeqNum().Value();
     msg->sessionId() = this->SessionId();
 
@@ -455,29 +510,43 @@ void PANA_Client::TxPBA(bool authSuccess)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPBA: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN-Complete: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
 }
 
-void PANA_Client::TxPRR()
+void PANA_Client::TxPNRAuth()
 {
     /*
-      7.6.  PANA-Reauth-Request (PRR)
+      7.6.  PANA-Notification-Request (PNR)
 
-         The PANA-Reauth-Request (PRR) message is sent by the PaC to the PAA
-         to re-initiate EAP authentication.
+        The PANA-Notification-Request (PNR) message is sent either by the PaC
+        or the PAA for signaling re-authentication and errors, and performing
+        liveness test.
 
-         PANA-Reauth-Request ::= < PANA-Header: 4, REQ >
-                          *  [ AVP ]
-                         0*1 < AUTH >
+        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
+        Failed-Message-Header and Failed-AVP AVPs.
+
+        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
+        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
+
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
+
+      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                          [ Result-Code ]
+                          [ Failed-Message-Header ]
+                        *  [ Failed-AVP ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
      */
 
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PRR;
+    msg->type() = PANA_MTYPE_PNR;
     msg->flags().request = true;
+    msg->flags().auth = true;
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
@@ -489,29 +558,34 @@ void PANA_Client::TxPRR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPRR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Auth: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
 }
 
-void PANA_Client::RxPRA()
+void PANA_Client::RxPNAAuth()
 {
     /*
-      7.7.  PANA-Reauth-Answer (PRA)
+      7.7.  PANA-Notification-Answer (PNA)
 
-         The PANA-Reauth-Answer (PRA) message is sent by the PAA to the PaC in
-         response to a PANA-Reauth-Request message.
+        The PANA-Notification-Answer (PNA) message is sent by the PAA (PaC)
+        to the PaC (PAA) in response to a PANA-Notification-Request from the
+        PaC (PAA).
 
-         PANA-Reauth-Answer ::= < PANA-Header: 4 >
-                          *  [ AVP ]
-                         0*1 < AUTH >
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
+
+        PANA-Notification-Answer ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                        *  [ AVP ]
+                        0*1 < AUTH >
      */
 
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPRA: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNA-Auth: id=%d seq=%d\n",
+            msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
 

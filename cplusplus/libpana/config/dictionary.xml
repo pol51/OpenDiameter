@@ -7,82 +7,28 @@
       <answerrules>
       </answerrules>
     </command>
-    <command name="PANA-Start" code="2">
+    <command name="PANA-Auth" code="2">
       <requestrules>
         <optional>
-           <avprule name="EAP-Payload" maximum="1" minimum="0" />
-           <avprule name="Algorithm" maximum="1" minimum="0" />
-        </optional>
-      </requestrules>
-      <answerrules>
-        <optional>
-           <avprule name="EAP-Payload" maximum="1" minimum="0" />
-        </optional>
-      </answerrules>
-    </command>
-    <command name="PANA-Auth" code="3">
-      <requestrules>
-        <fixed>
            <avprule name="EAP-Payload" maximum="1" minimum="1" />
-        </fixed>
-        <optional>
+           <avprule name="Algorithm" maximum="1" minimum="0" />
            <avprule name="Nonce" maximum="1" minimum="0" />
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </requestrules>
-      <answerrules>
-        <optional>
-           <avprule name="Nonce" maximum="1" minimum="0" />
-           <avprule name="EAP-Payload" maximum="1" minimum="0" />
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </answerrules>
-    </command>
-    <command name="PANA-Reauth" code="4">
-      <requestrules>
-        <optional>
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </requestrules>
-      <answerrules>
-        <optional>
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </answerrules>
-    </command>
-    <command name="PANA-Bind" code="5">
-      <requestrules>
-        <fixed>
-           <avprule name="Result-Code" maximum="1" minimum="1" />
-        </fixed>
-        <optional>
-           <avprule name="EAP-Payload" maximum="1" minimum="0" />
+           <avprule name="Result-Code" maximum="1" minimum="0" />
            <avprule name="Session-Lifetime" maximum="1" minimum="0" />
            <avprule name="Key-Id" maximum="1" minimum="0" />
-           <avprule name="Algorithm" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </requestrules>
       <answerrules>
         <optional>
+           <avprule name="Nonce" maximum="1" minimum="0" />
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
            <avprule name="Key-Id" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </answerrules>
     </command>
-    <command name="PANA-Ping" code="6">
-      <requestrules>
-        <optional>
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </requestrules>
-      <answerrules>
-        <optional>
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </answerrules>
-    </command>
-    <command name="PANA-Termination" code="7">
+    <command name="PANA-Termination" code="3">
       <requestrules>
         <fixed>
            <avprule name="Termination-Cause" maximum="1" minimum="1" />
@@ -97,26 +43,12 @@
         </optional>
       </answerrules>
     </command>
-    <command name="PANA-Error" code="8">
+    <command name="PANA-Notification" code="4">
       <requestrules>
-        <fixed>
-           <avprule name="Result-Code" maximum="1" minimum="1" />
+        <optional>
+           <avprule name="Result-Code" maximum="1" minimum="0" />
            <avprule name="Failed-Message-Header" maximum="1" minimum="1" />
-        </fixed>
-        <optional>
            <avprule name="Failed-AVP" maximum="1" minimum="0" />
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </requestrules>
-      <answerrules>
-        <optional>
-           <avprule name="AUTH" maximum="1" minimum="0" />
-        </optional>
-      </answerrules>
-    </command>
-    <command name="PANA-Update" code="9">
-      <requestrules>
-        <optional>
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </requestrules>

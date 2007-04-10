@@ -57,17 +57,17 @@ class PANA_EXPORT PANA_Client :
       virtual void NotifyEapRequest(pana_octetstring_t &payload);
 
       virtual void TxPCI();
-      virtual void TxPSA(bool eapOptimization);
+      virtual void TxPANStart(bool eapOptimization);
       virtual void TxPAR();
       virtual void TxPAN(bool eapPiggyBack);
-      virtual void TxPBA(bool authSuccess);
-      virtual void TxPRR();
+      virtual void TxPANComplete(bool authSuccess);
+      virtual void TxPNRAuth();
 
-      virtual void RxPSR();
+      virtual void RxPARStart();
       virtual void RxPAR();
       virtual void RxPAN();
-      virtual void RxPBR();
-      virtual void RxPRA();
+      virtual void RxPARComplete();
+      virtual void RxPNAAuth();
 
       PANA_SessionTimerInterface &Timer() {
           return m_Timer;

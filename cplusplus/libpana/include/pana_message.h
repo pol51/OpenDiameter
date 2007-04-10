@@ -47,55 +47,55 @@
 #define PANA_DICT_PROTOCOL_ID  1
 
 /*!
-   6.3.  AVP Header
+6.3.  AVP Header
 
-      Each AVP of type OctetString MUST be padded to align on a 32-bit
-      boundary, while other AVP types align naturally.  A number of
-      zero-valued bytes are added to the end of the AVP Data field till a
-      word boundary is reached.  The length of the padding is not reflected
-      in the AVP Length field [RFC3588].
+    Each AVP of type OctetString MUST be padded to align on a 32-bit
+    boundary, while other AVP types align naturally.  A number of
+    zero-valued bytes are added to the end of the AVP Data field till a
+    word boundary is reached.  The length of the padding is not reflected
+    in the AVP Length field [RFC3588].
 
-      The fields in the AVP header are sent in network byte order.  The
-      format of the header is:
+    The fields in the AVP header are sent in network byte order.  The
+    format of the header is:
 
-       0                   1                   2                   3
-       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |           AVP Code            |           AVP Flags           |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |          AVP Length           |            Reserved           |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                         Vendor-Id (opt)                       |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |    Data ...
-      +-+-+-+-+-+-+-+-+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |           AVP Code            |           AVP Flags           |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |          AVP Length           |            Reserved           |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                         Vendor-Id (opt)                       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |    Data ...
+    +-+-+-+-+-+-+-+-+
 
-      AVP Code
+    AVP Code
 
-         The AVP Code, together with the optional Vendor ID field,
-         identifies attribute that follows.  If the V-bit is not set, the
-         Vendor ID is not present and the AVP Code refers to an IETF
-         attribute.
+        The AVP Code, together with the optional Vendor ID field,
+        identifies attribute that follows.  If the V-bit is not set, the
+        Vendor ID is not present and the AVP Code refers to an IETF
+        attribute.
 
-      AVP Flags
+    AVP Flags
 
-         The AVP Flags field is two octets.  The following bits are
-         assigned:
+        The AVP Flags field is two octets.  The following bits are
+        assigned:
 
-       0                   1
-       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |V M r r r r r r r r r r r r r r|
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    0                   1
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |V M r r r r r r r r r r r r r r|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-         V(endor)
+        V(endor)
 
             The 'V' bit, known as the Vendor-Specific bit, indicates
             whether the optional Vendor-Id field is present in the AVP
             header.  When set the AVP Code belongs to the specific vendor
             code address space.
 
-         M(andatory)
+        M(andatory)
 
             The 'M' Bit, known as the Mandatory bit, indicates whether
             support of the AVP is required.  If an AVP with the 'M' bit set
@@ -112,42 +112,42 @@
             that is not recognized, or whose value is not recognized, MAY
             simply ignore the AVP.
 
-         r(eserved)
+        r(eserved)
 
             These flag bits are reserved for future use, and MUST be set to
             zero, and ignored by the receiver.
 
-      AVP Length
+    AVP Length
 
-         The AVP Length field is two octets, and indicates the number of
-         octets in this AVP including the AVP Code, AVP Length, AVP Flags,
-         and the AVP data.
+        The AVP Length field is two octets, and indicates the number of
+        octets in this AVP including the AVP Code, AVP Length, AVP Flags,
+        and the AVP data.
 
-      Reserved
+    Reserved
 
-         This two-octet field is reserved for future use, and MUST be set
-         to zero, and ignored by the receiver.
+        This two-octet field is reserved for future use, and MUST be set
+        to zero, and ignored by the receiver.
 
-      Vendor-Id
+    Vendor-Id
 
-         The Vendor-Id field is present if the 'V' bit is set in the AVP
-         Flags field.  The optional four-octet Vendor-Id field contains the
-         IANA assigned "SMI Network Management Private Enterprise Codes"
-         [ianaweb] value, encoded in network byte order.  Any vendor
-         wishing to implement a vendor-specific PANA AVP MUST use their own
-         Vendor-Id along with their privately managed AVP address space,
-         guaranteeing that they will not collide with any other vendor's
-         vendor-specific AVP(s), nor with future IETF applications.
+        The Vendor-Id field is present if the 'V' bit is set in the AVP
+        Flags field.  The optional four-octet Vendor-Id field contains the
+        IANA assigned "SMI Network Management Private Enterprise Codes"
+        [ianaweb] value, encoded in network byte order.  Any vendor
+        wishing to implement a vendor-specific PANA AVP MUST use their own
+        Vendor-Id along with their privately managed AVP address space,
+        guaranteeing that they will not collide with any other vendor's
+        vendor-specific AVP(s), nor with future IETF applications.
 
-      Data
+    Data
 
-         The Data field is zero or more octets and contains information
-         specific to the Attribute.  The format and length of the Data
-         field is determined by the AVP Code and AVP Length fields.
+        The Data field is zero or more octets and contains information
+        specific to the Attribute.  The format and length of the Data
+        field is determined by the AVP Code and AVP Length fields.
 
-      Unless otherwise noted, AVPs defined in this document will have the
-      following default AVP Flags field settings: The 'M' bit MUST be set.
-      The 'V' bit MUST NOT be set.
+    Unless otherwise noted, AVPs defined in this document will have the
+    following default AVP Flags field settings: The 'M' bit MUST be set.
+    The 'V' bit MUST NOT be set.
  */
 class PANA_AvpHeader
 {
@@ -174,92 +174,127 @@ class PANA_AvpHeader
         ACE_UINT32                 m_Vendor;     // Vendor code
         char*                      m_pValue;     // Value
         AAAAvpParseType            m_ParseType;  // Positional parse type
-}; 
+};
 
 /*
-   6.2.  PANA Message Header
+6.2.  PANA Message Header
 
-      A summary of the PANA message header format is shown below.  The
-      fields are transmitted in network byte order.
+   A summary of the PANA message header format is shown below.  The
+   fields are transmitted in network byte order.
 
 
-       0                   1                   2                   3
-       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |    Version    |   Reserved    |        Message Length         |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |             Flags             |         Message Type          |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                      Session Identifier                       |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                        Sequence Number                        |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |  AVPs ...
-      +-+-+-+-+-+-+-+-+-+-+-+-+-
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |    Version    |   Reserved    |        Message Length         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |             Flags             |         Message Type          |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      Session Identifier                       |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        Sequence Number                        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  AVPs ...
+   +-+-+-+-+-+-+-+-+-+-+-+-+-
 
-      Version
+   Version
 
-         This Version field MUST be set to 1 to indicate PANA Version 1.
+      This Version field MUST be set to 1 to indicate PANA Version 1.
 
-      Reserved
+   Reserved
 
-         This 8-bit field is reserved for future use, and MUST be set to
+      This 8-bit field is reserved for future use, and MUST be set to
+      zero, and ignored by the receiver.
+
+   Message Length
+
+      The Message Length field is two octets and indicates the length of
+      the PANA message including the header fields.
+
+   Flags
+
+      The Flags field is two octets.  The following bits are assigned:
+
+    0                   1
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |R S C A P E r r r r r r r r r r|
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+      R (Request)
+
+         If set, the message is a request.  If cleared, the message is
+         an answer.
+
+      S (Start)
+
+         If set, the message is the first PANA-Auth-Request or PANA-
+         Auth-Answer in authentication and authorization phase.  For
+         other messages, this bit MUST be cleared.
+
+      C (Complete)
+
+         If set, the message is the last PANA-Auth-Request or PANA-Auth-
+         Answer in authentication and authorization phase.  For other
+         messages this bit MUST be cleared.
+
+      A (re-Authentication)
+
+         If set, the message is a PANA-Notification-Request or PANA-
+         Notification-Answer to initiate re-authentication.  For other
+         messages this bit MUST be cleared.
+
+      P (Ping)
+
+         If set, the message is a PANA-Notification-Request or PANA-
+         Notification-Answer for liveness test.  For other messages this
+         bit MUST be cleared.
+
+      E (Error)
+
+         If set, the message is a PANA-Notification-Request or PANA-
+         Notification-Answer for error indication.  For other messages
+         this bit MUST be cleared.
+
+      r (reserved)
+
+         These flag bits are reserved for future use, and MUST be set to
          zero, and ignored by the receiver.
 
-      Message Length
+   Message Type
 
-         The Message Length field is two octets and indicates the length of
-         the PANA message including the header fields.
+      The Message Type field is two octets, and is used in order to
+      communicate the message type with the message.  The 16-bit address
+      space is managed by IANA [ianaweb].
 
-      Flags
+   Session Identifier
 
-         The Flags field is two octets.  The following bits are assigned:
+      This field contains a 32 bit session identifier.
 
-       0                   1
-       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |R r r r r r r r r r r r r r r r|
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   Sequence Number
 
-         R(equest)
+      This field contains contains a 32 bit sequence number.
 
-            If set, the message is a request.  If cleared, the message is
-            an answer.
+   AVPs
 
-         r(eserved)
-
-            These flag bits are reserved for future use, and MUST be set to
-            zero, and ignored by the receiver.
-
-      Message Type
-
-         The Message Type field is two octets, and is used in order to
-         communicate the message type with the message.  The 16-bit address
-         space is managed by IANA [ianaweb].
-
-      Session Identifier
-
-         This field contains a 32 bit session identifier.
-
-      Sequence Number
-
-         This field contains contains a 32 bit sequence number.
-
-      AVPs
-
-         AVPs are a method of encapsulating information relevant to the
-         PANA message.  See section Section 6.3 for more information on
-         AVPs.
+      AVPs are a method of encapsulating information relevant to the
+      PANA message.  See section Section 6.3 for more information on
+      AVPs.
  */
 class PANA_MsgHeader
 {
     public:
        typedef struct {
           ACE_UINT16 request   : 1;  // Request flag
-          ACE_UINT16 reserved  : 15; // reserved
+          ACE_UINT16 start     : 1;  // Start flag
+          ACE_UINT16 complete  : 1;  // Complete flag
+          ACE_UINT16 auth      : 1;  // Re-Authentication flag
+          ACE_UINT16 ping      : 1;  // Ping flag
+          ACE_UINT16 error     : 1;  // Error flag
+          ACE_UINT16 reserved  : 10; // reserved
        } Flags;
 
-       // Default header length definition 
+       // Default header length definition
        typedef enum {
           HeaderLength = 16 // length in octet
        };
@@ -276,7 +311,7 @@ class PANA_MsgHeader
        virtual ~PANA_MsgHeader() {
        }
        inline UCHAR &version() {
-           return m_Version; 
+           return m_Version;
        }
        inline ACE_UINT16 &length() {
            return m_Length;

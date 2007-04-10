@@ -175,25 +175,36 @@ bool PANA_Session::IsFatalError()
     return true;
 }
 
-void PANA_Session::TxPUR()
+void PANA_Session::TxPNRPing()
 {
     /*
-      7.16.  PANA-Update-Request (PUR)
+      7.6.  PANA-Notification-Request (PNR)
 
-         The PANA-Update-Request (PUR) message is sent either by the PaC or
-         the PAA to deliver attribute updates.  In the scope of this
-         specification only the IP address the PaC can be updated via this
-         message.
+        The PANA-Notification-Request (PNR) message is sent either by the PaC
+        or the PAA for signaling re-authentication and errors, and performing
+        liveness test.
 
-         PANA-Update-Request ::= < PANA-Header: 9, REQ >
-                          *  [ AVP ]
-                         0*1 < AUTH >
+        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
+        Failed-Message-Header and Failed-AVP AVPs.
+
+        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
+        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
+
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
+
+      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                          [ Result-Code ]
+                          [ Failed-Message-Header ]
+                        *  [ Failed-AVP ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
      */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PUR;
+    msg->type() = PANA_MTYPE_PNR;
     msg->flags().request = true;
+    msg->flags().ping = true;
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
@@ -205,154 +216,66 @@ void PANA_Session::TxPUR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPUR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Ping: id=%d seq=%d\n",
+             msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
 }
 
-void PANA_Session::TxPUA()
+void PANA_Session::RxPNRPing()
 {
     /*
-      7.17.  PANA-Update-Answer (PUA)
+      7.6.  PANA-Notification-Request (PNR)
 
-         The PANA-Update-Answer (PUA) message is sent by the PAA (PaC) to the
-         PaC (PAA) in response to a PANA-Update-Request from the PaC (PAA).
+        The PANA-Notification-Request (PNR) message is sent either by the PaC
+        or the PAA for signaling re-authentication and errors, and performing
+        liveness test.
 
-         PANA-Update-Answer ::= < PANA-Header: 9 >
-                          *  [ AVP ]
-                         0*1 < AUTH >
-     */
-    boost::shared_ptr<PANA_Message> msg(new PANA_Message);
+        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
+        Failed-Message-Header and Failed-AVP AVPs.
 
-    // Populate header
-    msg->type() = PANA_MTYPE_PUA;
-    msg->seq() = LastRxSeqNum().Value();
-    msg->sessionId() = this->SessionId();
+        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
+        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
 
-    // auth avp if any
-    if (SecurityAssociation().Auth().IsSet()) {
-        SecurityAssociation().AddAuthAvp(*msg);
-    }
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPUA: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
-
-    SendAnsMsg(msg);
-}
-
-void PANA_Session::TxPPR()
-{
-    /*
-       7.10.  PANA-Ping-Request (PPR)
-
-          The PANA-Ping-Request (PPR) message is either sent by the PaC or the
-          PAA for performing liveness test.
-
-          PANA-Ping-Request ::= < PANA-Header: 6, REQ >
-                           *  [ AVP ]
-                          0*1 < AUTH >
-     */
-    boost::shared_ptr<PANA_Message> msg(new PANA_Message);
-
-    // Populate header
-    msg->type() = PANA_MTYPE_PPR;
-    msg->flags().request = true;
-    msg->sessionId() = this->SessionId();
-
-    // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
-
-    // auth avp if any
-    if (SecurityAssociation().Auth().IsSet()) {
-        SecurityAssociation().AddAuthAvp(*msg);
-    }
-
-    AAA_LOG((LM_INFO, "(%P|%t) TxPPR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
-
-    SendReqMsg(msg);
-}
-
-void PANA_Session::RxPUA()
-{
-    /*
-      7.17.  PANA-Update-Answer (PUA)
-
-         The PANA-Update-Answer (PUA) message is sent by the PAA (PaC) to the
-         PaC (PAA) in response to a PANA-Update-Request from the PaC (PAA).
-
-         PANA-Update-Answer ::= < PANA-Header: 9 >
-                          *  [ AVP ]
-                         0*1 < AUTH >
+      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                          [ Result-Code ]
+                          [ Failed-Message-Header ]
+                        *  [ Failed-AVP ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
      */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPUA: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
-
-    // RtxTimerStop()
-    m_Timer.CancelTxRetry();
-}
-
-void PANA_Session::RxPPR()
-{
-    /*
-       7.10.  PANA-Ping-Request (PPR)
-
-          The PANA-Ping-Request (PPR) message is either sent by the PaC or the
-          PAA for performing liveness test.
-
-          PANA-Ping-Request ::= < PANA-Header: 6, REQ >
-                           *  [ AVP ]
-                          0*1 < AUTH >
-     */
-    std::auto_ptr<PANA_Message> cleanup(AuxVariables().
-        RxMsgQueue().Dequeue());
-    PANA_Message &msg = *cleanup;
-
-    AAA_LOG((LM_INFO, "(%P|%t) RxPPR: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Ping: id=%d seq=%d\n",
+            msg.sessionId(), msg.seq()));
 
     TxPPA();
 }
 
-void PANA_Session::RxPUR()
+void PANA_Session::TxPNAPing()
 {
     /*
-      7.16.  PANA-Update-Request (PUR)
+      7.7.  PANA-Notification-Answer (PNA)
 
-         The PANA-Update-Request (PUR) message is sent either by the PaC or
-         the PAA to deliver attribute updates.  In the scope of this
-         specification only the IP address the PaC can be updated via this
-         message.
+        The PANA-Notification-Answer (PNA) message is sent by the PAA (PaC)
+        to the PaC (PAA) in response to a PANA-Notification-Request from the
+        PaC (PAA).
 
-         PANA-Update-Request ::= < PANA-Header: 9, REQ >
-                          *  [ AVP ]
-                         0*1 < AUTH >
-     */
-    std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
-    PANA_Message &msg = *cleanup;
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPUR: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
-
-    TxPUA();
-}
-
-void PANA_Session::TxPPA()
-{
-    /*
-      7.11.  PANA-Ping-Answer (PPA)
-
-         The PANA-Ping-Answer (PPA) message is sent in response to a
-         PANA-Ping-Request.
-
-         PANA-Ping-Answer ::= < PANA-Header: 6 >
-                          *  [ AVP ]
-                         0*1 < AUTH >
+        PANA-Notification-Answer ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                        *  [ AVP ]
+                        0*1 < AUTH >
      */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PPA;
+    msg->type() = PANA_MTYPE_PNA;
+    msg->flags().ping = true;
     msg->seq() = LastRxSeqNum().Value();
     msg->sessionId() = this->SessionId();
 
@@ -361,28 +284,33 @@ void PANA_Session::TxPPA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPPA: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNA-Ping: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
 }
 
-void PANA_Session::RxPPA()
+void PANA_Session::RxPNAPing()
 {
     /*
-      7.11.  PANA-Ping-Answer (PPA)
+      7.7.  PANA-Notification-Answer (PNA)
 
-         The PANA-Ping-Answer (PPA) message is sent in response to a
-         PANA-Ping-Request.
+        The PANA-Notification-Answer (PNA) message is sent by the PAA (PaC)
+        to the PaC (PAA) in response to a PANA-Notification-Request from the
+        PaC (PAA).
 
-         PANA-Ping-Answer ::= < PANA-Header: 6 >
-                          *  [ AVP ]
-                         0*1 < AUTH >
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
+
+        PANA-Notification-Answer ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                        *  [ AVP ]
+                        0*1 < AUTH >
      */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPPA: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNA-Ping: id=%d seq=%d\n",
+             msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
 }
@@ -390,15 +318,15 @@ void PANA_Session::RxPPA()
 void PANA_Session::TxPTR(ACE_UINT32 cause)
 {
     /*
-      7.12.  PANA-Termination-Request (PTR)
+      7.4.  PANA-Termination-Request (PTR)
 
-         The PANA-Termination-Request (PTR) message is sent either by the PaC
-         or the PAA to terminate a PANA session.
+        The PANA-Termination-Request (PTR) message is sent either by the PaC
+        or the PAA to terminate a PANA session.
 
-         PANA-Termination-Request ::= < PANA-Header: 7, REQ >
-                             < Termination-Cause >
+        PANA-Termination-Request ::= < PANA-Header: 3, REQ >
+                            < Termination-Cause >
                           *  [ AVP ]
-                         0*1 < AUTH >
+                        0*1 < AUTH >
      */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
@@ -421,7 +349,8 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPTR: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPTR: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     // session timer
     m_Timer.CancelSession();
@@ -432,21 +361,22 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
 void PANA_Session::RxPTR()
 {
     /*
-      7.12.  PANA-Termination-Request (PTR)
+      7.4.  PANA-Termination-Request (PTR)
 
-         The PANA-Termination-Request (PTR) message is sent either by the PaC
-         or the PAA to terminate a PANA session.
+        The PANA-Termination-Request (PTR) message is sent either by the PaC
+        or the PAA to terminate a PANA session.
 
-         PANA-Termination-Request ::= < PANA-Header: 7, REQ >
-                             < Termination-Cause >
+        PANA-Termination-Request ::= < PANA-Header: 3, REQ >
+                            < Termination-Cause >
                           *  [ AVP ]
-                         0*1 < AUTH >
+                        0*1 < AUTH >
      */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPTR: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPTR: id=%d seq=%d\n",
+             msg.sessionId(), msg.seq()));
 
     TxPTA();
 
@@ -464,14 +394,14 @@ void PANA_Session::RxPTR()
 void PANA_Session::TxPTA()
 {
     /*
-      7.13.  PANA-Termination-Answer (PTA)
+      7.5.  PANA-Termination-Answer (PTA)
 
-         The PANA-Termination-Answer (PTA) message is sent either by the PaC
-         or the PAA in response to PANA-Termination-Request.
+        The PANA-Termination-Answer (PTA) message is sent either by the PaC
+        or the PAA in response to PANA-Termination-Request.
 
-         PANA-Termination-Answer ::= < PANA-Header: 7 >
+        PANA-Termination-Answer ::= < PANA-Header: 3 >
                           *  [ AVP ]
-                         0*1 < AUTH >
+                        0*1 < AUTH >
      */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
@@ -485,7 +415,8 @@ void PANA_Session::TxPTA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPTA: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPTA: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
 }
@@ -493,46 +424,55 @@ void PANA_Session::TxPTA()
 void PANA_Session::RxPTA()
 {
     /*
-      7.13.  PANA-Termination-Answer (PTA)
+      7.5.  PANA-Termination-Answer (PTA)
 
-         The PANA-Termination-Answer (PTA) message is sent either by the PaC
-         or the PAA in response to PANA-Termination-Request.
+        The PANA-Termination-Answer (PTA) message is sent either by the PaC
+        or the PAA in response to PANA-Termination-Request.
 
-         PANA-Termination-Answer ::= < PANA-Header: 7 >
+        PANA-Termination-Answer ::= < PANA-Header: 3 >
                           *  [ AVP ]
-                         0*1 < AUTH >
+                        0*1 < AUTH >
      */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPTA: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPTA: id=%d seq=%d\n",
+             msg.sessionId(), msg.seq()));
 
     Disconnect(PANA_TERMCAUSE_LOGOUT);
 }
 
-void PANA_Session::TxPER(pana_unsigned32_t rcode)
+void PANA_Session::TxPNRError(pana_unsigned32_t rcode)
 {
     /*
-      7.14.  PANA-Error-Request (PER)
+      7.6.  PANA-Notification-Request (PNR)
 
-         The PANA-Error-Request (PER) message is sent either by the PaC or the
-         PAA to report an error with the last received PANA message.  This
-         message MUST contain one Failed-Message-Header AVP which carries the
-         content of the PANA message header of the erroneous message.
+        The PANA-Notification-Request (PNR) message is sent either by the PaC
+        or the PAA for signaling re-authentication and errors, and performing
+        liveness test.
 
-         PANA-Error-Request ::= < PANA-Header: 8, REQ >
-                              < Result-Code >
-                              { Failed-Message-Header }
-                           *  [ Failed-AVP ]
-                           *  [ AVP ]
-                          0*1 < AUTH >
-    */
+        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
+        Failed-Message-Header and Failed-AVP AVPs.
+
+        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
+        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
+
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
+
+      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                          [ Result-Code ]
+                          [ Failed-Message-Header ]
+                        *  [ Failed-AVP ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
+     */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PER;
+    msg->type() = PANA_MTYPE_PNR;
     msg->flags().request = true;
+    msg->flags().error = true;
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
@@ -558,40 +498,49 @@ void PANA_Session::TxPER(pana_unsigned32_t rcode)
     // RtxTimerStop()
     m_Timer.CancelEapResponse();
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPER: [RCODE=%d] id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Error: [RCODE=%d] id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
 }
 
-void PANA_Session::RxPER()
+void PANA_Session::RxPNRError()
 {
     /*
-      7.14.  PANA-Error-Request (PER)
+      7.6.  PANA-Notification-Request (PNR)
 
-         The PANA-Error-Request (PER) message is sent either by the PaC or the
-         PAA to report an error with the last received PANA message.  This
-         message MUST contain one Failed-Message-Header AVP which carries the
-         content of the PANA message header of the erroneous message.
+        The PANA-Notification-Request (PNR) message is sent either by the PaC
+        or the PAA for signaling re-authentication and errors, and performing
+        liveness test.
 
-         PANA-Error-Request ::= < PANA-Header: 8, REQ >
-                              < Result-Code >
-                              { Failed-Message-Header }
-                           *  [ Failed-AVP ]
-                           *  [ AVP ]
-                          0*1 < AUTH >
+        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
+        Failed-Message-Header and Failed-AVP AVPs.
+
+        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
+        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
+
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
+
+      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                          [ Result-Code ]
+                          [ Failed-Message-Header ]
+                        *  [ Failed-AVP ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
     */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPER: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Error: id=%d seq=%d\n",
+            msg.sessionId(), msg.seq()));
 
     // result-code
     PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
     pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
     if (rcode == NULL) {
-        throw (PANA_Exception(PANA_Exception::FAILED, 
-               "No Result-Code AVP in PER message"));
+        throw (PANA_Exception(PANA_Exception::FAILED,
+               "No Result-Code AVP in PNR message"));
     }
 
     Error(ACE_NTOHL(*rcode));
@@ -599,47 +548,65 @@ void PANA_Session::RxPER()
     // TBD: Process Failed-AVP and Failed-Message-Header
 }
 
-void PANA_Session::TxPEA()
+void PANA_Session::TxPNAError()
 {
     /*
-       7.15.  PANA-Error-Answer (PEA)
+      7.6.  PANA-Notification-Request (PNR)
 
-          The PANA-Error-Answer (PEA) message is sent in response to a
-          PANA-Error-Request.
+        The PANA-Notification-Request (PNR) message is sent either by the PaC
+        or the PAA for signaling re-authentication and errors, and performing
+        liveness test.
 
-          PANA-Error-Answer ::= < PANA-Header: 8 >
-                            *  [ AVP ]
-                           0*1 < AUTH >
+        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
+        Failed-Message-Header and Failed-AVP AVPs.
+
+        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
+        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
+
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
+
+      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                          [ Result-Code ]
+                          [ Failed-Message-Header ]
+                        *  [ Failed-AVP ]
+                        *  [ AVP ]
+                      0*1 < AUTH >
     */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
     // Populate header
-    msg->type() = PANA_MTYPE_PEA;
+    msg->type() = PANA_MTYPE_PNA;
+    msg->flags().error = true;
     msg->seq() = LastRxSeqNum().Value();
     msg->sessionId() = this->SessionId();
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPEA: id=%d seq=%d\n", msg->sessionId(), msg->seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNA-Error: id=%d seq=%d\n",
+            msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
 }
 
-void PANA_Session::RxPEA()
+void PANA_Session::RxPNAError()
 {
     /*
-       7.15.  PANA-Error-Answer (PEA)
+      7.7.  PANA-Notification-Answer (PNA)
 
-          The PANA-Error-Answer (PEA) message is sent in response to a
-          PANA-Error-Request.
+        The PANA-Notification-Answer (PNA) message is sent by the PAA (PaC)
+        to the PaC (PAA) in response to a PANA-Notification-Request from the
+        PaC (PAA).
 
-          PANA-Error-Answer ::= < PANA-Header: 8 >
-                            *  [ AVP ]
-                           0*1 < AUTH >
-    */
+        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
+
+        PANA-Notification-Answer ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
+                        *  [ AVP ]
+                        0*1 < AUTH >
+     */
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPEA: id=%d seq=%d\n", msg.sessionId(), msg.seq()));
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNA-Error: id=%d seq=%d\n",
+             msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
 
