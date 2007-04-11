@@ -94,7 +94,8 @@ void PANA_Paa::NotifyEapResponse(pana_octetstring_t &payload)
 
 void PANA_Paa::NotifyEapTimeout()
 {
-    TxPER(PANA_ERROR_UNABLE_TO_COMPLY);
+    LastProtocolError() = PANA_ERROR_UNABLE_TO_COMPLY;
+    TxPNRError();
     Disconnect(PANA_ERROR_UNABLE_TO_COMPLY);
 }
 

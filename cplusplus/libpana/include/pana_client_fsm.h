@@ -249,20 +249,20 @@ class PANA_EXPORT PANA_ClientStateTable :
        };
        class PacWaitEapResultExitActionEapOpen : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
-               c.TxPNAComplete(true);
+               c.TxPANComplete(true);
                c.NotifyAuthorization();
                c.NotifyScheduleLifetime();
            }
        };
        class PacWaitEapFailExitActionClose : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
-               c.TxPNAComplete(false);
+               c.TxPANComplete(false);
                c.Disconnect();
            }
        };
        class PacWaitEapSuccessExitActionClose : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
-               c.TxPNAComplete(true);
+               c.TxPANComplete(true);
                c.Disconnect();
            }
        };
@@ -284,7 +284,7 @@ class PANA_EXPORT PANA_ClientStateTable :
        class PacOpenExitActionRxPAR : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
                c.NotifyEapRestart();
-               c.NotifyScheduleLifetime(STALLED_SESSION_TIMEOUT);
+               c.NotifyScheduleLifetime(PANA_Client::STALLED_SESSION_TIMEOUT);
                c.RxPAR();
            }
        };
@@ -328,7 +328,7 @@ class PANA_EXPORT PANA_ClientStateTable :
        };
        class PacExitActionTxPNRError : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
-               c.TxPNRError(PANA_ERROR_UNABLE_TO_COMPLY);
+               c.TxPNRError();
            }
        };
        class PacSessTermExitActionRxPTA : public AAA_Action<PANA_Client> {

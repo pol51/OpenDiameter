@@ -44,7 +44,7 @@
  * Exception class for errors and return codes.
  * Note that this class is throwable.
  */
-class PANA_Exception 
+class PANA_Exception
 {
    public:
       /*!
@@ -87,7 +87,7 @@ class PANA_Exception
        * \param code Default  code
        * \param description Sting description of the error code
        */
-       PANA_Exception(CODE code, const char *description) : 
+       PANA_Exception(CODE code, const char *description) :
                       code_(code),
                       description_(description) { }
 

@@ -325,7 +325,7 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
       PaaExitActionTxPARCompleteEapFail        m_PaaExitActionTxPARCompleteEapFail;
       PaaExitActionTxPARCompleteEapSuccess     m_PaaExitActionTxPARCompleteEapSuccess;
       PaaExitActionTxPARCompleteEapSuccessFail m_PaaExitActionTxPARCompleteEapSuccessFail;
-      PaaExitActionRxPANCompleteSucces s       m_PaaExitActionRxPANCompleteSuccess;
+      PaaExitActionRxPANCompleteSuccess        m_PaaExitActionRxPANCompleteSuccess;
       PaaExitActionRxPANCompleteFail           m_PaaExitActionRxPANCompleteFail;
       PaaOpenExitActionRxPNRAuth               m_PaaOpenExitActionRxPNRAuth;
       PaaOpenExitActionReAuth                  m_PaaOpenExitActionReAuth;

@@ -253,7 +253,7 @@ void PANA_Client::RxPAR()
         m_Timer.ScheduleEapResponse();
     }
     else {
-        throw (PANA_Exception(PANA_Exception::FAILED, 
+        throw (PANA_Exception(PANA_Exception::FAILED,
                "No EAP-Payload AVP in PAR message"));
     }
 }

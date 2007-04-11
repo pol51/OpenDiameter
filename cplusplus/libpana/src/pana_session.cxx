@@ -259,7 +259,7 @@ void PANA_Session::RxPNRPing()
     AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Ping: id=%d seq=%d\n",
             msg.sessionId(), msg.seq()));
 
-    TxPPA();
+    TxPNAPing();
 }
 
 void PANA_Session::TxPNAPing()

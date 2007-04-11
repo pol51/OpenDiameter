@@ -128,7 +128,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     ev.FlagStart();
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_WAIT_EAP_MSG,
-                       m_PaaExitActionRxPSA);
+                       m_PaaExitActionRxPANStart);
 
     /////////////////////////////////////////////////////////////////
     // RTX_TIMEOUT &&           Disconnect();              CLOSED
@@ -557,7 +557,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     //                          Tx:PNA();
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PPR);
+    ev.MsgType(PANA_EV_MTYPE_PNR);
     ev.FlagPing();
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_OPEN,
@@ -994,7 +994,9 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           PANA_ServerRxStateFilter(a, s) {
           static PANA_ST validStates[] = { PANA_ST_OFFLINE,
                                            PANA_ST_WAIT_PAN_OR_PAR,
-                                           PANA_ST_OPEN }
+                                           PANA_ST_WAIT_SUCC_PAN,
+                                           PANA_ST_WAIT_FAIL_PAN,
+                                           PANA_ST_OPEN };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
       virtual void HandleMessage(PANA_Message &msg) {
@@ -1005,7 +1007,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           if (msg.flags().auth ||
               msg.flags().ping ||
               msg.flags().error) {
-              throw (PANA_Exception(PANA_Exception::AAA_INVALID_BIT_IN_HEADER,
+              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                      "PA recevied, invalid flag settings"));
           }
           else if (msg.flags().start) {
@@ -1041,7 +1043,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve event
-          ev.FlagStart() = true;
+          ev.FlagStart();
       }
       virtual void HandleComplete(PANA_Message &msg,
                                   PANA_PaaEventVariable &ev) {
@@ -1058,7 +1060,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve event
-          ev.FlagComplete() = true;
+          ev.FlagComplete();
       }
       virtual void HandleNormal(PANA_Message &msg,
                                 PANA_PaaEventVariable &ev) {
@@ -1091,12 +1093,13 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
    public:
       PANA_PsmRxPN(PANA_Paa &a, PANA_PaaSession &s) :
           PANA_ServerRxStateFilter(a, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_SUCC_PBA,
+          static PANA_ST validStates[] = { PANA_ST_OFFLINE,
+                                           PANA_ST_WAIT_SUCC_PAN,
+                                           PANA_ST_WAIT_FAIL_PAN,
+                                           PANA_ST_WAIT_EAP_MSG,
+                                           PANA_ST_OPEN,
                                            PANA_ST_WAIT_PNA,
                                            PANA_ST_WAIT_PAN_OR_PAR,
-                                           PANA_ST_WAIT_FAIL_PBA,
-                                           PANA_ST_OPEN,
-                                           PANA_ST_WAIT_EAP_MSG,
                                            PANA_ST_SESS_TERM,
                                            PANA_ST_CLOSED };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
@@ -1108,7 +1111,7 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
 
           if (msg.flags().start ||
               msg.flags().complete) {
-              throw (PANA_Exception(PANA_Exception::AAA_INVALID_BIT_IN_HEADER,
+              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                      "PN recevied, invalid flag settings"));
           }
           else if (msg.flags().auth) {
@@ -1148,7 +1151,7 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve the event
-          ev.FlagAuth() = true;
+          ev.FlagAuth();
       }
       virtual void HandlePing(PANA_Message &msg,
                               PANA_PaaEventVariable &ev) {
@@ -1164,7 +1167,7 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve the event
-          ev.FlagPing() = true;
+          ev.FlagPing();
       }
       virtual void HandleError(PANA_Message &msg,
                                PANA_PaaEventVariable &ev) {
@@ -1186,7 +1189,7 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
                   ev.Do_FatalError();
               }
           }
-          ev.FlagError() = true;
+          ev.FlagError();
       }
 };
 
@@ -1232,7 +1235,7 @@ void PANA_PaaSession::InitializeMsgMaps()
    m_MsgHandlers.Register(PANA_MTYPE_PAR, PA);
 
    PANA_PsmRxPN PN(m_PAA, *this);
-   m_MsgHandlers.Register(PANA_MTYPE_PRR, PN);
+   m_MsgHandlers.Register(PANA_MTYPE_PNR, PN);
 
    PANA_PsmRxPT PT(m_PAA, *this);
    m_MsgHandlers.Register(PANA_MTYPE_PTR, PT);

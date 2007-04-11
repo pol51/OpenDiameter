@@ -31,7 +31,6 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-
 #include "pana_client_fsm.h"
 
 PANA_ClientStateTable PANA_PacSession::m_StateTable;
@@ -186,7 +185,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Event_App(PANA_EV_APP_ERROR);
     AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
                        PANA_ST_WAIT_PNA,
-                       m_PaaExitActionTxPNRError);
+                       m_PacExitActionTxPNRError);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (PANA-Error-Message-Processing)- -
@@ -400,7 +399,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Event_App(PANA_EV_APP_ERROR);
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_WAIT_PNA,
-                       m_PaaExitActionTxPNRError);
+                       m_PacExitActionTxPNRError);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (PANA-Error-Message-Processing)- -
@@ -471,12 +470,6 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //                            PAR.insert_avp("AUTH");
     //                          Tx:PAR();
     //                          RtxTimerStart();
-    ev.Reset();
-    ev.Event_Eap(PANA_EV_EAP_RESPONSE);
-    AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_PAA,
-                       m_PacWaitEapMsgExitActionTxPAR);
-
     /////////////////////////////////////////////////////////////////
     // EAP_RESPONSE &&          EAP_RespTimerStop()        WAIT_PAA
     // OPTIMIZED_PAN            PAR.insert_avp
@@ -488,7 +481,6 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_RESPONSE);
-    ev.OptimizedPAN();
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
                        PANA_ST_WAIT_PAA,
                        m_PacWaitEapMsgExitActionTxPAR);
@@ -513,24 +505,21 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        PANA_ST_WAIT_EAP_MSG);
 
     /////////////////////////////////////////////////////////////////
-    // EAP_INVALID_MSG ||       Tx:PER();                  WAIT_PEA
-    // EAP_SUCCESS ||           RtxTimerStart();
+    // EAP_INVALID_MSG ||       None();                    WAIT_PAA
+    // EAP_SUCCESS ||
     // EAP_FAILURE
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPNRError);
+                       PANA_ST_WAIT_PAA);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_SUCCESS);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPNRError);
+                       PANA_ST_WAIT_PAA);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_PEA,
-                       m_PacExitActionTxPNRError);
+                       PANA_ST_WAIT_PAA);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (PANA-Error-Message-Processing)- -
@@ -743,7 +732,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Reset();
     ev.Event_App(PANA_EV_APP_REAUTH);
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
-                       PANA_ST_WAIT_PRA,
+                       PANA_ST_WAIT_PNA,
                        m_PacOpenExitActionTxPNRAuth);
 
     /////////////////////////////////////////////////////////////////
@@ -830,7 +819,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Event_App(PANA_EV_APP_ERROR);
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_WAIT_PNA,
-                       m_PaaExitActionTxPNRError);
+                       m_PacExitActionTxPNRError);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (PANA-Error-Message-Processing)- -
@@ -1093,7 +1082,8 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
    public:
       PANA_CsmRxPA(PANA_Client &c, PANA_PacSession &s) :
          PANA_ClientRxStateFilter(c, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_PAA,
+          static PANA_ST validStates[] = { PANA_ST_OFFLINE,
+                                           PANA_ST_WAIT_PAA,
                                            PANA_ST_OPEN };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
@@ -1105,7 +1095,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           if (msg.flags().auth ||
               msg.flags().ping ||
               msg.flags().error) {
-              throw (PANA_Exception(PANA_Exception::AAA_INVALID_BIT_IN_HEADER,
+              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                      "PA recevied, invalid flag settings"));
           }
           else if (msg.flags().start) {
@@ -1179,9 +1169,9 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
 
           // save address of paa
           if (msg.flags().request) {
-              m_arg.PaaAddress() = msg.SrcAddress();
+              m_arg.PaaAddress() = msg.srcAddress();
           }
-          m_arg.LastUsedChannel() = msg.DestAddress();
+          m_arg.LastUsedChannel() = msg.destAddress();
 
           // save last received header
           m_arg.LastRxHeader() = msg;
@@ -1189,7 +1179,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           // resolve the event
           if (msg.flags().request) {
               ev.MsgType(PANA_EV_MTYPE_PAR);
-              ev.enablecfg_eappiggyback(pana_cfg_pac().m_eappiggyback ? 1 : 0);
+              ev.EnableCfg_EapPiggyback(PANA_CFG_PAC().m_EapPiggyback ? 1 : 0);
           }
           else {
               ev.MsgType(PANA_EV_MTYPE_PAN);
@@ -1249,8 +1239,11 @@ class PANA_CsmRxPN : public PANA_ClientRxStateFilter
    public:
       PANA_CsmRxPN(PANA_Client &c, PANA_PacSession &s) :
          PANA_ClientRxStateFilter(c, s) {
-          static PANA_ST validStates[] = { PANA_ST_WAIT_PPA,
-                                           PANA_ST_OPEN };
+          static PANA_ST validStates[] = { PANA_ST_OFFLINE,
+                                           PANA_ST_WAIT_PAA,
+                                           PANA_ST_OPEN,
+                                           PANA_ST_WAIT_PNA,
+                                           PANA_ST_SESS_TERM };
           AllowedStates(validStates, sizeof(validStates)/sizeof(PANA_ST));
       }
       virtual void HandleMessage(PANA_Message &msg) {
@@ -1263,7 +1256,7 @@ class PANA_CsmRxPN : public PANA_ClientRxStateFilter
 
           if (msg.flags().start ||
               msg.flags().complete) {
-              throw (PANA_Exception(PANA_Exception::AAA_INVALID_BIT_IN_HEADER,
+              throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                      "PN recevied, invalid flag settings"));
           }
           else if (msg.flags().auth) {
@@ -1510,9 +1503,9 @@ void PANA_PacSession::Ping()
    Notify(ev.Get());
 }
 
-void PANA_PaaSession::Error(pana_unsigned32_t error)
+void PANA_PacSession::Error(pana_unsigned32_t error)
 {
-   PANA_PaaEventVariable ev;
+   PANA_PacEventVariable ev;
    m_PaC.LastProtocolError() = error;
    ev.Event_App(PANA_EV_APP_ERROR);
    Notify(ev.Get());
