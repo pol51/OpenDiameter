@@ -43,7 +43,7 @@
              session will end. Note that this can controls
              the deletion of the PANA session whether
              the session was auth successfully or not -->
-        <session_lifetime>60</session_lifetime>
+        <session_lifetime>30</session_lifetime>
 
     </general>
 

@@ -49,11 +49,8 @@
 /* Diameter XML config loader debugging */
 #define AAA_XML_DEBUG 0
 
-/* PANA cookie debugging flag */
-#define PANA_COOKIE_DEBUG 0
-
 /* PANA debugging flag */
-#define PANA_DEBUG 0
+#define PANA_DEBUG 1
 
 /* PANA FSM debugging */
 #define PANA_FSM_DEBUG 1

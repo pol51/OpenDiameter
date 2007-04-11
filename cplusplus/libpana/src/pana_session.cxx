@@ -768,6 +768,7 @@ void PANA_AuxillarySessionVariables::Reset()
 {
    m_Authorized = false;
    m_AlgorithmIsSet = false;
+   m_OptimizedPAN = false;
 
    while (! RxMsgQueue().Empty()) {
        std::auto_ptr<PANA_Message> cleanup

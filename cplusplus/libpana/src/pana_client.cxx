@@ -121,7 +121,7 @@ void PANA_Client::RxPARStart()
     NotifyEapRestart();
 
     // start session timer to detect stalled sessions
-    NotifyScheduleLifetime(STALLED_SESSION_TIMEOUT);
+    NotifyScheduleLifetime();
 
     // PSR.exist_avp("EAP-Payload")
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());

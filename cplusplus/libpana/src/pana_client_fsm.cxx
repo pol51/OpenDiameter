@@ -171,6 +171,16 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        m_PacExitActionTimeout);
 
     /////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - - - -(Session timeout)- - - - - - - - - - -
+    // SESS_TIMEOUT             Disconnect();              CLOSED
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ev.Reset();
+    ev.Do_SessTimeout();
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_CLOSED,
+                       m_PacExitActionTimeout);
+
+    /////////////////////////////////////////////////////////////////
     // - - - - - - - - -(PANA-Error-Message-Processing)- - - - - - - -
     // PROTOCOL_ERROR           if (key_available())       WAIT_PNA
     //                            PNR.insert_avp("AUTH");
@@ -380,6 +390,16 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     //
     ev.Reset();
     ev.Do_RetryTimeout();
+    AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
+                       PANA_ST_CLOSED,
+                       m_PacExitActionTimeout);
+
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - - - - - -(Session timeout)- - - - - - - - - - -
+    // SESS_TIMEOUT             Disconnect();              CLOSED
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ev.Reset();
+    ev.Do_SessTimeout();
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
@@ -1090,7 +1110,6 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
       virtual void HandleMessage(PANA_Message &msg) {
 
           PANA_PacEventVariable ev;
-          ev.MsgType(PANA_EV_MTYPE_PAR);
 
           if (msg.flags().auth ||
               msg.flags().ping ||
@@ -1138,6 +1157,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve the event
+          ev.MsgType(PANA_EV_MTYPE_PAR);
           ev.FlagStart();
 
           // verify algorithm if present and supported
@@ -1167,18 +1187,13 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           // first level validation
           m_arg.RxValidateMsg(msg);
 
-          // save address of paa
-          if (msg.flags().request) {
-              m_arg.PaaAddress() = msg.srcAddress();
-          }
-          m_arg.LastUsedChannel() = msg.destAddress();
-
           // save last received header
           m_arg.LastRxHeader() = msg;
 
           // resolve the event
           if (msg.flags().request) {
               ev.MsgType(PANA_EV_MTYPE_PAR);
+              m_arg.PaaAddress() = msg.srcAddress();
               ev.EnableCfg_EapPiggyback(PANA_CFG_PAC().m_EapPiggyback ? 1 : 0);
           }
           else {
@@ -1189,6 +1204,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
                   ev.AvpExist_EapPayload();
               }
           }
+          m_arg.LastUsedChannel() = msg.destAddress();
       }
       virtual void HandleComplete(PANA_Message &msg,
                                   PANA_PacEventVariable &ev) {
@@ -1209,6 +1225,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve the event
+          ev.MsgType(PANA_EV_MTYPE_PAR);
           ev.FlagComplete();
 
           // resolve the eap event
@@ -1249,7 +1266,6 @@ class PANA_CsmRxPN : public PANA_ClientRxStateFilter
       virtual void HandleMessage(PANA_Message &msg) {
 
           PANA_PacEventVariable ev;
-          ev.MsgType(PANA_EV_MTYPE_PNR);
 
           // first level validation
           m_arg.RxValidateMsg(msg);
@@ -1293,13 +1309,18 @@ class PANA_CsmRxPN : public PANA_ClientRxStateFilter
           m_arg.LastUsedChannel() = msg.destAddress();
 
           // resolve event
+          ev.MsgType(PANA_EV_MTYPE_PNA);
           ev.FlagAuth();
       }
       virtual void HandlePing(PANA_Message &msg,
                               PANA_PacEventVariable &ev) {
           // save address of Paa
           if (msg.flags().request) {
+              ev.MsgType(PANA_EV_MTYPE_PNR);
               m_arg.PaaAddress() = msg.srcAddress();
+          }
+          else {
+              ev.MsgType(PANA_EV_MTYPE_PNA);
           }
           m_arg.LastUsedChannel() = msg.destAddress();
 
@@ -1311,15 +1332,13 @@ class PANA_CsmRxPN : public PANA_ClientRxStateFilter
       }
       virtual void HandleError(PANA_Message &msg,
                                PANA_PacEventVariable &ev) {
-          // save address of Paa
-          if (msg.flags().request) {
-              m_arg.PaaAddress() = msg.srcAddress();
-          }
-          m_arg.LastUsedChannel() = msg.destAddress();
-
           // resolve the event
-          ev.FlagError();
           if (msg.flags().request) {
+
+              // save address of Paa
+              ev.MsgType(PANA_EV_MTYPE_PNR);
+              m_arg.PaaAddress() = msg.srcAddress();
+
               if (m_arg.IsFatalError()) {
                   PANA_StringAvpContainerWidget authAvp(msg.avpList());
                   pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
@@ -1331,6 +1350,11 @@ class PANA_CsmRxPN : public PANA_ClientRxStateFilter
               m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
               m_arg.RxPNRError();
           }
+          else {
+              ev.MsgType(PANA_EV_MTYPE_PNA);
+          }
+          m_arg.LastUsedChannel() = msg.destAddress();
+          ev.FlagError();
       }
 };
 

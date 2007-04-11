@@ -135,7 +135,8 @@ public:
         Passphrase() = gPasswd;
     }
     else {
-        std::cin >> Passphrase();
+        //std::cin >> Passphrase();
+        Passphrase() = "12345";
     }
   }
 private:
@@ -254,6 +255,9 @@ class PeerApplication : public AAA_JobData,
      if (! reauth) {
          pacSession.ReAuthenticate();
          reauth = true;
+     }
+     else {
+         pacSession.Ping();
      }
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
@@ -411,7 +415,8 @@ std::string& MyPeerSwitchStateMachine::InputIdentity()
     }    
     identity = std::string("user2");
     std::cout << "Input username (within 10sec.): " << std::endl;
-    std::cin >> identity;
+    //std::cin >> identity;
+    identity = "user1";
     std::cout << "username = " << identity << std::endl;
     return identity;
   }

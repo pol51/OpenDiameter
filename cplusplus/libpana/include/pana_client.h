@@ -48,11 +48,6 @@ class PANA_EXPORT PANA_Client :
    public PANA_Session
 {
    public:
-      typedef enum {
-          STALLED_SESSION_TIMEOUT = 60,
-      };
-
-   public:
       PANA_Client(PANA_SessionTxInterface &tp,
                   PANA_SessionTimerInterface &tm,
                   PANA_ClientEventInterface &ev);

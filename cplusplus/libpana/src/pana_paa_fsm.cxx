@@ -532,7 +532,7 @@ PANA_PaaStateTable::PANA_PaaStateTable()
                        PANA_ST_WAIT_EAP_MSG,
                        m_PaaOpenExitActionReAuth);
     ev.Reset();
-    ev.Event_App(PANA_EV_APP_REAUTH_TIMEOUT);
+    ev.Do_SessTimeout();
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_WAIT_EAP_MSG,
                        m_PaaOpenExitActionReAuth);
@@ -866,16 +866,6 @@ PANA_PaaStateTable::PANA_PaaStateTable()
                        m_PaaSessExitActionRxPTA);
 
     /////////////////////////////////////////////////////////////////
-    // - - - - - - - - - - - - -(Session timeout)- - - - - - - - - - -
-    // SESS_TIMEOUT             Disconnect();              CLOSED
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ev.Reset();
-    ev.Do_SessTimeout();
-    AddStateTableEntry(PANA_ST_SESS_TERM, ev.Get(),
-                       PANA_ST_CLOSED,
-                       m_PaaExitActionTimeout);
-
-    /////////////////////////////////////////////////////////////////
     // RTX_TIMEOUT &&           Disconnect();              CLOSED
     // RTX_COUNTER>=
     // RTX_MAX_NUM
@@ -1002,7 +992,6 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
       virtual void HandleMessage(PANA_Message &msg) {
 
           PANA_PaaEventVariable ev;
-          ev.MsgType(PANA_EV_MTYPE_PAR);
 
           if (msg.flags().auth ||
               msg.flags().ping ||
@@ -1043,6 +1032,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve event
+          ev.MsgType(PANA_EV_MTYPE_PAN);
           ev.FlagStart();
       }
       virtual void HandleComplete(PANA_Message &msg,
@@ -1060,6 +1050,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve event
+          ev.MsgType(PANA_EV_MTYPE_PAN);
           ev.FlagComplete();
       }
       virtual void HandleNormal(PANA_Message &msg,
@@ -1067,23 +1058,24 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           // first level validation
           m_arg.RxValidateMsg(msg);
 
-          // save address of PaC
-          if (msg.flags().request) {
-              m_arg.PacAddress() = msg.srcAddress();
-          }
-
           // save last received header
           m_arg.LastRxHeader() = msg;
 
           // resolve the event
-          ev.MsgType(msg.flags().request ?
-                     PANA_EV_MTYPE_PAR : PANA_EV_MTYPE_PAN);
           if (! msg.flags().request) {
+
+              ev.MsgType(PANA_EV_MTYPE_PAN);
+
               PANA_StringAvpContainerWidget eapAvp(msg.avpList());
               pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
               if (payload) {
                   ev.AvpExist_EapPayload();
               }
+          }
+          else {
+              // save address of PaC
+              m_arg.PacAddress() = msg.srcAddress();
+              ev.MsgType(PANA_EV_MTYPE_PAR);
           }
       }
 };
@@ -1107,7 +1099,6 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
       virtual void HandleMessage(PANA_Message &msg) {
 
           PANA_PaaEventVariable ev;
-          ev.MsgType(PANA_EV_MTYPE_PNR);
 
           if (msg.flags().start ||
               msg.flags().complete) {
@@ -1151,6 +1142,7 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve the event
+          ev.MsgType(PANA_EV_MTYPE_PNR);
           ev.FlagAuth();
       }
       virtual void HandlePing(PANA_Message &msg,
@@ -1161,6 +1153,10 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
           // save address of PaC
           if (msg.flags().request) {
               m_arg.PacAddress() = msg.srcAddress();
+              ev.MsgType(PANA_EV_MTYPE_PNR);
+          }
+          else {
+              ev.MsgType(PANA_EV_MTYPE_PNA);
           }
 
           // save last received header
@@ -1174,20 +1170,23 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
           // first level validation
           m_arg.RxValidateMsg(msg);
 
-          // save address of PaC
-          if (msg.flags().request) {
-              m_arg.PacAddress() = msg.srcAddress();
-          }
-
           // tell the session
           m_arg.AuxVariables().RxMsgQueue().Enqueue(&msg);
           m_arg.RxPNRError();
 
           // resolve the event
           if (msg.flags().request) {
+
+              // save address of PaC
+              m_arg.PacAddress() = msg.srcAddress();
+              ev.MsgType(PANA_EV_MTYPE_PNR);
+
               if (m_arg.IsFatalError()) {
                   ev.Do_FatalError();
               }
+          }
+          else {
+              ev.MsgType(PANA_EV_MTYPE_PNA);
           }
           ev.FlagError();
       }

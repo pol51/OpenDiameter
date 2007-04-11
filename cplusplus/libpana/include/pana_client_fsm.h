@@ -284,7 +284,7 @@ class PANA_EXPORT PANA_ClientStateTable :
        class PacOpenExitActionRxPAR : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
                c.NotifyEapRestart();
-               c.NotifyScheduleLifetime(PANA_Client::STALLED_SESSION_TIMEOUT);
+               c.NotifyScheduleLifetime();
                c.RxPAR();
            }
        };

@@ -357,13 +357,6 @@ class PeerChannel : public PANA_ClientEventInterface
   }
   void Authorize(PANA_AuthorizationArgs &args) {
      PANA_AuthScriptCtl::Print(args);
-     // send an address update request
-#if defined(ACE_HAS_IPV6)
-     ACE_INET_Addr newAddr("2001::1111:0");
-#else
-     ACE_INET_Addr newAddr("127.0.0.1:0");
-#endif
-     pana.Update(newAddr);
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {
@@ -444,6 +437,7 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
    }
    void Authorize(PANA_AuthorizationArgs &args) {
       PANA_AuthScriptCtl::Print(args);
+      paaSession.Ping();
    }
    bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {

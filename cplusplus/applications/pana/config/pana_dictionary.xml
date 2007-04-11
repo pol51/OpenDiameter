@@ -10,7 +10,7 @@
     <command name="PANA-Auth" code="2">
       <requestrules>
         <optional>
-           <avprule name="EAP-Payload" maximum="1" minimum="1" />
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
            <avprule name="Algorithm" maximum="1" minimum="0" />
            <avprule name="Nonce" maximum="1" minimum="0" />
            <avprule name="Result-Code" maximum="1" minimum="0" />
@@ -47,7 +47,7 @@
       <requestrules>
         <optional>
            <avprule name="Result-Code" maximum="1" minimum="0" />
-           <avprule name="Failed-Message-Header" maximum="1" minimum="1" />
+           <avprule name="Failed-Message-Header" maximum="1" minimum="0" />
            <avprule name="Failed-AVP" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>

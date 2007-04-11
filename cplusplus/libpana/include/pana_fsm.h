@@ -39,8 +39,6 @@
 #include "pana_session.h"
 #include "pana_channel.h"
 
-// #define PANA_FSM_DEBUG 1
-
 typedef enum {
   PANA_ST_OFFLINE = 1,
   PANA_ST_WAIT_PAA,

@@ -387,7 +387,9 @@ void PANA_Paa::RxPANComplete(bool success)
 
     m_Timer.CancelTxRetry();
     if (success) {
-        NotifyScheduleLifetime();
+        if (SessionLifetime() > 0) {
+            NotifyScheduleLifetime(SessionLifetime() - 1);
+        }
         NotifyAuthorization();
     }
     else {
