@@ -192,19 +192,14 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
               p.NotifyEapRestart();
           }
       };
-      class PaaExitActionTxPSR : public AAA_Action<PANA_Paa> {
+      class PaaExitActionTxPARStart : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
-              p.TxPSR();
+              p.TxPARStart();
           }
       };
-      class PaaExitActionRxPSA : public AAA_Action<PANA_Paa> {
+      class PaaExitActionRxPANStart : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
-              p.RxPSA();
-          }
-      };
-      class PaaExitActionEapTimeout : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) {
-              p.NotifyEapTimeout();
+              p.RxPANStart();
           }
       };
       class PaaExitActionTxPAR : public AAA_Action<PANA_Paa> {
@@ -212,62 +207,36 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
               p.TxPAR();
           }
       };
-      class PaaExitActionTxPBREapSuccess : public AAA_Action<PANA_Paa> {
+      class PaaExitActionTxPARCompleteEapFail : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
-              p.TxPBR(PANA_RCODE_SUCCESS, PANA_Paa::EAP_SUCCESS);
+              p.TxPARComplete(PANA_RCODE_AUTHENTICATION_REJECTED,
+                              PANA_Paa::EAP_FAILURE);
           }
       };
-      class PaaExitActionTxPBREapSuccessFail : public AAA_Action<PANA_Paa> {
+      class PaaExitActionTxPARCompleteEapSuccess : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
-              p.TxPBR(PANA_RCODE_AUTHENTICATION_REJECTED,
-                      PANA_Paa::EAP_SUCCESS);
+              p.TxPARComplete(PANA_RCODE_SUCCESS, PANA_Paa::EAP_SUCCESS);
           }
       };
-      class PaaExitActionTxPBREapFail : public AAA_Action<PANA_Paa> {
+      class PaaExitActionTxPARCompleteEapSuccessFail : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
-              p.TxPBR(PANA_RCODE_AUTHENTICATION_REJECTED,
-                      PANA_Paa::EAP_FAILURE);
+              p.TxPARComplete(PANA_RCODE_AUTHENTICATION_REJECTED,
+                              PANA_Paa::EAP_SUCCESS);
           }
       };
-      class PaaExitActionTxPBREapTimeout : public AAA_Action<PANA_Paa> {
+      class PaaExitActionRxPANCompleteSuccess : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
-              p.TxPBR(PANA_RCODE_AUTHENTICATION_REJECTED, 
-                      PANA_Paa::EAP_TIMEOUT);
+              p.RxPANComplete(true);
           }
       };
-      class PaaExitActionTxPER : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.TxPER(PANA_ERROR_UNABLE_TO_COMPLY);
+      class PaaExitActionRxPANCompleteFail : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p) {
+              p.RxPANComplete(false);
           }
       };
-      class PaaExitActionTxPEA : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.TxPEA();
-          }
-      };
-      class PaaWaitPEAExitActionRxPEA : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPEA();
-          }
-      };
-      class PaaExitActionRxPBASuccess : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPBA(true);
-          }
-      };
-      class PaaExitActionRxPBAFail : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPBA(false);
-          }
-      };
-      class PaaOpenExitActionRxPPR : public AAA_Action<PANA_Paa> {
-           virtual void operator()(PANA_Paa &p) { 
-               p.RxPPR();
-           }
-      };
-      class PaaOpenExitActionRxPRR : public AAA_Action<PANA_Paa> {
-           virtual void operator()(PANA_Paa &p) { 
-               p.RxPRR();
+      class PaaOpenExitActionRxPNRAuth : public AAA_Action<PANA_Paa> {
+           virtual void operator()(PANA_Paa &p) {
+               p.RxPNRAuth();
            }
       };
       class PaaOpenExitActionReAuth : public AAA_Action<PANA_Paa> {
@@ -275,10 +244,30 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
                p.NotifyEapReAuth();
            }
       };
-      class PaaOpenExitActionTxPPR : public AAA_Action<PANA_Paa> {
-           virtual void operator()(PANA_Paa &p) { 
-               p.TxPPR();
+      class PaaOpenExitActionTxPNRPing : public AAA_Action<PANA_Paa> {
+           virtual void operator()(PANA_Paa &p) {
+               p.TxPNRPing();
            }
+      };
+      class PaaOpenExitActionRxPNRPing : public AAA_Action<PANA_Paa> {
+           virtual void operator()(PANA_Paa &p) {
+               p.RxPNRPing();
+           }
+      };
+      class PaaWaitPaaExitActionRxPNAPing : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p) {
+              p.RxPNAPing();
+          }
+      };
+      class PaaWaitPANExitActionRxPAR : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p) {
+              p.RxPAR();
+          }
+      };
+      class PaaWaitPANExitActionRxPAN : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p) { 
+              p.RxPAN();
+          }
       };
       class PaaOpenExitActionTxPTR : public AAA_Action<PANA_Paa> {
            virtual void operator()(PANA_Paa &p) { 
@@ -290,39 +279,19 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
               p.RxPTR();
           }
       };
-      class PaaOpenExitActionTxPUR : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.TxPUR();
-          }
-      };
-      class PaaWaitPUAExitActionRxPUA : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPUA(); 
-          }
-      };
-      class PaaOpenExitActionRxPUR : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPUR();
-          }
-      };
-      class PaaWaitPaaExitActionRxPPA : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPPA();
-          }
-      };
-      class PaaWaitPANExitActionRxPAN : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.RxPAN();
-          }
-      };
-      class PaaWaitPANExitActionRxPAR : public AAA_Action<PANA_Paa> {
+      class PaaExitActionEapTimeout : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
-              p.RxPAR();
+              p.NotifyEapTimeout();
           }
       };
-      class PaaSessExitActionRxPTA : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
-              p.Disconnect();
+      class PaaExitActionTxPNAError : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p) {
+              p.TxPNAError();
+          }
+      };
+      class PaaWaitPNAExitActionRxPNAError : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p) {
+              p.RxPNAError();
           }
       };
       class PaaExitActionTimeout : public AAA_Action<PANA_Paa> {
@@ -333,41 +302,47 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
       class PaaExitActionRetransmission : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p);
       };
+      class PaaSessExitActionRxPTA : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p) {
+              p.Disconnect();
+          }
+      };
+      class PaaExitActionTxPNRError : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p) {
+              p.TxPNRError();
+          }
+      };
 
       typedef AAA_NullAction<PANA_Paa> PaaNullAction;
 
       PANA_PaaStateTable();
 
    private:
-      PaaExitActionPaaEapRestart              m_PaaExitActionPaaEapRestart;
-      PaaExitActionTxPSR                      m_PaaExitActionTxPSR;
-      PaaExitActionRxPSA                      m_PaaExitActionRxPSA;
-      PaaExitActionEapTimeout                 m_PaaExitActionEapTimeout;
-      PaaExitActionTxPAR                      m_PaaExitActionTxPAR;
-      PaaExitActionTxPBREapSuccess            m_PaaExitActionTxPBREapSuccess;
-      PaaExitActionTxPBREapFail               m_PaaExitActionTxPBREapFail;
-      PaaExitActionTxPBREapTimeout            m_PaaExitActionTxPBREapTimeout;
-      PaaExitActionTxPBREapSuccessFail        m_PaaExitActionTxPBREapSuccessFail;
-      PaaExitActionTxPER                      m_PaaExitActionTxPER;
-      PaaExitActionTxPEA                      m_PaaExitActionTxPEA;
-      PaaWaitPEAExitActionRxPEA               m_PaaWaitPEAExitActionRxPEA;
-      PaaExitActionRxPBASuccess               m_PaaExitActionRxPBASuccess;
-      PaaExitActionRxPBAFail                  m_PaaExitActionRxPBAFail;
-      PaaOpenExitActionRxPPR                  m_PaaOpenExitActionRxPPR;
-      PaaOpenExitActionRxPRR                  m_PaaOpenExitActionRxPRR;
-      PaaOpenExitActionReAuth                 m_PaaOpenExitActionReAuth;
-      PaaOpenExitActionTxPPR                  m_PaaOpenExitActionTxPPR;
-      PaaOpenExitActionTxPTR                  m_PaaOpenExitActionTxPTR;
-      PaaOpenExitActionRxPTR                  m_PaaOpenExitActionRxPTR;
-      PaaOpenExitActionTxPUR                  m_PaaOpenExitActionTxPUR;
-      PaaOpenExitActionRxPUR                  m_PaaOpenExitActionRxPUR;
-      PaaWaitPUAExitActionRxPUA               m_PaaWaitPUAExitActionRxPUA;
-      PaaWaitPaaExitActionRxPPA               m_PaaWaitPaaExitActionRxPPA;
-      PaaWaitPANExitActionRxPAN               m_PaaWaitPANExitActionRxPAN;
-      PaaWaitPANExitActionRxPAR               m_PaaWaitPANExitActionRxPAR;
-      PaaSessExitActionRxPTA                  m_PaaSessExitActionRxPTA;
-      PaaExitActionTimeout                    m_PaaExitActionTimeout;
-      PaaExitActionRetransmission             m_PaaExitActionRetransmission;
+      PaaExitActionPaaEapRestart               m_PaaExitActionPaaEapRestart;
+      PaaExitActionTxPARStart                  m_PaaExitActionTxPARStart;
+      PaaExitActionRxPANStart                  m_PaaExitActionRxPANStart;
+      PaaExitActionTxPAR                       m_PaaExitActionTxPAR;
+      PaaExitActionTxPARCompleteEapFail        m_PaaExitActionTxPARCompleteEapFail;
+      PaaExitActionTxPARCompleteEapSuccess     m_PaaExitActionTxPARCompleteEapSuccess;
+      PaaExitActionTxPARCompleteEapSuccessFail m_PaaExitActionTxPARCompleteEapSuccessFail;
+      PaaExitActionRxPANCompleteSucces s       m_PaaExitActionRxPANCompleteSuccess;
+      PaaExitActionRxPANCompleteFail           m_PaaExitActionRxPANCompleteFail;
+      PaaOpenExitActionRxPNRAuth               m_PaaOpenExitActionRxPNRAuth;
+      PaaOpenExitActionReAuth                  m_PaaOpenExitActionReAuth;
+      PaaOpenExitActionRxPNRPing               m_PaaOpenExitActionRxPNRPing;
+      PaaOpenExitActionTxPNRPing               m_PaaOpenExitActionTxPNRPing;
+      PaaOpenExitActionTxPTR                   m_PaaOpenExitActionTxPTR;
+      PaaOpenExitActionRxPTR                   m_PaaOpenExitActionRxPTR;
+      PaaWaitPaaExitActionRxPNAPing            m_PaaWaitPaaExitActionRxPNAPing;
+      PaaWaitPNAExitActionRxPNAError           m_PaaWaitPNAExitActionRxPNAError;
+      PaaWaitPANExitActionRxPAR                m_PaaWaitPANExitActionRxPAR;
+      PaaWaitPANExitActionRxPAN                m_PaaWaitPANExitActionRxPAN;
+      PaaExitActionEapTimeout                  m_PaaExitActionEapTimeout;
+      PaaSessExitActionRxPTA                   m_PaaSessExitActionRxPTA;
+      PaaExitActionTxPNAError                  m_PaaExitActionTxPNAError;
+      PaaExitActionTimeout                     m_PaaExitActionTimeout;
+      PaaExitActionRetransmission              m_PaaExitActionRetransmission;
+      PaaExitActionTxPNRError                  m_PaaExitActionTxPNRError;
 };
 
 class PANA_EXPORT PANA_PaaSessionChannel
@@ -415,13 +390,13 @@ class PANA_EXPORT PANA_PaaSession : public
          m_Timer(*this),
          m_PAA(m_TxChannel, m_Timer, eif) {
          InitializeMsgMaps();
-         PANA_StateMachine<PANA_Paa, PANA_Channel>::Start(); 
+         PANA_StateMachine<PANA_Paa, PANA_Channel>::Start();
       }
-      virtual ~PANA_PaaSession() { 
-         PANA_StateMachine<PANA_Paa, PANA_Channel>::Stop(); 
-         FlushMsgMaps(); 
+      virtual ~PANA_PaaSession() {
+         PANA_StateMachine<PANA_Paa, PANA_Channel>::Stop();
+         FlushMsgMaps();
       }
-      virtual void Start() throw (AAA_Error) { 
+      virtual void Start() throw (AAA_Error) {
       }
       virtual void EapSendRequest(AAAMessageBlock *req);
       virtual void EapInvalidMessage();
@@ -430,6 +405,7 @@ class PANA_EXPORT PANA_PaaSession : public
       virtual void EapTimeout();
       virtual void EapReAuthenticate();
       virtual void Ping();
+      virtual void Error(pana_unsigned32_t error);
       virtual void Stop();
 
       ACE_UINT32 &SessionId() {

@@ -44,8 +44,8 @@
 typedef enum {
   PANA_ST_OFFLINE = 1,
   PANA_ST_WAIT_PAA,
-  PANA_ST_WAIT_SUCC_PNA,
-  PANA_ST_WAIT_FAIL_PNA,
+  PANA_ST_WAIT_SUCC_PAN,
+  PANA_ST_WAIT_FAIL_PAN,
   PANA_ST_WAIT_EAP_MSG,
   PANA_ST_WAIT_EAP_RESULT,
   PANA_ST_WAIT_EAP_RESULT_CLOSE,
@@ -80,9 +80,11 @@ typedef enum {
   PANA_EV_APP_START = 1,
   PANA_EV_APP_PAC_FOUND,
   PANA_EV_APP_REAUTH,
+  PANA_EV_APP_REAUTH_TIMEOUT,
   PANA_EV_APP_TERMINATE,
   PANA_EV_APP_AUTH_USER,
-  PANA_EV_APP_PING
+  PANA_EV_APP_PING,
+  PANA_EV_APP_ERROR
 } PANA_APP_EVENT;
 
 typedef enum {
@@ -141,7 +143,7 @@ class FsmTimer : public PANA_SessionTimerInterface {
 };
 
 template<class ARG, class CHANNEL>
-class PANA_EXPORT PANA_StateMachine : 
+class PANA_EXPORT PANA_StateMachine :
    public AAA_StateMachineWithTimer<ARG>, AAA_Job
 {
    private:
@@ -264,8 +266,8 @@ class PANA_EXPORT PANA_StateMachine :
        const char *StrState(int state) {
            static char *str[] = { "OFFLINE",
                                   "WAIT_PAA",
-                                  "WAIT_SUCC_PNA",
-                                  "WAIT_FAIL_PNA",
+                                  "WAIT_SUCC_PAN",
+                                  "WAIT_FAIL_PAN",
                                   "WAIT_EAP_MSG",
                                   "WAIT_EAP_RESULT",
                                   "WAIT_EAP_RESULT_CLOSE",

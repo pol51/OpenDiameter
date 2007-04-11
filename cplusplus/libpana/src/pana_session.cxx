@@ -449,7 +449,7 @@ void PANA_Session::RxPTA()
     Disconnect(PANA_TERMCAUSE_LOGOUT);
 }
 
-void PANA_Session::TxPNRError(pana_unsigned32_t rcode)
+void PANA_Session::TxPNRError()
 {
     /*
       7.6.  PANA-Notification-Request (PNR)
@@ -487,7 +487,7 @@ void PANA_Session::TxPNRError(pana_unsigned32_t rcode)
 
     // add result-code
     PANA_UInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
-    rcodeAvp.Get() = ACE_HTONL(rcode);
+    rcodeAvp.Get() = ACE_HTONL(LastProtocolError());
     msg->avpList().add(rcodeAvp());
 
     // add Failed-Message-Header

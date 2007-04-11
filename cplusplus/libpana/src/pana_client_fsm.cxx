@@ -171,6 +171,23 @@ PANA_ClientStateTable::PANA_ClientStateTable()
                        PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
 
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - -(PANA-Error-Message-Processing)- - - - - - - -
+    // PROTOCOL_ERROR           if (key_available())       WAIT_PNA
+    //                            PNR.insert_avp("AUTH");
+    //                          PNR.insert_avp
+    //                            ("Result-Code");
+    //                          PNR.insert_avp
+    //                            ("Failed-Message-Header");
+    //                          PNR.E_flag=Set;
+    //                          Tx:PNR();
+    //
+    ev.Reset();
+    ev.Event_App(PANA_EV_APP_ERROR);
+    AddStateTableEntry(PANA_ST_OFFLINE, ev.Get(),
+                       PANA_ST_WAIT_PNA,
+                       m_PaaExitActionTxPNRError);
+
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (PANA-Error-Message-Processing)- -
     // Rx:PNR &&                PNA.insert_avp("AUTH");    CLOSED
@@ -367,6 +384,23 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
+
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - -(PANA-Error-Message-Processing)- - - - - - - -
+    // PROTOCOL_ERROR           if (key_available())       WAIT_PNA
+    //                            PNR.insert_avp("AUTH");
+    //                          PNR.insert_avp
+    //                            ("Result-Code");
+    //                          PNR.insert_avp
+    //                            ("Failed-Message-Header");
+    //                          PNR.E_flag=Set;
+    //                          Tx:PNR();
+    //
+    ev.Reset();
+    ev.Event_App(PANA_EV_APP_ERROR);
+    AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
+                       PANA_ST_WAIT_PNA,
+                       m_PaaExitActionTxPNRError);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (PANA-Error-Message-Processing)- -
@@ -780,6 +814,23 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
+
+    /////////////////////////////////////////////////////////////////
+    // - - - - - - - - -(PANA-Error-Message-Processing)- - - - - - - -
+    // PROTOCOL_ERROR           if (key_available())       WAIT_PNA
+    //                            PNR.insert_avp("AUTH");
+    //                          PNR.insert_avp
+    //                            ("Result-Code");
+    //                          PNR.insert_avp
+    //                            ("Failed-Message-Header");
+    //                          PNR.E_flag=Set;
+    //                          Tx:PNR();
+    //
+    ev.Reset();
+    ev.Event_App(PANA_EV_APP_ERROR);
+    AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
+                       PANA_ST_WAIT_PNA,
+                       m_PaaExitActionTxPNRError);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (PANA-Error-Message-Processing)- -
@@ -1453,14 +1504,22 @@ void PANA_PacSession::ReAuthenticate()
 }
 
 void PANA_PacSession::Ping()
-{ 
+{
    PANA_PacEventVariable ev;
    ev.Event_App(PANA_EV_APP_PING);
    Notify(ev.Get());
 }
 
+void PANA_PaaSession::Error(pana_unsigned32_t error)
+{
+   PANA_PaaEventVariable ev;
+   m_PaC.LastProtocolError() = error;
+   ev.Event_App(PANA_EV_APP_ERROR);
+   Notify(ev.Get());
+}
+
 void PANA_PacSession::Stop()
-{ 
+{
    PANA_PacEventVariable ev;
    ev.Event_App(PANA_EV_APP_TERMINATE);
    Notify(ev.Get());

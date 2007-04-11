@@ -113,6 +113,9 @@ class PANA_SessionAttribute {
        ACE_UINT32 &SessionLifetime() {
            return m_SessionLifetime;
        }
+       ACE_UINT32 &LastProtocolError() {
+           return m_LastProtocolError;
+       }
        PANA_MsgHeader &LastRxHeader() {
            return m_LastRxHeader;
        }
@@ -126,7 +129,8 @@ class PANA_SessionAttribute {
        PANA_SerialNumber m_LastRxSeqNum; // last recevied tseq number value
        boost::shared_ptr<PANA_Message> m_LastTxReqMsg; // last transmitted message
        boost::shared_ptr<PANA_Message> m_CachedAnsMsg; // cached message
-       ACE_UINT32 m_SessionLifetime; // negotiated session lifetime
+       ACE_UINT32 m_SessionLifetime; // session lifetime
+       ACE_UINT32 m_LastProtocolError; // last known protocol error
        PANA_MsgHeader m_LastRxHeader; // Header of the last received message
 };
 
@@ -285,7 +289,7 @@ class PANA_EXPORT PANA_Session :
       virtual void TxPTA();
       virtual void TxPNRPing();
       virtual void TxPNAPing();
-      virtual void TxPNRError(pana_unsigned32_t rcode);
+      virtual void TxPNRError();
       virtual void TxPNAError();
 
       virtual void RxPTR();

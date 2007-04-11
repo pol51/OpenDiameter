@@ -382,6 +382,7 @@ class PANA_EXPORT PANA_PacSession : public
       virtual void EapFailure();
       virtual void ReAuthenticate();
       virtual void Ping();
+      virtual void Error(pana_unsigned32_t error);
       virtual void Stop();
 
    private:
