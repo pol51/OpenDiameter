@@ -50,10 +50,10 @@
 #define AAA_XML_DEBUG 0
 
 /* PANA debugging flag */
-#define PANA_DEBUG 1
+#define PANA_DEBUG 0
 
 /* PANA FSM debugging */
-#define PANA_FSM_DEBUG 1
+#define PANA_FSM_DEBUG 0
 
 /* PANA key generator debugging flag */
 #define PANA_SA_DEBUG 0
