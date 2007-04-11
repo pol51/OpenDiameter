@@ -737,7 +737,7 @@
       <enum name="Administrative" code="4"/>
       <enum name="Link Broken" code="5"/>
     </avp>
-    <avp name="User-Name" code="1">
+    <avp name="User-Name" code="1" protected="must" mandatory="must">
       <type type-name="UTF8String"/>
     </avp>
     <avp name="Vendor-Id" code="266" mandatory="must"
@@ -982,7 +982,7 @@
 	 may-encrypt="yes">
       <type type-name="Enumerated"/>
     </avp>
-    <avp name="User-Password" code="2" mandatory="must"
+    <avp name="User-Password" code="2" mandatory="must" protected="must"
 	 may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
@@ -1801,9 +1801,9 @@
       </answerrules>
     </command>
   </application>
-  <application id="20000" name="Test-Accounting" 
+  <application id="1" name="Accounting" 
     uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-aaa-eap-03.txt">
-    <command name="Accounting" code="271">
+    <command name="Accounting" code="271" pbit="1">
       <requestrules>
         <fixed>
 	  <avprule name="Session-Id" maximum="1" minimum="1"/>

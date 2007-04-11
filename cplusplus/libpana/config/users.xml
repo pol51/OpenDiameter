@@ -2,7 +2,7 @@
 <!DOCTYPE user_dbase SYSTEM "users.dtd">
 <user_dbase>
    <user>
-      <name>user1</name>
+      <name>test_string1</name>
       <pass>12345</pass>
       <auth>md5</auth>
    </user>
@@ -17,7 +17,7 @@
       <auth>archie</auth>
    </user>
    <user>
-      <name>user3</name>
+      <name>user1</name>
       <pass>12345</pass>
       <auth>md5</auth>
    </user>

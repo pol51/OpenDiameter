@@ -41,7 +41,7 @@
         <f77compiler>kdevpgf77options</f77compiler>
         <cxxflags>-O0 -g3</cxxflags>
         <envvars>
-          <envvar value="/usr/local/include" name="ACE_ROOT" />
+          <envvar value="/usr/src/ACE_wrappers-5.5" name="ACE_ROOT" />
           <envvar value="/usr/include" name="BOOST_ROOT" />
         </envvars>
         <topsourcedir/>

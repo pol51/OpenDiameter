@@ -84,6 +84,9 @@ typedef struct {
 // Configuration loader
 class PANA_EXPORT PANA_CfgManager {
     public:
+        virtual ~PANA_CfgManager() {
+        }
+
         void open(std::string &cfg_file);
 
         PANA_Cfg &data() {
@@ -100,6 +103,9 @@ class PANA_EXPORT PANA_CfgManager {
         }
 
         void dump();
+
+    protected:
+        virtual void validation();
 
     private:
         PANA_Cfg m_Data;

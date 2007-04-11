@@ -61,6 +61,15 @@
 // files is greater than this minimum value
 #define PANA_MIN_MESSAGE_COUNT 100
 
+// Dictates the minimum session lifetime value in
+// seconds that this PANA stack should use
+#define PANA_MIN_SESSION_LIFETIME  30
+
+// Dictates the number of seconds prior to session
+// lifetime expiration before a re-authentication
+// happens in the PAA
+#define PANA_REAUTH_GRACE_PERIOD   5
+
 // Message structure and data definition
 #if !defined(ACE_WIN32)
 #define UCHAR unsigned char

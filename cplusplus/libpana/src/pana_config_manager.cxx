@@ -38,6 +38,16 @@
 #include "pana_exceptions.h"
 #include "od_utl_xml_sax_parser.h"
 
+void PANA_CfgManager::validation()
+{
+     // validation
+     if (m_Data.m_General.m_SessionLifetime < PANA_MIN_SESSION_LIFETIME) {
+         m_Data.m_General.m_SessionLifetime = PANA_MIN_SESSION_LIFETIME;
+         AAA_LOG((LM_INFO, " WARNING : Session lifetime is too low, using minimum of %d sec\n",
+                  m_Data.m_General.m_SessionLifetime));
+     }
+}
+
 void PANA_CfgManager::open(std::string &cfg_file)
 {
     std::string cfgRoot = "pana_configuration";
