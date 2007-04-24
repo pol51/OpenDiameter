@@ -182,7 +182,7 @@ CCClientSession::InitialRequest()
   AAA_LOG((LM_DEBUG, "(%P|%t) \tRequested %d Service Units.\n",50 ));   
   unitValue_t unitValue (50, 0);
   ccMoney_t ccMoney(unitValue,840);
-  requestedServiceUnit_t requestedServiceUnits(0,ccMoney);
+  requestedServiceUnit_t requestedServiceUnits(ccMoney);
 
   ccrData.RequestedServiceUnit = requestedServiceUnits;  
 
@@ -226,7 +226,7 @@ CCClientSession::TerminationRequest()
 
   unitValue_t unitValue (20, 0);
   ccMoney_t ccMoney(unitValue,840); 
-  std::vector<usedServiceUnit_t> usedServiceUnits(1, usedServiceUnit_t(0,0,ccMoney));
+  std::vector<usedServiceUnit_t> usedServiceUnits(1, usedServiceUnit_t(ccMoney));
   AAA_LOG((LM_DEBUG, "(%P|%t) \tUsed %d Service Units.\n",unitValue.ValueDigits()));
 
   ccrData.UsedServiceUnit = usedServiceUnits;  
@@ -257,7 +257,7 @@ CCClientSession::RefundAccountRequest()
   AAA_LOG((LM_DEBUG, "(%P|%t) \tRefund %d Service Units to the Account.\n",40 ));   
   unitValue_t unitValue (40, 0);
   ccMoney_t ccMoney(unitValue,840);
-  requestedServiceUnit_t requestedServiceUnits(0,ccMoney);
+  requestedServiceUnit_t requestedServiceUnits(ccMoney);
 
   ccrData.RequestedServiceUnit = requestedServiceUnits;  
  
@@ -301,7 +301,7 @@ CCClientSession::DirectDebitingRequest()
   AAA_LOG((LM_DEBUG, "(%P|%t) \tDirect Debit %d Service Units.\n",20 ));   
   unitValue_t unitValue (20, 0);
   ccMoney_t ccMoney(unitValue,840);
-  requestedServiceUnit_t requestedServiceUnits(0,ccMoney);
+  requestedServiceUnit_t requestedServiceUnits(ccMoney);
 
   ccrData.RequestedServiceUnit = requestedServiceUnits;  
  
@@ -345,7 +345,7 @@ CCClientSession::CheckBalanceRequest()
   AAA_LOG((LM_DEBUG, "(%P|%t) \t Check Balance for %d Service Units.\n",50 ));   
   unitValue_t unitValue (50, 0);
   ccMoney_t ccMoney(unitValue,840);
-  requestedServiceUnit_t requestedServiceUnits(0,ccMoney);
+  requestedServiceUnit_t requestedServiceUnits(ccMoney);
 
   ccrData.RequestedServiceUnit = requestedServiceUnits;  
  
@@ -479,7 +479,7 @@ class CCInitializer
     subscriptionId_t subscriptionId;
     unitValue_t unitValue (0, 0);
     ccMoney_t ccMoney(unitValue,840);
-    requestedServiceUnit_t balanceunits(0,ccMoney);
+    requestedServiceUnit_t balanceunits(ccMoney);
 
     subscriptionId = subscriptionId_t(0,"1"); //END_USER_E164
     AAA_LOG((LM_DEBUG, 
@@ -494,6 +494,13 @@ class CCInitializer
     diameterCCApplication.addAccount(subscriptionId, 
                                      balanceunits,
                                      CREDIT_CONTROL_FAILURE_HANDLING_TERMINATE);
+
+    subscriptionId =  subscriptionId_t(0,"3"); //END_USER_E164
+    AAA_LOG((LM_DEBUG, 
+             "(%P|%t) Account for Subscription Id 3 setup for Continue for Credit Control Failure Handling.\n"));
+    diameterCCApplication.addAccount(subscriptionId, 
+                                     balanceunits,
+                                     CREDIT_CONTROL_FAILURE_HANDLING_CONTINUE);
    
     
   }
@@ -533,6 +540,10 @@ main(int argc, char *argv[])
   sleep (10);
 
   subscriptionId = subscriptionId_t(0,"2"); //END_USER_E164
+  clientApp->SendInitialRequest(subscriptionId);
+
+  sleep (28);
+  subscriptionId = subscriptionId_t(0,"3"); //END_USER_E164
   clientApp->SendInitialRequest(subscriptionId);
 
   semaphore.acquire();

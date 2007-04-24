@@ -733,12 +733,12 @@ class requestedServiceUnit_t
       }
   }	  
   requestedServiceUnit_t(){}
-  requestedServiceUnit_t(const diameter_unsigned32_t& ccTime = 0,
-                      const ccMoney_t& ccMoney,
-                      const diameter_unsigned64_t& ccTotalOctets = 0,
-                      const diameter_unsigned64_t& ccInputOctets = 0,
-                      const diameter_unsigned64_t& ccOutputOctets = 0,
-                      const diameter_unsigned64_t& ccServiceSpecificUnits =0
+  requestedServiceUnit_t(const ccMoney_t& ccMoney,
+                         const diameter_unsigned32_t& ccTime = 0,                    
+                         const diameter_unsigned64_t& ccTotalOctets = 0,
+                         const diameter_unsigned64_t& ccInputOctets = 0,
+                         const diameter_unsigned64_t& ccOutputOctets = 0,
+                         const diameter_unsigned64_t& ccServiceSpecificUnits =0
                          )
     :CCTime(ccTime),
      CCTotalOctets(ccTotalOctets),
@@ -866,16 +866,16 @@ public:
   }
 
   grantedServiceUnit_t(){}
-  grantedServiceUnit_t(const diameter_time_t& tariffTimeChange = 0,
-                    const diameter_unsigned32_t& ccTime = 0,
-                    const ccMoney_t& ccMoney,
-                    const diameter_unsigned64_t& ccTotalOctets = 0,
-                    const diameter_unsigned64_t& ccInputOctets = 0,
-                    const diameter_unsigned64_t& ccOutputOctets = 0,
-                    const diameter_unsigned64_t& ccServiceSpecificUnits =0
+  grantedServiceUnit_t(const ccMoney_t& ccMoney,
+                       const diameter_time_t& tariffTimeChange = 0,
+                       const diameter_unsigned32_t& ccTime = 0,
+                       const diameter_unsigned64_t& ccTotalOctets = 0,
+                       const diameter_unsigned64_t& ccInputOctets = 0,
+                       const diameter_unsigned64_t& ccOutputOctets = 0,
+                       const diameter_unsigned64_t& ccServiceSpecificUnits =0
                        )    
-    : requestedServiceUnit_t(ccTime,
-                             ccMoney,
+    : requestedServiceUnit_t(ccMoney,
+                             ccTime,                             
                              ccTotalOctets,
                              ccInputOctets,
                              ccOutputOctets,
@@ -916,16 +916,16 @@ public:
     requestedServiceUnit_t::CopyFrom(cl);
   }
   usedServiceUnit_t(){}
-  usedServiceUnit_t(const diameter_enumerated_t& tariffChangeUsage = 0,
-                  const diameter_unsigned32_t& ccTime = 0,
-                  const ccMoney_t& ccMoney,
-                  const diameter_unsigned64_t& ccTotalOctets = 0,
-                  const diameter_unsigned64_t& ccInputOctets = 0,
-                  const diameter_unsigned64_t& ccOutputOctets = 0,
-                  const diameter_unsigned64_t& ccServiceSpecificUnits =0
+  usedServiceUnit_t(const ccMoney_t& ccMoney,
+                    const diameter_enumerated_t& tariffChangeUsage = 0,
+                    const diameter_unsigned32_t& ccTime = 0,
+                    const diameter_unsigned64_t& ccTotalOctets = 0,
+                    const diameter_unsigned64_t& ccInputOctets = 0,
+                    const diameter_unsigned64_t& ccOutputOctets = 0,
+                    const diameter_unsigned64_t& ccServiceSpecificUnits =0
                 )    
-    : requestedServiceUnit_t(ccTime,
-                             ccMoney,
+    : requestedServiceUnit_t(ccMoney,
+                             ccTime,                             
                              ccTotalOctets,
                              ccInputOctets,
                              ccOutputOctets,

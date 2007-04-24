@@ -147,7 +147,7 @@ CCServerSession::TerminationRequest()
 
   unitValue_t unitValue (0, 0);
   ccMoney_t ccMoney(unitValue,840);
-  requestedServiceUnit_t clearReserved(0,ccMoney);
+  requestedServiceUnit_t clearReserved(ccMoney);
   account.ReservedUnits(clearReserved);
   
   AAA_LOG((LM_DEBUG, "(%P|%t) \tSubscriber Used %d Units.\n"
@@ -331,10 +331,10 @@ private:
     subscriptionId = subscriptionId_t(0,"1"); //END_USER_E164
     unitValue = unitValue_t(100, 0);
     ccMoney = ccMoney_t(unitValue,840);
-    balanceunits = requestedServiceUnit_t(0,ccMoney);
+    balanceunits = requestedServiceUnit_t(ccMoney);
 
     AAA_LOG((LM_DEBUG, 
-             "(%P|%t) Account has %d Balance Units.\n",
+             "(%P|%t) Account for Subscription Id 1 has %d Balance Units.\n",
              unitValue.ValueDigits() ));
 
     diameterCCApplication.addAccount(subscriptionId, 
@@ -344,10 +344,10 @@ private:
     subscriptionId = subscriptionId_t(0,"2"); //END_USER_E164
     unitValue = unitValue_t(200, 0);
     ccMoney = ccMoney_t(unitValue,840);
-    balanceunits = requestedServiceUnit_t(0,ccMoney);
+    balanceunits = requestedServiceUnit_t(ccMoney);
 
     AAA_LOG((LM_DEBUG, 
-             "(%P|%t) Account has %d Balance Units.\n",
+             "(%P|%t) Account for Subscription Id 2 has %d Balance Units.\n",
              unitValue.ValueDigits() ));
 
 
@@ -358,10 +358,10 @@ private:
     subscriptionId = subscriptionId_t(0,"3"); //END_USER_E164
     unitValue = unitValue_t(300, 0);
     ccMoney = ccMoney_t(unitValue,840);
-    balanceunits = requestedServiceUnit_t(0,ccMoney);
+    balanceunits = requestedServiceUnit_t(ccMoney);
 
     AAA_LOG((LM_DEBUG, 
-             "(%P|%t) Account has %d Balance Units.\n",
+             "(%P|%t) Account for Subscription Id 3 has %d Balance Units.\n",
              unitValue.ValueDigits() ));
 
 
