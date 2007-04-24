@@ -31,10 +31,9 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: */
 /* 
-   diameter_cc_server_fsm.h
-   Server Statemachine definition for Diameter Credit Control Application 
+   File: diameter_cc_server_fsm.h
+   Author: Amrit Kaur (kaur_amrit@hotmail.com)
 */
 
 #ifndef __CC_SERVER_FSM_H__

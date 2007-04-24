@@ -31,7 +31,10 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: diameter_cc_server_session.h $ */
+/*
+  File: diameter_cc_server_session.h
+  Author: Amrit Kaur (kaur_amrit@hotmail.com)
+*/
 
 #ifndef __CC_SERVER_SESSION_H__
 #define __CC_SERVER_SESSION_H__

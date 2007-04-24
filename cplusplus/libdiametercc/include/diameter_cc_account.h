@@ -31,10 +31,9 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: */
 /* 
-   diameter_cc_account.h
-   Account information Diameter Credit Control Application 
+   File: diameter_cc_account.h
+   Author: Amrit Kaur (kaur_amrit@hotmail.com)
 */
 
 #ifndef __CC_ACCOUNT_H__

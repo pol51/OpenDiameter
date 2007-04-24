@@ -31,7 +31,10 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: diameter_cc_parser.hxx $ */
+/*
+  File: diameter_cc_parser.h
+  Author: Amrit Kaur (kaur_amrit@hotmail.com)
+*/
 
 #ifndef __DIAMETER_CC_PARSER_H__
 #define __DIAMETER_CC_PARSER_H__

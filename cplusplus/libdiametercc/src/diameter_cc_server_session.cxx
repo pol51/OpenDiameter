@@ -31,7 +31,10 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: diameter_cc_server_session.cxx $ */
+/*
+  File: diameter_cc_server_session.cxx
+  Author: Amrit Kaur (kaur_amrit@hotmail.com)
+*/  
 
 #include "diameter_parser.h"
 #include "diameter_cc_server_session.h"

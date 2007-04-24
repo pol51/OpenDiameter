@@ -31,10 +31,9 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: */
 /* 
-   diameter_cc_client_fsm.h
-   Client Statemachine definition for Diameter CC Application 
+   File: diameter_cc_client_fsm.h
+   Author: Amrit Kaur (kaur_amrit@hotmail.com)
 */
 
 #ifndef __CC_CLIENT_FSM_H__

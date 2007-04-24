@@ -31,7 +31,10 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: diameter_cc_req_parser.cxx $ */
+/*
+  File: diameter_cc_req_parser.cxx
+  Author: Amrit Kaur (kaur_amrit@hotmail.com)
+*/
 
 #include "diameter_cc_parser.h"
 

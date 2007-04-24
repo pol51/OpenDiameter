@@ -31,7 +31,10 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: diameter_cc_application.h $ */
+/*
+  File: diameter_cc_application.h
+  AUTHOR: Amrit Kaur (kaur_amrit@hotmail.com)
+*/
 
 #ifndef __CC_APPLICATION_H__
 #define __CC_APPLICATION_H__
@@ -40,7 +43,7 @@
 #include "diameter_api.h"
 #include "diameter_cc_accounts.h"
 
-/// The base class for Diameter CC Account information.
+
 class DiameterCCApplication: public AAAApplicationCore
 {
 public:

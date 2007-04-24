@@ -30,7 +30,11 @@
 /* changes to one unified version of this software.                       */
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
-// $Id: diameter_cc_client_fsm.cxx,v 1.8 2004/08/16 16:17:26 Exp $
+
+/*
+  File: diameter_cc_client_fsm.cxx
+  Author: Amrit Kaur (kaur_amrit@hotmail.com)
+*/  
 
 #include <ace/Singleton.h>
 #include <ace/Atomic_Op_T.h>

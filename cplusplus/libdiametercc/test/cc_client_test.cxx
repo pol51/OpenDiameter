@@ -31,10 +31,9 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: cc_client_test.cxx $*/
 /* 
-   cc_client_test.cxx
-   Client test program for Diameter CC Application 
+   File: cc_client_test.cxx
+   Author: Amrit Kaur (kaur_amrit@hotmail.com)   
 */
 
 #include <vector>

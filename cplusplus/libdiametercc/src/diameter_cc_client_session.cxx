@@ -31,6 +31,11 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
+/*
+  File: diameter_cc_client_session.cxx
+  Author: Amrit Kaur (kaur_amrit@hotmail.com)
+*/
+
 #include "diameter_parser.h"
 #include "diameter_cc_client_session.h"
 #include "diameter_cc_application.h"
@@ -98,10 +103,7 @@ DiameterCCClientSession::CreditControlFailureHandling()
 {
   std::vector<subscriptionId_t>& vec = ccrData.SubscriptionId();
   DiameterCCAccount account = diameterCCApplication.getAccount(vec[0]); 
-
-  AAA_LOG((LM_DEBUG, "(%P|%t) CreditControlFailureHandling %d.\n",
-           account.CreditControlFailureHandling()));
-
+  
   switch(account.CreditControlFailureHandling())
     {
     case CREDIT_CONTROL_FAILURE_HANDLING_TERMINATE:

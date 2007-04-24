@@ -31,10 +31,9 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-/* $Id: */
 /* 
-   cc_server_test.cxx
-   Server test program for Diameter CC Application 
+   File: cc_server_test.cxx
+   Author: Amrit Kaur (kaur_amrit@hotmail.com)
 */
 
 #include <iostream>
