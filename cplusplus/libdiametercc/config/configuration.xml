@@ -118,7 +118,7 @@
            are currently configure statically using this section. 
            No dynamic learning is currently available -->
       <peer_table>
-          <! -- This defines the expiration time for dynamically
+          <!-- This defines the expiration time for dynamically
                 learned peers -->
           <expiration_time>1</expiration_time>
           <peer>
@@ -150,7 +150,7 @@
                realm AVP's. For more information on diameter
                routing, pls see "Open Diameter Routing Architecture" -->
           <route>
-             <! -- Realm that this route serves. MUST be unique to
+             <!-- Realm that this route serves. MUST be unique to
                    this table --> 
              <realm>other.research.org</realm>
 
@@ -190,7 +190,7 @@
                       <!-- Diameter peer serving this realm and
                            application id. This server name
                            MUST exits in the peer table for
-                           this route to be active.
+                           this route to be active. -->
                       <server>server1.research.org</server>
  
                       <!-- Metric value for this server entry.
@@ -222,7 +222,7 @@
              </application>
           </route>
 
-          <! -- The definition of a default route is the same
+          <!-- The definition of a default route is the same
                 as for any other route. The existance of a
                 default route means that all no-match queries
                 will result in a default route return -->
@@ -257,7 +257,7 @@
                       <metric>5</metric>  
                   </peer_entry>
              </application>
-          </route>
+          </default_route>
       </route_table>
    </transport_mngt>
 
@@ -349,3 +349,4 @@
       </target>
    </log>
 </configuration>
+
