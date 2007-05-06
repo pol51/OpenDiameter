@@ -60,7 +60,8 @@ CCR_Parser::parseAppToRaw()
 
   // Specify the header.
   diameter_hdr_flag flag = {1,1,0};
-  aaaMessage.hdr = DiameterMsgHeader(1, 0, flag, code, appId, 0, 0);
+  DiameterMsgHeader hdr(1, 0, flag, code, appId, 0, 0);
+  aaaMessage.hdr = hdr;
 
   if (data.OriginHost.IsSet())
     {

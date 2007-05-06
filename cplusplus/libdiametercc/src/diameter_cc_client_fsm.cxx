@@ -144,7 +144,6 @@ class DiameterCCClientStateTable_S
   {
     void operator()(DiameterCCClientStateMachine& sm)
     {
-      //CCA_Data& ccaData = sm.CCA_DATA();
       AAA_LOG((LM_DEBUG, "(%P|%t) Service Terminated.\n"));
     }
   }; 
@@ -328,7 +327,6 @@ class DiameterCCClientStateTable_S
   {
     void operator()(DiameterCCClientStateMachine& sm)
     {
-      //CCA_Data& ccaData = sm.CCA_DATA();
       AAA_LOG((LM_DEBUG, "(%P|%t) Store Request.\n"));
     }
   }; 

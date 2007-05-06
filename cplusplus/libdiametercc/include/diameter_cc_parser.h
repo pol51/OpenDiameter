@@ -113,7 +113,7 @@ public:
     bool greater = false;
     if(AAAScholarAttribute<T>::isSet)
       {
-        greater = AAAScholarAttribute<T>::value > b;
+        greater = AAAScholarAttribute<T>::value > (T)b;
       }
     return greater;
   }

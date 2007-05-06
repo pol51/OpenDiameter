@@ -157,7 +157,6 @@ private:
       AAA_LOG((LM_DEBUG, 
                "(%P|%t) Sending Successful Update Answer.\n"));
 
-      CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
       sm.ScheduleTimer(DiameterCCServerStateMachine::EvTccExpired,
                        15,
@@ -173,7 +172,6 @@ private:
       AAA_LOG((LM_DEBUG, 
                "(%P|%t) Sending Unsuccessful Update Answer.\n"));
 
-      CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
     }
   };
@@ -232,7 +230,6 @@ private:
       AAA_LOG((LM_DEBUG, 
                "(%P|%t) Sending Unsuccessful Termination Answer.\n"));
 
-      CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
     }
   };
@@ -286,7 +283,6 @@ private:
       AAA_LOG((LM_DEBUG, 
                "(%P|%t) Sending Unsuccessful Direct Debiting Answer.\n"));
 
-      CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
     }
   };
@@ -339,7 +335,6 @@ private:
       AAA_LOG((LM_DEBUG, 
                "(%P|%t) Sending Unsuccessful Refund Account Answer.\n"));
 
-      CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
     }
   };
@@ -439,7 +434,6 @@ private:
       AAA_LOG((LM_DEBUG, 
                "(%P|%t) Sending Successful Price Enquiry Answer.\n"));
 
-      CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
     }
   };
@@ -451,7 +445,6 @@ private:
       AAA_LOG((LM_DEBUG, 
                "(%P|%t) Sending Unsuccessful Price Enquiry Answer.\n"));
 
-      CCA_Data& ccaData = sm.CCA_DATA();
       sm.SendCCA(); 
     }
   };

@@ -113,7 +113,8 @@ DiameterCCClientSession::CreditControlFailureHandling()
     case CREDIT_CONTROL_FAILURE_HANDLING_RETRY_AND_TERMINATE:
       Notify(DiameterCCClientStateMachine::EvGrantService);
       break;
-    }      
+    }
+  return true;
 }
 
 DiameterCCApplication& 

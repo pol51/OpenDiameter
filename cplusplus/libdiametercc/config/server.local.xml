@@ -28,20 +28,21 @@
    <transport_mngt>
       <identity>server.research2.org</identity>
       <realm>research2.org</realm>
-      <tcp_port>1812</tcp_port>
-      <tls_port>0</tls_port>
+      <tcp_listen_port>1812</tcp_listen_port>
+      <sctp_listen_port>1813</sctp_listen_port>
+      <use_ipv6>0</use_ipv6>
       <watchdog_timeout>4</watchdog_timeout>
-      <retry_interval>30</retry_interval>
+      <reconnect_interval>30</reconnect_interval>
+      <reconnect_max>3</reconnect_max>
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
-      <advertised_host_ip>192.168.1.100</advertised_host_ip>
-      <advertised_host_ip>192.168.1.101</advertised_host_ip>
-      <advertised_host_ip>192.168.1.102</advertised_host_ip>
+      <receive_buffer_size>2048</receive_buffer_size>
       <peer_table>
           <expiration_time>1</expiration_time>
           <peer>
               <hostname>nas.research1.org</hostname>
-              <port>1811</port>
+              <port>1810</port>
+              <use_sctp>0</use_sctp>
               <tls_enabled>0</tls_enabled>
           </peer>
       </peer_table>
