@@ -1309,9 +1309,6 @@ public:
     entry->Action()(actionArg);
   }
 
-  /// Reference assignment operator.
-  AAA_StateMachine<ARG>& operator=(AAA_StateMachine<ARG>& sm) { return sm; }
-
 protected:
   AAA_StateMachine(ARG &arg, AAA_StateTable<ARG> &table, char *name=0)
     : AAA_StateMachineBase(name),
