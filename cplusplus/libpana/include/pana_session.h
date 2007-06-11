@@ -61,9 +61,6 @@ class PANA_AuxillarySessionVariables {
         bool &AlgorithmIsSet() {
             return m_AlgorithmIsSet;
         }
-        bool &OptimizedPAN() {
-            return m_OptimizedPAN;
-        }
         PANA_MsgQueue &RxMsgQueue() {
             return m_RxMessageQueue;
         }
@@ -75,7 +72,6 @@ class PANA_AuxillarySessionVariables {
     private:
         bool m_Authorized; // Set to true if authorize() returns true
         bool m_AlgorithmIsSet; // Set to true if algorithm avp is agreed upon
-        bool m_OptimizedPAN; // When the PaC receives a PAN with eap-payload
         PANA_MsgQueue m_RxMessageQueue; // Receive message queue
         PANA_BufferQueue m_TxEapMessageQueue; // EAP Tx message queue
 };
@@ -113,9 +109,6 @@ class PANA_SessionAttribute {
        ACE_UINT32 &SessionLifetime() {
            return m_SessionLifetime;
        }
-       ACE_UINT32 &LastProtocolError() {
-           return m_LastProtocolError;
-       }
        PANA_MsgHeader &LastRxHeader() {
            return m_LastRxHeader;
        }
@@ -130,7 +123,6 @@ class PANA_SessionAttribute {
        boost::shared_ptr<PANA_Message> m_LastTxReqMsg; // last transmitted message
        boost::shared_ptr<PANA_Message> m_CachedAnsMsg; // cached message
        ACE_UINT32 m_SessionLifetime; // session lifetime
-       ACE_UINT32 m_LastProtocolError; // last known protocol error
        PANA_MsgHeader m_LastRxHeader; // Header of the last received message
 };
 
@@ -162,9 +154,9 @@ class PANA_EXPORT PANA_SessionRxInterfaceTable
          m_map.insert(std::pair<int, PANA_SessionRxInterface<ARG>*>
                       (mtype, i.clone()));
       }
-      virtual void Remove(int type) { 
+      virtual void Remove(int type) {
          typename std::map<int, PANA_SessionRxInterface<ARG>*>::iterator i =
-             m_map.find(type); 
+             m_map.find(type);
          if (i != m_map.end()) {
             delete static_cast<PANA_SessionRxInterface<ARG>*>
                 (i->second);
@@ -273,7 +265,6 @@ class PANA_EXPORT PANA_SessionEventInterface
       virtual bool IsKeyAvailable(pana_octetstring_t &key) = 0;
       virtual void Disconnect(ACE_UINT32 cause = 0) = 0;
       virtual void EapAltReject() = 0;
-      virtual void Error(ACE_UINT32 resultCode) = 0;
       virtual ~PANA_SessionEventInterface() { }
 };
 
@@ -283,24 +274,17 @@ class PANA_EXPORT PANA_Session :
    public:
       virtual void NotifyScheduleLifetime(pana_unsigned32_t timeout = 0);
 
-      virtual bool IsFatalError();
-
       virtual void TxPTR(ACE_UINT32 cause);
       virtual void TxPTA();
       virtual void TxPNRPing();
       virtual void TxPNAPing();
-      virtual void TxPNRError();
-      virtual void TxPNAError();
 
       virtual void RxPTR();
       virtual void RxPTA();
       virtual void RxPNRPing();
       virtual void RxPNAPing();
-      virtual void RxPNRError();
-      virtual void RxPNAError();
 
-      virtual void SendReqMsg(boost::shared_ptr<PANA_Message> msg,
-                              bool allowRetry = true);
+      virtual void SendReqMsg(boost::shared_ptr<PANA_Message> msg);
       virtual void SendAnsMsg(boost::shared_ptr<PANA_Message> msg);
 
       virtual void TxPrepareMessage(PANA_Message &msg);
@@ -311,7 +295,6 @@ class PANA_EXPORT PANA_Session :
       virtual bool TxLastAnsMsg();
 
       virtual void Disconnect(ACE_UINT32 cause = 0);
-      virtual void Error(ACE_UINT32 resultCode = 0);
       virtual void Reset();
 
       PANA_AuxillarySessionVariables &AuxVariables() {

@@ -49,7 +49,6 @@ class PANA_PacEventVariable
                ACE_UINT32 m_Flag_Complete       : 1;
                ACE_UINT32 m_Flag_Auth           : 1;
                ACE_UINT32 m_Flag_Ping           : 1;
-               ACE_UINT32 m_Flag_Error          : 1;
 
                ACE_UINT32 m_Event_App           : 4;
                ACE_UINT32 m_Event_Eap           : 3;
@@ -59,7 +58,6 @@ class PANA_PacEventVariable
                ACE_UINT32 m_Do_Ping             : 1;
                ACE_UINT32 m_Do_RetryTimeout     : 1;
                ACE_UINT32 m_Do_ReTransmission   : 1;
-               ACE_UINT32 m_Do_FatalError       : 1;
                ACE_UINT32 m_Do_SessTimeout      : 1;
 
                ACE_UINT32 m_ResultCode          : 2;
@@ -68,9 +66,7 @@ class PANA_PacEventVariable
                ACE_UINT32 m_AvpExist_Auth       : 1;
                ACE_UINT32 m_AvpExist_EapPayload : 1;
 
-               ACE_UINT32 m_AlgoNotSupported    : 1;
-
-               ACE_UINT32 m_Reserved            : 3;
+               ACE_UINT32 m_Reserved            : 6;
             } i;
             ACE_UINT32 p;
         } EventParams;
@@ -95,9 +91,6 @@ class PANA_PacEventVariable
         void FlagPing(bool set = true) {
             m_Event.i.m_Flag_Ping = set;
         }
-        void FlagError(bool set = true) {
-            m_Event.i.m_Flag_Error = set;
-        }
         void Event_App(PANA_APP_EVENT event) {
             m_Event.i.m_Event_App = event;
         }
@@ -116,9 +109,6 @@ class PANA_PacEventVariable
         void Do_ReTransmission(bool set = true) {
             m_Event.i.m_Do_ReTransmission = set;
         }
-        void Do_FatalError(bool set = true) {
-            m_Event.i.m_Do_FatalError = set;
-        }
         void ResultCode(PANA_RESULT_CODE event) {
             m_Event.i.m_ResultCode = event;
         }
@@ -130,9 +120,6 @@ class PANA_PacEventVariable
         }
         void AvpExist_EapPayload(bool set = true) {
             m_Event.i.m_AvpExist_EapPayload = set;
-        }
-        void AlgorithmNotSupported(bool set = true) {
-            m_Event.i.m_AlgoNotSupported = set;
         }
         void Event_Eap(PANA_EAP_EVENT event) {
             m_Event.i.m_Event_Eap = event;
@@ -157,24 +144,18 @@ class PANA_PacEventVariable
                 AAA_LOG((LM_DEBUG, "Auth flag "));
             if (m_Event.i.m_Flag_Ping)
                 AAA_LOG((LM_DEBUG, "Ping flag "));
-            if (m_Event.i.m_Flag_Error)
-                AAA_LOG((LM_DEBUG, "Error flag "));
             if (m_Event.i.m_Event_App)
                 AAA_LOG((LM_DEBUG, "App[%d] ", m_Event.i.m_Event_App));
             if (m_Event.i.m_Event_Eap)
                 AAA_LOG((LM_DEBUG, "Eap Event[%d] ", m_Event.i.m_Event_Eap));
             if (m_Event.i.m_Cfg_EapPiggyback)
                 AAA_LOG((LM_DEBUG, "EapPiggy "));
-            if (m_Event.i.m_AlgoNotSupported)
-                AAA_LOG((LM_DEBUG, "Algorithm "));
             if (m_Event.i.m_Do_Ping)
                 AAA_LOG((LM_DEBUG, "DoPing "));
             if (m_Event.i.m_Do_RetryTimeout)
                 AAA_LOG((LM_DEBUG, "RetryTout "));
             if (m_Event.i.m_Do_ReTransmission)
                 AAA_LOG((LM_DEBUG, "Retran "));
-            if (m_Event.i.m_Do_FatalError)
-                AAA_LOG((LM_DEBUG, "Fatal "));
             if (m_Event.i.m_Do_SessTimeout)
                 AAA_LOG((LM_DEBUG, "SessTout "));
             if (m_Event.i.m_ResultCode)
@@ -241,9 +222,7 @@ class PANA_EXPORT PANA_ClientStateTable :
        };
        class PacWaitEapMsgExitActionTxPANTout : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
-               if (PANA_CFG_PAC().m_EapPiggyback) {
-                   c.TxPAN(false);
-               }
+               c.TxPAN(false);
                c.Timer().CancelEapResponse();
            }
        };
@@ -308,11 +287,6 @@ class PANA_EXPORT PANA_ClientStateTable :
                c.RxPNAPing();
            }
        };
-       class PacWaitPNAExitActionRxPNAError : public AAA_Action<PANA_Client> {
-           virtual void operator()(PANA_Client &c) {
-               c.RxPNAError();
-           }
-       };
        class PacExitActionTimeout : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
                c.Disconnect(PANA_TERMCAUSE_SESSION_TIMEOUT);
@@ -320,16 +294,6 @@ class PANA_EXPORT PANA_ClientStateTable :
        };
        class PacExitActionRetransmission : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c);
-       };
-       class PacExitActionTxPNAError : public AAA_Action<PANA_Client> {
-           virtual void operator()(PANA_Client &c) {
-               c.TxPNAError();
-           }
-       };
-       class PacExitActionTxPNRError : public AAA_Action<PANA_Client> {
-           virtual void operator()(PANA_Client &c) {
-               c.TxPNRError();
-           }
        };
        class PacSessTermExitActionRxPTA : public AAA_Action<PANA_Client> {
            virtual void operator()(PANA_Client &c) {
@@ -357,12 +321,9 @@ class PANA_EXPORT PANA_ClientStateTable :
        PacOpenExitActionTxPTR                 m_PacOpenExitActionTxPTR;
        PacWaitPNAExitActionRxPNAAuth          m_PacWaitPNAExitActionRxPNAAuth;
        PacWaitPNAExitActionRxPNAPing          m_PacWaitPNAExitActionRxPNAPing;
-       PacWaitPNAExitActionRxPNAError         m_PacWaitPNAExitActionRxPNAError;
        PacExitActionTimeout                   m_PacExitActionTimeout;
        PacExitActionRetransmission            m_PacExitActionRetransmission;
        PacOfflineExitActionAuthUser           m_PacOfflineExitActionAuthUser;
-       PacExitActionTxPNRError                m_PacExitActionTxPNRError;
-       PacExitActionTxPNAError                m_PacExitActionTxPNAError;
        PacSessTermExitActionRxPTA             m_PacSessTermExitActionRxPTA;
 };
 
@@ -382,7 +343,6 @@ class PANA_EXPORT PANA_PacSession : public
       virtual void EapFailure();
       virtual void ReAuthenticate();
       virtual void Ping();
-      virtual void Error(pana_unsigned32_t error);
       virtual void Stop();
 
    private:

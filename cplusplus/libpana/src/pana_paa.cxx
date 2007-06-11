@@ -94,13 +94,14 @@ void PANA_Paa::NotifyEapResponse(pana_octetstring_t &payload)
 
 void PANA_Paa::NotifyEapTimeout()
 {
-    LastProtocolError() = PANA_ERROR_UNABLE_TO_COMPLY;
-    TxPNRError();
     Disconnect(PANA_ERROR_UNABLE_TO_COMPLY);
 }
 
 void PANA_Paa::NotifyEapReAuth()
 {
+    SecurityAssociation().PacNonce().Reset();
+    SecurityAssociation().PaaNonce().Reset();
+
     m_Event.EapStart();
     m_Timer.CancelSession();
 }
@@ -147,7 +148,7 @@ void PANA_Paa::TxPARStart()
     // add eap payload
     if (PANA_CFG_PAA().m_OptimizedHandshake) {
         if (AuxVariables().TxEapMessageQueue().Empty()) {
-            throw (PANA_Exception(PANA_Exception::MISSING_EAP_PAYLOAD, 
+            throw (PANA_Exception(PANA_Exception::MISSING_EAP_PAYLOAD,
                    "No EAP payload generated on optimized handshake"));
         }
 
@@ -160,7 +161,7 @@ void PANA_Paa::TxPARStart()
     AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%d seq=%d\n",
              msg->sessionId(), msg->seq()));
 
-    SendReqMsg(msg, PANA_CFG_PAA().m_RetryPARStart);
+    SendReqMsg(msg);
 }
 
 void PANA_Paa::RxPANStart()
@@ -187,25 +188,13 @@ void PANA_Paa::RxPANStart()
     AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Start: id=%d seq=%d\n",
             msg.sessionId(), msg.seq()));
 
-    if ((PANA_CFG_PAA().m_OptimizedHandshake == 0) &&
-        (PANA_CFG_PAA().m_RetryPARStart == 0)) {
-        // Rx:PAN in OFFLINE state
-        NotifyEapRestart();
+    PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+    pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+    if (payload) {
+        NotifyEapResponse(*payload);
     }
     else {
-        // Rx:PAN in WAIT_PAC_IN_INIT state
-        if (PANA_CFG_PAA().m_RetryPARStart) {
-            m_Timer.CancelTxRetry();
-        }
-
-        PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-        pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
-        if (payload) {
-            NotifyEapResponse(*payload);
-        }
-        else {
-            NotifyEapRestart();
-        }
+        NotifyEapRestart();
     }
 }
 
@@ -243,7 +232,7 @@ void PANA_Paa::TxPAR()
 
     // add eap payload
     if (AuxVariables().TxEapMessageQueue().Empty()) {
-        throw (PANA_Exception(PANA_Exception::MISSING_EAP_PAYLOAD, 
+        throw (PANA_Exception(PANA_Exception::MISSING_EAP_PAYLOAD,
                "No EAP payload on TxPAR"));
     }
 
@@ -324,7 +313,8 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
     if (ev == EAP_SUCCESS) {
 
         if (AuxVariables().Authorized()) {
-            if (SessionLifetime() > 0) {
+            if ((SessionLifetime() > 0) && PANA_CFG_PAA().m_CarryLifetime) {
+{
                 // add session lifetime
                 PANA_UInt32AvpWidget lifetimeAvp(PANA_AVPNAME_SESSIONLIFETIME);
                 lifetimeAvp.Get() = ACE_HTONL(SessionLifetime());
@@ -543,6 +533,9 @@ void PANA_Paa::RxPNRAuth()
 
     AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Auth: id=%d seq=%d\n",
              msg.sessionId(), msg.seq()));
+
+    SecurityAssociation().PacNonce().Reset();
+    SecurityAssociation().PaaNonce().Reset();
 
     NotifyEapReAuth();
     TxPNAAuth();

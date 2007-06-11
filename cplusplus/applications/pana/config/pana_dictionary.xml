@@ -47,8 +47,6 @@
       <requestrules>
         <optional>
            <avprule name="Result-Code" maximum="1" minimum="0" />
-           <avprule name="Failed-Message-Header" maximum="1" minimum="0" />
-           <avprule name="Failed-AVP" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </requestrules>
@@ -65,10 +63,6 @@
     <typedefn type-name="OctetString"/>
     <typedefn type-name="UTF8String" type-parent="OctetString"/>
     <typedefn type-name="Address" type-parent="OctetString"/>
-    <typedefn type-name="DiameterIdentity" type-parent="OctetString"/>
-    <typedefn type-name="DiameterURI" type-parent="UTF8String"/>
-    <typedefn type-name="IPFilterRule" type-parent="OctetString"/>
-    <typedefn type-name="QOSFilterRule" type-parent="OctetString"/>
     <typedefn type-name="Integer32"/>
     <typedefn type-name="Integer64"/>
     <typedefn type-name="Unsigned32"/>
@@ -89,29 +83,19 @@
     <avp name="EAP-Payload" code="3" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Failed-AVP" code="4" mandatory="must">
-      <grouped>
-         <optional>
-            <avprule name="AVP"/>
-         </optional>
-      </grouped>
-    </avp>
-    <avp name="Failed-Message-Header" code="5" mandatory="must">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Key-Id" code="6" mandatory="must">
+    <avp name="Key-Id" code="4" mandatory="must">
       <type type-name="Integer32"/>
     </avp>
-    <avp name="Nonce" code="7" mandatory="must">
+    <avp name="Nonce" code="5" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Result-Code" code="8" mandatory="must">
+    <avp name="Result-Code" code="6" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Session-Lifetime" code="9" mandatory="must">
+    <avp name="Session-Lifetime" code="7" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Termination-Cause" code="10" mandatory="must">
+    <avp name="Termination-Cause" code="8" mandatory="must">
       <type type-name="Unsigned32"/>
       <enum name="Logout" code="1"/>
       <enum name="Administrative" code="4"/>

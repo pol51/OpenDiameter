@@ -250,12 +250,6 @@ class PANA_AvpHeader
          Notification-Answer for liveness test.  For other messages this
          bit MUST be cleared.
 
-      E (Error)
-
-         If set, the message is a PANA-Notification-Request or PANA-
-         Notification-Answer for error indication.  For other messages
-         this bit MUST be cleared.
-
       r (reserved)
 
          These flag bits are reserved for future use, and MUST be set to
@@ -290,8 +284,7 @@ class PANA_MsgHeader
           ACE_UINT16 complete  : 1;  // Complete flag
           ACE_UINT16 auth      : 1;  // Re-Authentication flag
           ACE_UINT16 ping      : 1;  // Ping flag
-          ACE_UINT16 error     : 1;  // Error flag
-          ACE_UINT16 reserved  : 10; // reserved
+          ACE_UINT16 reserved  : 11; // reserved
        } Flags;
 
        // Default header length definition

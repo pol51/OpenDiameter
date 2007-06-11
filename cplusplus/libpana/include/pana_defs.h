@@ -88,8 +88,6 @@
 #define PANA_AVPNAME_ALGORITHM        "Algorithm"
 #define PANA_AVPNAME_AUTH             "AUTH"
 #define PANA_AVPNAME_EAP              "EAP-Payload"
-#define PANA_AVPNAME_FAILEDAVP        "Failed-AVP"
-#define PANA_AVPNAME_FAILEDMSGHDR     "Failed-Message-Header"
 #define PANA_AVPNAME_KEYID            "Key-Id"
 #define PANA_AVPNAME_NONCE            "Nonce"
 #define PANA_AVPNAME_RESULTCODE       "Result-Code"
@@ -339,7 +337,7 @@ class PANA_AddrConverter
     public:
         static inline void ToAce(pana_address_t &from,
                                  ACE_INET_Addr &to) {
-           to.set_address(from.value.data(), 
+           to.set_address(from.value.data(),
                           (int)from.value.size());
         }
         static inline void ToAAAAddress(ACE_INET_Addr &from,
@@ -351,9 +349,9 @@ class PANA_AddrConverter
                    sizeof(struct in6_addr));
                to.type = AAA_ADDR_FAMILY_IPV6;
             }
-            else if (from.get_type() == AF_INET) { 
+            else if (from.get_type() == AF_INET) {
 #else
-            if (from.get_type() == AF_INET) { 
+            if (from.get_type() == AF_INET) {
 #endif
                ACE_UINT32 ipAddr = from.get_ip_address();
                to.value.assign((char*)&ipAddr, sizeof(ACE_UINT32));

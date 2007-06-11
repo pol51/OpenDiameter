@@ -52,7 +52,6 @@ class PANA_PaaEventVariable
                ACE_UINT32 m_Flag_Complete        : 1;
                ACE_UINT32 m_Flag_Auth            : 1;
                ACE_UINT32 m_Flag_Ping            : 1;
-               ACE_UINT32 m_Flag_Error           : 1;
 
                ACE_UINT32 m_Event_Eap            : 4;
                ACE_UINT32 m_Event_App            : 4;
@@ -64,12 +63,11 @@ class PANA_PaaEventVariable
                ACE_UINT32 m_Do_RetryTimeout      : 1;
                ACE_UINT32 m_Do_ReTransmission    : 1;
                ACE_UINT32 m_Do_EapRespTimeout    : 1;
-               ACE_UINT32 m_Do_FatalError        : 1;
                ACE_UINT32 m_Do_SessTimeout       : 1;
 
                ACE_UINT32 m_AvpExist_EapPayload  : 1;
 
-               ACE_UINT32 m_Reserved             : 5;
+               ACE_UINT32 m_Reserved             : 7;
             } i;
             ACE_UINT32 p;
         } EventParams;
@@ -92,9 +90,6 @@ class PANA_PaaEventVariable
         }
         void FlagPing(bool set = true) {
             m_Event.i.m_Flag_Ping = set;
-        }
-        void FlagError(bool set = true) {
-            m_Event.i.m_Flag_Error = set;
         }
         void Event_Eap(PANA_EAP_EVENT event) {
             m_Event.i.m_Event_Eap = event;
@@ -119,9 +114,6 @@ class PANA_PaaEventVariable
         }
         void Do_EapRespTimeout(bool set = true) {
             m_Event.i.m_Do_EapRespTimeout = set;
-        }
-        void Do_FatalError(bool set = true) {
-            m_Event.i.m_Do_FatalError = set;
         }
         void Do_SessTimeout(bool set = true) {
             m_Event.i.m_Do_SessTimeout = set;
@@ -156,8 +148,6 @@ class PANA_PaaEventVariable
                 AAA_LOG((LM_DEBUG, "Auth flag "));
             if (m_Event.i.m_Flag_Ping)
                 AAA_LOG((LM_DEBUG, "Ping flag "));
-            if (m_Event.i.m_Flag_Error)
-                AAA_LOG((LM_DEBUG, "Error flag "));
             if (m_Event.i.m_Cfg_OptimizedHshk)
                 AAA_LOG((LM_DEBUG, "EapOptimized "));
             if (m_Event.i.m_Do_Authorize)
@@ -170,8 +160,6 @@ class PANA_PaaEventVariable
                 AAA_LOG((LM_DEBUG, "Retran "));
             if (m_Event.i.m_Do_EapRespTimeout)
                 AAA_LOG((LM_DEBUG, "EapRespTout "));
-            if (m_Event.i.m_Do_FatalError)
-                AAA_LOG((LM_DEBUG, "Fatal "));
             if (m_Event.i.m_Do_SessTimeout)
                 AAA_LOG((LM_DEBUG, "SessTout "));
             if (m_Event.i.m_AvpExist_EapPayload)
@@ -220,7 +208,7 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
       };
       class PaaExitActionTxPARCompleteEapSuccessFail : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
-              p.TxPARComplete(PANA_RCODE_AUTHENTICATION_REJECTED,
+              p.TxPARComplete(PANA_RCODE_AUTHORIZATION_REJECTED,
                               PANA_Paa::EAP_SUCCESS);
           }
       };
@@ -240,7 +228,7 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
            }
       };
       class PaaOpenExitActionReAuth : public AAA_Action<PANA_Paa> {
-           virtual void operator()(PANA_Paa &p) { 
+           virtual void operator()(PANA_Paa &p) {
                p.NotifyEapReAuth();
            }
       };
@@ -265,17 +253,17 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
           }
       };
       class PaaWaitPANExitActionRxPAN : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
+          virtual void operator()(PANA_Paa &p) {
               p.RxPAN();
           }
       };
       class PaaOpenExitActionTxPTR : public AAA_Action<PANA_Paa> {
-           virtual void operator()(PANA_Paa &p) { 
+           virtual void operator()(PANA_Paa &p) {
                p.TxPTR(PANA_TERMCAUSE_ADMINISTRATIVE);
            }
       };
       class PaaOpenExitActionRxPTR : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
+          virtual void operator()(PANA_Paa &p) {
               p.RxPTR();
           }
       };
@@ -284,18 +272,8 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
               p.NotifyEapTimeout();
           }
       };
-      class PaaExitActionTxPNAError : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) {
-              p.TxPNAError();
-          }
-      };
-      class PaaWaitPNAExitActionRxPNAError : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) {
-              p.RxPNAError();
-          }
-      };
       class PaaExitActionTimeout : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) { 
+          virtual void operator()(PANA_Paa &p) {
               p.Disconnect(PANA_TERMCAUSE_SESSION_TIMEOUT);
           }
       };
@@ -305,11 +283,6 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
       class PaaSessExitActionRxPTA : public AAA_Action<PANA_Paa> {
           virtual void operator()(PANA_Paa &p) {
               p.Disconnect();
-          }
-      };
-      class PaaExitActionTxPNRError : public AAA_Action<PANA_Paa> {
-          virtual void operator()(PANA_Paa &p) {
-              p.TxPNRError();
           }
       };
 
@@ -334,15 +307,12 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
       PaaOpenExitActionTxPTR                   m_PaaOpenExitActionTxPTR;
       PaaOpenExitActionRxPTR                   m_PaaOpenExitActionRxPTR;
       PaaWaitPaaExitActionRxPNAPing            m_PaaWaitPaaExitActionRxPNAPing;
-      PaaWaitPNAExitActionRxPNAError           m_PaaWaitPNAExitActionRxPNAError;
       PaaWaitPANExitActionRxPAR                m_PaaWaitPANExitActionRxPAR;
       PaaWaitPANExitActionRxPAN                m_PaaWaitPANExitActionRxPAN;
       PaaExitActionEapTimeout                  m_PaaExitActionEapTimeout;
       PaaSessExitActionRxPTA                   m_PaaSessExitActionRxPTA;
-      PaaExitActionTxPNAError                  m_PaaExitActionTxPNAError;
       PaaExitActionTimeout                     m_PaaExitActionTimeout;
       PaaExitActionRetransmission              m_PaaExitActionRetransmission;
-      PaaExitActionTxPNRError                  m_PaaExitActionTxPNRError;
 };
 
 class PANA_EXPORT PANA_PaaSessionChannel
@@ -405,7 +375,6 @@ class PANA_EXPORT PANA_PaaSession : public
       virtual void EapTimeout();
       virtual void EapReAuthenticate();
       virtual void Ping();
-      virtual void Error(pana_unsigned32_t error);
       virtual void Stop();
 
       ACE_UINT32 &SessionId() {

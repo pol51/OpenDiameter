@@ -134,14 +134,14 @@ CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 srcdir = .
 
-ACLOCAL = ${SHELL} /home/victorf/work/od/svn/cplusplus/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /home/victorf/work/sf/svn/od/cplusplus/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/victorf/work/od/svn/cplusplus/missing --run tar
+AMTAR = ${SHELL} /home/victorf/work/sf/svn/od/cplusplus/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/victorf/work/od/svn/cplusplus/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/victorf/work/od/svn/cplusplus/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/victorf/work/od/svn/cplusplus/missing --run automake-1.9
+AUTOCONF = ${SHELL} /home/victorf/work/sf/svn/od/cplusplus/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/victorf/work/sf/svn/od/cplusplus/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/victorf/work/sf/svn/od/cplusplus/missing --run automake-1.9
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -153,7 +153,7 @@ CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"OpenDiameter\" -DPACKAGE_TARNAME=\"opendiameter\" -DPACKAGE_VERSION=\"1.0.7-h\" -DPACKAGE_STRING=\"OpenDiameter\ 1.0.7-h\" -DPACKAGE_BUGREPORT=\"yohba@tari.toshiba.com\" -DPACKAGE=\"opendiameter\" -DVERSION=\"1.0.7-h\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DHAVE_IFADDRS_H=1 -DHAVE_SHADOW_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_GETIFADDRS=1
+DEFS = -DPACKAGE_NAME=\"OpenDiameter\" -DPACKAGE_TARNAME=\"opendiameter\" -DPACKAGE_VERSION=\"1.0.7-i\" -DPACKAGE_STRING=\"OpenDiameter\ 1.0.7-i\" -DPACKAGE_BUGREPORT=\"vfajardo@tari.toshiba.com\" -DPACKAGE=\"opendiameter\" -DVERSION=\"1.0.7-i\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DHAVE_IFADDRS_H=1 -DHAVE_SHADOW_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_GETIFADDRS=1
 DEPDIR = .deps
 ECHO = echo
 ECHO_C = 
@@ -176,28 +176,28 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIBTOOL_DEPS = ./ltmain.sh
 LN_S = ln -s
 LTLIBOBJS = 
-L_CPPFLAGS = -Wall -I/usr/local/include -I/usr/include -g -fno-strict-aliasing
-L_CXXFLAGS = -Wall -I/usr/local/include -I/usr/include -g -fno-strict-aliasing
-L_LDFLAGS = -L/usr/local/include/ace
+L_CPPFLAGS = -Wall -I/usr/src/ACE_wrappers-5.5 -I/usr/include -g -fno-strict-aliasing
+L_CXXFLAGS = -Wall -I/usr/src/ACE_wrappers-5.5 -I/usr/include -g -fno-strict-aliasing
+L_LDFLAGS = -L/usr/src/ACE_wrappers-5.5/ace
 L_LIBS = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser
 L_MPAFLAGS = 
 L_ODBCFLAGS = 
-MAKEINFO = ${SHELL} /home/victorf/work/od/svn/cplusplus/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/victorf/work/sf/svn/od/cplusplus/missing --run makeinfo
 OBJEXT = o
 OPT_EAP_ARCHIE_FALSE = 
 OPT_EAP_ARCHIE_TRUE = #
 PACKAGE = opendiameter
-PACKAGE_BUGREPORT = yohba@tari.toshiba.com
+PACKAGE_BUGREPORT = vfajardo@tari.toshiba.com
 PACKAGE_NAME = OpenDiameter
-PACKAGE_STRING = OpenDiameter 1.0.7-h
+PACKAGE_STRING = OpenDiameter 1.0.7-i
 PACKAGE_TARNAME = opendiameter
-PACKAGE_VERSION = 1.0.7-h
+PACKAGE_VERSION = 1.0.7-i
 PATH_SEPARATOR = :
 RANLIB = ranlib
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
-VERSION = 1.0.7-h
+VERSION = 1.0.7-i
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_F77 = 
@@ -231,7 +231,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = $(prefix)/include/opendiameter/diametermip4
 infodir = ${datarootdir}/info
-install_sh = /home/victorf/work/od/svn/cplusplus/install-sh
+install_sh = /home/victorf/work/sf/svn/od/cplusplus/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -247,7 +247,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = $(prefix)/etc/opendiameter/diametermip4
 target_alias = 
-AM_CPPFLAGS = -Wall -I/usr/local/include -I/usr/include -g -fno-strict-aliasing  \
+AM_CPPFLAGS = -Wall -I/usr/src/ACE_wrappers-5.5 -I/usr/include -g -fno-strict-aliasing  \
               -I../include \
               -I../libodutl/include \
               -I../libdiamparser/include \
@@ -256,7 +256,7 @@ AM_CPPFLAGS = -Wall -I/usr/local/include -I/usr/include -g -fno-strict-aliasing 
               -I./include \
               -DOS_LINUX
 
-AM_LDFLAGS = -L/usr/local/include/ace
+AM_LDFLAGS = -L/usr/src/ACE_wrappers-5.5/ace
 DIAMETER_MIP_SRC = src/diameter_mip4_amr_parser.cxx \
                    src/diameter_mip4_ama_parser.cxx \
                    src/diameter_mip4_har_parser.cxx \
@@ -295,7 +295,7 @@ sysconf_DATA = config/aaas_s.local.xml \
                config/aaas_s2.local.xml \
                config/client.local.xml \
                config/configuration.xml \
-               config/configuration.xsd \
+               config/configuration.dtd \
                config/dictionary.dtd \
                config/dictionary.xml \
                config/fac.local.xml \

@@ -31,7 +31,7 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-// $Id: Test3.cxx,v 1.38 2006/05/04 19:46:40 vfajardo Exp $ 
+// $Id: Test3.cxx,v 1.38 2006/05/04 19:46:40 vfajardo Exp $
 
 
 #include "eap.hxx"
@@ -84,7 +84,7 @@ class EapTask : public AAA_Task
 /// Channel object of the receiving entity is called.  Transmit()
 /// method can have sub-channels which is used for distinguishing different
 /// types of messages.
-class Channel 
+class Channel
 {
  public:
   Channel() {}
@@ -182,10 +182,10 @@ class MyEapAuthIdentityStateMachine : public EapAuthIdentityStateMachine
   friend class EapMethodStateMachineCreator<MyEapAuthIdentityStateMachine>;
 public:
   MyEapAuthIdentityStateMachine(EapSwitchStateMachine &s)
-    : EapAuthIdentityStateMachine(s) {} 
+    : EapAuthIdentityStateMachine(s) {}
 
   // Reimplemented from EapAuthIdentityStateMachine.
-  ProcessIdentityResult ProcessIdentity(std::string& identity) 
+  ProcessIdentityResult ProcessIdentity(std::string& identity)
   {
     if (USER_DB_LOOKUP(identity)) {
         std::cout << "Valid Identity received : " << identity << std::endl;
@@ -195,7 +195,7 @@ public:
     return EapAuthIdentityStateMachine::Failure;
   }
 private:
-  ~MyEapAuthIdentityStateMachine() {} 
+  ~MyEapAuthIdentityStateMachine() {}
 };
 
 // Class definition for peer archie state machine.
@@ -206,7 +206,7 @@ public:
   MyEapPeerArchieStateMachine(EapSwitchStateMachine &s)
     : EapPeerArchieStateMachine(s) {}
 
-  /// This pure virtual function is a callback used when a shared-secret 
+  /// This pure virtual function is a callback used when a shared-secret
   /// needs to be obtained.
   std::string& InputSharedSecret()
   {
@@ -217,16 +217,16 @@ public:
   /// needs to be obtained.
   std::string& InputIdentity()
   {
-    std::cout << "Received an Archie-Request from " 
+    std::cout << "Received an Archie-Request from "
 	      << AuthID() << std::endl;
-      
-    std::cout << "Received an Archie-Request from " 
+
+    std::cout << "Received an Archie-Request from "
 	      << AuthID() << std::endl;
     std::cout << "username = " << AuthSwitchStateMachine().PeerIdentity() << std::endl;
     return AuthSwitchStateMachine().PeerIdentity();
   }
 private:
-  ~MyEapPeerArchieStateMachine() {} 
+  ~MyEapPeerArchieStateMachine() {}
 };
 
 // Class definition for authenticator identity method for my application.
@@ -237,7 +237,7 @@ public:
   MyEapAuthArchieStateMachine(EapSwitchStateMachine &s) :
     EapAuthArchieStateMachine(s) {}
 
-  /// This pure virtual function is a callback used when a shared-secret 
+  /// This pure virtual function is a callback used when a shared-secret
   /// needs to be obtained.
   std::string& InputSharedSecret()
   {
@@ -253,14 +253,14 @@ public:
   }
 
 private:
-  ~MyEapAuthArchieStateMachine() {} 
+  ~MyEapAuthArchieStateMachine() {}
 };
 
 class MyPeerSwitchStateMachine: public EapPeerSwitchStateMachine
 {
  public:
 
-  MyPeerSwitchStateMachine(ACE_Reactor &r, EapJobHandle& h) 
+  MyPeerSwitchStateMachine(ACE_Reactor &r, EapJobHandle& h)
     : EapPeerSwitchStateMachine(r, h)
   {}
 
@@ -379,9 +379,6 @@ class PeerChannel : public PANA_ClientEventInterface
       eap.Stop();
       semaphore.release();
   }
-  void Error(ACE_UINT32 resultCode) { 
-      eap.Stop();
-  }
   void Stop() {
       pana.Stop();
   }
@@ -401,13 +398,13 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
         void Transmit(AAAMessageBlock *msg, int subChannel) {
             switch(subChannel) {
               case 1:
-	        eap.AAA_Continue(msg); 
+	        eap.AAA_Continue(msg);
                 break;
               case 2:
-                eap.AAA_Success(msg); 
+                eap.AAA_Success(msg);
                 break;
               case 3:
-                eap.AAA_Failure(msg); 
+                eap.AAA_Failure(msg);
                 break;
             }
         }
@@ -427,7 +424,7 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
    virtual ~PassThroughAuthChannel() {
    }
    virtual void EapStart() {
-      eap.Stop(); 
+      eap.Stop();
       eap.Start();
    }
    virtual void EapResponse(AAAMessageBlock *response) {
@@ -465,11 +462,8 @@ class PassThroughAuthChannel : public PANA_PaaEventInterface
    void Timeout(PANA_TID id) {
       eap.Stop();
    }
-   void Error(ACE_UINT32 resultCode) { 
-      eap.Stop();
-   }
-   EapPassThroughAuthSwitchStateMachine& Eap() { 
-      return eap; 
+   EapPassThroughAuthSwitchStateMachine& Eap() {
+      return eap;
    }
    PANA_PaaSession &Pana() {
       return paaSession;
@@ -491,8 +485,8 @@ class BackendAuthChannel : public Channel
  public:
   BackendAuthChannel(MyBackendAuthSwitchStateMachine &s)
     : eap(s), firstMessage(true) {}
-  void Transmit(AAAMessageBlock *msg=0) 
-  { 
+  void Transmit(AAAMessageBlock *msg=0)
+  {
     if (firstMessage)
       {
 	msg ? eap.Start(msg) : eap.Start();
@@ -500,7 +494,7 @@ class BackendAuthChannel : public Channel
       }
     else
       {
-	eap.Receive(msg); 
+	eap.Receive(msg);
       }
   }
   void Transmit(AAAMessageBlock *msg, int) {}
@@ -512,7 +506,7 @@ class BackendAuthChannel : public Channel
 class PeerApplication : public AAA_JobData
 {
  public:
-  PeerApplication(EapTask &task, ACE_Semaphore &sem) : 
+  PeerApplication(EapTask &task, ACE_Semaphore &sem) :
     handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, "peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*task.reactor(), handle))),
@@ -522,7 +516,7 @@ class PeerApplication : public AAA_JobData
   {
     eap->Policy().InitialPolicyElement(&method);
   }
-  ~PeerApplication() 
+  ~PeerApplication()
   {}
 
   PeerChannel &Channel() { return channel; }
@@ -562,17 +556,17 @@ class PassThroughAuthApplication : public AAA_JobData
   ~PassThroughAuthApplication() {}
 
   void Start(Channel *rxBackend)
-  { 
+  {
     backendRxChannel = rxBackend;
   }
 
   Channel& BackendTxChannel() { return channel.BackendTxChannel(); }
 
   Channel& BackendRxChannel() { return *backendRxChannel; }
-    
+
   MyPassThroughAuthSwitchStateMachine& Eap() { return *eap; }
 
-  PANA_PaaSession &Pana() { return channel.Pana(); }  
+  PANA_PaaSession &Pana() { return channel.Pana(); }
 
  private:
   EapJobHandle handle;
@@ -608,12 +602,12 @@ class BackendAuthApplication : public AAA_JobData
       }
   }
   ~BackendAuthApplication() {}
-  void Start(Channel *c) 
-  { 
+  void Start(Channel *c)
+  {
     txChannel = c;
   }
-  void Start(Channel *c, AAAMessageBlock *b) 
-  { 
+  void Start(Channel *c, AAAMessageBlock *b)
+  {
     txChannel = c;
   }
 
@@ -642,16 +636,16 @@ void MyPeerSwitchStateMachine::Send(AAAMessageBlock *b)
 void MyPeerSwitchStateMachine::Success()
   {
     std::cout << "Authentication success detected at peer" << std::endl;
-    std::cout << "Welcome to the world, " 
-	      << PeerIdentity() 
+    std::cout << "Welcome to the world, "
+	      << PeerIdentity()
 	      << " !!!" << std::endl;
   JobData(Type2Type<PeerApplication>()).Channel().pana.EapSuccess();
   }
 void MyPeerSwitchStateMachine::Failure()
   {
     std::cout << "Authentication failure detected at peer" << std::endl;
-    std::cout << "Sorry, " 
-	      << PeerIdentity() 
+    std::cout << "Sorry, "
+	      << PeerIdentity()
 	      << " try next time !!!" << std::endl;
     Stop();
     JobData(Type2Type<PeerApplication>()).Channel().pana.EapFailure();
@@ -668,7 +662,7 @@ void MyPeerSwitchStateMachine::Abort()
     JobData(Type2Type<PeerApplication>()).Channel().pana.EapFailure();
     JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
-std::string& MyPeerSwitchStateMachine::InputIdentity() 
+std::string& MyPeerSwitchStateMachine::InputIdentity()
   {
     if (gUserName.length() > 0) {
         return gUserName;
@@ -680,14 +674,14 @@ std::string& MyPeerSwitchStateMachine::InputIdentity()
   }
 void MyPassThroughAuthSwitchStateMachine::Send(AAAMessageBlock *b)
   {
-    std::cout << "EAP Request sent from passthrough authenticator" 
+    std::cout << "EAP Request sent from passthrough authenticator"
 	      << std::endl;
     JobData(Type2Type<PassThroughAuthApplication>()).
         Pana().EapSendRequest(b);
   }
 void MyPassThroughAuthSwitchStateMachine::Success(AAAMessageBlock *b)
   {
-    std::cout << "EAP Success sent from passthrough authenticator" 
+    std::cout << "EAP Success sent from passthrough authenticator"
 	      << std::endl;
     JobData(Type2Type<PassThroughAuthApplication>()).
         Pana().EapSuccess(b);
@@ -700,7 +694,7 @@ void MyPassThroughAuthSwitchStateMachine::Success()
   }
 void MyPassThroughAuthSwitchStateMachine::Failure(AAAMessageBlock *b)
   {
-    std::cout << "EAP Failure sent from passthrough authenticator" 
+    std::cout << "EAP Failure sent from passthrough authenticator"
 	      << std::endl;
     JobData(Type2Type<PassThroughAuthApplication>()).
         Pana().EapFailure(b);
@@ -755,7 +749,7 @@ void MyBackendAuthSwitchStateMachine::Success(AAAMessageBlock *b)
 	sprintf(c, "%02X ", *(unsigned char*)(p+i));
 	std::cout << c;
 	if ((i+1) % 16 == 0) std::cout << std::endl;
-	  
+
       }
     std::cout << std::endl;
     std::cout << "EAP Success sent from authenticator" << std::endl;
@@ -789,7 +783,7 @@ class PassThroughAuthAppFactory : public PANA_PaaSessionFactory
       PassThroughAuthAppFactory(EapTask &t) :
           PANA_PaaSessionFactory(t.node), task(t) { }
       PANA_PaaSession *Create() {
-         BackendAuthApplication *b = new BackendAuthApplication(task); 
+         BackendAuthApplication *b = new BackendAuthApplication(task);
          PassThroughAuthApplication *p = new PassThroughAuthApplication
              (*this);
          p->Start(b->RxChannel());
@@ -808,12 +802,12 @@ int main(int argc, char **argv)
 
   // Gather command line options
   ACE_Get_Opt opt(argc, argv, "cf:u:U:", 1);
-    
+
   for (int c; (c = opt()) != (-1); ) {
       switch (c) {
           case 'f': cfgfile.assign(opt.optarg); break;
           case 'c': b_client = true; break;
-          case 'u': userdb.assign(opt.optarg); break;    
+          case 'u': userdb.assign(opt.optarg); break;
           case 'U': gUserName.assign(opt.optarg); break;
       }
   }
@@ -826,7 +820,7 @@ int main(int argc, char **argv)
     std::cout << "Usage: pana_test [-c] -f [configuration file] -u [user db]" << std::endl;
     return (0);
   }
-  
+
   // Initialize the log.
   EapLogMsg_S::instance()->open("EAP", ACE_Log_Msg::STDERR);
   EapLogMsg_S::instance()->enable_debug_messages();
@@ -835,31 +829,31 @@ int main(int argc, char **argv)
   // user-defined method class for each user-defined method
   // implementation.
 
-  EapMethodStateMachineCreator<MyEapAuthIdentityStateMachine> 
+  EapMethodStateMachineCreator<MyEapAuthIdentityStateMachine>
     myAuthIdentityCreator;
 
-  EapMethodStateMachineCreator<MyEapPeerArchieStateMachine> 
+  EapMethodStateMachineCreator<MyEapPeerArchieStateMachine>
     myPeerArchieCreator;
 
-  EapMethodStateMachineCreator<MyEapAuthArchieStateMachine> 
+  EapMethodStateMachineCreator<MyEapAuthArchieStateMachine>
     myAuthArchieCreator;
 
   EapMethodRegistrar methodRegistrar;
 
   methodRegistrar.registerMethod
-    (std::string("Identity"), EapType(1), 
+    (std::string("Identity"), EapType(1),
      Authenticator, myAuthIdentityCreator);
 
   methodRegistrar.registerMethod
-    (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE), 
+    (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE),
      Peer, myPeerArchieCreator);
 
   methodRegistrar.registerMethod
-    (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE), 
+    (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE),
      Authenticator, myAuthArchieCreator);
 
   EapTask task(cfgfile);
-  
+
   try {
     // Task starts with two threads in the thread pool.
     task.Start(5);

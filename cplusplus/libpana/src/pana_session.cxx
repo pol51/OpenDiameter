@@ -137,7 +137,7 @@ bool PANA_SessionTimerInterface::ReScheduleTxRetry()
 
    // cancel any pending timers
    CancelTxRetry();
-   unsigned int newRt = 2*m_Timeout + 
+   unsigned int newRt = 2*m_Timeout +
                int(RAND()*float(m_Timeout));
 
    if (newRt > PANA_CFG_GENERAL().m_RT.m_MRT) {
@@ -449,176 +449,6 @@ void PANA_Session::RxPTA()
     Disconnect(PANA_TERMCAUSE_LOGOUT);
 }
 
-void PANA_Session::TxPNRError()
-{
-    /*
-      7.6.  PANA-Notification-Request (PNR)
-
-        The PANA-Notification-Request (PNR) message is sent either by the PaC
-        or the PAA for signaling re-authentication and errors, and performing
-        liveness test.
-
-        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
-        Failed-Message-Header and Failed-AVP AVPs.
-
-        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
-        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
-
-        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
-
-      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
-                          [ Result-Code ]
-                          [ Failed-Message-Header ]
-                        *  [ Failed-AVP ]
-                        *  [ AVP ]
-                      0*1 < AUTH >
-     */
-    boost::shared_ptr<PANA_Message> msg(new PANA_Message);
-
-    // Populate header
-    msg->type() = PANA_MTYPE_PNR;
-    msg->flags().request = true;
-    msg->flags().error = true;
-    msg->sessionId() = this->SessionId();
-
-    // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
-
-    // add result-code
-    PANA_UInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
-    rcodeAvp.Get() = ACE_HTONL(LastProtocolError());
-    msg->avpList().add(rcodeAvp());
-
-    // add Failed-Message-Header
-    PANA_StringAvpWidget failedHeaderAvp(PANA_AVPNAME_FAILEDMSGHDR);
-    failedHeaderAvp.Get().assign((char*)&LastRxHeader(),
-                                 PANA_MsgHeader::HeaderLength);
-    msg->avpList().add(failedHeaderAvp());
-
-    // auth avp
-    if (SecurityAssociation().Auth().IsSet()) {
-        SecurityAssociation().AddAuthAvp(*msg);
-    }
-
-    // RtxTimerStop()
-    m_Timer.CancelEapResponse();
-
-    AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Error: [RCODE=%d] id=%d seq=%d\n",
-            msg->sessionId(), msg->seq()));
-
-    SendReqMsg(msg);
-}
-
-void PANA_Session::RxPNRError()
-{
-    /*
-      7.6.  PANA-Notification-Request (PNR)
-
-        The PANA-Notification-Request (PNR) message is sent either by the PaC
-        or the PAA for signaling re-authentication and errors, and performing
-        liveness test.
-
-        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
-        Failed-Message-Header and Failed-AVP AVPs.
-
-        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
-        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
-
-        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
-
-      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
-                          [ Result-Code ]
-                          [ Failed-Message-Header ]
-                        *  [ Failed-AVP ]
-                        *  [ AVP ]
-                      0*1 < AUTH >
-    */
-    std::auto_ptr<PANA_Message> cleanup(AuxVariables().
-        RxMsgQueue().Dequeue());
-    PANA_Message &msg = *cleanup;
-
-    AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Error: id=%d seq=%d\n",
-            msg.sessionId(), msg.seq()));
-
-    // result-code
-    PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
-    pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
-    if (rcode == NULL) {
-        throw (PANA_Exception(PANA_Exception::FAILED,
-               "No Result-Code AVP in PNR message"));
-    }
-
-    Error(ACE_NTOHL(*rcode));
-
-    // TBD: Process Failed-AVP and Failed-Message-Header
-}
-
-void PANA_Session::TxPNAError()
-{
-    /*
-      7.6.  PANA-Notification-Request (PNR)
-
-        The PANA-Notification-Request (PNR) message is sent either by the PaC
-        or the PAA for signaling re-authentication and errors, and performing
-        liveness test.
-
-        If 'A' or 'P' bit is set, the message MUST NOT carry Result-Code,
-        Failed-Message-Header and Failed-AVP AVPs.
-
-        If 'E' bit is set, the message MUST carry one Result-Code AVP and one
-        Failed-Message-Header AVP and MAY carry one or more Failed AVPs.
-
-        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
-
-      PANA-Notification-Request ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
-                          [ Result-Code ]
-                          [ Failed-Message-Header ]
-                        *  [ Failed-AVP ]
-                        *  [ AVP ]
-                      0*1 < AUTH >
-    */
-    boost::shared_ptr<PANA_Message> msg(new PANA_Message);
-
-    // Populate header
-    msg->type() = PANA_MTYPE_PNA;
-    msg->flags().error = true;
-    msg->seq() = LastRxSeqNum().Value();
-    msg->sessionId() = this->SessionId();
-
-    AAA_LOG((LM_INFO, "(%P|%t) TxPNA-Error: id=%d seq=%d\n",
-            msg->sessionId(), msg->seq()));
-
-    SendAnsMsg(msg);
-}
-
-void PANA_Session::RxPNAError()
-{
-    /*
-      7.7.  PANA-Notification-Answer (PNA)
-
-        The PANA-Notification-Answer (PNA) message is sent by the PAA (PaC)
-        to the PaC (PAA) in response to a PANA-Notification-Request from the
-        PaC (PAA).
-
-        The message MUST have one of 'A', 'P' and 'E' bits exclusively set.
-
-        PANA-Notification-Answer ::= < PANA-Header: 4, REQ[,REA][,PIN][,ERR] >
-                        *  [ AVP ]
-                        0*1 < AUTH >
-     */
-    std::auto_ptr<PANA_Message> cleanup(AuxVariables().
-        RxMsgQueue().Dequeue());
-    PANA_Message &msg = *cleanup;
-
-    AAA_LOG((LM_INFO, "(%P|%t) RxPNA-Error: id=%d seq=%d\n",
-             msg.sessionId(), msg.seq()));
-
-    m_Timer.CancelTxRetry();
-
-    Disconnect();
-}
-
 void PANA_Session::RxValidateMsg(PANA_Message &msg,
                                  bool skipAuth)
 {
@@ -635,21 +465,21 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
            if (msg.type() == CachedAnsMsg()->type()) {
                // re-transmitt cached answer message
                TxLastAnsMsg();
-               throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
+               throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                       "Re-transmitting answer message"));
            }
            else {
-               throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
+               throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                       "unexpected request msg with invalid seq number"));
            }
        }
        else if (msg.seq() != (LastRxSeqNum().Value() + 1)) {
-           throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
+           throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                   "request msg with invalid seq number"));
        }
    }
    else if (msg.seq() != LastTxSeqNum().Value()) {
-       throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
+       throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
               "answer msg with invalid seq number"));
    }
 
@@ -658,7 +488,7 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
        PANA_StringAvpContainerWidget authAvp(msg.avpList());
        if (authAvp.GetAvp(PANA_AVPNAME_AUTH) && SecurityAssociation().Auth().IsSet()) {
            if (SecurityAssociation().ValidateAuthAvp(msg) == false) {
-                throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE, 
+                throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                        "PANA session received msg with invalid AUTH value"));
            }
            AAA_LOG((LM_INFO, "(%P|%t) Auth validated\n"));
@@ -715,25 +545,22 @@ void PANA_Session::TxPrepareMessage(PANA_Message &msg)
 {
 }
 
-void PANA_Session::SendReqMsg(boost::shared_ptr<PANA_Message> msg,
-                              bool allowRetry)
+void PANA_Session::SendReqMsg(boost::shared_ptr<PANA_Message> msg)
 {
     TxPrepareMessage(*msg);
     m_TxChannel.Send(msg);
-    if (allowRetry) {
-       m_Timer.ScheduleTxRetry();
-    }
+    m_Timer.ScheduleTxRetry();
     LastTxReqMsg()= msg;
 }
 
-void PANA_Session::SendAnsMsg(boost::shared_ptr<PANA_Message> msg) 
+void PANA_Session::SendAnsMsg(boost::shared_ptr<PANA_Message> msg)
 {
     TxPrepareMessage(*msg);
     m_TxChannel.Send(msg);
     CachedAnsMsg() = msg;
 }
 
-void PANA_Session::Reset() 
+void PANA_Session::Reset()
 {
     m_SA.Reset();
     m_AuxVariables.Reset();
@@ -768,7 +595,6 @@ void PANA_AuxillarySessionVariables::Reset()
 {
    m_Authorized = false;
    m_AlgorithmIsSet = false;
-   m_OptimizedPAN = false;
 
    while (! RxMsgQueue().Empty()) {
        std::auto_ptr<PANA_Message> cleanup

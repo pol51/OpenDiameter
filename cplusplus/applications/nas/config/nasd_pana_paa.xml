@@ -60,11 +60,6 @@
              defined previously will be sent to the PaC -->
         <carry_lifetime>1</carry_lifetime>
 
-        <!-- This tells the PAA whether the PANA-Start-Request
-             will be retransmitted. This aids in keeping
-             a more stateless PAA if disabled -->
-        <retry_start_par>0</retry_start_par>
-
     </agent>
 
 </pana_configuration>

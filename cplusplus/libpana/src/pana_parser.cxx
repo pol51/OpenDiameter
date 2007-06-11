@@ -139,7 +139,6 @@ template<> void PANA_HeaderParser::parseRawToApp()
     h->flags().complete = *((AAAUInt8*)(p)) & 0x20 ? 1 : 0;
     h->flags().auth = *((AAAUInt8*)(p)) & 0x10 ? 1 : 0;
     h->flags().ping = *((AAAUInt8*)(p)) & 0x08 ? 1 : 0;
-    h->flags().error = *((AAAUInt8*)(p)) & 0x04 ? 1 : 0;
     h->flags().reserved = 0;
     p += sizeof(ACE_UINT16);
 
@@ -203,7 +202,6 @@ template<> void PANA_HeaderParser::parseAppToRaw()
     *((AAAUInt8*)(p)) |= h->flags().complete ? 0x20 : 0x0;
     *((AAAUInt8*)(p)) |= h->flags().auth ? 0x10 : 0x0;
     *((AAAUInt8*)(p)) |= h->flags().ping ? 0x08 : 0x0;
-    *((AAAUInt8*)(p)) |= h->flags().error ? 0x04 : 0x0;
     p += sizeof(ACE_UINT16);
 
     // type
@@ -289,7 +287,7 @@ template<> void PANA_PayloadParser::parseRawToApp()// throw(DiameterErrorCode)
                         throw;
                     }
                     else {
-                        // Parse error 
+                        // Parse error
                         AAA_LOG((LM_ERROR, "Error in AVP %s.\n", name));
                         cm.release(c);
                         throw;

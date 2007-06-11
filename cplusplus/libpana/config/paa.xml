@@ -32,10 +32,10 @@
             <max_rt_duration>120</max_rt_duration>
         </retransmission_param>
 
-        <!-- WPA (802.11i) bootstrap support 
+        <!-- WPA (802.11i) bootstrap support
              A 256-bit PMK key will be generated during the
              Authorize method (and passed to authorization
-             script) when this option is enabled. 
+             script) when this option is enabled.
              -->
         <wpa_bootstrap>1</wpa_bootstrap>
 
@@ -59,11 +59,6 @@
              message. If enabled, the session lifetime
              defined previously will be sent to the PaC -->
         <carry_lifetime>1</carry_lifetime>
-
-        <!-- This tells the PAA whether the PANA-Start-Request
-             will be retransmitted. This aids in keeping
-             a more stateless PAA if disabled -->
-        <retry_start_par>0</retry_start_par>
 
     </agent>
 

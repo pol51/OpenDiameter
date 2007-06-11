@@ -40,7 +40,7 @@
 #include "pana_channel.h"
 
 typedef enum {
-  PANA_ST_OFFLINE = 1,
+  PANA_ST_INITIAL = 1,
   PANA_ST_WAIT_PAA,
   PANA_ST_WAIT_SUCC_PAN,
   PANA_ST_WAIT_FAIL_PAN,
@@ -81,8 +81,7 @@ typedef enum {
   PANA_EV_APP_REAUTH_TIMEOUT,
   PANA_EV_APP_TERMINATE,
   PANA_EV_APP_AUTH_USER,
-  PANA_EV_APP_PING,
-  PANA_EV_APP_ERROR
+  PANA_EV_APP_PING
 } PANA_APP_EVENT;
 
 typedef enum {
@@ -173,17 +172,14 @@ class PANA_EXPORT PANA_StateMachine :
          m_RxMsgQueue.Enqueue(&msg);
          Schedule(this);
       }
-      virtual void Error(int err) { 
-         Stop(); 
-      }
       virtual void Stop() {
-         AAA_StateMachineWithTimer<ARG>::Stop(); 
-         AAA_StateMachineWithTimer<ARG>::CancelAllTimer(); 
+         AAA_StateMachineWithTimer<ARG>::Stop();
+         AAA_StateMachineWithTimer<ARG>::CancelAllTimer();
          while (m_GroupedJob.Job().BacklogSize()) {
              ACE_Time_Value tv(0, 100);
              ACE_OS::sleep(tv);
          }
-         m_GroupedJob.Job().Flush(); 
+         m_GroupedJob.Job().Flush();
       }
       virtual void Abort() {
          Stop();
@@ -200,8 +196,8 @@ class PANA_EXPORT PANA_StateMachine :
       }
 
    protected:
-      PANA_StateMachine(ARG &arg, 
-                        AAA_StateTable<ARG> &table, 
+      PANA_StateMachine(ARG &arg,
+                        AAA_StateTable<ARG> &table,
                         PANA_Node &node,
                         CHANNEL &udp) :
 	 AAA_StateMachineWithTimer<ARG>(arg, table, *node.Task().reactor(), "PANA"),
@@ -262,7 +258,7 @@ class PANA_EXPORT PANA_StateMachine :
 
    private:
        const char *StrState(int state) {
-           static char *str[] = { "OFFLINE",
+           static char *str[] = { "INITIAL",
                                   "WAIT_PAA",
                                   "WAIT_SUCC_PAN",
                                   "WAIT_FAIL_PAN",

@@ -66,22 +66,15 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
 
 void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
 {
-   if (PANA_CFG_PAA().m_OptimizedHandshake || PANA_CFG_PAA().m_RetryPARStart) {
+    ///////////////////////////////////////////////////////////////
+    // - - - - - - - - - - (Optimized Handshake) - - - - - - - - - - -
+    // (Rx:PCI[] ||             if (OPTIMIZED_INIT == Set) INITIAL
+    //  PAC_FOUND)                EAP_Restart();
+    //                          else
+    //                            Tx:PAR[S]();
+    //
+    if (PANA_CFG_PAA().m_OptimizedHandshake) {
 
-       ///////////////////////////////////////////////////////////////
-       // - - - - - - - - - - (Optimized Handshake) - - - - - - - - - - -
-       // (Rx:PCI ||               EAP_Restart();             WAIT_EAP_MSG_
-       //  PAC_FOUND) &&                                      IN_INIT
-       // OPTIMIZED_HANDSHAKE==Set
-       //
-       // - - - - - - - - - - (Non-Optimized Handshake) - - - - - - - - -
-       // (Rx:PCI ||               if (AUTH_ALGORITHM_IN_PSR  WAIT_PAC_
-       //  PAC_FOUND) &&               ==Set)                 IN_INIT
-       // OPTIMIZED_HANDSHAKE==      PSR.insert_avp
-       //  Unset &&                  ("Algorithm");
-       // RTX_PSR=Set              Tx:PSR();
-       //                          RtxTimerStart();
-       //
        PANA_PaaSession *session = Create();
        if (session == NULL) {
           throw (PANA_Exception(PANA_Exception::NO_MEMORY,
@@ -101,7 +94,6 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
        ev.Event_App(PANA_EV_APP_PAC_FOUND);
        if (PANA_CFG_PAA().m_OptimizedHandshake) {
            ev.EnableCfg_OptimizedHandshake();
-           PANA_CFG_PAA().m_RetryPARStart = true;
            AAA_LOG((LM_INFO, "(%P|%t) PAA is using EAP optimization\n"));
        }
        else {
@@ -110,17 +102,6 @@ void PANA_PaaSessionFactory::PacFound(ACE_INET_Addr &addr)
        session->Notify(ev.Get());
    }
    else {
-       ///////////////////////////////////////////////////////////////
-       // - - - - - - - - - - (Non-Optimized Handshake) - - - - - - - - -
-       // (Rx:PCI ||               if (AUTH_ALGORITHM_IN_PAR  OFFLINE
-       //  PAC_FOUND) &&               ==Set)
-       // OPTIMIZED_HANDSHAKE==    PAR.insert_avp
-       //  Unset                      ("Algorithm");
-       //                          PAR.S_flag=Set;
-       //                          Tx:PAR();
-       //                          if (RTX_START_PAR == Set)
-       //                            RtxTimerStart();
-       //
        AAA_LOG((LM_INFO, "(%P|%t) PAA is acting stateless\n"));
        StatelessTxPARStart(addr);
    }

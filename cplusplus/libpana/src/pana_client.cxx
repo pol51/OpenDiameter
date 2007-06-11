@@ -55,6 +55,9 @@ PANA_Client::PANA_Client(PANA_SessionTxInterface &tp,
 
 void PANA_Client::NotifyEapRestart()
 {
+    SecurityAssociation().PaaNonce().Reset();
+    SecurityAssociation().PacNonce().Reset();
+
     m_Timer.CancelSession();
     m_Event.EapStart();
     m_SA.Reset();
@@ -129,6 +132,9 @@ void PANA_Client::RxPARStart()
     if (payload) {
        NotifyEapRequest(*payload);
        m_Timer.ScheduleEapResponse();
+       if (! PANA_CFG_PAC().m_EapPiggyback) {
+          TxPANStart(false);
+       }
     }
     else {
        TxPANStart(false);
@@ -283,18 +289,6 @@ void PANA_Client::RxPAN()
             msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
-
-    PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-    pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
-    if (payload) {
-        NotifyEapRequest(*payload);
-
-        // EAP response timeout should be less than retry
-        m_Timer.ScheduleEapResponse();
-
-        // set optimized PAN flag
-        AuxVariables().OptimizedPAN() = true;
-    }
 }
 
 void PANA_Client::TxPAR()
@@ -436,34 +430,33 @@ void PANA_Client::RxPARComplete()
     PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
     pana_unsigned32_t *pRcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
     if (pRcode == NULL) {
-        throw (PANA_Exception(PANA_Exception::FAILED, 
+        throw (PANA_Exception(PANA_Exception::FAILED,
                "No Result-Code AVP in PNR message"));
     }
     pana_unsigned32_t rcode = ACE_NTOHL(*pRcode);
-
-    // update session lifetime
-    PANA_UInt32AvpContainerWidget slAvp(msg.avpList());
-    pana_unsigned32_t *sl = slAvp.GetAvp(PANA_AVPNAME_SESSIONLIFETIME);
-    if (sl) {
-        SessionLifetime() = ACE_NTOHL(*sl);
-    }
-
-    // extract key id if any
-    PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
-    pana_unsigned32_t *pKeyId = rcodeAvp.GetAvp(PANA_AVPNAME_KEYID);
-    if (pKeyId) {
-        SecurityAssociation().MSK().Id() = ACE_NTOHL(*pKeyId);
-    }
 
     // extract eap
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {
+        // update session lifetime
+        PANA_UInt32AvpContainerWidget slAvp(msg.avpList());
+        pana_unsigned32_t *sl = slAvp.GetAvp(PANA_AVPNAME_SESSIONLIFETIME);
+        if (sl) {
+            SessionLifetime() = ACE_NTOHL(*sl);
+        }
+
+        // extract key id if any
+        PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
+        pana_unsigned32_t *pKeyId = rcodeAvp.GetAvp(PANA_AVPNAME_KEYID);
+        if (pKeyId) {
+            SecurityAssociation().MSK().Id() = ACE_NTOHL(*pKeyId);
+        }
+
         NotifyEapRequest(*payload);
     }
     else if (rcode != PANA_RCODE_SUCCESS) {
         m_Event.EapAltReject();
-        Error(rcode);
     }
     else {
         throw (PANA_Exception(PANA_Exception::FAILED,

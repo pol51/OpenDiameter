@@ -31,7 +31,7 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-// $Id: Test1.cxx,v 1.35 2006/05/04 19:46:40 vfajardo Exp $ 
+// $Id: Test1.cxx,v 1.35 2006/05/04 19:46:40 vfajardo Exp $
 // A test program for EAP API.
 // Written by Victor Fajardo
 
@@ -87,7 +87,7 @@ class EapTask : public AAA_Task
 /// Channel object of the receiving entity is called.  Transmit()
 /// method can have sub-channels which is used for distinguishing different
 /// types of messages.
-class Channel 
+class Channel
 {
  public:
   Channel() {}
@@ -102,10 +102,10 @@ class MyEapAuthIdentityStateMachine : public EapAuthIdentityStateMachine
   friend class EapMethodStateMachineCreator<MyEapAuthIdentityStateMachine>;
 public:
   MyEapAuthIdentityStateMachine(EapSwitchStateMachine &s)
-    : EapAuthIdentityStateMachine(s) {} 
+    : EapAuthIdentityStateMachine(s) {}
 
   // Reimplemented from EapAuthIdentityStateMachine.
-  ProcessIdentityResult ProcessIdentity(std::string& identity) 
+  ProcessIdentityResult ProcessIdentity(std::string& identity)
   {
     if (USER_DB_LOOKUP(identity)) {
         std::cout << "Valid Identity received : " << identity << std::endl;
@@ -115,20 +115,20 @@ public:
     return EapAuthIdentityStateMachine::Failure;
   }
 private:
-  ~MyEapAuthIdentityStateMachine() {} 
+  ~MyEapAuthIdentityStateMachine() {}
 };
 
 // Class definition for peer MD5-Challenge method for my application.
-class MyEapPeerMD5ChallengeStateMachine 
+class MyEapPeerMD5ChallengeStateMachine
   : public EapPeerMD5ChallengeStateMachine
 {
   friend class EapMethodStateMachineCreator<MyEapPeerMD5ChallengeStateMachine>;
 public:
   MyEapPeerMD5ChallengeStateMachine(EapSwitchStateMachine &s)
-    : EapPeerMD5ChallengeStateMachine(s) {} 
+    : EapPeerMD5ChallengeStateMachine(s) {}
 
   // Reimplemented from EapPeerMD5ChallengeStateMachine.
-  void InputPassphrase() 
+  void InputPassphrase()
   {
     std::cout << "Input password: " << std::endl;
     if (gPasswd.length() > 0) {
@@ -140,20 +140,20 @@ public:
     }
   }
 private:
-  ~MyEapPeerMD5ChallengeStateMachine() {} 
+  ~MyEapPeerMD5ChallengeStateMachine() {}
 };
 
 // Class definition for authenticator MD5-Challenge method for my application.
-class MyEapAuthMD5ChallengeStateMachine 
+class MyEapAuthMD5ChallengeStateMachine
   : public EapAuthMD5ChallengeStateMachine
 {
   friend class EapMethodStateMachineCreator<MyEapPeerMD5ChallengeStateMachine>;
 public:
   MyEapAuthMD5ChallengeStateMachine(EapSwitchStateMachine &s)
-    : EapAuthMD5ChallengeStateMachine(s) {} 
+    : EapAuthMD5ChallengeStateMachine(s) {}
 
   // Reimplemented from EapPeerMD5ChallengeStateMachine.
-  void InputPassphrase() 
+  void InputPassphrase()
   {
     std::string &passphrase = Passphrase();
     size_t pos;
@@ -172,14 +172,14 @@ public:
   }
 
 private:
-  ~MyEapAuthMD5ChallengeStateMachine() {} 
+  ~MyEapAuthMD5ChallengeStateMachine() {}
 };
 
 class MyPeerSwitchStateMachine: public EapPeerSwitchStateMachine
 {
  public:
 
-  MyPeerSwitchStateMachine(ACE_Reactor &r, EapJobHandle& h) 
+  MyPeerSwitchStateMachine(ACE_Reactor &r, EapJobHandle& h)
       : EapPeerSwitchStateMachine(r, h) {}
 
   void Send(AAAMessageBlock *b);
@@ -198,13 +198,13 @@ class MyPeerSwitchStateMachine: public EapPeerSwitchStateMachine
   std::string identity;
 };
 
-class MyStandAloneAuthSwitchStateMachine 
+class MyStandAloneAuthSwitchStateMachine
   : public EapStandAloneAuthSwitchStateMachine
 {
 
  public:
 
-  MyStandAloneAuthSwitchStateMachine(ACE_Reactor &r, EapJobHandle& h) : 
+  MyStandAloneAuthSwitchStateMachine(ACE_Reactor &r, EapJobHandle& h) :
       EapStandAloneAuthSwitchStateMachine(r, h) {}
 
   void Send(AAAMessageBlock *b);
@@ -224,7 +224,7 @@ class PeerApplication : public AAA_JobData,
                         public PANA_ClientEventInterface
 {
  public:
-  PeerApplication(PANA_Node &n, ACE_Semaphore &sem) : 
+  PeerApplication(PANA_Node &n, ACE_Semaphore &sem) :
     pacSession(n, *this),
     handle(EapJobHandle(AAA_GroupedJob::Create(n.Task().Job(), this, "peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
@@ -267,10 +267,8 @@ class PeerApplication : public AAA_JobData,
       eap->Stop();
       // semaphore.release();
   }
-  void Error(ACE_UINT32 resultCode) { 
-  }
-  PANA_PacSession &pac() { 
-      return pacSession; 
+  PANA_PacSession &pac() {
+      return pacSession;
   }
 
  private:
@@ -287,7 +285,7 @@ class StandAloneAuthApplication : public AAA_JobData,
 {
 
  public:
-  StandAloneAuthApplication(PANA_PaaSessionChannel &ch, ACE_Semaphore &sem) 
+  StandAloneAuthApplication(PANA_PaaSessionChannel &ch, ACE_Semaphore &sem)
     : paaSession(ch, *this),
       handle(EapJobHandle(AAA_GroupedJob::Create
                           (ch.Node().Task().Job(), this, "standalone"))),
@@ -309,10 +307,10 @@ class StandAloneAuthApplication : public AAA_JobData,
     eap->Policy().InitialPolicyElement(&identityMethod);
   }
   virtual ~StandAloneAuthApplication() {
-    paaSession.Stop();  
+    paaSession.Stop();
   }
   void EapStart() {
-     eap->Stop(); 
+     eap->Stop();
      eap->Start();
   }
   void EapResponse(AAAMessageBlock *response) {
@@ -332,10 +330,8 @@ class StandAloneAuthApplication : public AAA_JobData,
   void Disconnect(ACE_UINT32 cause) {
      eap->Stop();
   }
-  void Error(ACE_UINT32 resultCode) {
-  }
-  MyStandAloneAuthSwitchStateMachine& Eap() { 
-     return *eap; 
+  MyStandAloneAuthSwitchStateMachine& Eap() {
+     return *eap;
   }
   ACE_Semaphore& Semaphore() { return semaphore; }
   PANA_PaaSession &paa() { return paaSession; }
@@ -379,8 +375,8 @@ void MyPeerSwitchStateMachine::Send(AAAMessageBlock *b)
 void MyPeerSwitchStateMachine::Success()
   {
     std::cout << "Authentication success detected at peer" << std::endl;
-    std::cout << "Welcome to the world, " 
-	      << PeerIdentity() 
+    std::cout << "Welcome to the world, "
+	      << PeerIdentity()
 	      << " !!!" << std::endl;
 
     // Let PANA bind on success to the EAP event
@@ -389,8 +385,8 @@ void MyPeerSwitchStateMachine::Success()
 void MyPeerSwitchStateMachine::Failure()
   {
     std::cout << "Authentication failure detected at peer" << std::endl;
-    std::cout << "Sorry, " 
-	      << PeerIdentity() 
+    std::cout << "Sorry, "
+	      << PeerIdentity()
 	      << " try next time !!!" << std::endl;
     JobData(Type2Type<PeerApplication>()).pac().EapFailure();
     JobData(Type2Type<PeerApplication>()).Eap().Stop();
@@ -408,11 +404,11 @@ void MyPeerSwitchStateMachine::Abort()
     JobData(Type2Type<PeerApplication>()).pac().EapFailure();
     //JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
-std::string& MyPeerSwitchStateMachine::InputIdentity() 
+std::string& MyPeerSwitchStateMachine::InputIdentity()
   {
     if (gUserName.length() > 0) {
         return gUserName;
-    }    
+    }
     identity = std::string("user2");
     std::cout << "Input username (within 10sec.): " << std::endl;
     //std::cin >> identity;
@@ -461,7 +457,7 @@ void MyStandAloneAuthSwitchStateMachine::Abort()
 int main(int argc, char **argv)
 {
   std::string cfgfile;
-  std::string userdb;  
+  std::string userdb;
   bool b_client = false;
 
   // Gather command line options
@@ -471,7 +467,7 @@ int main(int argc, char **argv)
       switch (c) {
           case 'f': cfgfile.assign(opt.optarg); break;
           case 'c': b_client = true; break;
-          case 'u': userdb.assign(opt.optarg); break;    
+          case 'u': userdb.assign(opt.optarg); break;
           case 'U': gUserName.assign(opt.optarg); break;
           case 'P': gPasswd.assign(opt.optarg); break;
           case 'A': gPacAddrFromEp.assign(opt.optarg); break;
@@ -500,27 +496,27 @@ int main(int argc, char **argv)
   // user-defined method class for each user-defined method
   // implementation.
 
-  EapMethodStateMachineCreator<MyEapAuthIdentityStateMachine> 
+  EapMethodStateMachineCreator<MyEapAuthIdentityStateMachine>
     myAuthIdentityCreator;
 
-  EapMethodStateMachineCreator<MyEapPeerMD5ChallengeStateMachine> 
+  EapMethodStateMachineCreator<MyEapPeerMD5ChallengeStateMachine>
     myPeerMD5ChallengeCreator;
 
-  EapMethodStateMachineCreator<MyEapAuthMD5ChallengeStateMachine> 
+  EapMethodStateMachineCreator<MyEapAuthMD5ChallengeStateMachine>
     myAuthMD5ChallengeCreator;
 
   EapMethodRegistrar methodRegistrar;
 
   methodRegistrar.registerMethod
-    (std::string("Identity"), EapType(1), 
+    (std::string("Identity"), EapType(1),
      Authenticator, myAuthIdentityCreator);
 
   methodRegistrar.registerMethod
-    (std::string("MD5-Challenge"), EapType(4), 
+    (std::string("MD5-Challenge"), EapType(4),
      Peer, myPeerMD5ChallengeCreator);
 
   methodRegistrar.registerMethod
-    (std::string("MD5-Challenge"), EapType(4), Authenticator, 
+    (std::string("MD5-Challenge"), EapType(4), Authenticator,
      myAuthMD5ChallengeCreator);
 
   EapTask task;
