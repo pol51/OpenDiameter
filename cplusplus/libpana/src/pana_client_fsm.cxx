@@ -249,14 +249,7 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PAR);
     ev.FlagComplete();
-    ev.ResultCode(PANA_RCODE_AUTHORIZATION_REJECTED);
-    AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
-                       PANA_ST_WAIT_EAP_RESULT_CLOSE,
-                       m_PacWaitPaaExitActionRxPARComplete);
-    ev.Reset();
-    ev.MsgType(PANA_EV_MTYPE_PAR);
-    ev.FlagComplete();
-    ev.ResultCode(PANA_RCODE_AUTHENTICATION_REJECTED);
+    ev.ResultCode(PANA_RESULT_CODE_FAIL);
     AddStateTableEntry(PANA_ST_WAIT_PAA, ev.Get(),
                        PANA_ST_WAIT_EAP_RESULT_CLOSE,
                        m_PacWaitPaaExitActionRxPARComplete);
@@ -358,12 +351,12 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_INVALID_MSG);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_CLOSED,
+                       PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
     ev.Reset();
     ev.Event_Eap(PANA_EV_EAP_FAILURE);
     AddStateTableEntry(PANA_ST_WAIT_EAP_MSG, ev.Get(),
-                       PANA_ST_WAIT_CLOSED,
+                       PANA_ST_CLOSED,
                        m_PacExitActionTimeout);
 
     /////////////////////////////////////////////////////////////////
@@ -831,12 +824,6 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
           pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
           if (rcode && (ACE_NTOHL(*rcode) == PANA_RCODE_SUCCESS)) {
-              // third level validation
-              PANA_UInt32AvpContainerWidget algoAvp(msg.avpList());
-              pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
-              if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
-                  ev.AlgorithmNotSupported();
-              }
               ev.ResultCode(PANA_RESULT_CODE_SUCCESS);
           }
           else {

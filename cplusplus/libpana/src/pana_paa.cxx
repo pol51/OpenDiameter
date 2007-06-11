@@ -314,7 +314,6 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
 
         if (AuxVariables().Authorized()) {
             if ((SessionLifetime() > 0) && PANA_CFG_PAA().m_CarryLifetime) {
-{
                 // add session lifetime
                 PANA_UInt32AvpWidget lifetimeAvp(PANA_AVPNAME_SESSIONLIFETIME);
                 lifetimeAvp.Get() = ACE_HTONL(SessionLifetime());

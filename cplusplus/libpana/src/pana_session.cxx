@@ -175,12 +175,6 @@ void PANA_Session::NotifyScheduleLifetime(pana_unsigned32_t timeout)
     }
 }
 
-bool PANA_Session::IsFatalError()
-{
-    // TBD: Needs work ... everything is fatal for the moment
-    return true;
-}
-
 void PANA_Session::TxPNRPing()
 {
     /*
@@ -576,18 +570,6 @@ void PANA_Session::Disconnect(ACE_UINT32 cause)
    m_Timer.CancelSession();
    m_Timer.CancelEapResponse();
    m_Event.Disconnect(cause);
-   Reset();
-}
-
-void PANA_Session::Error(ACE_UINT32 resultCode)
-{
-   AAA_LOG((LM_INFO, "(%P|%t) Error: result-code=%d\n",
-       resultCode));
-
-   m_Timer.CancelTxRetry();
-   m_Timer.CancelSession();
-   m_Timer.CancelEapResponse();
-   m_Event.Error(resultCode);
    Reset();
 }
 
