@@ -100,19 +100,40 @@ PANA_PaaStateTable::PANA_PaaStateTable()
                        m_PaaExitActionTimeout);
 
     /////////////////////////////////////////////////////////////////
-    //  Rx:PAN[S]                if (PAN.exist_avp          WAIT_EAP_MSG
-    //                              ("EAP-Payload"))
-    //                              TxEAP();
-    //                            else {
-    //                              EAP_Restart();
-    //                              SessionTimerReStart
-    //                                (FAILED_SESS_TIMEOUT);
-    //                            }
+    // Rx:PAN[S] &&             TxEAP();                   WAIT_EAP_MSG
+    // ((OPTIMIZED_INIT ==
+    //   Unset) ||
+    // (OPTIMIZED_INIT ==
+    //   Set) &&
+    // PAN.exist_avp
+    //  ("EAP-Payload"))
     ev.Reset();
     ev.MsgType(PANA_EV_MTYPE_PAN);
     ev.FlagStart();
     AddStateTableEntry(PANA_ST_INITIAL, ev.Get(),
                        PANA_ST_WAIT_EAP_MSG,
+                       m_PaaExitActionRxPANStart);
+    ev.Reset();
+    ev.MsgType(PANA_EV_MTYPE_PAN);
+    ev.FlagStart();
+    ev.EnableCfg_OptimizedHandshake();
+    ev.AvpExist_EapPayload();
+    AddStateTableEntry(PANA_ST_INITIAL, ev.Get(),
+                       PANA_ST_WAIT_EAP_MSG,
+                       m_PaaExitActionRxPANStart);
+
+    /////////////////////////////////////////////////////////////////
+    // Rx:PAN[S] &&             None();                    WAIT_PAN_OR_PAR
+    // (OPTIMIZED_INIT ==
+    //   Set) &&
+    // ! PAN.exist_avp
+    //  ("EAP-Payload")
+    ev.Reset();
+    ev.MsgType(PANA_EV_MTYPE_PAN);
+    ev.FlagStart();
+    ev.EnableCfg_OptimizedHandshake();
+    AddStateTableEntry(PANA_ST_INITIAL, ev.Get(),
+                       PANA_ST_WAIT_PAN_OR_PAR,
                        m_PaaExitActionRxPANStart);
 
     /////////////////////////////////////////////////////////////////
@@ -743,6 +764,18 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           // save last received header
           m_arg.LastRxHeader() = msg;
 
+          // set the optimized handshake
+          if (PANA_CFG_PAA().m_OptimizedHandshake) {
+             ev.EnableCfg_OptimizedHandshake();
+          }
+
+          // set the EAP flag
+          PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+          pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+          if (payload) {
+              ev.AvpExist_EapPayload();
+          }
+
           // resolve event
           ev.MsgType(PANA_EV_MTYPE_PAN);
           ev.FlagStart();
@@ -762,6 +795,12 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           m_arg.LastRxHeader() = msg;
 
           // resolve event
+          PANA_StringAvpContainerWidget eapAvp(msg.avpList());
+          pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+          if (payload) {
+              ev.AvpExist_EapPayload();
+          }
+
           ev.MsgType(PANA_EV_MTYPE_PAN);
           ev.FlagComplete();
       }

@@ -73,6 +73,15 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     AddStateTableEntry(PANA_ST_INITIAL, ev.Get(),
                        PANA_ST_WAIT_PAA,
                        m_PacOfflineExitActionRxPAR);
+    // To cover the case where RxPAR sets the eap_piggyback()
+    // flag to enable
+    ev.Reset();
+    ev.MsgType(PANA_EV_MTYPE_PAR);
+    ev.FlagStart();
+    ev.EnableCfg_EapPiggyback();
+    AddStateTableEntry(PANA_ST_INITIAL, ev.Get(),
+                       PANA_ST_WAIT_PAA,
+                       m_PacOfflineExitActionRxPAR);
 
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - -(PAA-initiated Handshake, optimized) - - - - - -
@@ -855,6 +864,9 @@ class PANA_CsmRxPN : public PANA_ClientRxStateFilter
           else if (msg.flags().ping) {
               HandlePing(msg, ev);
           }
+          else if (msg.flags().auth) {
+              HandleAuth(msg, ev);
+          }
           else {
               throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                      "PN recevied with empty flags"));
@@ -886,6 +898,27 @@ class PANA_CsmRxPN : public PANA_ClientRxStateFilter
 
           // resolve the event
           ev.FlagPing();
+      }
+      virtual void HandleAuth(PANA_Message &msg,
+                              PANA_PacEventVariable &ev) {
+          // first level validation
+          if (msg.flags().request) {
+             throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                    "PNR-Auth answer message received, invalid message"));
+          }
+
+          // second level validation
+          m_arg.RxValidateMsg(msg);
+
+          // save address of PaC
+          m_arg.PacAddress() = msg.srcAddress();
+
+          // save last received header
+          m_arg.LastRxHeader() = msg;
+
+          // resolve the event
+          ev.MsgType(PANA_EV_MTYPE_PNA);
+          ev.FlagAuth();
       }
 };
 
@@ -1022,9 +1055,6 @@ void PANA_PacSession::EapSuccess()
 {
    PANA_PacEventVariable ev;
    ev.Event_Eap(PANA_EV_EAP_SUCCESS);
-   if (m_PaC.SecurityAssociation().MSK().Id() > 0) {
-       ev.AvpExist_KeyId();
-   }
    Notify(ev.Get());
 }
 

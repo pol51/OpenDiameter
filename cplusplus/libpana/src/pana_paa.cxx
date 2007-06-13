@@ -193,7 +193,7 @@ void PANA_Paa::RxPANStart()
     if (payload) {
         NotifyEapResponse(*payload);
     }
-    else {
+    else if (! PANA_CFG_PAA().m_OptimizedHandshake) {
         NotifyEapRestart();
     }
 }
