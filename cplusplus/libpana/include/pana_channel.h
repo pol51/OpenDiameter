@@ -36,7 +36,6 @@
 
 #include "boost/shared_ptr.hpp"
 #include "pana_exceptions.h"
-#include "pana_egress.h"
 #include "pana_ingress.h"
 
 /*
@@ -56,31 +55,12 @@ class PANA_EXPORT PANA_Channel :
         virtual ~PANA_Channel() {
             Close();
         }
-        virtual void Open(ACE_INET_Addr &addr) {
-            if (m_Socket.open(addr) < 0) {
-                AAA_LOG((LM_ERROR, "(%P|%t) Failed to open socket\n"));
-                throw (PANA_Exception(PANA_Exception::TRANSPORT_FAILED,
-                                      "Failed to open device"));
-            }
-            if (m_Group.Schedule(this) < 0) {
-                AAA_LOG((LM_ERROR, "(%P|%t) Failed to schedule receiver job\n"));
-                throw (PANA_Exception(PANA_Exception::TRANSPORT_FAILED,
-                                      "Failed to schedule channel"));
-            }
-            SetLocalAddr() = addr;
-        }
-        virtual void Close() {
-            PANA_IngressReceiver::Stop();
-            PANA_IngressReceiver::Wait();
-            m_Socket.close();
-        }
-        virtual void Send(boost::shared_ptr<PANA_Message> m) {
-            PANA_EgressSender *egress = new PANA_EgressSender
-                (m_Group, m_Socket, m);
-            egress->Schedule(egress);
-        }
+        virtual void Open(ACE_INET_Addr &addr);
+        virtual void Close();
+        virtual void Send(boost::shared_ptr<PANA_Message> m);
 
     protected:
+        ACE_Mutex m_SocketMtx;
         PANA_Socket m_Socket;
 };
 

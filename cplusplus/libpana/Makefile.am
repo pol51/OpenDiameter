@@ -33,7 +33,6 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_client_fsm.h \
             include/pana_config_manager.h \
             include/pana_defs.h \
-            include/pana_egress.h \
             include/pana_exceptions.h \
             include/pana_exports.h \
             include/pana_fsm.h \
@@ -57,9 +56,9 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_session.h
 
 PANA_SRC  = src/pana_config_manager.cxx \
+            src/pana_channel.cxx \
             src/pana_client.cxx \
             src/pana_client_fsm.cxx \
-            src/pana_egress.cxx \
             src/pana_ingress.cxx \
             src/pana_node.cxx \
             src/pana_paa.cxx \

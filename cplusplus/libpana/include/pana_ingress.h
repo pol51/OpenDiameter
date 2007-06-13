@@ -55,7 +55,7 @@ class PANA_EXPORT PANA_IngressJob :
       virtual int Schedule() {
           return m_Group.Schedule(this);
       }
-      void RegisterHandler(OD_Utl_CbFunction1<PANA_Message&> &h) { 
+      void RegisterHandler(OD_Utl_CbFunction1<PANA_Message&> &h) {
           m_MsgHandler = h.clone();
       }
       void RemoveHandler() {
@@ -104,43 +104,37 @@ class PANA_EXPORT PANA_IngressMsgParser :
  * Ingress io receiver
  */
 class PANA_EXPORT PANA_IngressReceiver :
-    public PANA_IngressJob
+    public PANA_IngressJob, ACE_Task<ACE_MT_SYNCH>
 {
-    public:
-      typedef enum {
-          PANA_SOCKET_RECV_TIMEOUT = 3 // sec
-      };
-
     public:
       PANA_IngressReceiver(AAA_GroupedJob &g,
                            PANA_Socket &so,
                            const char *name = "") :
-             PANA_IngressJob(g, name),
-                             m_Socket(so),
-                             m_Running(false) {
-             m_localAddr.set_port_number(0);
+                           PANA_IngressJob(g, name),
+                           m_Socket(so),
+                           m_Running(false) {
+            m_localAddr.set_port_number(0);
       }
-      bool Running() {
-         return m_Running;
-      }
-      void Stop() {
-         m_Socket.close();
-      }
+      bool Start();
+      void Stop();
       ACE_INET_Addr &SetLocalAddr() {
          return m_localAddr;
       }
-      virtual int Serve();
-      virtual void Wait() {
-         while (m_Running) {
-            ACE_Time_Value tm(1, 0);
-            ACE_OS::sleep(tm);
-         }
-      }
+
+   protected:
+      int Serve();
 
    protected:
       ACE_INET_Addr m_localAddr;
       PANA_Socket &m_Socket;
+      ACE_Mutex m_ExitMutex;
       bool m_Running;
+
+   private:
+     int svc() {
+        Serve();
+        return (0);
+     }
 };
 
 #endif // __PANA_INGRESS_H__

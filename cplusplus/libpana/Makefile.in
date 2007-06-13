@@ -61,8 +61,8 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpana_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/pana_config_manager.lo src/pana_client.lo \
-	src/pana_client_fsm.lo src/pana_egress.lo src/pana_ingress.lo \
+am__objects_1 = src/pana_config_manager.lo src/pana_channel.lo \
+	src/pana_client.lo src/pana_client_fsm.lo src/pana_ingress.lo \
 	src/pana_node.lo src/pana_paa.lo src/pana_paa_factory.lo \
 	src/pana_paa_fsm.lo src/pana_pac_ep_key.lo src/pana_parser.lo \
 	src/pana_parser_avpvalue.lo src/pana_parser_dict.lo \
@@ -265,7 +265,6 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_client_fsm.h \
             include/pana_config_manager.h \
             include/pana_defs.h \
-            include/pana_egress.h \
             include/pana_exceptions.h \
             include/pana_exports.h \
             include/pana_fsm.h \
@@ -289,9 +288,9 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_session.h
 
 PANA_SRC = src/pana_config_manager.cxx \
+            src/pana_channel.cxx \
             src/pana_client.cxx \
             src/pana_client_fsm.cxx \
-            src/pana_egress.cxx \
             src/pana_ingress.cxx \
             src/pana_node.cxx \
             src/pana_paa.cxx \
@@ -416,10 +415,10 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/pana_config_manager.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/pana_channel.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/pana_client.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/pana_client_fsm.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/pana_egress.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/pana_ingress.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/pana_node.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/pana_paa.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -477,14 +476,14 @@ pana_test3$(EXEEXT): $(pana_test3_OBJECTS) $(pana_test3_DEPENDENCIES)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f src/pana_channel.$(OBJEXT)
+	-rm -f src/pana_channel.lo
 	-rm -f src/pana_client.$(OBJEXT)
 	-rm -f src/pana_client.lo
 	-rm -f src/pana_client_fsm.$(OBJEXT)
 	-rm -f src/pana_client_fsm.lo
 	-rm -f src/pana_config_manager.$(OBJEXT)
 	-rm -f src/pana_config_manager.lo
-	-rm -f src/pana_egress.$(OBJEXT)
-	-rm -f src/pana_egress.lo
 	-rm -f src/pana_ingress.$(OBJEXT)
 	-rm -f src/pana_ingress.lo
 	-rm -f src/pana_node.$(OBJEXT)
@@ -521,10 +520,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_channel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_client.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_client_fsm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_config_manager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_egress.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_ingress.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_node.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pana_paa.Plo@am__quote@

@@ -72,7 +72,7 @@ int PANA_IngressMsgParser::Serve()
        AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, PARSING] parsing error\n"));
     }
     catch (PANA_Exception &e) {
-       AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECEIVER] %s\n", 
+       AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECEIVER] %s\n",
                   e.description().data()));
     }
     catch (...) {
@@ -86,73 +86,87 @@ int PANA_IngressMsgParser::Serve()
     return (0);
 }
 
+bool PANA_IngressReceiver::Start()
+{
+    if (! m_Running && (activate() == 0)) {
+        m_Running = true;
+    }
+    else {
+        AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] failed to activate receiver thread %s\n",
+                m_Name.data()));
+    }
+    return m_Running;
+}
+
+void PANA_IngressReceiver::Stop()
+{
+    m_Socket.close();
+    m_Running = false;
+    // wait for thread to exit
+    AAA_MutexScopeLock guard(m_ExitMutex);
+}
+
 int PANA_IngressReceiver::Serve()
 {
     m_Running = true;
     PANA_MessageBuffer *msg_buffer = NULL;
-    try {
-        msg_buffer = PANA_MESSAGE_POOL()->malloc();
-        ACE_INET_Addr srcAddr;
-        ACE_Time_Value tm(PANA_SOCKET_RECV_TIMEOUT, 0);
-        ssize_t bytes = m_Socket.recv(msg_buffer->wr_ptr(),
-                                      msg_buffer->size(),
-                                      srcAddr, 0, &tm);
-        if (bytes > 0) {
-            if (m_MsgHandler == NULL) {
-                AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] handler absent on %s\n",
-                         m_Name.data()));
-                throw (1);
-            }
+    AAA_MutexScopeLock guard(m_ExitMutex);
+    do {
+        try {
+            msg_buffer = PANA_MESSAGE_POOL()->malloc();
+            ACE_INET_Addr srcAddr;
+            ssize_t bytes = m_Socket.recv(msg_buffer->wr_ptr(),
+                                          msg_buffer->size(),
+                                          srcAddr, 0, 0);
+            if (bytes > 0) {
+                if (m_MsgHandler == NULL) {
+                    AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] handler absent on %s\n",
+                            m_Name.data()));
+                    throw (-1);
+                }
 
-            PANA_IngressMsgParser *parser;
-            ACE_NEW_NORETURN(parser,
-                             PANA_IngressMsgParser(m_Group,
-                                                   *msg_buffer,
-                                                   srcAddr,
-                                                   m_localAddr));
-            if (parser) {
-                msg_buffer->size(bytes);
-                parser->RegisterHandler(*m_MsgHandler);
-                if (Schedule(parser) < 0) {
-                   delete parser;
-                   AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, SCHEDULE] delivery job on %s\n",
+                PANA_IngressMsgParser *parser;
+                ACE_NEW_NORETURN(parser,
+                                PANA_IngressMsgParser(m_Group,
+                                                      *msg_buffer,
+                                                      srcAddr,
+                                                      m_localAddr));
+                if (parser) {
+                    msg_buffer->size(bytes);
+                    parser->RegisterHandler(*m_MsgHandler);
+                    if (Schedule(parser) < 0) {
+                      delete parser;
+                      AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, SCHEDULE] delivery job on %s\n",
+                                  m_Name.data()));
+                      throw (-1);
+                    }
+                }
+                else {
+                    AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] message parser job on %s\n",
                               m_Name.data()));
-                   throw (0);
+                    throw (-1);
                 }
             }
-            else {
-                AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] message parser job on %s\n",
-                           m_Name.data()));
+            else if (bytes == 0) {
+                throw (0);
+            } else if ((errno != EAGAIN) &&
+                      (errno != ETIME) &&
+                      (errno != ECONNREFUSED)) {
+                AAA_LOG((LM_ERROR, "(%P|%t) Receive channel error on %s : %s\n",
+                          m_Name.data(), strerror(errno)));
                 throw (0);
             }
-            if (m_Running) {
-                Schedule();
+            else {
+                throw (-1);
             }
         }
-        else if (bytes == 0) {
-            throw (1);
-        } else if ((errno != EAGAIN) &&
-                   (errno != ETIME) &&
-                   (errno != ECONNREFUSED)) {
-            AAA_LOG((LM_ERROR, "(%P|%t) Receive channel error on %s : %s\n",
-                       m_Name.data(), strerror(errno)));
-            throw (1);
+        catch (int rc) {
+            PANA_MESSAGE_POOL()->free(msg_buffer);
+            if (rc < 0) {
+              m_Running = false;
+            }
         }
-        else {
-            // timeout
-            throw (1);
-        }
-    }
-    catch (int rc) {
-        PANA_MESSAGE_POOL()->free(msg_buffer);
-        if (rc) {
-            // manually re-schedule myself
-            Schedule();
-        }
-        else {
-            m_Running = false;
-        }
-    }
+    } while (m_Running);
     return (0);
 }
 

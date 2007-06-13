@@ -31,40 +31,57 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-#include "pana_egress.h"
+#include "pana_channel.h"
+#include "pana_session.h"
 #include "pana_memory_manager.h"
 
-int PANA_EgressSender::Serve()
+void PANA_Channel::Open(ACE_INET_Addr &addr)
+{
+    if (m_Socket.open(addr) < 0) {
+        AAA_LOG((LM_ERROR, "(%P|%t) Failed to open socket\n"));
+        throw (PANA_Exception(PANA_Exception::TRANSPORT_FAILED,
+                              "Failed to open device"));
+    }
+    SetLocalAddr() = addr;
+    PANA_IngressReceiver::Start();
+}
+
+void PANA_Channel::Close()
+{
+    m_Socket.close();
+    PANA_IngressReceiver::Stop();
+}
+
+void PANA_Channel::Send(boost::shared_ptr<PANA_Message> m)
 {
     PANA_MessageBuffer *rawBuf = PANA_MESSAGE_POOL()->malloc();
 
     PANA_HeaderParser hp;
     hp.setRawData(rawBuf);
-    hp.setAppData(static_cast<PANA_MsgHeader*>(m_Msg.get()));
+    hp.setAppData(static_cast<PANA_MsgHeader*>(m.get()));
 
     hp.parseAppToRaw();
 
     // Parse the payload
     PANA_PayloadParser pp;
     pp.setRawData(rawBuf);
-    pp.setAppData(&(m_Msg->avpList()));
+    pp.setAppData(&(m->avpList()));
     pp.setDictData(hp.getDictData());
 
     pp.parseAppToRaw();
 
     // Re-do the header again to set the length
-    m_Msg->length() = rawBuf->wr_ptr() - rawBuf->base();
+    m->length() = rawBuf->wr_ptr() - rawBuf->base();
     hp.parseAppToRaw();
 
     /* --- send the message --- */
-    if (m_Socket.send(rawBuf->base(), m_Msg->length(),
-                      m_Msg->destAddress()) < 0) {
+    AAA_MutexScopeLock lock(m_SocketMtx);
+    if (m_Socket.send(rawBuf->base(), m->length(),
+                      m->destAddress()) < 0) {
         AAA_LOG((LM_ERROR, "(%P|%t) Transmit error [%s]\n",
                        strerror(errno)));
     }
 
     PANA_MESSAGE_POOL()->free(rawBuf);
-    Release(2);
-    return (0);
 }
 
