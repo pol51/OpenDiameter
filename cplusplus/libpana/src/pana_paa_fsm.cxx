@@ -103,8 +103,6 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     // Rx:PAN[S] &&             TxEAP();                   WAIT_EAP_MSG
     // ((OPTIMIZED_INIT ==
     //   Unset) ||
-    // (OPTIMIZED_INIT ==
-    //   Set) &&
     // PAN.exist_avp
     //  ("EAP-Payload"))
     ev.Reset();
@@ -124,8 +122,6 @@ PANA_PaaStateTable::PANA_PaaStateTable()
 
     /////////////////////////////////////////////////////////////////
     // Rx:PAN[S] &&             None();                    WAIT_PAN_OR_PAR
-    // (OPTIMIZED_INIT ==
-    //   Set) &&
     // ! PAN.exist_avp
     //  ("EAP-Payload")
     ev.Reset();
