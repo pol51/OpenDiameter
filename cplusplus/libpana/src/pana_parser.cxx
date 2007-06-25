@@ -96,8 +96,8 @@ void PANA_AvpHeaderList::create(PANA_MessageBuffer *aBuffer)
     for (char *cavp = start; cavp < end; cavp += adjust_word_boundary(h.m_Length)) {
         char *p = cavp;
         h.m_Code = ACE_NTOHS(*((ACE_UINT16*)p)); p += 2;
-        h.m_Flags.vendor = (*((ACE_UINT16*)p) & PANA_AVP_FLAG_VENDOR_SPECIFIC) ? 1 : 0;
-        h.m_Flags.mandatory = (*((ACE_UINT16*)p) & PANA_AVP_FLAG_MANDATORY) ? 1 : 0;
+        h.m_Flags.vendor = (ACE_NTOHS(*((ACE_UINT16*)p)) & PANA_AVP_FLAG_VENDOR_SPECIFIC) ? 1 : 0;
+        h.m_Flags.mandatory = (ACE_NTOHS(*((ACE_UINT16*)p)) & PANA_AVP_FLAG_MANDATORY) ? 1 : 0;
         p += 2;
 
         h.m_Length = ACE_NTOHS(*((ACE_UINT16*)p)); p += 4;
@@ -610,6 +610,7 @@ void PANA_AvpHeaderParser::parseRawToApp()
 template<>
 void PANA_AvpHeaderParser::parseAppToRaw()
 {
+    ACE_UINT16 flags = 0;
     PANA_AvpRawData *data = getRawData();
     char *p = data->msg->wr_ptr();
     PANA_AvpHeader *h = getAppData();
@@ -619,11 +620,12 @@ void PANA_AvpHeaderParser::parseAppToRaw()
     /* initialize this field to prepare for bit OR operation */
     *((ACE_UINT16*)p) = 0;
     if (h->m_Flags.vendor) {
-        *((ACE_UINT16*)p)|=PANA_AVP_FLAG_VENDOR_SPECIFIC;
+        flags |=PANA_AVP_FLAG_VENDOR_SPECIFIC;
     }
     if (h->m_Flags.mandatory) {
-        *((ACE_UINT16*)p)|=PANA_AVP_FLAG_MANDATORY;
+        flags |=PANA_AVP_FLAG_MANDATORY;
     }
+    *((ACE_UINT16*)p) = ACE_NTOHS(flags);
     p+=2;
 
     *((ACE_UINT16*)p) = ACE_NTOHS(h->m_Length);
