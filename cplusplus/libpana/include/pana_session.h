@@ -36,13 +36,17 @@
 #define __PANA_SESSION_H__
 
 #include <string>
+#include "ace/System_Time.h"
 #include "ace/Atomic_Op.h"
 #include "pana_exports.h"
 #include "pana_exceptions.h"
 #include "pana_security_assoc.h"
 #include "pana_config_manager.h"
-#include "pana_serial_num.h"
 #include "pana_pmk_bootstrap.h"
+
+#define  PANA_SEQ_GENERATOR_INIT()  { ACE_UINT32 seed = 0; \
+                                      ACE_System_Time::get_local_system_time(seed); \
+                                      ACE_OS::srand(seed + ACE_OS::rand()); }
 
 typedef PANA_SimpleQueue<PANA_Message*> PANA_MsgQueue;
 typedef PANA_SimpleQueue<AAAMessageBlock*> PANA_BufferQueue;
@@ -94,10 +98,10 @@ class PANA_SessionAttribute {
        ACE_INET_Addr &PaaAddress() {
            return m_PaaAddress;
        }
-       PANA_SerialNumber &LastTxSeqNum() {
+       ACE_UINT32 &LastTxSeqNum() {
            return m_LastTxSeqNum;
        }
-       PANA_SerialNumber &LastRxSeqNum() {
+       ACE_UINT32 &LastRxSeqNum() {
            return m_LastRxSeqNum;
        }
        boost::shared_ptr<PANA_Message> &LastTxReqMsg() {
@@ -116,10 +120,10 @@ class PANA_SessionAttribute {
 
     private:
        ACE_UINT32 m_SessionId;  // Session Id
+       ACE_UINT32 m_LastTxSeqNum; // last transmitted seq number
+       ACE_UINT32 m_LastRxSeqNum; // last recevied tseq number value
        ACE_INET_Addr m_PacAddress;     // PaC IP address and port
        ACE_INET_Addr m_PaaAddress;     // PAA IP address and port
-       PANA_SerialNumber m_LastTxSeqNum; // last transmitted seq number
-       PANA_SerialNumber m_LastRxSeqNum; // last recevied tseq number value
        boost::shared_ptr<PANA_Message> m_LastTxReqMsg; // last transmitted message
        boost::shared_ptr<PANA_Message> m_CachedAnsMsg; // cached message
        ACE_UINT32 m_SessionLifetime; // session lifetime

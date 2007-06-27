@@ -31,6 +31,7 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
+#include "ace/OS.h"
 #include "pana_session.h"
 #include "pana_paa_factory.h"
 #include "pana_config_manager.h"
@@ -51,7 +52,7 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
                  StatelessRxPANStart(msg);
                  break;
              default:
-                 AAA_LOG((LM_ERROR, "(%P|%t) Unknown msg during handshake, discarding: seq=%d\n",\
+                 AAA_LOG((LM_ERROR, "(%P|%t) Unknown msg during handshake, discarding: seq=%u\n",\
                           msg.seq()));
                  break;
           }
@@ -59,7 +60,7 @@ void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
       return;
    }
    catch (...) {
-      AAA_LOG((LM_ERROR, "(%P|%t) Unknown error receipt of msg, discarding: seq=%d\n",
+      AAA_LOG((LM_ERROR, "(%P|%t) Unknown error receipt of msg, discarding: seq=%u\n",
                msg.seq()));
    }
 }
@@ -121,7 +122,7 @@ void PANA_PaaSessionFactory::RxPCI(PANA_Message &msg)
 
    */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: id=%d seq=%d\n",
+   AAA_LOG((LM_INFO, "(%P|%t) RxPCI: id=%u seq=%u\n",
             msg.sessionId(), msg.seq()));
 
    // validate sequence number
@@ -162,9 +163,12 @@ void PANA_PaaSessionFactory::StatelessTxPARStart(ACE_INET_Addr &addr)
     */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
 
+    // generate initial seq number
+    PANA_SEQ_GENERATOR_INIT();
+
     // Populate header
     msg->type() = PANA_MTYPE_PAR;
-    msg->seq() = PANA_SerialNumber::GenerateISN();
+    msg->seq() = ACE_OS::rand();
     msg->flags().request = true;
     msg->flags().start = true;
 
@@ -176,7 +180,7 @@ void PANA_PaaSessionFactory::StatelessTxPARStart(ACE_INET_Addr &addr)
     msg->destAddress() = addr;
     msg->srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
 
     m_Channel.Send(msg);
@@ -200,7 +204,7 @@ void PANA_PaaSessionFactory::StatelessRxPANStart(PANA_Message &msg)
                         0*1 < AUTH >
     */
 
-   AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Start: Stateless, id=%d seq=%d\n",
+   AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Start: Stateless, id=%u seq=%u\n",
            msg.sessionId(), msg.seq()));
 
    if (msg.sessionId() == 0) {

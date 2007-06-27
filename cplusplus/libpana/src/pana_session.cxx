@@ -31,7 +31,6 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-#include "ace/OS.h"
 #include "pana_exceptions.h"
 #include "pana_session.h"
 #include "pana_memory_manager.h"
@@ -208,15 +207,14 @@ void PANA_Session::TxPNRPing()
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
+    msg->seq() = ++ LastTxSeqNum();
 
     // auth avp if any
     if (SecurityAssociation().Auth().IsSet()) {
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Ping: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Ping: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
@@ -250,7 +248,7 @@ void PANA_Session::RxPNRPing()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Ping: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Ping: id=%u seq=%u\n",
             msg.sessionId(), msg.seq()));
 
     TxPNAPing();
@@ -276,7 +274,7 @@ void PANA_Session::TxPNAPing()
     // Populate header
     msg->type() = PANA_MTYPE_PNA;
     msg->flags().ping = true;
-    msg->seq() = LastRxSeqNum().Value();
+    msg->seq() = LastRxSeqNum();
     msg->sessionId() = this->SessionId();
 
     // auth avp if any
@@ -284,7 +282,7 @@ void PANA_Session::TxPNAPing()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPNA-Ping: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNA-Ping: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
@@ -309,7 +307,7 @@ void PANA_Session::RxPNAPing()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPNA-Ping: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNA-Ping: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
@@ -336,8 +334,7 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
+    msg->seq() = ++ LastTxSeqNum();
 
     // termination cause
     PANA_UInt32AvpWidget causeAvp(PANA_AVPNAME_TERMCAUSE);
@@ -349,7 +346,7 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPTR: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPTR: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
     // session timer
@@ -375,7 +372,7 @@ void PANA_Session::RxPTR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPTR: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPTR: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     TxPTA();
@@ -407,7 +404,7 @@ void PANA_Session::TxPTA()
 
     // Populate header
     msg->type() = PANA_MTYPE_PTA;
-    msg->seq() = LastRxSeqNum().Value();
+    msg->seq() = LastRxSeqNum();
     msg->sessionId() = this->SessionId();
 
     // auth avp if any
@@ -415,7 +412,7 @@ void PANA_Session::TxPTA()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPTA: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPTA: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
@@ -437,7 +434,7 @@ void PANA_Session::RxPTA()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPTA: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPTA: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     Disconnect(PANA_TERMCAUSE_LOGOUT);
@@ -467,12 +464,12 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
                       "unexpected request msg with invalid seq number"));
            }
        }
-       else if (msg.seq() != (LastRxSeqNum().Value() + 1)) {
+       else if (msg.seq() != (LastRxSeqNum() + 1)) {
            throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                   "request msg with invalid seq number"));
        }
    }
-   else if (msg.seq() != LastTxSeqNum().Value()) {
+   else if (msg.seq() != LastTxSeqNum()) {
        throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
               "answer msg with invalid seq number"));
    }
@@ -498,7 +495,7 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
    // wait till all validation happens before
    // we update seq number
    if (msg.flags().request && doUpdate) {
-       ++ LastRxSeqNum();
+       LastRxSeqNum() ++;
    }
 }
 
@@ -589,8 +586,10 @@ void PANA_AuxillarySessionVariables::Reset()
 
 void PANA_SessionAttribute::Reset()
 {
+   PANA_SEQ_GENERATOR_INIT();
+
    m_SessionId = 0;
-   m_LastTxSeqNum.Reset();
+   m_LastTxSeqNum = ACE_OS::rand();
    m_LastRxSeqNum = 0;
    m_SessionLifetime = PANA_CFG_GENERAL().m_SessionLifetime;
 }

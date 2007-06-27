@@ -142,8 +142,7 @@ void PANA_Paa::TxPARStart()
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
+    msg->seq() = ++ LastTxSeqNum();
 
     // add eap payload
     if (PANA_CFG_PAA().m_OptimizedHandshake) {
@@ -158,7 +157,7 @@ void PANA_Paa::TxPARStart()
         msg->avpList().add(eapAvp());
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
@@ -185,7 +184,7 @@ void PANA_Paa::RxPANStart()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Start: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Start: id=%u seq=%u\n",
             msg.sessionId(), msg.seq()));
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
@@ -227,8 +226,7 @@ void PANA_Paa::TxPAR()
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
+    msg->seq() = ++ LastTxSeqNum();
 
     // add eap payload
     if (AuxVariables().TxEapMessageQueue().Empty()) {
@@ -257,7 +255,7 @@ void PANA_Paa::TxPAR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
@@ -293,8 +291,7 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
     msg->flags().complete = true;
 
     // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
+    msg->seq() = ++ LastTxSeqNum();
     msg->sessionId() = this->SessionId();
 
     // add result-code
@@ -344,7 +341,7 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Complete: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Complete: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
@@ -371,7 +368,7 @@ void PANA_Paa::RxPANComplete(bool success)
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Complete: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Complete: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
@@ -408,7 +405,7 @@ void PANA_Paa::TxPAN()
 
     // Populate header
     msg->type() = PANA_MTYPE_PAN;
-    msg->seq() = LastRxSeqNum().Value();
+    msg->seq() = LastRxSeqNum();
     msg->sessionId() = this->SessionId();
 
     // add SA if any
@@ -416,7 +413,7 @@ void PANA_Paa::TxPAN()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
@@ -447,7 +444,7 @@ void PANA_Paa::RxPAR()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
@@ -482,7 +479,7 @@ void PANA_Paa::RxPAN()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
@@ -530,7 +527,7 @@ void PANA_Paa::RxPNRAuth()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Auth: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNR-Auth: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     SecurityAssociation().PacNonce().Reset();
@@ -561,7 +558,7 @@ void PANA_Paa::TxPNAAuth()
     // Populate header
     msg->type() = PANA_MTYPE_PNA;
     msg->flags().auth = true;
-    msg->seq() = LastRxSeqNum().Value();
+    msg->seq() = LastRxSeqNum();
     msg->sessionId() = this->SessionId();
 
     // auth avp
@@ -569,7 +566,7 @@ void PANA_Paa::TxPNAAuth()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPNA-Auth: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNA-Auth: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);

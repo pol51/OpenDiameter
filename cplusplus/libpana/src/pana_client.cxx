@@ -114,7 +114,7 @@ void PANA_Client::RxPARStart()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAR-Start: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR-Start: id=%u seq=%u\n",
             msg.sessionId(), msg.seq()));
 
     // RtxTimerStop()
@@ -164,7 +164,7 @@ void PANA_Client::TxPANStart(bool eapOptimization)
     // Populate header
     msg->type() = PANA_MTYPE_PAN;
     msg->flags().start = true;
-    msg->seq() = LastRxSeqNum().Value();
+    msg->seq() = LastRxSeqNum();
     msg->sessionId() = this->SessionId();
 
     if (eapOptimization) {
@@ -175,7 +175,7 @@ void PANA_Client::TxPANStart(bool eapOptimization)
         msg->avpList().add(eapAvp());
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAN-Start: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN-Start: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
@@ -201,7 +201,7 @@ void PANA_Client::TxPCI()
     msg->seq() = 0;
     this->SessionId() = 0;
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPCI: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPCI: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
@@ -231,7 +231,7 @@ void PANA_Client::RxPAR()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     // Stop any RtxTimerStop()
@@ -285,7 +285,7 @@ void PANA_Client::RxPAN()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAN: id=%u seq=%u\n",
             msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
@@ -319,8 +319,7 @@ void PANA_Client::TxPAR()
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
+    msg->seq() = ++ LastTxSeqNum();
 
     // stop eap response timer
     m_Timer.CancelEapResponse();
@@ -336,7 +335,7 @@ void PANA_Client::TxPAR()
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAR: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
@@ -364,7 +363,7 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
 
     // Populate header
     msg->type() = PANA_MTYPE_PAN;
-    msg->seq() = LastRxSeqNum().Value();
+    msg->seq() = LastRxSeqNum();
     msg->sessionId() = this->SessionId();
 
     // add pac nonce
@@ -393,7 +392,7 @@ void PANA_Client::TxPAN(bool eapPiggyBack)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
@@ -423,7 +422,7 @@ void PANA_Client::RxPARComplete()
     std::auto_ptr<PANA_Message> cleanup(AuxVariables().RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPAR-Complete: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPAR-Complete: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
 
     // lookup result code
@@ -486,7 +485,7 @@ void PANA_Client::TxPANComplete(bool authSuccess)
     // Populate header
     msg->type() = PANA_MTYPE_PAN;
     msg->flags().complete = true;
-    msg->seq() = LastRxSeqNum().Value();
+    msg->seq() = LastRxSeqNum();
     msg->sessionId() = this->SessionId();
 
     if (authSuccess) {
@@ -505,7 +504,7 @@ void PANA_Client::TxPANComplete(bool authSuccess)
         SecurityAssociation().AddAuthAvp(*msg);
     }
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPAN-Complete: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPAN-Complete: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
@@ -545,8 +544,7 @@ void PANA_Client::TxPNRAuth()
     msg->sessionId() = this->SessionId();
 
     // adjust serial num
-    ++ LastTxSeqNum();
-    msg->seq() = LastTxSeqNum().Value();
+    msg->seq() = ++ LastTxSeqNum();
 
     // auth avp
     if (SecurityAssociation().Auth().IsSet()) {
@@ -556,7 +554,7 @@ void PANA_Client::TxPNRAuth()
     // cancel current session timer
     m_Timer.CancelSession();
 
-    AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Auth: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) TxPNR-Auth: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
@@ -582,7 +580,7 @@ void PANA_Client::RxPNAAuth()
         RxMsgQueue().Dequeue());
     PANA_Message &msg = *cleanup;
 
-    AAA_LOG((LM_INFO, "(%P|%t) RxPNA-Auth: id=%d seq=%d\n",
+    AAA_LOG((LM_INFO, "(%P|%t) RxPNA-Auth: id=%u seq=%u\n",
             msg.sessionId(), msg.seq()));
 
     m_Timer.CancelTxRetry();
