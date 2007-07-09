@@ -68,6 +68,7 @@ class PassThroughAuthApplication;
 static std::string gUserName;
 static std::string gPasswd;
 static std::string gPacAddrFromEp;
+static PANA_PacSession *gPacReference = NULL;
 
 /// Task class used in this sample program.
 class EapTask : public AAA_Task
@@ -224,12 +225,11 @@ class PeerApplication : public AAA_JobData,
                         public PANA_ClientEventInterface
 {
  public:
-  PeerApplication(PANA_Node &n, ACE_Semaphore &sem) :
+  PeerApplication(PANA_Node &n) :
     pacSession(n, *this),
     handle(EapJobHandle(AAA_GroupedJob::Create(n.Task().Job(), this, "peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*n.Task().reactor(), handle))),
-    semaphore(sem),
     md5Method(EapContinuedPolicyElement(EapType(4)))
   {
     eap->Policy().InitialPolicyElement(&md5Method);
@@ -237,8 +237,6 @@ class PeerApplication : public AAA_JobData,
   virtual ~PeerApplication() { }
 
   MyPeerSwitchStateMachine& Eap() { return *eap; }
-
-  ACE_Semaphore& Semaphore() { return semaphore; }
 
   void EapStart() {
      eap->Stop();
@@ -251,22 +249,13 @@ class PeerApplication : public AAA_JobData,
   }
   void Authorize(PANA_AuthorizationArgs &args) {
      PANA_AuthScriptCtl::Print(args);
-     static bool reauth = false;
-     if (! reauth) {
-         pacSession.ReAuthenticate();
-         reauth = true;
-     }
-     else {
-         pacSession.Ping();
-     }
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
      return false;
   }
   void Disconnect(ACE_UINT32 cause) {
       eap->Stop();
-      // semaphore.release();
-  }
+}
   PANA_PacSession &pac() {
       return pacSession;
   }
@@ -275,7 +264,6 @@ class PeerApplication : public AAA_JobData,
   PANA_PacSession pacSession;
   EapJobHandle handle;
   boost::shared_ptr<MyPeerSwitchStateMachine> eap;
-  ACE_Semaphore &semaphore;
   EapContinuedPolicyElement md5Method;
 };
 
@@ -285,14 +273,13 @@ class StandAloneAuthApplication : public AAA_JobData,
 {
 
  public:
-  StandAloneAuthApplication(PANA_PaaSessionChannel &ch, ACE_Semaphore &sem)
+  StandAloneAuthApplication(PANA_PaaSessionChannel &ch)
     : paaSession(ch, *this),
       handle(EapJobHandle(AAA_GroupedJob::Create
                           (ch.Node().Task().Job(), this, "standalone"))),
       eap(boost::shared_ptr<MyStandAloneAuthSwitchStateMachine>
 	  (new MyStandAloneAuthSwitchStateMachine
            (*ch.Node().Task().reactor(), handle))),
-      semaphore(sem),
       identityMethod(EapContinuedPolicyElement(EapType(1))),
       md5Method(EapContinuedPolicyElement(EapType(4))),
       notificationMethod(EapContinuedPolicyElement(EapType(2)))
@@ -320,6 +307,7 @@ class StandAloneAuthApplication : public AAA_JobData,
   }
   void Authorize(PANA_AuthorizationArgs &args) {
      PANA_AuthScriptCtl::Print(args);
+     paaSession.Ping();
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
      return false;
@@ -333,14 +321,12 @@ class StandAloneAuthApplication : public AAA_JobData,
   MyStandAloneAuthSwitchStateMachine& Eap() {
      return *eap;
   }
-  ACE_Semaphore& Semaphore() { return semaphore; }
   PANA_PaaSession &paa() { return paaSession; }
 
  private:
   PANA_PaaSession paaSession;
   EapJobHandle handle;
   boost::shared_ptr<MyStandAloneAuthSwitchStateMachine> eap;
-  ACE_Semaphore &semaphore;
   EapContinuedPolicyElement identityMethod;
   EapContinuedPolicyElement md5Method;
   EapContinuedPolicyElement notificationMethod;
@@ -349,11 +335,11 @@ class StandAloneAuthApplication : public AAA_JobData,
 class StandAloneSessionFactoryAdapter : public PANA_PaaSessionFactory
 {
    public:
-      StandAloneSessionFactoryAdapter(PANA_Node &n, ACE_Semaphore &s) :
-          PANA_PaaSessionFactory(n), node(n), sem(s) { }
+      StandAloneSessionFactoryAdapter(PANA_Node &n) :
+          PANA_PaaSessionFactory(n), node(n) {
+      }
       PANA_PaaSession *Create() {
-         StandAloneAuthApplication *app = new StandAloneAuthApplication
-             (*this, sem);
+         StandAloneAuthApplication *app = new StandAloneAuthApplication(*this);
          if (app) {
 	    return &(app->paa());
 	 }
@@ -361,7 +347,6 @@ class StandAloneSessionFactoryAdapter : public PANA_PaaSessionFactory
       }
    protected:
       PANA_Node &node;
-      ACE_Semaphore &sem;
 };
 
 // ----------------- Definition --------------
@@ -454,6 +439,27 @@ void MyStandAloneAuthSwitchStateMachine::Abort()
     //JobData(Type2Type<StandAloneAuthApplication>()).Semaphore().release();
   }
 
+#if defined (ACE_HAS_SIG_C_FUNC)
+extern "C" {
+#endif
+static void MySigHandler(int signo)
+{
+  if (gPacReference) {
+      switch (signo) {
+         case SIGUSR1: gPacReference->Ping(); break;
+         case SIGHUP:  gPacReference->ReAuthenticate(); break;
+         case SIGTERM: gPacReference->Stop(); break;
+         default: break;
+      }
+  }
+  else {
+      std::cout << "Signal has been received but reference is not yet ready" << std::endl;
+  }
+}
+#if defined (ACE_HAS_SIG_C_FUNC)
+}
+#endif
+
 int main(int argc, char **argv)
 {
   std::string cfgfile;
@@ -520,29 +526,36 @@ int main(int argc, char **argv)
      myAuthMD5ChallengeCreator);
 
   EapTask task;
-  ACE_Semaphore semaphore(0);
-
   task.Start(5);
+
+  ACE_Sig_Action sa(reinterpret_cast <ACE_SignalHandler> (MySigHandler));
+  sa.register_action (SIGUSR1);
+  sa.register_action (SIGHUP);
+  sa.register_action (SIGTERM);
 
   try {
       if (b_client) {
           PANA_Node node(task, cfgfile);
-          PeerApplication peer(node, semaphore);
+          PeerApplication peer(node);
           peer.pac().Start();
-          semaphore.acquire();
-          task.Stop();
+          gPacReference = &peer.pac();
+
+          // Test code only
+          while (true) { }
       }
       else {
           USER_DB_OPEN(userdb);
           PANA_Node node(task, cfgfile);
-          StandAloneSessionFactoryAdapter factory(node, semaphore);
+          StandAloneSessionFactoryAdapter factory(node);
 
           if (gPacAddrFromEp.length() > 0) {
 	      ACE_INET_Addr pac(gPacAddrFromEp.data());
               factory.PacFound(pac);
 	  }
 
-          semaphore.acquire();
+          // Test code only
+          while (true) { }
+
           task.Stop();
           USER_DB_CLOSE();
       }

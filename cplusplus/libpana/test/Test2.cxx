@@ -60,6 +60,7 @@ class MyStandAloneAuthSwitchStateMachine;
 class StandAloneAuthApplication;
 
 static std::string gUserName;
+static PANA_PacSession *gPacReference = NULL;
 
 /// Task class used in this sample program.
 class EapTask : public AAA_Task
@@ -289,9 +290,8 @@ class PeerChannel : public PANA_ClientEventInterface
 {
  public:
   PeerChannel(PANA_Node &n,
-              MyPeerSwitchStateMachine &s,
-              ACE_Semaphore &sem) :
-      eap(s), pana(n, *this), semaphore(sem) {
+              MyPeerSwitchStateMachine &s) :
+      eap(s), pana(n, *this) {
   }
   virtual ~PeerChannel() {
   }
@@ -309,22 +309,6 @@ class PeerChannel : public PANA_ClientEventInterface
   }
   void Authorize(PANA_AuthorizationArgs &args) {
      PANA_AuthScriptCtl::Print(args);
-     typedef enum {
-        REAUTH,
-        PING
-     } TEST_STATE;
-     static TEST_STATE testState = REAUTH;
-     switch (testState) {
-        case REAUTH:
-          // just for testing -- reauthenticate ourselves
-          pana.ReAuthenticate();
-          testState = PING;
-          break;
-        case PING:
-          pana.Ping();
-          testState = REAUTH;
-          break;
-     }
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {
@@ -351,7 +335,6 @@ class PeerChannel : public PANA_ClientEventInterface
   }
   MyPeerSwitchStateMachine &eap;
   PANA_PacSession pana;
-  ACE_Semaphore &semaphore;
 };
 
 class StandAloneAuthChannel : public PANA_PaaEventInterface
@@ -411,12 +394,11 @@ class StandAloneAuthChannel : public PANA_PaaEventInterface
 class PeerApplication : public AAA_JobData
 {
  public:
-  PeerApplication(EapTask &task, ACE_Semaphore &sem) :
+  PeerApplication(EapTask &task) :
     handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, "peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*task.reactor(), handle))),
-    semaphore(sem),
-    channel(task.node, *eap, sem),
+    channel(task.node, *eap),
     method(EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE)))
   {
     eap->Policy().InitialPolicyElement(&method);
@@ -428,12 +410,9 @@ class PeerApplication : public AAA_JobData
 
   MyPeerSwitchStateMachine& Eap() { return *eap; }
 
-  ACE_Semaphore& Semaphore() { return semaphore; }
-
  private:
   EapJobHandle handle;
   boost::shared_ptr<MyPeerSwitchStateMachine> eap;
-  ACE_Semaphore &semaphore;
   PeerChannel channel;
   EapContinuedPolicyElement method;
 };
@@ -443,13 +422,12 @@ class StandAloneAuthApplication : public AAA_JobData
 {
 
  public:
-  StandAloneAuthApplication(PANA_PaaSessionChannel &ch, ACE_Semaphore &sem)
+  StandAloneAuthApplication(PANA_PaaSessionChannel &ch)
     : handle(EapJobHandle
 	     (AAA_GroupedJob::Create(ch.Node().Task().Job(), this, "standalone"))),
       eap(boost::shared_ptr<MyStandAloneAuthSwitchStateMachine>
 	  (new MyStandAloneAuthSwitchStateMachine
            (*ch.Node().Task().reactor(), handle))),
-      semaphore(sem),
       channel(ch, *eap),
       identityMethod(EapContinuedPolicyElement(EapType(1))),
       archieMethod(EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE)))
@@ -471,12 +449,9 @@ class StandAloneAuthApplication : public AAA_JobData
 
   MyStandAloneAuthSwitchStateMachine& Eap() { return *eap; }
 
-  ACE_Semaphore& Semaphore() { return semaphore; }
-
  private:
   EapJobHandle handle;
   boost::shared_ptr<MyStandAloneAuthSwitchStateMachine> eap;
-  ACE_Semaphore &semaphore;
   StandAloneAuthChannel channel;
   EapContinuedPolicyElement identityMethod;
   EapContinuedPolicyElement archieMethod;
@@ -505,7 +480,6 @@ void MyPeerSwitchStateMachine::Failure()
 	      << " try next time !!!" << std::endl;
     Stop();
     JobData(Type2Type<PeerApplication>()).Channel().pana.EapFailure();
-    JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
 void MyPeerSwitchStateMachine::Notification(std::string &str)
   {
@@ -516,7 +490,6 @@ void MyPeerSwitchStateMachine::Abort()
   {
     std::cout << "Peer aborted for an error in state machine" << std::endl;
     JobData(Type2Type<PeerApplication>()).Channel().pana.EapFailure();
-    JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
 std::string& MyPeerSwitchStateMachine::InputIdentity()
   {
@@ -568,17 +541,16 @@ void MyStandAloneAuthSwitchStateMachine::Abort()
     JobData(Type2Type<StandAloneAuthApplication>()).Channel().
         pana.EapFailure();
     Stop();
-    JobData(Type2Type<StandAloneAuthApplication>()).Semaphore().release();
   }
 
 class StandAloneAuthAppFactory : public PANA_PaaSessionFactory
 {
    public:
-      StandAloneAuthAppFactory(EapTask &t, ACE_Semaphore &s) :
-          PANA_PaaSessionFactory(t.node), task(t), sem(s) { }
+      StandAloneAuthAppFactory(EapTask &t) :
+          PANA_PaaSessionFactory(t.node), task(t) { }
       PANA_PaaSession *Create() {
          StandAloneAuthApplication *app = new StandAloneAuthApplication
-             (*this, sem);
+             (*this);
          if (app) {
 	    return &(app->Channel().pana);
 	 }
@@ -586,8 +558,28 @@ class StandAloneAuthAppFactory : public PANA_PaaSessionFactory
       }
    protected:
       EapTask &task;
-      ACE_Semaphore &sem;
 };
+
+#if defined (ACE_HAS_SIG_C_FUNC)
+extern "C" {
+#endif
+static void MySigHandler(int signo)
+{
+  if (gPacReference) {
+      switch (signo) {
+         case SIGUSR1: gPacReference->Ping(); break;
+         case SIGHUP:  gPacReference->ReAuthenticate(); break;
+         case SIGTERM: gPacReference->Stop(); break;
+         default: break;
+      }
+  }
+  else {
+      std::cout << "Signal has been received but reference is not yet ready" << std::endl;
+  }
+}
+#if defined (ACE_HAS_SIG_C_FUNC)
+}
+#endif
 
 int main(int argc, char **argv)
 {
@@ -647,6 +639,11 @@ int main(int argc, char **argv)
     (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE),
      Authenticator, myAuthArchieCreator);
 
+  ACE_Sig_Action sa(reinterpret_cast <ACE_SignalHandler> (MySigHandler));
+  sa.register_action (SIGUSR1);
+  sa.register_action (SIGHUP);
+  sa.register_action (SIGTERM);
+
   EapTask task(cfgfile);
 
   try {
@@ -689,19 +686,21 @@ int main(int argc, char **argv)
       exit (1);
   }
 
-  ACE_Semaphore semaphore(0);
-
   try {
      if (b_client) {
-         PeerApplication peerApp(task, semaphore);
+         PeerApplication peerApp(task);
 	 peerApp.Channel().Initialize();
-         semaphore.acquire();
-         task.Stop();
+         gPacReference = &peerApp.Channel().pana;
+
+         // Test code only
+         while (true) { }
      }
      else {
          USER_DB_OPEN(userdb);
-         StandAloneAuthAppFactory factory(task, semaphore);
-         semaphore.acquire();
+         StandAloneAuthAppFactory factory(task);
+
+         // Test code only
+         while (true) { }
          task.Stop();
          USER_DB_CLOSE();
      }

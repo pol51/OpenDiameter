@@ -284,7 +284,6 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_prf_plus.h \
             include/pana_psk_bootstrap.h \
             include/pana_security_assoc.h \
-            include/pana_serial_num.h \
             include/pana_session.h
 
 PANA_SRC = src/pana_config_manager.cxx \

@@ -60,6 +60,7 @@ class MyStandAloneAuthSwitchStateMachine;
 class StandAloneAuthApplication;
 
 static std::string gUserName;
+static PANA_PacSession *gPacReference = NULL;
 
 /// Task class used in this sample program.
 class EapTask : public AAA_Task
@@ -337,9 +338,8 @@ class PeerChannel : public PANA_ClientEventInterface
 {
  public:
   PeerChannel(PANA_Node &n,
-              MyPeerSwitchStateMachine &s,
-              ACE_Semaphore &sem) :
-      eap(s), pana(n, *this), semaphore(sem) {
+              MyPeerSwitchStateMachine &s) :
+      eap(s), pana(n, *this) {
   }
   virtual ~PeerChannel() {
   }
@@ -377,14 +377,12 @@ class PeerChannel : public PANA_ClientEventInterface
   }
   void Disconnect(ACE_UINT32 cause) {
       eap.Stop();
-      semaphore.release();
   }
   void Stop() {
       pana.Stop();
   }
   MyPeerSwitchStateMachine &eap;
   PANA_PacSession pana;
-  ACE_Semaphore &semaphore;
 };
 
 class PassThroughAuthChannel : public PANA_PaaEventInterface
@@ -506,12 +504,11 @@ class BackendAuthChannel : public Channel
 class PeerApplication : public AAA_JobData
 {
  public:
-  PeerApplication(EapTask &task, ACE_Semaphore &sem) :
+  PeerApplication(EapTask &task) :
     handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, "peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*task.reactor(), handle))),
-    semaphore(sem),
-    channel(task.node, *eap, sem),
+    channel(task.node, *eap),
     method(EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE)))
   {
     eap->Policy().InitialPolicyElement(&method);
@@ -523,12 +520,9 @@ class PeerApplication : public AAA_JobData
 
   MyPeerSwitchStateMachine& Eap() { return *eap; }
 
-  ACE_Semaphore& Semaphore() { return semaphore; }
-
  private:
   EapJobHandle handle;
   boost::shared_ptr<MyPeerSwitchStateMachine> eap;
-  ACE_Semaphore &semaphore;
   PeerChannel channel;
   EapContinuedPolicyElement method;
 };
@@ -649,7 +643,6 @@ void MyPeerSwitchStateMachine::Failure()
 	      << " try next time !!!" << std::endl;
     Stop();
     JobData(Type2Type<PeerApplication>()).Channel().pana.EapFailure();
-    JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
 void MyPeerSwitchStateMachine::Notification(std::string &str)
   {
@@ -660,7 +653,6 @@ void MyPeerSwitchStateMachine::Abort()
   {
     std::cout << "Peer aborted for an error in state machine" << std::endl;
     JobData(Type2Type<PeerApplication>()).Channel().pana.EapFailure();
-    JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
 std::string& MyPeerSwitchStateMachine::InputIdentity()
   {
@@ -794,6 +786,27 @@ class PassThroughAuthAppFactory : public PANA_PaaSessionFactory
       EapTask &task;
 };
 
+#if defined (ACE_HAS_SIG_C_FUNC)
+extern "C" {
+#endif
+static void MySigHandler(int signo)
+{
+  if (gPacReference) {
+      switch (signo) {
+         case SIGUSR1: gPacReference->Ping(); break;
+         case SIGHUP:  gPacReference->ReAuthenticate(); break;
+         case SIGTERM: gPacReference->Stop(); break;
+         default: break;
+      }
+  }
+  else {
+      std::cout << "Signal has been received but reference is not yet ready" << std::endl;
+  }
+}
+#if defined (ACE_HAS_SIG_C_FUNC)
+}
+#endif
+
 int main(int argc, char **argv)
 {
   std::string cfgfile;
@@ -852,6 +865,11 @@ int main(int argc, char **argv)
     (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE),
      Authenticator, myAuthArchieCreator);
 
+  ACE_Sig_Action sa(reinterpret_cast <ACE_SignalHandler> (MySigHandler));
+  sa.register_action (SIGUSR1);
+  sa.register_action (SIGHUP);
+  sa.register_action (SIGTERM);
+
   EapTask task(cfgfile);
 
   try {
@@ -884,15 +902,17 @@ int main(int argc, char **argv)
 
   try {
      if (b_client) {
-         ACE_Semaphore semaphore(0);
-         PeerApplication peerApp(task, semaphore);
+         PeerApplication peerApp(task);
 	 peerApp.Channel().Initialize();
-         semaphore.acquire();
-         task.Stop();
+         gPacReference = &peerApp.Channel().pana;
+
+         // Test code only
+         while (true) { }
      }
      else {
          USER_DB_OPEN(userdb);
          PassThroughAuthAppFactory factory(task);
+
          while (true); // TBD: have a clean exit here
          task.Stop();
          USER_DB_CLOSE();
