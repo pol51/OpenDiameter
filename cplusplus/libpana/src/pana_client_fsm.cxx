@@ -512,6 +512,12 @@ PANA_ClientStateTable::PANA_ClientStateTable()
     AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
                        PANA_ST_WAIT_EAP_MSG,
                        m_PacOpenExitActionRxPAR);
+    ev.Reset();
+    ev.MsgType(PANA_EV_MTYPE_PAR);
+    ev.EnableCfg_EapPiggyback(); // To handle  flag being set by EAP-Piggybacking
+    AddStateTableEntry(PANA_ST_OPEN, ev.Get(),
+                       PANA_ST_WAIT_EAP_MSG,
+                       m_PacOpenExitActionRxPAR);
 
     /////////////////////////////////////////////////////////////////
     // - - - - - - - -(Session termination initiated by PAA) - - - - - -
@@ -794,11 +800,6 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           }
           else {
               ev.MsgType(PANA_EV_MTYPE_PAN);
-              PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-              pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
-              if (payload) {
-                  ev.AvpExist_EapPayload();
-              }
           }
           m_arg.LastUsedChannel() = msg.destAddress();
       }
