@@ -11,6 +11,7 @@
     <absoluteprojectpath>false</absoluteprojectpath>
     <description/>
     <projectname>opendiameter</projectname>
+    <defaultencoding/>
   </general>
   <kdevautoproject>
     <general>
@@ -42,7 +43,7 @@
         <f77compiler>kdevpgf77options</f77compiler>
         <cxxflags>-O0 -g3</cxxflags>
         <envvars>
-          <envvar value="/usr/local/include" name="ACE_ROOT" />
+          <envvar value="/usr/include" name="ACE_ROOT" />
           <envvar value="/usr/include" name="BOOST_ROOT" />
         </envvars>
         <topsourcedir/>
@@ -188,6 +189,11 @@
       <inlineGet>true</inlineGet>
       <inlineSet>true</inlineSet>
     </creategettersetter>
+    <splitheadersource>
+      <enabled>false</enabled>
+      <synchronize>true</synchronize>
+      <orientation>Vertical</orientation>
+    </splitheadersource>
   </kdevcppsupport>
   <kdevfileview>
     <groups>

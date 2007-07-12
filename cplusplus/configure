@@ -21609,6 +21609,14 @@ case $host in
      HOST_OS=OS_LINUX
 
   ;;
+
+  *-*-hpux*)
+     L_CPPFLAGS="-Wall -Wno-sign-compare -I$XERCESCROOT/include -I$XERCESCROOT/include/xercesc -I$ACE_ROOT -I$BOOST_ROOT"
+     L_LDFLAGS="-L$ACE_ROOT/ace -L$XERCESCROOT/lib"
+     L_LIBS="-lxerces-c -lssl -lcrypto -lACE_SSL -lACE"
+     HOST_OS=OS_HPUX
+  ;;
+
   *)
      { { echo "$as_me:$LINENO: error: Unsupported OS" >&5
 echo "$as_me: error: Unsupported OS" >&2;}
