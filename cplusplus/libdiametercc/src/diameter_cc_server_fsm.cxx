@@ -121,8 +121,15 @@ private:
                "(%P|%t) Sending Unsuccessful Initial Answer.\n"));
 
       CCA_Data& ccaData = sm.CCA_DATA();
-      ccaData.ResultCode = 4012; //DIAMETER_CREDIT_LIMIT_REACHED
-      sm.SendCCA(); 
+      CCR_Data& ccrData = sm.CCR_DATA();
+      
+      if(sm.InitialAnswer())
+        {
+          ccaData.CCRequestType = ccrData.CCRequestType;
+          ccaData.CCRequestNumber = ccrData.CCRequestNumber;
+          ccaData.ResultCode = 4012; //DIAMETER_CREDIT_LIMIT_REACHED
+          sm.SendCCA(); 
+        }
     }
   };
 
