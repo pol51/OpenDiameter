@@ -167,10 +167,18 @@ void PANA_Session::NotifyScheduleLifetime(pana_unsigned32_t timeout)
 {
     m_Timer.CancelSession();
     if (timeout > 0) {
+        AAA_LOG((LM_INFO, "(%P|%t) Session Timeout Scheduled for [%d] sec - using configured value\n",
+                timeout));
         m_Timer.ScheduleSession(timeout);
     }
     else if (SessionLifetime() > 0) {
+        AAA_LOG((LM_INFO, "(%P|%t) Session Timeout Scheduled for [%d] sec - using negotiated value\n",
+                 SessionLifetime()));
         m_Timer.ScheduleSession(SessionLifetime());
+    }
+    else {
+        AAA_LOG((LM_ERROR, "(%P|%t) Default Session Timeout has invalid value [%d]\n",
+                 SessionLifetime()));
     }
 }
 

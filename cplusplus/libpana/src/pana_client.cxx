@@ -444,6 +444,10 @@ void PANA_Client::RxPARComplete()
         if (sl) {
             SessionLifetime() = ACE_NTOHL(*sl);
         }
+        else {
+            AAA_LOG((LM_INFO, "(%P|%t) Session lifetime is not annouced by the PAA, using default: [%d] sec\n",
+                     SessionLifetime()));
+        }
 
         // extract key id if any
         PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());

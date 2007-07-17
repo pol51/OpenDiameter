@@ -93,6 +93,8 @@ void PANA_CfgManager::open(std::string &cfg_file)
     try {
         parser.Load((char*)cfg_file.c_str());
 
+        validation();
+
         this->dump();
     }
     catch (OD_Utl_XML_SaxException &e) {
