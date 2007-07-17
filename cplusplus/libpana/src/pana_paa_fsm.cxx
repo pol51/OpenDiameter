@@ -158,10 +158,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- - - - - - - - - -
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_INITIAL,
                                PANA_ST_INITIAL);
-#endif
 
     // -------------------
     // State: WAIT_EAP_MSG
@@ -267,10 +265,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_WAIT_EAP_MSG,
                                PANA_ST_WAIT_EAP_MSG);
-#endif
 
     // --------------------
     // State: WAIT_SUCC_PAN
@@ -316,10 +312,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- - - - - - - - - -
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_WAIT_SUCC_PAN,
                                PANA_ST_WAIT_SUCC_PAN);
-#endif
 
     // --------------------
     // State: WAIT_FAIL_PAN
@@ -363,10 +357,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_WAIT_FAIL_PAN,
                                PANA_ST_WAIT_FAIL_PAN);
-#endif
 
     // -----------
     // State: OPEN
@@ -460,10 +452,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_OPEN,
                                PANA_ST_OPEN);
-#endif
 
     // --------------------
     // State: WAIT_PNA_PING
@@ -506,10 +496,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_WAIT_PNA,
                                PANA_ST_WAIT_PNA);
-#endif
 
     // ----------------------
     // State: WAIT_PAN_OR_PAR
@@ -607,10 +595,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- -
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_WAIT_PAN_OR_PAR,
                                PANA_ST_WAIT_PAN_OR_PAR);
-#endif
 
     // ----------------
     // State: SESS_TERM
@@ -653,10 +639,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // - - - - - - - - - - (Catch all processing)- - - - - - - - - -
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_SESS_TERM,
                                PANA_ST_SESS_TERM);
-#endif
 
     // -------------
     // State: CLOSED
@@ -665,10 +649,8 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // ANY                      None();                    CLOSED
     //
-#if !defined(PANA_DEBUG)
     AddWildcardStateTableEntry(PANA_ST_CLOSED,
                                PANA_ST_CLOSED);
-#endif
 
     InitialState(PANA_ST_INITIAL);
 }

@@ -255,7 +255,7 @@ class PeerApplication : public AAA_JobData,
   }
   void Disconnect(ACE_UINT32 cause) {
       eap->Stop();
-}
+  }
   PANA_PacSession &pac() {
       return pacSession;
   }
