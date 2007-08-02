@@ -72,17 +72,18 @@ private:
 class EAP_EXPORTS EapInputIdentityTask : public ACE_Task<ACE_MT_SYNCH>
 {
 public:
-  EapInputIdentityTask() {}
+  EapInputIdentityTask() { thread = 0; stateMachine = 0; }
 
   void Set(EapPeerSwitchStateMachine *sm) { stateMachine = sm; }
 
-  ~EapInputIdentityTask() { ACE_Thread::kill(thread, 2); }
+  ~EapInputIdentityTask() { close(); }
   virtual int open()
   {
     return activate(THR_NEW_LWP);
   }
   virtual int close(unsigned long flags = 0)
   {
+    if (thread != 0) { ACE_Thread::kill(thread, 2); }
     return 0;
   }
   virtual int svc()
@@ -95,7 +96,7 @@ public:
     } while(0);
     return 0;
   }
-  
+
   EapFutureStringResult InputIdentity()
   {
     EapFutureStringResult futureResult;
@@ -103,7 +104,7 @@ public:
       (new InputIdentityMethodRequest(stateMachine, futureResult));
     return futureResult;
   }
-  
+
 private:
   EapPeerSwitchStateMachine *stateMachine;
   ACE_Activation_Queue activationQueue;
@@ -113,7 +114,7 @@ private:
 
 /// A leaf class for peer state machine.  Class creation can be made
 /// only by EapSession class instances.
-class EAP_EXPORTS EapPeerSwitchStateMachine : 
+class EAP_EXPORTS EapPeerSwitchStateMachine :
   public EapSwitchStateMachine,
   public EapStateMachine<EapPeerSwitchStateMachine>
 {
@@ -143,7 +144,7 @@ public:
   virtual void Success()=0;
 
   /// A callback function called when the EAP session completes with
-  /// failure.  
+  /// failure.
   virtual void Failure()=0;
 
   /// A callback function called when Notification message is received.
