@@ -88,29 +88,26 @@ int PANA_IngressMsgParser::Serve()
 
 bool PANA_IngressReceiver::Start()
 {
-    if (! m_Running && (activate() == 0)) {
-        m_Running = true;
-    }
-    else {
+    if (activate() != 0) {
         AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] failed to activate receiver thread %s\n",
                 m_Name.data()));
+        return false;
     }
-    return m_Running;
+    return true;
 }
 
 void PANA_IngressReceiver::Stop()
 {
     m_Socket.close();
-    m_Running = false;
-    // wait for thread to exit
-    AAA_MutexScopeLock guard(m_ExitMutex);
+    if (m_ThreadId != 0) {
+       ACE_Thread::kill(m_ThreadId, 2);
+    }
 }
 
 int PANA_IngressReceiver::Serve()
 {
-    m_Running = true;
+    m_ThreadId = ACE_Thread::self();
     PANA_MessageBuffer *msg_buffer = NULL;
-    AAA_MutexScopeLock guard(m_ExitMutex);
     do {
         try {
             msg_buffer = PANA_MESSAGE_POOL()->malloc();
@@ -123,7 +120,7 @@ int PANA_IngressReceiver::Serve()
                 if (m_MsgHandler == NULL) {
                     AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] handler absent on %s\n",
                             m_Name.data()));
-                    throw (-1);
+                    throw (0);
                 }
 
                 PANA_IngressMsgParser *parser;
@@ -139,13 +136,13 @@ int PANA_IngressReceiver::Serve()
                       delete parser;
                       AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, SCHEDULE] delivery job on %s\n",
                                   m_Name.data()));
-                      throw (-1);
+                      throw (0);
                     }
                 }
                 else {
                     AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, ALLOC] message parser job on %s\n",
                               m_Name.data()));
-                    throw (-1);
+                    throw (0);
                 }
             }
             else if (bytes == 0) {
@@ -155,7 +152,7 @@ int PANA_IngressReceiver::Serve()
                       (errno != ECONNREFUSED)) {
                 AAA_LOG((LM_ERROR, "(%P|%t) Receive channel error on %s : %s\n",
                           m_Name.data(), strerror(errno)));
-                throw (-1);
+                throw (0);
             }
             else {
                 throw (0);
@@ -163,11 +160,8 @@ int PANA_IngressReceiver::Serve()
         }
         catch (int rc) {
             PANA_MESSAGE_POOL()->free(msg_buffer);
-            if (rc < 0) {
-              m_Running = false;
-            }
         }
-    } while (m_Running);
+    } while (true);
     return (0);
 }
 

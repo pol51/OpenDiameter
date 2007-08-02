@@ -111,9 +111,9 @@ class PANA_EXPORT PANA_IngressReceiver :
                            PANA_Socket &so,
                            const char *name = "") :
                            PANA_IngressJob(g, name),
-                           m_Socket(so),
-                           m_Running(false) {
+                           m_Socket(so) {
             m_localAddr.set_port_number(0);
+            m_ThreadId = 0;
       }
       bool Start();
       void Stop();
@@ -127,13 +127,11 @@ class PANA_EXPORT PANA_IngressReceiver :
    protected:
       ACE_INET_Addr m_localAddr;
       PANA_Socket &m_Socket;
-      ACE_Mutex m_ExitMutex;
-      bool m_Running;
+      ACE_thread_t m_ThreadId;
 
    private:
      int svc() {
-        Serve();
-        return (0);
+        return Serve();
      }
 };
 
