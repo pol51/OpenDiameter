@@ -115,7 +115,7 @@ int PANA_IngressReceiver::Serve()
         try {
             msg_buffer = PANA_MESSAGE_POOL()->malloc();
             ACE_INET_Addr srcAddr;
-            ACE_Time_Value tout(2);
+            ACE_Time_Value tout(1);
             ssize_t bytes = m_Socket.recv(msg_buffer->wr_ptr(),
                                           msg_buffer->size(),
                                           srcAddr, 0, &tout);
@@ -155,10 +155,10 @@ int PANA_IngressReceiver::Serve()
                       (errno != ECONNREFUSED)) {
                 AAA_LOG((LM_ERROR, "(%P|%t) Receive channel error on %s : %s\n",
                           m_Name.data(), strerror(errno)));
-                throw (0);
+                throw (-1);
             }
             else {
-                throw (-1);
+                throw (0);
             }
         }
         catch (int rc) {
