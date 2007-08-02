@@ -115,9 +115,10 @@ int PANA_IngressReceiver::Serve()
         try {
             msg_buffer = PANA_MESSAGE_POOL()->malloc();
             ACE_INET_Addr srcAddr;
+            ACE_Time_Value tout(2);
             ssize_t bytes = m_Socket.recv(msg_buffer->wr_ptr(),
                                           msg_buffer->size(),
-                                          srcAddr, 0, 0);
+                                          srcAddr, 0, &tout);
             if (bytes > 0) {
                 if (m_MsgHandler == NULL) {
                     AAA_LOG((LM_ERROR, "(%P|%t) [INGRESS, RECV] handler absent on %s\n",

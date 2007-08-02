@@ -175,10 +175,6 @@ class PANA_EXPORT PANA_StateMachine :
       virtual void Stop() {
          AAA_StateMachineWithTimer<ARG>::Stop();
          AAA_StateMachineWithTimer<ARG>::CancelAllTimer();
-         while (m_GroupedJob.Job().BacklogSize()) {
-             ACE_Time_Value tv(0, 100);
-             ACE_OS::sleep(tv);
-         }
          m_GroupedJob.Job().Flush();
       }
       virtual void Abort() {
