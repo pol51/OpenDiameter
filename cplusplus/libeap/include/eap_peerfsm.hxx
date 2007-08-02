@@ -76,14 +76,13 @@ public:
 
   void Set(EapPeerSwitchStateMachine *sm) { stateMachine = sm; }
 
-  ~EapInputIdentityTask() { close(); }
+  ~EapInputIdentityTask() { if (thread != 0) ACE_Thread::kill(thread, 2); }
   virtual int open()
   {
     return activate(THR_NEW_LWP);
   }
   virtual int close(unsigned long flags = 0)
   {
-    if (thread != 0) { ACE_Thread::kill(thread, 2); }
     return 0;
   }
   virtual int svc()
