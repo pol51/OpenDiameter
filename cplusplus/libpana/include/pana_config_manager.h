@@ -62,6 +62,7 @@ typedef struct {
 typedef struct {
     ACE_UINT32 m_OptimizedHandshake;
     ACE_UINT32 m_CarryLifetime;
+    ACE_UINT32 m_IpReconfig;
 } PANA_CfgAgent;
 
 // General configuration

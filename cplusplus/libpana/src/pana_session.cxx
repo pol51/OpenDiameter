@@ -600,4 +600,5 @@ void PANA_SessionAttribute::Reset()
    m_LastTxSeqNum = ACE_OS::rand();
    m_LastRxSeqNum = 0;
    m_SessionLifetime = PANA_CFG_GENERAL().m_SessionLifetime;
+   m_IpReconfiguration = false;
 }

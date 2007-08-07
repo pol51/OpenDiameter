@@ -30,3 +30,4 @@
 
      <!ELEMENT optimized_handshake (#PCDATA)>
      <!ELEMENT carry_lifetime (#PCDATA)>
+     <!ELEMENT ip_reconfiguration (#PCDATA)>

@@ -92,6 +92,10 @@ class PANA_AuthScriptCtl
          if (args.m_Lifetime.IsSet()) {
             printf("Lifetime: %d\n", args.m_Lifetime());
          }
+
+         if (args.m_IpReconfiguration.IsSet()) {
+            printf("IP Reconfiguration: %s\n", args.m_IpReconfiguration() ? "set" : "unset");
+         }
       }
 
    protected:

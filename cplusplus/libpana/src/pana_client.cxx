@@ -69,6 +69,7 @@ void PANA_Client::NotifyAuthorization()
 
     args.m_PacAddress.Set(PacAddress());
     args.m_PaaAddress.Set(PaaAddress());
+    args.m_IpReconfiguration = IpReconfiguration();
 
     if (SecurityAssociation().MSK().IsSet()) {
         args.m_Key.Set(SecurityAssociation().MSK().Get());
@@ -433,6 +434,9 @@ void PANA_Client::RxPARComplete()
                "No Result-Code AVP in PNR message"));
     }
     pana_unsigned32_t rcode = *pRcode;
+
+    // set ip reconfiguration variable if any
+    IpReconfiguration() = (msg.flags().ipreconfig) ? true : false;
 
     // extract eap
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());

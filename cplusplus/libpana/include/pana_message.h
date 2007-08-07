@@ -228,7 +228,17 @@ class PANA_AvpHeader
          Notification-Answer for liveness test.  For other messages this
          bit MUST be cleared.
 
-      r (reserved)
+      I (IP Reconfiguration)
+
+        If set, it indicates that the PaC is required to perform IP
+        address reconfiguration after successful authentication and
+        authorization phase to configure an IP address that is usable
+        for exchanging data traffic across EP. This bit is set by the
+        PAA and only for PANA-Auth-Request messages in the
+        authentication and authorization phase. For other messages,
+        this bit MUST be cleared .
+
+   r (reserved)
 
          These flag bits are reserved for future use, and MUST be set to
          zero, and ignored by the receiver.
@@ -262,7 +272,8 @@ class PANA_MsgHeader
           ACE_UINT16 complete  : 1;  // Complete flag
           ACE_UINT16 auth      : 1;  // Re-Authentication flag
           ACE_UINT16 ping      : 1;  // Ping flag
-          ACE_UINT16 reserved  : 11; // reserved
+          ACE_UINT16 ipreconfig: 1;  // IP Reconfiguration flag
+          ACE_UINT16 reserved  : 10; // reserved
        } Flags;
 
        // Default header length definition

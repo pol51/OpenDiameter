@@ -116,6 +116,9 @@ class PANA_SessionAttribute {
        PANA_MsgHeader &LastRxHeader() {
            return m_LastRxHeader;
        }
+       bool &IpReconfiguration() {
+           return m_IpReconfiguration;
+       }
        virtual void Reset();
 
     private:
@@ -128,6 +131,7 @@ class PANA_SessionAttribute {
        boost::shared_ptr<PANA_Message> m_CachedAnsMsg; // cached message
        ACE_UINT32 m_SessionLifetime; // session lifetime
        PANA_MsgHeader m_LastRxHeader; // Header of the last received message
+       bool m_IpReconfiguration;
 };
 
 typedef enum {
@@ -261,6 +265,7 @@ class PANA_EXPORT PANA_SessionEventInterface
          AAAScholarAttribute<pana_octetstring_t> m_Key;
          AAAScholarAttribute<ACE_UINT32> m_KeyId;
          AAAScholarAttribute<ACE_UINT32> m_Lifetime;
+         AAAScholarAttribute<bool> m_IpReconfiguration;
       } PANA_AuthorizationArgs;
 
    public:

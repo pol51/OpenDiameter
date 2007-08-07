@@ -89,6 +89,8 @@ void PANA_CfgManager::open(std::string &cfg_file)
                                    "optimized_handshake", parser);
     OD_Utl_XML_UInt32Element paa02(m_Data.m_Paa.m_CarryLifetime,
                                    "carry_lifetime", parser);
+    OD_Utl_XML_UInt32Element paa03(m_Data.m_Paa.m_IpReconfig,
+                                   "ip_reconfiguration", parser);
 
     try {
         parser.Load((char*)cfg_file.c_str());
@@ -131,5 +133,6 @@ void PANA_CfgManager::dump()
         AAA_LOG((LM_INFO, "        PAA configuration\n"));
         AAA_LOG((LM_INFO, "      Optimized Handshake : %d\n", m_Data.m_Paa.m_OptimizedHandshake));
         AAA_LOG((LM_INFO, "           Carry Lifetime : %d\n", m_Data.m_Paa.m_CarryLifetime));
+        AAA_LOG((LM_INFO, "       IP Reconfiguration : %d\n", m_Data.m_Paa.m_IpReconfig));
     }
 }

@@ -57,15 +57,19 @@ PANA_Paa::PANA_Paa(PANA_SessionTxInterface &tp,
 
     // generate a new session id
     ACE_Time_Value tv = ACE_OS::gettimeofday();
-    this->SessionId() = tv.sec() + tv.usec();
+    SessionId() = tv.sec() + tv.usec();
+
+    // use config file to set IP reconfiguration parameter
+    IpReconfiguration() = (PANA_CFG_PAA().m_IpReconfig) ? true : false;
 }
 
 void PANA_Paa::NotifyAuthorization()
 {
     PANA_SessionEventInterface::PANA_AuthorizationArgs args;
 
-    args.m_PacAddress = this->PacAddress();
-    args.m_PaaAddress = this->PaaAddress();
+    args.m_PacAddress = PacAddress();
+    args.m_PaaAddress = PaaAddress();
+    args.m_IpReconfiguration = IpReconfiguration();
 
     if (SecurityAssociation().MSK().IsSet()) {
         args.m_Key.Set(SecurityAssociation().MSK().Get());
@@ -315,6 +319,10 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
                 PANA_UInt32AvpWidget lifetimeAvp(PANA_AVPNAME_SESSIONLIFETIME);
                 lifetimeAvp.Get() = SessionLifetime();
                 msg->avpList().add(lifetimeAvp());
+            }
+            if (IpReconfiguration()) {
+                // Set the IP reconfiguration flag if needed
+                msg->flags().ipreconfig = true;
             }
         }
 

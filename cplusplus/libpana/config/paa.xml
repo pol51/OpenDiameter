@@ -60,6 +60,12 @@
              defined previously will be sent to the PaC -->
         <carry_lifetime>1</carry_lifetime>
 
+        <!-- This tells the PAA to set the IP reconfiguration
+             flag in the PAR to let the PaC know that it
+             should re-configure its IP address after
+             successful authentication -->
+        <ip_reconfiguration>1</ip_reconfiguration>
+
     </agent>
 
 </pana_configuration>
