@@ -95,23 +95,6 @@
             header.  When set the AVP Code belongs to the specific vendor
             code address space.
 
-        M(andatory)
-
-            The 'M' Bit, known as the Mandatory bit, indicates whether
-            support of the AVP is required.  If an AVP with the 'M' bit set
-            is received by the PaC or PAA and either the AVP or its value
-            is unrecognized, the message MUST be rejected and the receiver
-            MUST send a PANA-Error-Request message.  If the AVP was
-            unrecognized the PANA-Error-Request message result code MUST be
-            PANA_AVP_UNSUPPORTED.  If the AVP value was unrecognized the
-            PANA-Error-Request message result code MUST be
-            PANA_INVALID_AVP_DATA.  In either case the PANA-Error-Request
-            message MUST carry a Failed-AVP AVP containing the offending
-            mandatory AVP.  AVPs with the 'M' bit cleared are informational
-            only and a receiver that receives a message with such an AVP
-            that is not recognized, or whose value is not recognized, MAY
-            simply ignore the AVP.
-
         r(eserved)
 
             These flag bits are reserved for future use, and MUST be set to
@@ -154,7 +137,6 @@ class PANA_AvpHeader
     public:
         typedef struct {
             ACE_UINT16    vendor;        // Vendor flag
-            ACE_UINT16    mandatory;     // Mandatory flag
             ACE_UINT16    reserved;      // reserved
         } Flags;
 
@@ -186,7 +168,7 @@ class PANA_AvpHeader
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    |   Reserved    |        Message Length         |
+   |        Reserved               |        Message Length         |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |             Flags             |         Message Type          |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -196,10 +178,6 @@ class PANA_AvpHeader
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |  AVPs ...
    +-+-+-+-+-+-+-+-+-+-+-+-+-
-
-   Version
-
-      This Version field MUST be set to 1 to indicate PANA Version 1.
 
    Reserved
 
@@ -294,7 +272,6 @@ class PANA_MsgHeader
 
     public:
        PANA_MsgHeader() {
-           m_Version = PANA_VERSION;
            m_Length  = 0;
            m_Type    = 0;
            m_SessionId = 0;
@@ -302,9 +279,6 @@ class PANA_MsgHeader
            ACE_OS::memset(&m_Flags, 0, sizeof(PANA_MsgHeader::Flags));
        }
        virtual ~PANA_MsgHeader() {
-       }
-       inline UCHAR &version() {
-           return m_Version;
        }
        inline ACE_UINT16 &length() {
            return m_Length;
@@ -324,7 +298,6 @@ class PANA_MsgHeader
 
     protected:
        // flat header members
-       UCHAR m_Version;
        ACE_UINT16 m_Length;
        PANA_MsgHeader::Flags m_Flags;
        ACE_UINT16 m_Type;

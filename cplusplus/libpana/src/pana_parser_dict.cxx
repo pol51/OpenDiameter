@@ -51,9 +51,9 @@ typedef std::list<PANAXML_Element*> PANAXML_ElementStack;
 class PANAXML_Element
 {
   public:
-     PANAXML_Element(char *name, 
+     PANAXML_Element(char *name,
                     PANAXML_ElementStack &stack) :
-        m_inProcess(false), 
+        m_inProcess(false),
         m_isSkipped(false),
         m_name(name),
         m_callStack(stack),
@@ -163,7 +163,7 @@ class PANAXML_CommandElement :
                             m_name.c_str(), m_code));
         }
         else {
-            AAA_LOG((LM_ERROR, 
+            AAA_LOG((LM_ERROR,
                "Command code does not have attributes !!!\n"));
             throw;
         }
@@ -225,7 +225,7 @@ class PANAXML_RequestRulesElement :
      PANA_Command *Cmd() {
         return m_command;
      }
- 
+
   private:
      PANA_Command *m_command;
 };
@@ -312,7 +312,7 @@ class PANAXML_AvpElement :
         }
         if (alist != 0) {
             int code = 0, vendorId = 0;
-            std::string name, mandatory;
+            std::string name;
 
             for (size_t i = 0; i < alist->getLength (); ++i) {
                if (! ACE_OS::strcmp(alist->getQName(i), "name")) {
@@ -320,9 +320,6 @@ class PANAXML_AvpElement :
                }
                else if (! ACE_OS::strcmp(alist->getQName(i), "code")) {
                    code = ACE_OS::atoi(alist->getValue(i));
-               }
-               else if (! ACE_OS::strcmp(alist->getQName(i), "mandatory")) {
-                   mandatory = alist->getValue(i);
                }
                else if (! ACE_OS::strcmp(alist->getQName(i), "vendor-id")) {
                    vendorId = ACE_OS::atoi(alist->getValue(i));
@@ -336,10 +333,6 @@ class PANAXML_AvpElement :
                                            PANA_AVP_FLAG_NONE);
             m_avp->flags = PANA_AVP_FLAG_NONE;
             m_avp->flags |=
-                (((mandatory == std::string("may")) ||
-                  (mandatory == std::string("must"))) ?
-                  PANA_AVP_FLAG_MANDATORY : 0);
-            m_avp->flags |=
                 ((vendorId == 0) ? 0 : PANA_AVP_FLAG_VENDOR_SPECIFIC);
             if (m_avp->avpCode != 0)  { // Do not add "AVP" AVP
                 PANA_AvpList::instance()->add(m_avp);
@@ -349,7 +342,7 @@ class PANAXML_AvpElement :
                 m_avp = NULL;
             }
 #if PANA_PARSER_DEBUG
-            AAA_LOG((LM_DEBUG, " Avp [name = %s, code = %d]\n", 
+            AAA_LOG((LM_DEBUG, " Avp [name = %s, code = %d]\n",
                        name.c_str(), code));
 #endif
         }
@@ -480,7 +473,7 @@ class PANAXML_PositionElement :
 #endif
         }
         else if (Parent()->Name() == std::string("answerrules")) {
-            PANAXML_AnswerRulesElement *ansrElm = 
+            PANAXML_AnswerRulesElement *ansrElm =
                 (PANAXML_AnswerRulesElement*)(Parent());
             m_qAvpList = ResolveAvpList(ansrElm->Cmd(), Name());
 #if PANA_PARSER_DEBUG
@@ -616,7 +609,7 @@ class PANAXML_AvpRuleElement :
   make sure it's <avp> definition comes before \n\
   the <grouped> definition using it. If it is\n\
   not in a group, make sure it spelled properly\n\
-  and there are no white-spaces.\n", 
+  and there are no white-spaces.\n",
             avpName.c_str(), avpName.c_str()));
             throw;
         }
@@ -711,7 +704,7 @@ class PANAXML_ParsingTables
      virtual ~PANAXML_ParsingTables() {
         for (int x = 0; x < NUM_PARSING_PASSES; x ++) {
             PANAXML_ElementMap::iterator i;
-            for (i = m_elementMaps[x].begin(); 
+            for (i = m_elementMaps[x].begin();
                  i != m_elementMaps[x].end(); i++) {
                 delete i->second;
             }
@@ -756,16 +749,16 @@ class PANAXML_ParsingTables
      PANAXML_Element *m_currentElement;
      PANAXML_ElementMap m_elementMaps[NUM_PARSING_PASSES]; // Maps for each pass
      PANAXML_ElementStack m_callStack;
-}; 
+};
 
-class PANAXML_SAXHandler : 
+class PANAXML_SAXHandler :
     public ACEXML_DefaultHandler
 {
   public:
      PANAXML_SAXHandler (const ACEXML_Char* name) :
         m_errorCount(0),
         m_fatalError(false),
-        m_fileName(ACE::strnew (name)), 
+        m_fileName(ACE::strnew (name)),
         m_locator(NULL) {
      }
      virtual ~PANAXML_SAXHandler (void) {
@@ -791,7 +784,7 @@ class PANAXML_SAXHandler :
      }
      virtual void endPrefixMapping (const ACEXML_Char *prefix ACEXML_ENV_ARG_DECL)
          ACE_THROW_SPEC ((ACEXML_SAXException)) {
-     }  
+     }
      virtual void ignorableWhitespace (const ACEXML_Char *ch,
                                        int start,
                                        int length ACEXML_ENV_ARG_DECL)
@@ -815,7 +808,7 @@ class PANAXML_SAXHandler :
                                 const ACEXML_Char *localName,
                                 const ACEXML_Char *qName,
                                 ACEXML_Attributes *atts ACEXML_ENV_ARG_DECL)
-         ACE_THROW_SPEC ((ACEXML_SAXException)) { 
+         ACE_THROW_SPEC ((ACEXML_SAXException)) {
          m_parsingTables.startElement(namespaceURI, localName, qName, atts);
      }
      virtual void startPrefixMapping (const ACEXML_Char *prefix,
@@ -892,20 +885,20 @@ void PANA_LoadXMLDictionary(char* xmlFile)
    ACEXML_FileCharStream *fstm = NULL;
    try {
        if (xmlFile == NULL) {
-           AAA_LOG((LM_ERROR, 
+           AAA_LOG((LM_ERROR,
                       "No dictionary file specified\n"));
            throw;
        }
 
        fstm = new ACEXML_FileCharStream;
        if (fstm == NULL) {
-           AAA_LOG((LM_ERROR, 
+           AAA_LOG((LM_ERROR,
                       "Allocation failure\n"));
            throw;
        }
-   
+
        if (fstm->open (xmlFile) != 0) {
-           AAA_LOG((LM_ERROR, 
+           AAA_LOG((LM_ERROR,
                       "Failed to open XML file: %s\n", xmlFile));
            throw;
        }
@@ -913,7 +906,7 @@ void PANA_LoadXMLDictionary(char* xmlFile)
        auto_ptr<ACEXML_DefaultHandler> handler
            (new PANAXML_SAXHandler(xmlFile));
        if (handler.get() == NULL) {
-           AAA_LOG((LM_ERROR, 
+           AAA_LOG((LM_ERROR,
                       "Allocation failure\n"));
            throw;
       }
@@ -927,7 +920,7 @@ void PANA_LoadXMLDictionary(char* xmlFile)
       parser.setEntityResolver (handler.get());
 
       try {
-          for (int passes = 0; 
+          for (int passes = 0;
               passes < PANAXML_ParsingTables::NUM_PARSING_PASSES;
               passes ++) {
               parser.parse (&input ACEXML_ENV_ARG_NOT_USED);

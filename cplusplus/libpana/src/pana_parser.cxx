@@ -56,14 +56,6 @@ static PANA_AvpValueParser* PANA_CreateAvpValueParser(AAAAvpDataType type)// thr
 
 static int PANA_CheckFlags(PANA_AvpHeader::Flags flag, AAAAVPFlag flags)
 {
-    if (flag.mandatory == 0 && (flags & PANA_AVP_FLAG_MANDATORY)) {
-        AAA_LOG((LM_ERROR, "M-flag must be set\n"));
-        return -1;
-    }
-    if (flag.mandatory == 1 && (flags & PANA_AVP_FLAG_MANDATORY) == 0) {
-        AAA_LOG((LM_ERROR, "M-flag must not be set\n"));
-        return -1;
-    }
     if (flag.vendor == 0 && (flags & PANA_AVP_FLAG_VENDOR_SPECIFIC)) {
         AAA_LOG((LM_ERROR, "V-flag needs to be set\n"));
         return -1;
@@ -97,7 +89,6 @@ void PANA_AvpHeaderList::create(PANA_MessageBuffer *aBuffer)
         char *p = cavp;
         h.m_Code = ACE_NTOHS(*((ACE_UINT16*)p)); p += 2;
         h.m_Flags.vendor = (ACE_NTOHS(*((ACE_UINT16*)p)) & PANA_AVP_FLAG_VENDOR_SPECIFIC) ? 1 : 0;
-        h.m_Flags.mandatory = (ACE_NTOHS(*((ACE_UINT16*)p)) & PANA_AVP_FLAG_MANDATORY) ? 1 : 0;
         p += 2;
 
         h.m_Length = ACE_NTOHS(*((ACE_UINT16*)p)); p += 4;
@@ -125,8 +116,7 @@ template<> void PANA_HeaderParser::parseRawToApp()
 
     char *p = aBuffer->rd_ptr();
 
-    // version
-    h->version() = AAAUInt8(*((AAAUInt8*)(p)));
+    // reserved
     p += sizeof(ACE_UINT16);
 
     // length
@@ -186,9 +176,8 @@ template<> void PANA_HeaderParser::parseAppToRaw()
 
     char *p = aBuffer->base();
 
-    // version
+    // reserved
     *((ACE_UINT16*)(p)) = 0;
-    *((AAAUInt8*)(p)) = h->version();
     p += sizeof(ACE_UINT16);
 
     // length
@@ -507,7 +496,6 @@ template<> void PANA_AvpParser::parseAppToRaw()// throw(DiameterErrorCode)
         ACE_OS::memset(&h, 0, sizeof(h));
         h.m_Code = avp->avpCode;
         h.m_Flags.vendor = (avp->flags & PANA_AVP_FLAG_VENDOR_SPECIFIC) ? 1 : 0;
-        h.m_Flags.mandatory = (avp->flags & PANA_AVP_FLAG_MANDATORY) ? 1 : 0;
         h.m_Vendor = avp->vendorId;
 
         PANA_AvpHeaderParser hp;
@@ -621,9 +609,6 @@ void PANA_AvpHeaderParser::parseAppToRaw()
     *((ACE_UINT16*)p) = 0;
     if (h->m_Flags.vendor) {
         flags |=PANA_AVP_FLAG_VENDOR_SPECIFIC;
-    }
-    if (h->m_Flags.mandatory) {
-        flags |=PANA_AVP_FLAG_MANDATORY;
     }
     *((ACE_UINT16*)p) = ACE_NTOHS(flags);
     p+=2;

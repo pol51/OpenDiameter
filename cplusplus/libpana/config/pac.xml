@@ -12,7 +12,7 @@
         <listen_port>3002</listen_port>
 
         <!-- Filename of the parser dictionary -->
-        <dictionary_filename>config/dictionary.xml</dictionary_filename>
+        <dictionary_filename>/home/victorf/work/sf/svn/cplusplus/libpana/config/dictionary.xml</dictionary_filename>
 
         <!-- Configurable retransmission parameters
              as specified in the PANA draft. See
@@ -53,7 +53,7 @@
              Note that the library automatically detects whether
              your are going to use IPv6 or IPv4 based on
              this address -->
-        <paa_ip_address>localhost</paa_ip_address>
+        <paa_ip_address>207.3.232.155</paa_ip_address>
 
         <!-- PAA port number used in conjuction with paa_ip_address -->
         <paa_port_number>3001</paa_port_number>

@@ -45,7 +45,6 @@
 
 // Global macro defining the current version
 // of this implementation.
-#define PANA_VERSION     0x1
 #define PANA_FLAG_SET    0x1
 #define PANA_FLAG_CLR    0x0
 
@@ -162,7 +161,6 @@ typedef ACE_UINT16        PANA_AvpFlag;
 //
 typedef enum {
     PANA_AVP_FLAG_NONE                 =   0x0,
-    PANA_AVP_FLAG_MANDATORY            =   0x4000,
     PANA_AVP_FLAG_VENDOR_SPECIFIC      =   0x8000,
     PANA_AVP_FLAG_RESERVED             =   0x0000,
 } PANA_AvpFlagEnum;
