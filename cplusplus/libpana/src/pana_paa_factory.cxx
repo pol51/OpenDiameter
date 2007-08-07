@@ -222,6 +222,20 @@ void PANA_PaaSessionFactory::StatelessRxPANStart(PANA_Message &msg)
                              "PSA has a zero session identifier"));
    }
 
+   PANA_UInt32AvpContainerWidget integrityAlgoAvp(msg.avpList());
+   pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+   if (integrityAlgo == NULL) {
+       throw (PANA_Exception(PANA_Exception::MISSING_ALORITHM,
+              "No Integrity Algorithm present"));
+   }
+
+   PANA_UInt32AvpContainerWidget prfAlgoAvp(msg.avpList());
+   pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO);
+   if (prfAlgo == NULL) {
+       throw (PANA_Exception(PANA_Exception::MISSING_ALORITHM,
+              "No PRF Algorithm present"));
+   }
+
    PANA_PaaSession *session = Create();
    if (session == NULL) {
        throw (PANA_Exception(PANA_Exception::NO_MEMORY,

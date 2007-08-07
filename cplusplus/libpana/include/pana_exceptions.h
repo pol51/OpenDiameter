@@ -67,7 +67,8 @@ class PANA_Exception
          ENTRY_NOT_FOUND,
          CONFIG_ERROR,
          INVALID_MESSAGE,
-         MISSING_EAP_PAYLOAD
+         MISSING_EAP_PAYLOAD,
+         MISSING_ALORITHM,
       } CODE;
 
    public:
@@ -77,7 +78,7 @@ class PANA_Exception
        * \param code Default  code
        * \param description Sting description of the error code
        */
-       PANA_Exception(CODE code, std::string &description) : 
+       PANA_Exception(CODE code, std::string &description) :
                       code_(code),
                       description_(description) { }
 

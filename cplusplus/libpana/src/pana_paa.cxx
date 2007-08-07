@@ -201,6 +201,20 @@ void PANA_Paa::RxPANStart()
     AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Start: id=%u seq=%u\n",
             msg.sessionId(), msg.seq()));
 
+    PANA_UInt32AvpContainerWidget integrityAlgoAvp(msg.avpList());
+    pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+    if (integrityAlgo == NULL) {
+        throw (PANA_Exception(PANA_Exception::MISSING_ALORITHM,
+               "No Integrity Algorithm present"));
+    }
+
+    PANA_UInt32AvpContainerWidget prfAlgoAvp(msg.avpList());
+    pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO);
+    if (prfAlgo == NULL) {
+        throw (PANA_Exception(PANA_Exception::MISSING_ALORITHM,
+               "No PRF Algorithm present"));
+    }
+
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
     pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
     if (payload) {

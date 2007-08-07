@@ -176,6 +176,16 @@ void PANA_Client::TxPANStart(bool eapOptimization)
         msg->avpList().add(eapAvp());
     }
 
+    // add integrity algorithm
+    PANA_UInt32AvpWidget integrityAlgoAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+    integrityAlgoAvp.Get() = PANA_AUTH_HMAC_SHA1_160;
+    msg->avpList().add(integrityAlgoAvp());
+
+    // add prf algorithm
+    PANA_UInt32AvpWidget prfAlgoAvp(PANA_AVPNAME_PRF_ALGO);
+    prfAlgoAvp.Get() = PANA_PRF_HMAC_SHA1;
+    msg->avpList().add(prfAlgoAvp());
+
     AAA_LOG((LM_INFO, "(%P|%t) TxPAN-Start: id=%u seq=%u\n",
             msg->sessionId(), msg->seq()));
 
