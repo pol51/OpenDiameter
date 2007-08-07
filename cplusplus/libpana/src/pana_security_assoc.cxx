@@ -133,9 +133,9 @@ void PANA_SecurityAssociation::GenerateAuthAvpValue
     //
     //   where PANA_PDU is the PANA message including the PANA header, with
     //   the AUTH AVP value field first initialized to 0.
-    //    
+    //
     OD_Utl_Sha1 sha1;
-    sha1.Update((unsigned char*)m_AuthKey.Get().data(), 
+    sha1.Update((unsigned char*)m_AuthKey.Get().data(),
                  m_AuthKey.Get().size());
     sha1.Update((unsigned char*)PDU, PDULength);
     sha1.Final();
@@ -153,7 +153,7 @@ void PANA_SecurityAssociation::GenerateAuthAvpValue
         printf("%02X ", (unsigned char)((char*)m_AuthKey.Get().data())[i]);
     }
     printf("\n");
-    
+
     printf("Generate - PDU [%d]: ", PDULength);
     for (size_t i=0; i<PDULength; i++) {
         printf("%02X ", (unsigned char)PDU[i]);
@@ -171,7 +171,7 @@ void PANA_SecurityAssociation::GenerateAuthAvpValue
 bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
 {
     PANA_UInt32AvpWidget keyIdAvp(PANA_AVPNAME_KEYID);
-    keyIdAvp.Get() = ACE_HTONL(m_MSK.Id());
+    keyIdAvp.Get() = m_MSK.Id();
     msg.avpList().add(keyIdAvp());
     return (true);
 }
@@ -209,7 +209,7 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
     hp.parseAppToRaw();
 
     // generate auth value
-    GenerateAuthAvpValue(rawBuf->base(), 
+    GenerateAuthAvpValue(rawBuf->base(),
                          msg.length(),
                          auth);
     PANA_MESSAGE_POOL()->free(rawBuf);
@@ -224,7 +224,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         PANA_StringAvpContainerWidget authAvp(msg.avpList());
         pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
         if (auth == NULL) {
-            throw (PANA_Exception(PANA_Exception::FAILED, 
+            throw (PANA_Exception(PANA_Exception::FAILED,
                                   "Missing AUTH-AVP"));
         }
 
@@ -248,7 +248,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         PANA_MessageBuffer *aBuffer = PANA_MESSAGE_POOL()->malloc();
         msg.avpList().reset();
 
-        // parse the message 
+        // parse the message
         PANA_HeaderParser hp;
         hp.setRawData(aBuffer);
         hp.setAppData(&msg);
@@ -267,9 +267,9 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
         msg.length() = aBuffer->wr_ptr() - aBuffer->base();
         hp.parseAppToRaw();
 
-        GenerateAuthAvpValue(aBuffer->base(), 
+        GenerateAuthAvpValue(aBuffer->base(),
                              msg.length(),
-                             *auth);        
+                             *auth);
         PANA_MESSAGE_POOL()->free(aBuffer);
 
 #if PANA_SA_DEBUG
@@ -278,7 +278,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
             printf("%02X ", (unsigned char)((char*)m_AuthKey.Get().data())[i]);
         }
         printf("\n");
-        
+
         printf("Validate - PDU [%d]: ", aBuffer->length());
         for (size_t i=0; i<aBuffer->length(); i++) {
             printf("%02X ", (unsigned char)((char*)aBuffer->base())[i]);
@@ -300,7 +300,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
     }
     catch (AAAErrorCode &st) {
         AAA_LOG((LM_ERROR, "(%P|%t) Parsing error is session transmitter\n"));
-    }  
+    }
     catch (PANA_Exception &e) {
         AAA_LOG((LM_ERROR, "(%P|%t) %s\n", e.description().data()));
     }

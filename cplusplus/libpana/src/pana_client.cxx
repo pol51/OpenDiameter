@@ -432,7 +432,7 @@ void PANA_Client::RxPARComplete()
         throw (PANA_Exception(PANA_Exception::FAILED,
                "No Result-Code AVP in PNR message"));
     }
-    pana_unsigned32_t rcode = ACE_NTOHL(*pRcode);
+    pana_unsigned32_t rcode = *pRcode;
 
     // extract eap
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
@@ -442,7 +442,7 @@ void PANA_Client::RxPARComplete()
         PANA_UInt32AvpContainerWidget slAvp(msg.avpList());
         pana_unsigned32_t *sl = slAvp.GetAvp(PANA_AVPNAME_SESSIONLIFETIME);
         if (sl) {
-            SessionLifetime() = ACE_NTOHL(*sl);
+            SessionLifetime() = *sl;
         }
         else {
             AAA_LOG((LM_INFO, "(%P|%t) Session lifetime is not annouced by the PAA, using default: [%d] sec\n",
@@ -453,7 +453,7 @@ void PANA_Client::RxPARComplete()
         PANA_UInt32AvpContainerWidget keyIdAvp(msg.avpList());
         pana_unsigned32_t *pKeyId = rcodeAvp.GetAvp(PANA_AVPNAME_KEYID);
         if (pKeyId) {
-            SecurityAssociation().MSK().Id() = ACE_NTOHL(*pKeyId);
+            SecurityAssociation().MSK().Id() = *pKeyId;
         }
 
         NotifyEapRequest(*payload);

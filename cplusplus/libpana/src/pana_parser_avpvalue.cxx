@@ -47,7 +47,6 @@ static PANA_AvpValueParserCreator<PANA_Integer64Parser>     integer64ParserCreat
 static PANA_AvpValueParserCreator<PANA_Utf8stringParser>    utf8stringParserCreator;
 static PANA_AvpValueParserCreator<PANA_OctetstringParser>   octetstringParserCreator;
 static PANA_AvpValueParserCreator<PANA_GroupedParser>       groupedParserCreator;
-static PANA_AvpValueParserCreator<PANA_AddressParser>       addressParserCreator;
 
 /// Container entry creators.
 static AAAAvpContainerEntryCreator<PANA_StringAvpContainerEntry>
@@ -102,9 +101,6 @@ void PANA_AvpTypeList_S::DefaultTypes()
 
   add(new PANA_AvpType("Grouped", AAA_AVP_GROUPED_TYPE, 0,
                     groupedParserCreator, groupedContainerEntryCreator));
-
-  add(new PANA_AvpType("Address", AAA_AVP_ADDRESS_TYPE, 0,
-                    addressParserCreator, addressContainerEntryCreator));
 }
 
 PANA_AvpTypeList_S::~PANA_AvpTypeList_S(void)

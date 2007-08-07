@@ -754,7 +754,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           // verify algorithm if present and supported
           PANA_UInt32AvpContainerWidget algoAvp(msg.avpList());
           pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
-          if (algo && (ACE_NTOHL(*algo) != PANA_AUTH_ALGORITHM())) {
+          if (algo && (*algo != PANA_AUTH_ALGORITHM())) {
               AAA_LOG((LM_INFO, "(%P|%t) Supplied algorithm [0x%x] is not supported, session will close\n",
                       *algo));
               throw (PANA_Exception(PANA_Exception::FAILED,
@@ -815,7 +815,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           }
           PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
           pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
-          if (rcode && (ACE_NTOHL(*rcode) == PANA_RCODE_SUCCESS)) {
+          if (rcode && (*rcode == PANA_RCODE_SUCCESS)) {
               ev.ResultCode(PANA_RESULT_CODE_SUCCESS);
           }
           else {

@@ -346,7 +346,7 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
 
     // termination cause
     PANA_UInt32AvpWidget causeAvp(PANA_AVPNAME_TERMCAUSE);
-    causeAvp.Get() = ACE_HTONL(cause);
+    causeAvp.Get() = cause;
     msg->avpList().add(causeAvp());
 
     // auth avp if any
@@ -389,7 +389,7 @@ void PANA_Session::RxPTR()
     PANA_UInt32AvpContainerWidget causeAvp(msg.avpList());
     pana_unsigned32_t *cause = causeAvp.GetAvp(PANA_AVPNAME_TERMCAUSE);
     if (cause) {
-        Disconnect(ACE_NTOHL(*cause));
+        Disconnect(*cause);
     }
     else {
         Disconnect(PANA_TERMCAUSE_ADMINISTRATIVE);

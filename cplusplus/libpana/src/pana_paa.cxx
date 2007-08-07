@@ -296,7 +296,7 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
 
     // add result-code
     PANA_UInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
-    rcodeAvp.Get() = ACE_HTONL(rcode);
+    rcodeAvp.Get() = rcode;
     msg->avpList().add(rcodeAvp());
 
     PANA_MsgBlockGuard eapPkt(AuxVariables().TxEapMessageQueue().Dequeue());
@@ -313,7 +313,7 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
             if ((SessionLifetime() > 0) && PANA_CFG_PAA().m_CarryLifetime) {
                 // add session lifetime
                 PANA_UInt32AvpWidget lifetimeAvp(PANA_AVPNAME_SESSIONLIFETIME);
-                lifetimeAvp.Get() = ACE_HTONL(SessionLifetime());
+                lifetimeAvp.Get() = SessionLifetime();
                 msg->avpList().add(lifetimeAvp());
             }
         }
@@ -326,7 +326,7 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
                 // add algorithm
                 // TBD: need to make sure algo value is ok
                 PANA_UInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
-                algoAvp.Get() = ACE_HTONL(PANA_AUTH_ALGORITHM());
+                algoAvp.Get() = PANA_AUTH_ALGORITHM();
                 msg->avpList().add(algoAvp());
                 AuxVariables().AlgorithmIsSet() = true;
             }

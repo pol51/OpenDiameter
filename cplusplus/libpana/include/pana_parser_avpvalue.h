@@ -98,7 +98,7 @@ class PANA_AnyParser :
                        AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
             }
-            if ((aBuffer->size() + (size_t)aBuffer->base() - 
+            if ((aBuffer->size() + (size_t)aBuffer->base() -
                 (size_t)aBuffer->wr_ptr()) < str.length()) {
                 AAAErrorCode st;
                 AAA_LOG((LM_ERROR, "Not enough buffer"));
@@ -121,7 +121,7 @@ class PANA_Integer32Parser :
             PANA_MessageBuffer* aBuffer = getRawData();
             PANA_Integer32AvpContainerEntry *e;
             getAppData(e);
-            if (e->dataType() != AAA_AVP_INTEGER32_TYPE && 
+            if (e->dataType() != AAA_AVP_INTEGER32_TYPE &&
                 e->dataType() != AAA_AVP_UINTEGER32_TYPE &&
                 e->dataType() != AAA_AVP_ENUM_TYPE &&
                 e->dataType() != AAA_AVP_TIME_TYPE) {
@@ -131,14 +131,14 @@ class PANA_Integer32Parser :
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
             }
-            e->dataRef() = ntohl(*((pana_integer32_t*)(aBuffer->base())));
+            e->dataRef() = ACE_NTOHL(*((pana_integer32_t*)(aBuffer->base())));
         }
         void parseAppToRaw() throw(AAAErrorCode) {
             PANA_MessageBuffer* aBuffer;
             PANA_Integer32AvpContainerEntry *e;
             getRawData(aBuffer);
             getAppData(e);
-            if (e->dataType() != AAA_AVP_INTEGER32_TYPE && 
+            if (e->dataType() != AAA_AVP_INTEGER32_TYPE &&
                 e->dataType() != AAA_AVP_UINTEGER32_TYPE &&
                 e->dataType() != AAA_AVP_ENUM_TYPE &&
                 e->dataType() != AAA_AVP_TIME_TYPE) {
@@ -148,7 +148,7 @@ class PANA_Integer32Parser :
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
             }
-            if ((aBuffer->size() + (size_t)aBuffer->base() - 
+            if ((aBuffer->size() + (size_t)aBuffer->base() -
                 (size_t)aBuffer->wr_ptr()) < sizeof(pana_integer32_t)) {
                 /* assuming 32-bit boundary */
                 AAAErrorCode st;
@@ -157,7 +157,7 @@ class PANA_Integer32Parser :
                         AAA_OUT_OF_SPACE);
                 throw st;
             }
-            *((pana_integer32_t*)(aBuffer->wr_ptr())) = ntohl(e->dataRef());
+            *((pana_integer32_t*)(aBuffer->wr_ptr())) = ACE_HTONL(e->dataRef());
             aBuffer->wr_ptr(sizeof(pana_integer32_t));
         }
 };
@@ -196,7 +196,7 @@ class PANA_Integer64Parser :
                         AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
                 throw st;
             }
-            if ((aBuffer->size() + (size_t)aBuffer->base() - 
+            if ((aBuffer->size() + (size_t)aBuffer->base() -
                 (size_t)aBuffer->wr_ptr()) < sizeof(pana_integer64_t)) {
                 /* assuming 32-bit boundary */
                 AAAErrorCode st;
@@ -257,8 +257,8 @@ class PANA_OctetstringParser :
 };
 
 
-/* UTF-8 definition in RFC 2279.  
-  
+/* UTF-8 definition in RFC 2279.
+
  2.  UTF-8 definition
 
    In UTF-8, characters are encoded using sequences of 1 to 6 octets.
@@ -385,7 +385,7 @@ class PANA_Utf8stringParser :
             UTF8Checker check;
             if (check(str.data(), str.size()) != 0) {
                 AAA_LOG((LM_ERROR, "Invalid UTF8 string"));
-                st.set(AAA_PARSE_ERROR_TYPE_BUG, 
+                st.set(AAA_PARSE_ERROR_TYPE_BUG,
                         AAA_PARSE_ERROR_INVALID_CONTAINER_CONTENTS);
                 throw st;
             }
@@ -398,82 +398,6 @@ class PANA_Utf8stringParser :
                 throw st;
             }
             e->dataType() = AAA_AVP_UTF8_STRING_TYPE;
-        }
-};
-
-class PANA_AddressParser :
-    public PANA_OctetstringParser
-{
-    public:
-        void parseRawToApp() throw(AAAErrorCode) {
-            PANA_AvpContainerEntryManager em;
-            PANA_AddressAvpContainerEntry *e;
-            getAppData(e);
-            if (e->dataType() != AAA_AVP_ADDRESS_TYPE) {
-                AAAErrorCode st;
-                AAA_LOG((LM_ERROR, "Invalid AVP type."));
-                st.set(AAA_PARSE_ERROR_TYPE_BUG, 
-                        AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
-                throw st;
-            }
-            AAAAvpContainerEntry *e2 = em.acquire(AAA_AVP_STRING_TYPE);
-            setAppData(e2);    // Replace the original container entry with
-                               // the new address container entry.
-
-            AAAErrorCode st;
-            try {
-                PANA_OctetstringParser::parseRawToApp();
-            }
-            catch (AAAErrorCode &st) {
-                setAppData(e); // Recover the original container entry.
-                em.release(e2);// Release the UTF8 string container entry.
-                throw st;
-            }
-            setAppData(e);     // Recover the original container entry.
-
-            std::string& str = e2->dataRef(Type2Type<pana_octetstring_t>());
-            pana_address_t &address = e->dataRef();
-
-            address.type = ntohs(*((ACE_UINT16*)(str.data())));
-            address.value.assign(str, 2, str.length() - 2);
-
-            em.release(e2);    // Release the UTF8 string container entry.
-        }
-        void parseAppToRaw() throw(AAAErrorCode) {
-            PANA_AvpContainerEntryManager em;
-            PANA_AddressAvpContainerEntry *e;
-            getAppData(e);
-            if (e->dataType() != AAA_AVP_ADDRESS_TYPE) {
-                AAAErrorCode st;
-                AAA_LOG((LM_ERROR, "Invalid AVP type."));
-                st.set(AAA_PARSE_ERROR_TYPE_BUG,
-                        AAA_PARSE_ERROR_PROHIBITED_CONTAINER);
-                throw st;
-            }
-            AAAAvpContainerEntry *e2 = em.acquire(AAA_AVP_STRING_TYPE);
-            pana_address_t& address = e->dataRef();
-            std::string& str = e2->dataRef(Type2Type<pana_octetstring_t>());
-
-            ACE_UINT16 tmp = ntohs(address.type);
-            char* c = (char*)&tmp;
-
-            str.append(c, 2);
-            str.append(address.value);
-
-            setAppData(e2);
-
-            try {
-                PANA_OctetstringParser::parseAppToRaw();
-            }
-            catch (AAAErrorCode &st)
-                {
-                AAA_LOG((LM_ERROR, "error\n"));
-                setAppData(e);
-                em.release(e2);
-                throw;
-                }
-            setAppData(e);
-            em.release(e2);
         }
 };
 
