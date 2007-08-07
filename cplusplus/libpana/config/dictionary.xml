@@ -11,8 +11,8 @@
       <requestrules>
         <optional>
            <avprule name="EAP-Payload" maximum="1" minimum="0" />
-           <avprule name="PRF-Algorithm" maximum="unbounded" minimum="0" />
-           <avprule name="Integrity-Algorithm" maximum="unbounded" minimum="0" />
+           <avprule name="PRF-Algorithm" maximum="none" minimum="0" />
+           <avprule name="Integrity-Algorithm" maximum="none" minimum="0" />
            <avprule name="Nonce" maximum="1" minimum="0" />
            <avprule name="Result-Code" maximum="1" minimum="0" />
            <avprule name="Session-Lifetime" maximum="1" minimum="0" />
