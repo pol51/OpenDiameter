@@ -62,9 +62,6 @@ class PANA_AuxillarySessionVariables {
         bool &Authorized() {
             return m_Authorized;
         }
-        bool &AlgorithmIsSet() {
-            return m_AlgorithmIsSet;
-        }
         PANA_MsgQueue &RxMsgQueue() {
             return m_RxMessageQueue;
         }
@@ -75,7 +72,6 @@ class PANA_AuxillarySessionVariables {
 
     private:
         bool m_Authorized; // Set to true if authorize() returns true
-        bool m_AlgorithmIsSet; // Set to true if algorithm avp is agreed upon
         PANA_MsgQueue m_RxMessageQueue; // Receive message queue
         PANA_BufferQueue m_TxEapMessageQueue; // EAP Tx message queue
 };

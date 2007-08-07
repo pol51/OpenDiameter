@@ -152,13 +152,13 @@ void PANA_PaaSessionFactory::StatelessTxPARStart(ACE_INET_Addr &addr)
       The message MUST NOT have both 'S' and 'C' bits set.
 
       PANA-Auth-Request ::= < PANA-Header: 2, REQ[,STA][,COM] >
-                          [ EAP-Payload ]
-                          [ Algorithm ]
                           [ Nonce ]
+                         *[ PRF-Algorithm ]
+                         *[ Integrity-Algorithm ]
                           [ Result-Code ]
                           [ Session-Lifetime ]
                           [ Key-Id ]
-                        *  [ AVP ]
+                        * [ AVP ]
                       0*1 < AUTH >
     */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
@@ -179,6 +179,16 @@ void PANA_PaaSessionFactory::StatelessTxPARStart(ACE_INET_Addr &addr)
     // proper addresses
     msg->destAddress() = addr;
     msg->srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
+
+    // add integrity algorithm
+    PANA_UInt32AvpWidget integrityAlgoAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+    integrityAlgoAvp.Get() = PANA_AUTH_HMAC_SHA1_160;
+    msg->avpList().add(integrityAlgoAvp());
+
+    // add prf algorithm
+    PANA_UInt32AvpWidget prfAlgoAvp(PANA_AVPNAME_PRF_ALGO);
+    prfAlgoAvp.Get() = PANA_PRF_HMAC_SHA1;
+    msg->avpList().add(prfAlgoAvp());
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));

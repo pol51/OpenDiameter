@@ -61,8 +61,6 @@ static AAAAvpContainerEntryCreator<PANA_Unsigned64AvpContainerEntry>
     unsigned64ContainerEntryCreator;
 static AAAAvpContainerEntryCreator<PANA_GroupedAvpContainerEntry>
     groupedContainerEntryCreator;
-static AAAAvpContainerEntryCreator<PANA_AddressAvpContainerEntry>
-    addressContainerEntryCreator;
 static AAAAvpContainerEntryCreator<PANA_TimeAvpContainerEntry>
     timeContainerEntryCreator;
 

@@ -581,7 +581,6 @@ void PANA_Session::Disconnect(ACE_UINT32 cause)
 void PANA_AuxillarySessionVariables::Reset()
 {
    m_Authorized = false;
-   m_AlgorithmIsSet = false;
 
    while (! RxMsgQueue().Empty()) {
        std::auto_ptr<PANA_Message> cleanup

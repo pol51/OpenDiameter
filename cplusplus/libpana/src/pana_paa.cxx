@@ -98,7 +98,7 @@ void PANA_Paa::NotifyEapResponse(pana_octetstring_t &payload)
 
 void PANA_Paa::NotifyEapTimeout()
 {
-    Disconnect(PANA_ERROR_UNABLE_TO_COMPLY);
+    Disconnect(PANA_TERMCAUSE_SESSION_TIMEOUT);
 }
 
 void PANA_Paa::NotifyEapReAuth()
@@ -128,13 +128,13 @@ void PANA_Paa::TxPARStart()
       The message MUST NOT have both 'S' and 'C' bits set.
 
       PANA-Auth-Request ::= < PANA-Header: 2, REQ[,STA][,COM] >
-                          [ EAP-Payload ]
-                          [ Algorithm ]
                           [ Nonce ]
+                         *[ PRF-Algorithm ]
+                         *[ Integrity-Algorithm ]
                           [ Result-Code ]
                           [ Session-Lifetime ]
                           [ Key-Id ]
-                        *  [ AVP ]
+                        * [ AVP ]
                       0*1 < AUTH >
     */
     boost::shared_ptr<PANA_Message> msg(new PANA_Message);
@@ -160,6 +160,16 @@ void PANA_Paa::TxPARStart()
         eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
         msg->avpList().add(eapAvp());
     }
+
+    // add integrity algorithm
+    PANA_UInt32AvpWidget integrityAlgoAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+    integrityAlgoAvp.Get() = PANA_AUTH_HMAC_SHA1_160;
+    msg->avpList().add(integrityAlgoAvp());
+
+    // add prf algorithm
+    PANA_UInt32AvpWidget prfAlgoAvp(PANA_AVPNAME_PRF_ALGO);
+    prfAlgoAvp.Get() = PANA_PRF_HMAC_SHA1;
+    msg->avpList().add(prfAlgoAvp());
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
@@ -330,14 +340,6 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
         pana_octetstring_t newKey;
         if (m_Event.IsKeyAvailable(newKey)) {
             SecurityAssociation().MSK().Set(newKey);
-            if (! AuxVariables().AlgorithmIsSet()) {
-                // add algorithm
-                // TBD: need to make sure algo value is ok
-                PANA_UInt32AvpWidget algoAvp(PANA_AVPNAME_ALGORITHM);
-                algoAvp.Get() = PANA_AUTH_ALGORITHM();
-                msg->avpList().add(algoAvp());
-                AuxVariables().AlgorithmIsSet() = true;
-            }
             SecurityAssociation().AddKeyIdAvp(*msg);
             SecurityAssociation().GenerateAuthKey(this->SessionId());
         }

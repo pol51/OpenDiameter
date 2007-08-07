@@ -751,14 +751,38 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           // check if piggyback is supported
           ev.EnableCfg_EapPiggyback(PANA_CFG_PAC().m_EapPiggyback ? 1 : 0);
 
-          // verify algorithm if present and supported
-          PANA_UInt32AvpContainerWidget algoAvp(msg.avpList());
-          pana_unsigned32_t *algo = algoAvp.GetAvp(PANA_AVPNAME_ALGORITHM);
-          if (algo && (*algo != PANA_AUTH_ALGORITHM())) {
-              AAA_LOG((LM_INFO, "(%P|%t) Supplied algorithm [0x%x] is not supported, session will close\n",
-                      *algo));
-              throw (PANA_Exception(PANA_Exception::FAILED,
-                      "PAR recevied, unsupported algorithm"));
+          // verify integrity-algorithm is present and supported
+          PANA_UInt32AvpContainerWidget integrityAlgoAvp(msg.avpList());
+          pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+          if (integrityAlgo) {
+              for (int ndx = 1; integrityAlgo; ndx++) {
+                  if ((*integrityAlgo) == PANA_AUTH_HMAC_SHA1_160) {
+                     break;
+                  }
+                  integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO, ndx);
+              }
+              if (integrityAlgo == NULL) {
+                  AAA_LOG((LM_INFO, "(%P|%t) Supplied integrity algorithm is not supported, session will close\n"));
+                  throw (PANA_Exception(PANA_Exception::FAILED,
+                          "PAR recevied, unsupported integrity algorithm"));
+              }
+          }
+
+          // verify prf-algorithm is present and supported
+          PANA_UInt32AvpContainerWidget prfAlgoAvp(msg.avpList());
+          pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO);
+          if (prfAlgo) {
+              for (int ndx = 1; prfAlgo; ndx++) {
+                  if ((*prfAlgo) == PANA_PRF_HMAC_SHA1) {
+                     break;
+                  }
+                  prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO, ndx);
+              }
+              if (prfAlgo == NULL) {
+                  AAA_LOG((LM_INFO, "(%P|%t) Supplied PRF algorithm is not supported, session will close\n"));
+                  throw (PANA_Exception(PANA_Exception::FAILED,
+                          "PAR recevied, unsupported PRF algorithm"));
+              }
           }
 
           PANA_StringAvpContainerWidget eapAvp(msg.avpList());

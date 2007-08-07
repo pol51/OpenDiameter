@@ -40,7 +40,6 @@
 // mandatory key algorithm and integrity schemes
 #define PANA_PRF_HMAC_SHA1         0x02
 #define PANA_AUTH_HMAC_SHA1_160    0x07
-#define PANA_AUTH_ALGORITHM()      ((PANA_PRF_HMAC_SHA1 << 16)|PANA_AUTH_HMAC_SHA1_160)
 #define PANA_AUTH_HMACSIZE         20
 
 class PANA_EXPORT PANA_Nonce :
