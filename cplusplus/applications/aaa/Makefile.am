@@ -34,7 +34,7 @@ nobase_sysconf_DATA = config/aaad.xml \
                       config/aaad_eap_shared_secret.bin \
                       config/aaad_user_db.xml
 
-aaad_SOURCES = $(SRC) $(HDR) 
+aaad_SOURCES = $(HDR) $(SRC) 
 aaad_LDADD = $(top_builddir)/libeap/libeap.la \
 	$(top_builddir)/libeap/libeaparchie.la $(top_builddir)/libdiametereap/libdiametereap.la \
 	$(top_builddir)/libdiameter/libdiameter.la $(top_builddir)/libdiamparser/libdiamparser.la \

@@ -12,6 +12,7 @@
     <description/>
     <projectname>opendiameter</projectname>
     <defaultencoding/>
+    <versioncontrol/>
   </general>
   <kdevautoproject>
     <general>
@@ -43,7 +44,7 @@
         <f77compiler>kdevpgf77options</f77compiler>
         <cxxflags>-O0 -g3</cxxflags>
         <envvars>
-          <envvar value="/usr/include" name="ACE_ROOT" />
+          <envvar value="/usr/src/ACE_wrappers-5.5" name="ACE_ROOT" />
           <envvar value="/usr/include" name="BOOST_ROOT" />
         </envvars>
         <topsourcedir/>
@@ -58,7 +59,7 @@
     </configurations>
     <make>
       <envvars>
-        <envvar value="/usr/local/include" name="ACE_ROOT" />
+        <envvar value="/usr/src/ACE_wrappers-5.5" name="ACE_ROOT" />
         <envvar value="1" name="WANT_AUTOCONF_2_5" />
         <envvar value="1" name="WANT_AUTOMAKE_1_6" />
       </envvars>
@@ -211,4 +212,11 @@
       <implementationsuffix>.cpp</implementationsuffix>
     </filetemplates>
   </cppsupportpart>
+  <kdevdocumentation>
+    <projectdoc>
+      <docsystem/>
+      <docurl/>
+      <usermanualurl/>
+    </projectdoc>
+  </kdevdocumentation>
 </kdevelop>

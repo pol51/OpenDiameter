@@ -47,10 +47,10 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(sysconfdir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
+am__objects_1 =
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/aaad_main.$(OBJEXT) \
+am__objects_2 = src/aaad_main.$(OBJEXT) \
 	src/aaad_diameter_eap.$(OBJEXT)
-am__objects_2 =
 am_aaad_OBJECTS = $(am__objects_1) $(am__objects_2)
 aaad_OBJECTS = $(am_aaad_OBJECTS)
 aaad_DEPENDENCIES = $(top_builddir)/libeap/libeap.la \
@@ -235,7 +235,7 @@ nobase_sysconf_DATA = config/aaad.xml \
                       config/aaad_eap_shared_secret.bin \
                       config/aaad_user_db.xml
 
-aaad_SOURCES = $(SRC) $(HDR) 
+aaad_SOURCES = $(HDR) $(SRC) 
 aaad_LDADD = $(top_builddir)/libeap/libeap.la \
 	$(top_builddir)/libeap/libeaparchie.la $(top_builddir)/libdiametereap/libdiametereap.la \
 	$(top_builddir)/libdiameter/libdiameter.la $(top_builddir)/libdiamparser/libdiamparser.la \
