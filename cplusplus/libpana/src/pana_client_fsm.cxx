@@ -1035,7 +1035,16 @@ void PANA_PacSession::FlushMsgMaps()
 void PANA_PacSession::Start(const char *paaIpAddress) throw (AAA_Error)
 {
    if (paaIpAddress) {
-     PANA_CFG_PAC().m_PaaIpAddress = paaIpAddress;
+      ACE_INET_Addr addr;
+      char strAddr[64];
+
+      PANA_CFG_PAC().m_PaaIpAddress = paaIpAddress;
+      sprintf(strAddr, "%s:%d", PANA_CFG_PAC().m_PaaIpAddress.data(),
+              PANA_CFG_PAC().m_PaaPortNumber);
+      addr.string_to_addr(strAddr);
+      m_PaC.PaaAddress() = addr;
+
+      AAA_LOG((LM_INFO, "(%P|%t) Overriding configure PAA Ip Address with: %s\n", strAddr));
    }
    PANA_PacEventVariable ev;
    ev.Event_App(PANA_EV_APP_AUTH_USER);
