@@ -1032,8 +1032,11 @@ void PANA_PacSession::FlushMsgMaps()
    m_MsgHandlers.Remove(PANA_MTYPE_PTR);
 }
 
-void PANA_PacSession::Start() throw (AAA_Error)
+void PANA_PacSession::Start(const char *paaIpAddress) throw (AAA_Error)
 {
+   if (paaIpAddress) {
+     PANA_CFG_PAC().m_PaaIpAddress = paaIpAddress;
+   }
    PANA_PacEventVariable ev;
    ev.Event_App(PANA_EV_APP_AUTH_USER);
    Notify(ev.Get());

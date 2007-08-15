@@ -335,7 +335,7 @@ class PANA_EXPORT PANA_PacSession : public
                       PANA_ClientEventInterface &eif);
       virtual ~PANA_PacSession();
 
-      virtual void Start() throw (AAA_Error);
+      virtual void Start(const char *paaIpAddress = NULL) throw (AAA_Error);
       virtual void EapSendResponse(AAAMessageBlock *response);
       virtual void EapInvalidMessage();
       virtual void EapSuccess();
