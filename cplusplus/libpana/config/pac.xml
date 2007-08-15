@@ -53,10 +53,10 @@
              Note that the library automatically detects whether
              your are going to use IPv6 or IPv4 based on
              this address -->
-        <paa_ip_address>207.3.232.155</paa_ip_address>
+        <paa_ip_address>localhost</paa_ip_address>
 
         <!-- PAA port number used in conjuction with paa_ip_address -->
-        <paa_port_number>4001</paa_port_number>
+        <paa_port_number>3001</paa_port_number>
 
         <!-- eap response timeout. Number of seconds the EAP layer
              is allowed to send an EAP response before an EAP_RESP_TIMEOUT
