@@ -25,11 +25,11 @@ datadir = $(prefix)/share/opendiameter/doc
 data_DATA = $(MISC)
 
 SUBDIRS_LIBS = libodutl \
+	       libeap \
+	       libpana \
                libdiamparser \
 	       libdiameter \
 	       libdiametermip4 \
-	       libeap \
-	       libpana \
 	       libdiametereap \
 	       libdiameternasreq
 
