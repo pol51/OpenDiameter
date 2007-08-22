@@ -90,8 +90,8 @@ case $host in
      AC_SUBST(HOST_OS, [OS_FREEBSD])
   ;;
   *-*-linux*)
-     AC_SUBST(L_CPPFLAGS, ["-Wall -I$ACE_ROOT -I$BOOST_ROOT -g -fno-strict-aliasing"])
-     AC_SUBST(L_CXXFLAGS, ["-Wall -I$ACE_ROOT -I$BOOST_ROOT -g -fno-strict-aliasing"])
+     AC_SUBST(L_CPPFLAGS, ["-Wall -I$ACE_ROOT -I$BOOST_ROOT -fno-strict-aliasing"])
+     AC_SUBST(L_CXXFLAGS, ["-Wall -I$ACE_ROOT -I$BOOST_ROOT -fno-strict-aliasing"])
      AC_SUBST(L_LDFLAGS, ["-L$ACE_ROOT/ace"])
      AC_SUBST(L_LIBS, ["-lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser"])
      AC_SUBST(HOST_OS, [OS_LINUX])

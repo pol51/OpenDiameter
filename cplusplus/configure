@@ -21597,9 +21597,9 @@ case $host in
 
   ;;
   *-*-linux*)
-     L_CPPFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -g -fno-strict-aliasing"
+     L_CPPFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -fno-strict-aliasing"
 
-     L_CXXFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -g -fno-strict-aliasing"
+     L_CXXFLAGS="-Wall -I$ACE_ROOT -I$BOOST_ROOT -fno-strict-aliasing"
 
      L_LDFLAGS="-L$ACE_ROOT/ace"
 
