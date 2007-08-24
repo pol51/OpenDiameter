@@ -255,7 +255,6 @@ class PeerApplication : public AAA_JobData,
      return false;
   }
   void Disconnect(ACE_UINT32 cause) {
-      eap->Stop();
   }
   PANA_PacSession &pac() {
       return pacSession;
@@ -542,7 +541,6 @@ int main(int argc, char **argv)
           gPacReference = &peer.pac();
 
           // Test code only
-          // Test code only
           isRunning = true;
           do {
              ACE_Time_Value tm(1);
@@ -566,9 +564,9 @@ int main(int argc, char **argv)
              ACE_OS::sleep(tm);
           } while (true);
 
-          task.Stop();
           USER_DB_CLOSE();
       }
+      task.Stop();
       std::cout << "Done" << std::endl;
   }
   catch (PANA_Exception &e) {
