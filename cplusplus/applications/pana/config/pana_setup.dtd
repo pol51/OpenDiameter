@@ -2,7 +2,7 @@
 
      <!ELEMENT configuration (pana_cfg_file, username, password,
                               secret, auth_script, dhcp_bootstrap,
-                              use_archie, auth_period, thread_count)>
+                              use_archie, thread_count)>
 
      <!ELEMENT pana_cfg_file (#PCDATA)>
      <!ELEMENT username (#PCDATA)>
@@ -11,5 +11,4 @@
      <!ELEMENT auth_script (#PCDATA)>
      <!ELEMENT dhcp_bootstrap (#PCDATA)>
      <!ELEMENT use_archie (#PCDATA)>
-     <!ELEMENT auth_period (#PCDATA)>
      <!ELEMENT thread_count (#PCDATA)>

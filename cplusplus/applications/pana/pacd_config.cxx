@@ -39,31 +39,28 @@ int PACD_Config::Open(std::string &cfgfile)
 {
     OD_Utl_XML_SaxParser parser;
 
-    OD_Utl_XML_StringElement setup01(m_Data.m_PaCCfgFile, 
+    OD_Utl_XML_StringElement setup01(m_Data.m_PaCCfgFile,
                                      "pana_cfg_file", parser);
 
-    OD_Utl_XML_StringElement setup02(m_Data.m_Username, 
+    OD_Utl_XML_StringElement setup02(m_Data.m_Username,
                                      "username", parser);
 
-    OD_Utl_XML_StringElement setup03(m_Data.m_Password, 
+    OD_Utl_XML_StringElement setup03(m_Data.m_Password,
                                      "password", parser);
 
-    OD_Utl_XML_StringElement setup04(m_Data.m_Secret, 
+    OD_Utl_XML_StringElement setup04(m_Data.m_Secret,
                                      "secret", parser);
 
-    OD_Utl_XML_StringElement setup05(m_Data.m_AuthScript, 
+    OD_Utl_XML_StringElement setup05(m_Data.m_AuthScript,
                                      "auth_script", parser);
 
-    OD_Utl_XML_UInt32Element setup07(m_Data.m_UseArchie, 
+    OD_Utl_XML_UInt32Element setup07(m_Data.m_UseArchie,
                                      "use_archie", parser);
 
-    OD_Utl_XML_UInt32Element setup08(m_Data.m_AuthPeriod, 
-                                     "auth_period", parser);
-
-    OD_Utl_XML_UInt32Element setup09(m_Data.m_ThreadCount, 
+    OD_Utl_XML_UInt32Element setup09(m_Data.m_ThreadCount,
                                      "thread_count", parser);
 
-    try {    
+    try {
         parser.Load((char*)cfgfile.c_str());
         this->print();
     }
@@ -79,22 +76,20 @@ int PACD_Config::Open(std::string &cfgfile)
 
 void PACD_Config::print()
 {
-   std::cout << "PACD configuration (ver 1.0.0)" 
+   std::cout << "PACD configuration (ver 1.0.0)"
              << std::endl;
-   std::cout << "     PANA config file: " 
+   std::cout << "     PANA config file: "
              << m_Data.m_PaCCfgFile
              << std::endl;
-   std::cout << "     Username        : " 
+   std::cout << "     Username        : "
              << m_Data.m_Username
              << std::endl;
-   std::cout << "     Auth script     : " 
+   std::cout << "     Auth script     : "
              << m_Data.m_AuthScript
              << std::endl;
    std::cout << "     Use Archie      : ";
    std::cout <<  m_Data.m_UseArchie;
    std::cout << std::endl;
-   std::cout << "     Auth Period     : ";
-   std::cout <<  m_Data.m_AuthPeriod;
    std::cout << std::endl;
    std::cout << "     Thread Count    : ";
    std::cout <<  m_Data.m_ThreadCount;

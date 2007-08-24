@@ -3,7 +3,7 @@
 <configuration>
 
    <!-- File and pathname to the PANA configuration file -->
-   <pana_cfg_file>config/pana_pac_unix6.xml</pana_cfg_file>
+   <pana_cfg_file>config/pana_pac.xml</pana_cfg_file>
     
    <!-- Username used for EAP auth -->
    <username>user1@isp.net</username>
@@ -30,7 +30,7 @@
         username/shared_secret is relevant.
         If this is un-set, EAP-MD5 is used
         and username/password is relevant -->
-   <use_archie>0</use_archie>
+   <use_archie>1</use_archie>
     
    <!-- EAP authentication period. This
         timeout value is started once

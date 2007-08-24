@@ -46,7 +46,6 @@
 #define USAGE "Usage: pacd -f [configuration file]"
 
 static std::string g_SharedSecret;
-static PANA_PacSession *gPacReference = NULL;
 
 typedef AAA_JobHandle<AAA_GroupedJob> AppJobHandle;
 
@@ -66,14 +65,14 @@ class EapTask : public AAA_Task
 };
 
 // Definition for peer MD5-Challenge method.
-class AppEapPeerMD5ChallengeStateMachine 
+class AppEapPeerMD5ChallengeStateMachine
       : public EapPeerMD5ChallengeStateMachine
 {
        friend class EapMethodStateMachineCreator
                     <AppEapPeerMD5ChallengeStateMachine>;
    public:
        AppEapPeerMD5ChallengeStateMachine(EapSwitchStateMachine &s)
-           : EapPeerMD5ChallengeStateMachine(s) {} 
+           : EapPeerMD5ChallengeStateMachine(s) {}
 
        void InputPassphrase() {
           std::cout << "Setting password" << std::endl;
@@ -81,11 +80,11 @@ class AppEapPeerMD5ChallengeStateMachine
        }
 
    private:
-       ~AppEapPeerMD5ChallengeStateMachine() {} 
+       ~AppEapPeerMD5ChallengeStateMachine() {}
 };
 
 // Definition for peer archie state machine.
-class AppEapPeerArchieStateMachine 
+class AppEapPeerArchieStateMachine
       : public EapPeerArchieStateMachine
 {
        friend class EapMethodStateMachineCreator
@@ -101,13 +100,13 @@ class AppEapPeerArchieStateMachine
 
        std::string& InputIdentity() {
           // Invoked on Auth ID callback
-          std::cout << "Received an Archie-Request from " 
+          std::cout << "Received an Archie-Request from "
 	            << AuthID() << std::endl;
           return SwitchStateMachine().PeerIdentity();
        }
 
    private:
-       ~AppEapPeerArchieStateMachine() {} 
+       ~AppEapPeerArchieStateMachine() {}
 };
 
 // EAP peer state machine
@@ -117,7 +116,7 @@ class AppPeerSwitchStateMachine
    public:
        AppPeerSwitchStateMachine(ACE_Reactor &r,
                                  AppJobHandle& h,
-                                 int type) 
+                                 int type)
 	 : EapPeerSwitchStateMachine(r, h) { }
 
        void Send(AAAMessageBlock *b);
@@ -140,8 +139,8 @@ class PeerChannel : public PANA_ClientEventInterface,
    public:
        PeerChannel(PANA_Node &n,
                    AppPeerSwitchStateMachine &s) :
-          m_Eap(s), 
-          m_PaC(n, *this), 
+          m_Eap(s),
+          m_PaC(n, *this),
           m_AuthScriptCtl(PACD_CONFIG().m_AuthScript) {
           m_PaC.Start();
        }
@@ -182,6 +181,12 @@ class PeerChannel : public PANA_ClientEventInterface,
           std::cout << "PANA Disconnection" << std::endl;
           m_AuthScriptCtl.Remove();
        }
+       void Ping() {
+          m_PaC.Ping();
+       }
+       void ReAuthenticate() {
+          m_PaC.ReAuthenticate();
+       }
        void Stop() {
           m_PaC.Stop();
        }
@@ -189,7 +194,7 @@ class PeerChannel : public PANA_ClientEventInterface,
           m_PaC.Abort();
        }
    private:
-       int handle_timeout(const ACE_Time_Value &tv, 
+       int handle_timeout(const ACE_Time_Value &tv,
                           const void *arg) {
           std::cout << "Authorization period expired !!!"
                     << std::endl;
@@ -206,8 +211,8 @@ class PeerChannel : public PANA_ClientEventInterface,
 class PeerApplication : public AAA_JobData
 {
    public:
-       PeerApplication(EapTask &task, 
-                       int type) : 
+       PeerApplication(EapTask &task,
+                       int type) :
           m_Handle(AppJobHandle
 	         (AAA_GroupedJob::Create
                        (task.Job(), this, "peer"))),
@@ -225,11 +230,11 @@ class PeerApplication : public AAA_JobData
               m_Eap->Policy().InitialPolicyElement(&m_Md5Method);
           }
        }
-       PeerChannel& Channel() { 
-          return m_Channel; 
+       PeerChannel& Channel() {
+          return m_Channel;
        }
-       AppPeerSwitchStateMachine& Eap() { 
-          return *m_Eap; 
+       AppPeerSwitchStateMachine& Eap() {
+          return *m_Eap;
        }
 
    private:
@@ -240,49 +245,49 @@ class PeerApplication : public AAA_JobData
        EapContinuedPolicyElement m_ArchieMethod;
 };
 
-void AppPeerSwitchStateMachine::Send(AAAMessageBlock *b) 
+void AppPeerSwitchStateMachine::Send(AAAMessageBlock *b)
 {
    JobData(Type2Type<PeerApplication>()).Channel().
            SendEapResponse(b);
 }
 
-void AppPeerSwitchStateMachine::Success() 
+void AppPeerSwitchStateMachine::Success()
 {
-   std::cout << "Authentication success at peer" 
+   std::cout << "Authentication success at peer"
              << std::endl;
-   std::cout << "Welcome to the world, " 
-             << PeerIdentity() 
+   std::cout << "Welcome to the world, "
+             << PeerIdentity()
 	     << " !!!" << std::endl;
    JobData(Type2Type<PeerApplication>()).Channel().Success();
 }
 
-void AppPeerSwitchStateMachine::Failure() 
+void AppPeerSwitchStateMachine::Failure()
 {
-   std::cout << "Authentication failure detected at peer" 
+   std::cout << "Authentication failure detected at peer"
              << std::endl;
-   std::cout << "Sorry, " << PeerIdentity() 
+   std::cout << "Sorry, " << PeerIdentity()
              << " try next time !!!" << std::endl;
    JobData(Type2Type<PeerApplication>()).Channel().Failure();
    Stop();
 }
 
-void AppPeerSwitchStateMachine::Notification(std::string &str) 
+void AppPeerSwitchStateMachine::Notification(std::string &str)
 {
-   std::cout << "Following notification received" 
+   std::cout << "Following notification received"
              << std::endl;
    std::cout << str << std::endl;
 }
 
-void AppPeerSwitchStateMachine::Abort() 
+void AppPeerSwitchStateMachine::Abort()
 {
-   std::cout << "Peer aborted for an error in state machine" 
+   std::cout << "Peer aborted for an error in state machine"
              << std::endl;
    JobData(Type2Type<PeerApplication>()).Channel().Abort();
 }
 
-std::string& AppPeerSwitchStateMachine::InputIdentity() 
+std::string& AppPeerSwitchStateMachine::InputIdentity()
 {
-   std::cout << "Setting username: " 
+   std::cout << "Setting username: "
              << PACD_CONFIG().m_Username
              << std::endl;
    return PACD_CONFIG().m_Username;
@@ -291,7 +296,7 @@ std::string& AppPeerSwitchStateMachine::InputIdentity()
 class PeerInitializer
 {
    public:
-       PeerInitializer(EapTask &t) : 
+       PeerInitializer(EapTask &t) :
           m_Task(t) {
           Start();
        }
@@ -306,14 +311,14 @@ class PeerInitializer
               Peer, m_AppPeerMD5ChallengeCreator);
 
           m_MethodRegistrar.registerMethod
-             (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE), 
+             (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE),
               Peer, m_AppPeerArchieCreator);
 
           try {
              m_Task.Start(PACD_CONFIG().m_ThreadCount);
           }
           catch (...) {
-	     std::cout << "Task failed to start !!\n" 
+	     std::cout << "Task failed to start !!\n"
                        << std::endl;
              exit(1);
           }
@@ -325,12 +330,15 @@ class PeerInitializer
        EapTask &m_Task;
        EapMethodRegistrar m_MethodRegistrar;
        EapMethodStateMachineCreator
-            <AppEapPeerMD5ChallengeStateMachine> 
-             m_AppPeerMD5ChallengeCreator;    
+            <AppEapPeerMD5ChallengeStateMachine>
+             m_AppPeerMD5ChallengeCreator;
        EapMethodStateMachineCreator
-            <AppEapPeerArchieStateMachine> 
+            <AppEapPeerArchieStateMachine>
              m_AppPeerArchieCreator;
 };
+
+static PeerApplication *gPacReference = NULL;
+static bool isRunning = false;
 
 #if defined (ACE_HAS_SIG_C_FUNC)
 extern "C" {
@@ -339,9 +347,9 @@ static void PacdSigHandler(int signo)
 {
   if (gPacReference) {
       switch (signo) {
-         case SIGUSR1: gPacReference->Ping(); break;
-         case SIGHUP:  gPacReference->ReAuthenticate(); break;
-         case SIGTERM: gPacReference->Stop(); break;
+         case SIGUSR1: gPacReference->Channel().Ping(); break;
+         case SIGHUP:  gPacReference->Channel().ReAuthenticate(); break;
+         case SIGTERM: isRunning = false; break;
          default: break;
       }
   }
@@ -356,9 +364,9 @@ static void PacdSigHandler(int signo)
 int main(int argc, char *argv[])
 {
   std::string panaCfgfile;
-  
+
   // verify command line options
-  ACE_Get_Opt opt(argc, argv, "f:", 1);    
+  ACE_Get_Opt opt(argc, argv, "f:", 1);
   for (int c; (c = opt()) != (-1); ) {
       switch (c) {
           case 'f': panaCfgfile.assign(opt.optarg); break;
@@ -373,7 +381,7 @@ int main(int argc, char *argv[])
   PACD_CONFIG_OPEN(panaCfgfile);
 
   // Get shared secret.
-  fstream secret(PACD_CONFIG().m_Secret.data(), 
+  fstream secret(PACD_CONFIG().m_Secret.data(),
                  ios::in | ios::binary);
   if (secret) {
      unsigned char buffer[64];
@@ -389,18 +397,38 @@ int main(int argc, char *argv[])
                << std::endl;
      return (-1);
   }
-  
+
   ACE_Sig_Action sa(reinterpret_cast <ACE_SignalHandler> (PacdSigHandler));
   sa.register_action (SIGUSR1);
   sa.register_action (SIGHUP);
   sa.register_action (SIGTERM);
 
   EapTask task(PACD_CONFIG().m_PaCCfgFile);
-  PeerInitializer init(task);
-  PeerApplication peer(task,
-                       PACD_CONFIG().m_UseArchie ? 
-                       ARCHIE_METHOD_TYPE : 4);
+  try {
+      PeerInitializer init(task);
+      PeerApplication peer(task,
+                           PACD_CONFIG().m_UseArchie ?
+                           ARCHIE_METHOD_TYPE : 4);
+      gPacReference = &peer;
+
+      isRunning = true;
+      do {
+          ACE_Time_Value tm(1);
+          ACE_OS::sleep(tm);
+      }
+      while (isRunning);
+      peer.Channel().Stop();
+
+      // Insurance policy to make sure all threads are gone
+      // Stop() already waits for the threads but ExistBacklog()
+      // can have loopholes in it.
+      ACE_Time_Value tm(1);
+      ACE_OS::sleep(tm);
+  }
+  catch (...) {
+  }
   task.Stop();
+  std::cout << "PaC Existing." << std::endl;
   return 0;
 }
 

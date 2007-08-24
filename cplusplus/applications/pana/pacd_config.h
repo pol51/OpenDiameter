@@ -46,7 +46,6 @@ typedef struct {
   std::string m_Secret;
   std::string m_AuthScript;
   ACE_UINT32  m_UseArchie;
-  ACE_UINT32  m_AuthPeriod;
   ACE_UINT32  m_ThreadCount;
 } PACD_Data;
 
@@ -56,7 +55,7 @@ class PACD_Config {
         PACD_Data &Data() {
 	   return m_Data;
 	}
-  
+
     protected:
         void print();
 
