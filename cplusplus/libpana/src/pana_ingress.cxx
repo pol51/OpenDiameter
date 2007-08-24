@@ -99,14 +99,13 @@ bool PANA_IngressReceiver::Start()
 void PANA_IngressReceiver::Stop()
 {
     m_Socket.close();
-    if (m_ThreadId != 0) {
-       ACE_Thread::kill(m_ThreadId, 2);
-    }
+    m_isRunning = false;
+    ACE_Task<ACE_MT_SYNCH>::wait();
 }
 
 int PANA_IngressReceiver::Serve()
 {
-    m_ThreadId = ACE_Thread::self();
+    m_isRunning = true;
     PANA_MessageBuffer *msg_buffer = NULL;
     do {
         try {
@@ -161,7 +160,7 @@ int PANA_IngressReceiver::Serve()
         catch (int rc) {
             PANA_MESSAGE_POOL()->free(msg_buffer);
         }
-    } while (true);
+    } while (m_isRunning);
     return (0);
 }
 

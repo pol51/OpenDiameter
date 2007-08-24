@@ -113,7 +113,7 @@ class PANA_EXPORT PANA_IngressReceiver :
                            PANA_IngressJob(g, name),
                            m_Socket(so) {
             m_localAddr.set_port_number(0);
-            m_ThreadId = 0;
+            m_isRunning = false;
       }
       bool Start();
       void Stop();
@@ -127,7 +127,7 @@ class PANA_EXPORT PANA_IngressReceiver :
    protected:
       ACE_INET_Addr m_localAddr;
       PANA_Socket &m_Socket;
-      ACE_thread_t m_ThreadId;
+      bool m_isRunning;
 
    private:
      int svc() {

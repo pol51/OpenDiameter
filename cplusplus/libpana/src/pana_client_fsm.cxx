@@ -1006,11 +1006,11 @@ PANA_PacSession::PANA_PacSession(PANA_Node &n,
 PANA_PacSession::~PANA_PacSession()
 {
    PANA_StateMachine<PANA_Client, PANA_Channel>::Stop();
-   FlushMsgMaps();
    m_PanaChannel.Close();
    m_PanaChannel.RemoveHandler();
    m_PacChannel.Close();
    m_PacChannel.RemoveHandler();
+   FlushMsgMaps();
 }
 
 void PANA_PacSession::InitializeMsgMaps()

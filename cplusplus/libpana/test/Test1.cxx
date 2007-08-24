@@ -69,6 +69,7 @@ static std::string gUserName;
 static std::string gPasswd;
 static std::string gPacAddrFromEp;
 static PANA_PacSession *gPacReference = NULL;
+static bool isRunning = false;
 
 /// Task class used in this sample program.
 class EapTask : public AAA_Task
@@ -448,7 +449,7 @@ static void MySigHandler(int signo)
       switch (signo) {
          case SIGUSR1: gPacReference->Ping(); break;
          case SIGHUP:  gPacReference->ReAuthenticate(); break;
-         case SIGTERM: gPacReference->Stop(); break;
+         case SIGTERM: isRunning = false; break;
          default: break;
       }
   }
@@ -541,7 +542,14 @@ int main(int argc, char **argv)
           gPacReference = &peer.pac();
 
           // Test code only
-          while (true) { }
+          // Test code only
+          isRunning = true;
+          do {
+             ACE_Time_Value tm(1);
+             ACE_OS::sleep(tm);
+          }
+          while (isRunning);
+          gPacReference->Stop();
       }
       else {
           USER_DB_OPEN(userdb);
@@ -551,10 +559,12 @@ int main(int argc, char **argv)
           if (gPacAddrFromEp.length() > 0) {
 	      ACE_INET_Addr pac(gPacAddrFromEp.data());
               factory.PacFound(pac);
-	  }
+          }
 
-          // Test code only
-          while (true) { }
+          do {
+             ACE_Time_Value tm(1);
+             ACE_OS::sleep(tm);
+          } while (true);
 
           task.Stop();
           USER_DB_CLOSE();
