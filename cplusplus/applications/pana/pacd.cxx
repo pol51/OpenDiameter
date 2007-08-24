@@ -338,7 +338,8 @@ class PeerInitializer
 };
 
 static PeerApplication *gPacReference = NULL;
-static bool isRunning = false;
+static ACE_Thread_Mutex gMutex;
+static ACE_Condition<ACE_Thread_Mutex> gActiveSignal(gMutex);
 
 #if defined (ACE_HAS_SIG_C_FUNC)
 extern "C" {
@@ -349,7 +350,7 @@ static void PacdSigHandler(int signo)
       switch (signo) {
          case SIGUSR1: gPacReference->Channel().Ping(); break;
          case SIGHUP:  gPacReference->Channel().ReAuthenticate(); break;
-         case SIGTERM: isRunning = false; break;
+         case SIGTERM: gActiveSignal.signal(); break;
          default: break;
       }
   }
@@ -410,15 +411,8 @@ int main(int argc, char *argv[])
                            PACD_CONFIG().m_UseArchie ?
                            ARCHIE_METHOD_TYPE : 4);
       gPacReference = &peer;
-
-      isRunning = true;
-      do {
-          ACE_Time_Value tm(1);
-          ACE_OS::sleep(tm);
-      }
-      while (isRunning);
+      gActiveSignal.wait();
       peer.Channel().Stop();
-
       // Insurance policy to make sure all threads are gone
       // Stop() already waits for the threads but ExistBacklog()
       // can have loopholes in it.
