@@ -46,6 +46,7 @@
 #define USAGE "Usage: pacd -f [configuration file]"
 
 static std::string g_SharedSecret;
+static PANA_PacSession *gPacReference = NULL;
 
 typedef AAA_JobHandle<AAA_GroupedJob> AppJobHandle;
 
@@ -138,20 +139,13 @@ class PeerChannel : public PANA_ClientEventInterface,
 {
    public:
        PeerChannel(PANA_Node &n,
-                   AppPeerSwitchStateMachine &s,
-                   ACE_Semaphore &sem) :
+                   AppPeerSwitchStateMachine &s) :
           m_Eap(s), 
           m_PaC(n, *this), 
-          m_Semaphore(sem),
-          m_TimerHandle(0),
-          m_Task(n.Task()),
           m_AuthScriptCtl(PACD_CONFIG().m_AuthScript) {
           m_PaC.Start();
        }
        virtual ~PeerChannel() {
-       }
-       virtual bool ResumeSession() {
-          return false;
        }
        void SendEapResponse(AAAMessageBlock *msg) {
           m_PaC.EapSendResponse(msg);
@@ -175,10 +169,6 @@ class PeerChannel : public PANA_ClientEventInterface,
           // Seed the auth-script
           m_AuthScriptCtl.Seed(args);
           m_AuthScriptCtl.Add();
-
-          // Start auth period
-          ACE_Time_Value delay(PACD_CONFIG().m_AuthPeriod, 0);
-          m_TimerHandle = m_Task.ScheduleTimer(this, 0, delay);
        }
        virtual bool IsKeyAvailable(pana_octetstring_t &key) {
           if (m_Eap.KeyAvailable()) {
@@ -191,13 +181,6 @@ class PeerChannel : public PANA_ClientEventInterface,
        void Disconnect(ACE_UINT32 cause) {
           std::cout << "PANA Disconnection" << std::endl;
           m_AuthScriptCtl.Remove();
-          m_Eap.Stop();
-          m_PaC.Abort();
-          m_Task.CancelTimer(m_TimerHandle, 0);
-          m_Semaphore.release();
-       }
-       void Error(ACE_UINT32 resultCode) { 
-          std::cout << "PANA Error: " << resultCode << std::endl;
        }
        void Stop() {
           m_PaC.Stop();
@@ -216,9 +199,6 @@ class PeerChannel : public PANA_ClientEventInterface,
 
        AppPeerSwitchStateMachine &m_Eap;
        PANA_PacSession m_PaC;
-       ACE_Semaphore &m_Semaphore;
-       ACE_UINT32 m_TimerHandle;
-       AAA_Task &m_Task;
        PANA_AuthScriptCtl m_AuthScriptCtl;
 };
 
@@ -227,7 +207,6 @@ class PeerApplication : public AAA_JobData
 {
    public:
        PeerApplication(EapTask &task, 
-                       ACE_Semaphore &sem, 
                        int type) : 
           m_Handle(AppJobHandle
 	         (AAA_GroupedJob::Create
@@ -235,8 +214,7 @@ class PeerApplication : public AAA_JobData
           m_Eap(boost::shared_ptr<AppPeerSwitchStateMachine>
 	         (new AppPeerSwitchStateMachine
                        (*task.reactor(), m_Handle, type))),
-          m_Semaphore(sem),
-          m_Channel(task.m_Node, *m_Eap, sem),
+          m_Channel(task.m_Node, *m_Eap),
           m_Md5Method(EapContinuedPolicyElement(EapType(4))),
           m_ArchieMethod(EapContinuedPolicyElement
                        (EapType(ARCHIE_METHOD_TYPE))) {
@@ -253,14 +231,10 @@ class PeerApplication : public AAA_JobData
        AppPeerSwitchStateMachine& Eap() { 
           return *m_Eap; 
        }
-       ACE_Semaphore& Semaphore() { 
-          return m_Semaphore; 
-       }
 
    private:
        AppJobHandle m_Handle;
        boost::shared_ptr<AppPeerSwitchStateMachine> m_Eap;
-       ACE_Semaphore &m_Semaphore;
        PeerChannel m_Channel;
        EapContinuedPolicyElement m_Md5Method;
        EapContinuedPolicyElement m_ArchieMethod;
@@ -290,7 +264,6 @@ void AppPeerSwitchStateMachine::Failure()
              << " try next time !!!" << std::endl;
    JobData(Type2Type<PeerApplication>()).Channel().Failure();
    Stop();
-   JobData(Type2Type<PeerApplication>()).Semaphore().release();
 }
 
 void AppPeerSwitchStateMachine::Notification(std::string &str) 
@@ -305,7 +278,6 @@ void AppPeerSwitchStateMachine::Abort()
    std::cout << "Peer aborted for an error in state machine" 
              << std::endl;
    JobData(Type2Type<PeerApplication>()).Channel().Abort();
-   JobData(Type2Type<PeerApplication>()).Semaphore().release();
 }
 
 std::string& AppPeerSwitchStateMachine::InputIdentity() 
@@ -360,6 +332,27 @@ class PeerInitializer
              m_AppPeerArchieCreator;
 };
 
+#if defined (ACE_HAS_SIG_C_FUNC)
+extern "C" {
+#endif
+static void PacdSigHandler(int signo)
+{
+  if (gPacReference) {
+      switch (signo) {
+         case SIGUSR1: gPacReference->Ping(); break;
+         case SIGHUP:  gPacReference->ReAuthenticate(); break;
+         case SIGTERM: gPacReference->Stop(); break;
+         default: break;
+      }
+  }
+  else {
+      std::cout << "Signal has been received but reference is not yet ready" << std::endl;
+  }
+}
+#if defined (ACE_HAS_SIG_C_FUNC)
+}
+#endif
+
 int main(int argc, char *argv[])
 {
   std::string panaCfgfile;
@@ -397,14 +390,16 @@ int main(int argc, char *argv[])
      return (-1);
   }
   
+  ACE_Sig_Action sa(reinterpret_cast <ACE_SignalHandler> (PacdSigHandler));
+  sa.register_action (SIGUSR1);
+  sa.register_action (SIGHUP);
+  sa.register_action (SIGTERM);
+
   EapTask task(PACD_CONFIG().m_PaCCfgFile);
   PeerInitializer init(task);
-  ACE_Semaphore semaphore(0);
   PeerApplication peer(task,
-                       semaphore,
                        PACD_CONFIG().m_UseArchie ? 
                        ARCHIE_METHOD_TYPE : 4);
-  semaphore.acquire();
   task.Stop();
   return 0;
 }
