@@ -134,15 +134,15 @@ CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 srcdir = .
 
-ACLOCAL = ${SHELL} /root/work/builds/opendiameter/cplusplus/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /home/victorf/work/sf/svn/cplusplus/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /root/work/builds/opendiameter/cplusplus/missing --run tar
+AMTAR = ${SHELL} /home/victorf/work/sf/svn/cplusplus/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /root/work/builds/opendiameter/cplusplus/missing --run autoconf
-AUTOHEADER = ${SHELL} /root/work/builds/opendiameter/cplusplus/missing --run autoheader
-AUTOMAKE = ${SHELL} /root/work/builds/opendiameter/cplusplus/missing --run automake-1.9
-AWK = mawk
+AUTOCONF = ${SHELL} /home/victorf/work/sf/svn/cplusplus/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/victorf/work/sf/svn/cplusplus/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/victorf/work/sf/svn/cplusplus/missing --run automake-1.9
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
@@ -151,7 +151,7 @@ CPPFLAGS =
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = 
+CXXFLAGS = -g -O2
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"OpenDiameter\" -DPACKAGE_TARNAME=\"opendiameter\" -DPACKAGE_VERSION=\"1.0.7-i\" -DPACKAGE_STRING=\"OpenDiameter\ 1.0.7-i\" -DPACKAGE_BUGREPORT=\"vfajardo@tari.toshiba.com\" -DPACKAGE=\"opendiameter\" -DVERSION=\"1.0.7-i\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DHAVE_IFADDRS_H=1 -DHAVE_SHADOW_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_GETIFADDRS=1
 DEPDIR = .deps
@@ -176,13 +176,13 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIBTOOL_DEPS = ./ltmain.sh
 LN_S = ln -s
 LTLIBOBJS = 
-L_CPPFLAGS = -Wall -I/usr/local/src/ACE_wrappers-5.5 -I/usr/include -fno-strict-aliasing
-L_CXXFLAGS = -Wall -I/usr/local/src/ACE_wrappers-5.5 -I/usr/include -fno-strict-aliasing
-L_LDFLAGS = -L/usr/local/src/ACE_wrappers-5.5/ace
-L_LIBS = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser
+L_CPPFLAGS = -Wall -I/usr/src/ACE_wrappers-5.5 -I/usr/include -fno-strict-aliasing
+L_CXXFLAGS = -Wall -I/usr/src/ACE_wrappers-5.5 -I/usr/include -fno-strict-aliasing
+L_LDFLAGS = -L/usr/src/ACE_wrappers-5.5/lib
+L_LIBS =  -lssl -lcrypto -lACE_SSL -lACE -lACEXML_Parser -lACEXML -lACE -lpthread
 L_MPAFLAGS = 
 L_ODBCFLAGS = 
-MAKEINFO = ${SHELL} /root/work/builds/opendiameter/cplusplus/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/victorf/work/sf/svn/cplusplus/missing --run makeinfo
 OBJEXT = o
 OPT_EAP_ARCHIE_FALSE = 
 OPT_EAP_ARCHIE_TRUE = #
@@ -194,6 +194,7 @@ PACKAGE_TARNAME = opendiameter
 PACKAGE_VERSION = 1.0.7-i
 PATH_SEPARATOR = :
 RANLIB = ranlib
+SED = /bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
@@ -231,7 +232,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = $(prefix)/include/opendiameter/diametermip4
 infodir = ${datarootdir}/info
-install_sh = /root/work/builds/opendiameter/cplusplus/install-sh
+install_sh = /home/victorf/work/sf/svn/cplusplus/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -247,7 +248,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = $(prefix)/etc/opendiameter/diametermip4
 target_alias = 
-AM_CPPFLAGS = -Wall -I/usr/local/src/ACE_wrappers-5.5 -I/usr/include -fno-strict-aliasing  \
+AM_CPPFLAGS = -Wall -I/usr/src/ACE_wrappers-5.5 -I/usr/include -fno-strict-aliasing  \
               -I../include \
               -I../libodutl/include \
               -I../libdiamparser/include \
@@ -256,7 +257,7 @@ AM_CPPFLAGS = -Wall -I/usr/local/src/ACE_wrappers-5.5 -I/usr/include -fno-strict
               -I./include \
               -DOS_LINUX
 
-AM_LDFLAGS = -L/usr/local/src/ACE_wrappers-5.5/ace
+AM_LDFLAGS = -L/usr/src/ACE_wrappers-5.5/lib
 DIAMETER_MIP_SRC = src/diameter_mip4_amr_parser.cxx \
                    src/diameter_mip4_ama_parser.cxx \
                    src/diameter_mip4_har_parser.cxx \
@@ -304,7 +305,7 @@ sysconf_DATA = config/aaas_s.local.xml \
                config/hosts \
                config/server.local.xml
 
-LDADD = -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser \
+LDADD =  -lssl -lcrypto -lACE_SSL -lACE -lACEXML_Parser -lACEXML -lACE -lpthread \
         $(top_builddir)/libdiametermip4/libdiametermip4.la \
 	$(top_builddir)/libdiameter/libdiameter.la \
 	$(top_builddir)/libdiamparser/libdiamparser.la \
