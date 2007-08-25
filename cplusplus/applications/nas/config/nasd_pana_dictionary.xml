@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE dictionary SYSTEM "dictionary.dtd">
+<!DOCTYPE dictionary SYSTEM "nasd_pana_dictionary.dtd">
 
 <dictionary>
     <!-- *********************** Message types *************************** -->
@@ -11,7 +11,8 @@
       <requestrules>
         <optional>
            <avprule name="EAP-Payload" maximum="1" minimum="0" />
-           <avprule name="Algorithm" maximum="1" minimum="0" />
+           <avprule name="PRF-Algorithm" maximum="none" minimum="0" />
+           <avprule name="Integrity-Algorithm" maximum="none" minimum="0" />
            <avprule name="Nonce" maximum="1" minimum="0" />
            <avprule name="Result-Code" maximum="1" minimum="0" />
            <avprule name="Session-Lifetime" maximum="1" minimum="0" />
@@ -23,6 +24,8 @@
         <optional>
            <avprule name="Nonce" maximum="1" minimum="0" />
            <avprule name="EAP-Payload" maximum="1" minimum="0" />
+           <avprule name="PRF-Algorithm" maximum="1" minimum="0" />
+           <avprule name="Integrity-Algorithm" maximum="1" minimum="0" />
            <avprule name="Key-Id" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
@@ -74,14 +77,14 @@
     <avp name="AVP" code="0"> <!-- Added by Ohba -->
       <type type-name="Any"/>
     </avp>
-    <avp name="Algorithm" code="1" mandatory="must">
-      <type type-name="Unsigned32"/>
-    </avp>
-    <avp name="AUTH" code="2" mandatory="must">
+    <avp name="AUTH" code="1" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="EAP-Payload" code="3" mandatory="must">
+    <avp name="EAP-Payload" code="2" mandatory="must">
       <type type-name="OctetString"/>
+    </avp>
+    <avp name="Integrity-Algorithm" code="3" mandatory="must">
+      <type type-name="Integer32"/>
     </avp>
     <avp name="Key-Id" code="4" mandatory="must">
       <type type-name="Integer32"/>
@@ -89,13 +92,16 @@
     <avp name="Nonce" code="5" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Result-Code" code="6" mandatory="must">
+    <avp name="PRF-Algorithm" code="6" mandatory="must">
+      <type type-name="Integer32"/>
+    </avp>
+    <avp name="Result-Code" code="7" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Session-Lifetime" code="7" mandatory="must">
+    <avp name="Session-Lifetime" code="8" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Termination-Cause" code="8" mandatory="must">
+    <avp name="Termination-Cause" code="9" mandatory="must">
       <type type-name="Unsigned32"/>
       <enum name="Logout" code="1"/>
       <enum name="Administrative" code="4"/>
