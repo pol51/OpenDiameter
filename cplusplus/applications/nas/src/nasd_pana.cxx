@@ -37,7 +37,7 @@
 #include "nasd_pana.h"
 #include "nasd_eap_passthrough.h"
 
-class NASD_PaaSession : 
+class NASD_PaaSession :
     public NASD_CnAccessProtocol<NASD_EapPassThrough>,
     public PANA_PaaEventInterface
 {
@@ -53,7 +53,7 @@ class NASD_PaaSession :
             m_CfgData = (NASD_ApPanaData*)
                   NASD_APPROTO_TBL().Lookup(name);
             if (m_CfgData == NULL) {
-                NASD_LOG(LM_ERROR, 
+                NASD_LOG(LM_ERROR,
                   "(%P|%t) PANA configuration entry not found\n");
 	    }
             else {
@@ -64,7 +64,7 @@ class NASD_PaaSession :
         PANA_PaaSession &PaaSession() {
             return m_PaaSession;
 	}
-        
+
     /// Element events
     public:
         int Start() {
@@ -116,15 +116,6 @@ class NASD_PaaSession :
             NextNode()->Stop();
             NextNode()->Start();
 	}
-#if defined(PANA_MPA_SUPPORT)
-        bool IsPacIpAddressAvailable(PANA_DeviceId &ip,
-                                     PANA_DeviceId &local,
-                                     ACE_INET_Addr &remote) {
-           ACE_INET_Addr pacIp("192.168.1.100:0");
-           PANA_DeviceIdConverter::PopulateFromAddr(pacIp, ip);
-           return false;
-        }
-#endif
 	void Authorize(PANA_AuthorizationArgs &args) {
 	    if (m_CfgData &&
                 m_ScriptCtl.CurrentScript().length() > 0) {
@@ -136,15 +127,6 @@ class NASD_PaaSession :
 	    return NextNode()->CurrentKey(key);
 	}
 	void Disconnect(ACE_UINT32 cause = 0) {
-	    if (m_CfgData &&
-                m_ScriptCtl.CurrentScript().length() > 0) {
-                m_ScriptCtl.Remove();
-	    }
-            Stop();
-            NASD_GARBAGE_COLLECTOR().
-                    ScheduleForDeletion(*this);
-	}
-	void Error(ACE_UINT32 resultCode) {
 	    if (m_CfgData &&
                 m_ScriptCtl.CurrentScript().length() > 0) {
                 m_ScriptCtl.Remove();
