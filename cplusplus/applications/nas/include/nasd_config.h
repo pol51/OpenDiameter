@@ -365,20 +365,22 @@ class NASD_CfgLoader
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_EpScriptConv> 
                                       setup12(ident, "ep_script", parser);
 
+         OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_SharedSecretConv> 
+                                      setup14(ident, "shared_secret_file", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_IdentityConv> 
-                                      setup14(ident, "identity", parser);
+                                      setup15(ident, "identity", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_DiameterEapCfgConv> 
-                                      setup15(ident, "diameter_cfg_file", parser);
+                                      setup16(ident, "diameter_cfg_file", parser);
 
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_PolicyScriptConv> 
-                                      setup16(ident, "file", parser);
+                                      setup17(ident, "file", parser);
 
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_CallNaiConv> 
-                                      setup17(ident, "nai", parser);
+                                      setup18(ident, "nai", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_CallPolicyConv> 
-                                      setup18(ident, "access_policy", parser);
+                                      setup19(ident, "access_policy", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_CallAaaProtocolConv> 
-                                      setup19(ident, "aaa_protocol", parser);
+                                      setup20(ident, "aaa_protocol", parser);
 
          OD_Utl_XML_StringElement header01(unused, "pana", parser);
          OD_Utl_XML_StringElement header02(unused, "diameter_eap", parser);
