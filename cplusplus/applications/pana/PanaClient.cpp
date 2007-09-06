@@ -64,7 +64,7 @@ class AppEapPeerMD5ChallengeStateMachine : public EapPeerMD5ChallengeStateMachin
        friend class EapMethodStateMachineCreator<AppEapPeerMD5ChallengeStateMachine>;
    public:
        AppEapPeerMD5ChallengeStateMachine(EapSwitchStateMachine &s)
-            : EapPeerMD5ChallengeStateMachine(s) {} 
+            : EapPeerMD5ChallengeStateMachine(s) {}
 
        // Reimplemented from EapPeerMD5ChallengeStateMachine.
        void InputPassphrase() {
@@ -72,7 +72,7 @@ class AppEapPeerMD5ChallengeStateMachine : public EapPeerMD5ChallengeStateMachin
            passphrase = PANA_CLIENT->Arg().m_Password;
        }
    private:
-       ~AppEapPeerMD5ChallengeStateMachine() {} 
+       ~AppEapPeerMD5ChallengeStateMachine() {}
 };
 
 // Class definition for peer archie state machine.
@@ -83,7 +83,7 @@ public:
     AppEapPeerArchieStateMachine(EapSwitchStateMachine &s)
         : EapPeerArchieStateMachine(s) {}
 
-    /// This pure virtual function is a callback used when a shared-secret 
+    /// This pure virtual function is a callback used when a shared-secret
     /// needs to be obtained.
     std::string& InputSharedSecret() {
         return PANA_CLIENT->Arg().m_SharedSecret;
@@ -97,7 +97,7 @@ public:
         return SwitchStateMachine().PeerIdentity();
     }
 private:
-    ~AppEapPeerArchieStateMachine() {} 
+    ~AppEapPeerArchieStateMachine() {}
 };
 
 class AppPeerSwitchStateMachine: public EapPeerSwitchStateMachine
@@ -124,8 +124,8 @@ class PeerChannel : public PANA_ClientEventInterface
    public:
         PeerChannel(PANA_Node &n,
                     AppPeerSwitchStateMachine &s) :
-            m_Eap(s), 
-            m_Pana(n, *this), 
+            m_Eap(s),
+            m_Pana(n, *this),
             m_AuthScriptCtl(PANA_CLIENT->Arg().m_AuthScript) {
             m_Pana.Start(); // discovery
         }
@@ -156,18 +156,9 @@ class PeerChannel : public PANA_ClientEventInterface
 	}
 	void Notification(diameter_octetstring_t &) {
 	}
-        void Notification(diameter_octetstring_t &msg, 
+        void Notification(diameter_octetstring_t &msg,
                           PANA_DeviceId &pacId) {
         }
-#if defined(PANA_MPA_SUPPORT)
-        void PacIpAddress(PANA_DeviceId &ip,
-                          PANA_DeviceId &oldip,
-                          PANA_DeviceId &remoteip) {
-           char display[64];
-           ACE_INET_Addr addr;
-           PANA_DeviceIdConverter::FormatToAddr(ip, addr);
-        }
-#endif
         void Authorize(PANA_AuthorizationArgs &args) {
             // Seed the auth-script
             m_AuthScriptCtl.Seed(args);
@@ -179,7 +170,7 @@ class PeerChannel : public PANA_ClientEventInterface
         }
         bool IsKeyAvailable(diameter_octetstring_t &key) {
             if (m_Eap.KeyAvailable()) {
-                key.assign(m_Eap.KeyData().data(), 
+                key.assign(m_Eap.KeyData().data(),
                            m_Eap.KeyData().size());
                 return true;
             }
@@ -206,7 +197,7 @@ class PeerChannel : public PANA_ClientEventInterface
                 PANA_CLIENT->Event().Disconnect();
             }
         }
-        void Error(ACE_UINT32 resultCode) { 
+        void Error(ACE_UINT32 resultCode) {
         }
         void Stop() {
             m_Pana.Stop();
@@ -220,7 +211,7 @@ class PeerChannel : public PANA_ClientEventInterface
 class PeerApplication : public AAA_JobData
 {
    public:
-        PeerApplication(AAA_Task &task, PANA_Node &node, int type) : 
+        PeerApplication(AAA_Task &task, PANA_Node &node, int type) :
             m_Handle(AppJobHandle
 	            (AAA_GroupedJob::Create(task.Job(), this, "peer"))),
             m_Eap(boost::shared_ptr<AppPeerSwitchStateMachine>
@@ -242,11 +233,11 @@ class PeerApplication : public AAA_JobData
 			m_Eap.reset();
 			m_Channel.reset();
 		}
-        PeerChannel& Channel() { 
-            return *m_Channel; 
+        PeerChannel& Channel() {
+            return *m_Channel;
         }
-        AppPeerSwitchStateMachine& Eap() { 
-            return *m_Eap; 
+        AppPeerSwitchStateMachine& Eap() {
+            return *m_Eap;
         }
     private:
         AppJobHandle m_Handle;
@@ -281,7 +272,7 @@ void AppPeerSwitchStateMachine::Abort()
     Stop();
     PANA_CLIENT->Event().Failure();
 }
-std::string& AppPeerSwitchStateMachine::InputIdentity() 
+std::string& AppPeerSwitchStateMachine::InputIdentity()
 {
     return PANA_CLIENT->Arg().m_Username;
 }
@@ -289,7 +280,7 @@ std::string& AppPeerSwitchStateMachine::InputIdentity()
 class PeerInitializer
 {
     public:
-        PeerInitializer() : 
+        PeerInitializer() :
           m_Task(AAA_SCHED_WFQ, "PEER"),
           m_PanaNode(m_Task, PANA_CLIENT->Arg().m_PanaCfgFile) {
             Start();
@@ -310,7 +301,7 @@ class PeerInitializer
                 Peer, m_PeerMD5ChallengeCreator);
 
             m_MethodRegistrar.registerMethod
-               (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE), 
+               (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE),
                 Peer, m_PeerArchieCreator);
 
             try {
@@ -326,9 +317,9 @@ class PeerInitializer
         AAA_Task m_Task;
         PANA_Node m_PanaNode;
         EapMethodRegistrar m_MethodRegistrar;
-        EapMethodStateMachineCreator<AppEapPeerMD5ChallengeStateMachine> 
-            m_PeerMD5ChallengeCreator;            
-        EapMethodStateMachineCreator<AppEapPeerArchieStateMachine> 
+        EapMethodStateMachineCreator<AppEapPeerMD5ChallengeStateMachine>
+            m_PeerMD5ChallengeCreator;
+        EapMethodStateMachineCreator<AppEapPeerArchieStateMachine>
             m_PeerArchieCreator;
 };
 
@@ -339,7 +330,7 @@ class PeerHandle : public PANAClientHandle
             m_Init = boost::shared_ptr<PeerInitializer>
                 (new PeerInitializer);
             m_App = boost::shared_ptr<PeerApplication>
-                (new PeerApplication(m_Init->Task(), 
+                (new PeerApplication(m_Init->Task(),
                                      m_Init->PanaNode(),
                                      PANA_CLIENT->Arg().m_Md5Only ? 4 :
                                      ARCHIE_METHOD_TYPE));

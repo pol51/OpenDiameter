@@ -43,9 +43,12 @@
 #include "pacd_config.h"
 #include "pana_auth_script.h"
 
+#define KEY_TESTING 1
 #define USAGE "Usage: pacd -f [configuration file]"
 
 static std::string g_SharedSecret;
+static ACE_Thread_Mutex gMutex;
+static ACE_Condition<ACE_Thread_Mutex> gActiveSignal(gMutex);
 
 typedef AAA_JobHandle<AAA_GroupedJob> AppJobHandle;
 
@@ -170,16 +173,26 @@ class PeerChannel : public PANA_ClientEventInterface,
           m_AuthScriptCtl.Add();
        }
        virtual bool IsKeyAvailable(pana_octetstring_t &key) {
+#ifdef KEY_TESTING
+          static int toggle = 0;
+          static char *keys[] = { "0123456789012345678901234567890123456789012345678901234567890123",
+                                  "3210987654321098765432109876543210987654321098765432109876543210" };
+          key.assign(keys[toggle]);
+          toggle = (toggle) ? 0 : 1;
+          return true;
+#else
           if (m_Eap.KeyAvailable()) {
               std::cout << "Assigning key" << std::endl;
               key.assign(m_Eap.KeyData().data(), m_Eap.KeyData().size());
               return true;
           }
           return false;
+#endif
        }
        void Disconnect(ACE_UINT32 cause) {
           std::cout << "PANA Disconnection" << std::endl;
           m_AuthScriptCtl.Remove();
+          gActiveSignal.signal();
        }
        void Ping() {
           m_PaC.Ping();
@@ -338,8 +351,6 @@ class PeerInitializer
 };
 
 static PeerApplication *gPacReference = NULL;
-static ACE_Thread_Mutex gMutex;
-static ACE_Condition<ACE_Thread_Mutex> gActiveSignal(gMutex);
 
 #if defined (ACE_HAS_SIG_C_FUNC)
 extern "C" {
@@ -350,7 +361,7 @@ static void PacdSigHandler(int signo)
       switch (signo) {
          case SIGUSR1: gPacReference->Channel().Ping(); break;
          case SIGHUP:  gPacReference->Channel().ReAuthenticate(); break;
-         case SIGTERM: gActiveSignal.signal(); break;
+         case SIGTERM: gPacReference->Channel().Stop(); break;
          default: break;
       }
   }
@@ -412,11 +423,10 @@ int main(int argc, char *argv[])
                            ARCHIE_METHOD_TYPE : 4);
       gPacReference = &peer;
       gActiveSignal.wait();
-      peer.Channel().Stop();
       // Insurance policy to make sure all threads are gone
       // Stop() already waits for the threads but ExistBacklog()
       // can have loopholes in it.
-      ACE_Time_Value tm(1);
+      ACE_Time_Value tm(3);
       ACE_OS::sleep(tm);
   }
   catch (...) {

@@ -175,6 +175,11 @@ void PANA_Paa::TxPARStart()
              msg->sessionId(), msg->seq()));
 
     SendReqMsg(msg);
+
+    // Save the PAR-Start for AUTH generation (stateful mode)
+    PANA_MsgByteStream byteConverter;
+    PANA_MessageBuffer *buffer = byteConverter.Get(*msg);
+    SecurityAssociation().PARStart().assign(buffer->base(), msg->length());
 }
 
 void PANA_Paa::RxPANStart()
@@ -204,15 +209,23 @@ void PANA_Paa::RxPANStart()
     PANA_UInt32AvpContainerWidget integrityAlgoAvp(msg.avpList());
     pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO);
     if (integrityAlgo == NULL) {
-        throw (PANA_Exception(PANA_Exception::MISSING_ALORITHM,
+        throw (PANA_Exception(PANA_Exception::MISSING_ALGORITHM,
                "No Integrity Algorithm present"));
+    }
+    else if (*integrityAlgo != PANA_AUTH_HMAC_SHA1_160) {
+        throw (PANA_Exception(PANA_Exception::INVALID_ALGORITHM,
+               "Integrity Algorithm not supported"));
     }
 
     PANA_UInt32AvpContainerWidget prfAlgoAvp(msg.avpList());
     pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO);
     if (prfAlgo == NULL) {
-        throw (PANA_Exception(PANA_Exception::MISSING_ALORITHM,
+        throw (PANA_Exception(PANA_Exception::MISSING_PRF,
                "No PRF Algorithm present"));
+    }
+    else if (*prfAlgo != PANA_PRF_HMAC_SHA1) {
+        throw (PANA_Exception(PANA_Exception::INVALID_PRF,
+               "PRF Algorithm not supported"));
     }
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
@@ -223,6 +236,11 @@ void PANA_Paa::RxPANStart()
     else if (! PANA_CFG_PAA().m_OptimizedHandshake) {
         NotifyEapRestart();
     }
+
+    // Save the PAN-Start for AUTH generation (any mode)
+    PANA_MsgByteStream byteConverter;
+    PANA_MessageBuffer *buffer = byteConverter.Get(msg);
+    SecurityAssociation().PANStart().assign(buffer->base(), msg.length());
 }
 
 void PANA_Paa::TxPAR()
@@ -355,7 +373,7 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
         if (m_Event.IsKeyAvailable(newKey)) {
             SecurityAssociation().MSK().Set(newKey);
             SecurityAssociation().AddKeyIdAvp(*msg);
-            SecurityAssociation().GenerateAuthKey(this->SessionId());
+            SecurityAssociation().GenerateAuthKey();
         }
     }
 

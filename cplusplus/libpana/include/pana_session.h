@@ -127,7 +127,7 @@ class PANA_SessionAttribute {
        boost::shared_ptr<PANA_Message> m_CachedAnsMsg; // cached message
        ACE_UINT32 m_SessionLifetime; // session lifetime
        PANA_MsgHeader m_LastRxHeader; // Header of the last received message
-       bool m_IpReconfiguration;
+       bool m_IpReconfiguration; // set if the IP reconfiguration flag
 };
 
 typedef enum {

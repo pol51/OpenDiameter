@@ -64,7 +64,7 @@ class NASD_Map
       virtual ~NASD_Map() {
          while (! m_Map.empty()) {
             std::auto_ptr<NASD_MapElement> e(m_Map.begin()->second);
-            m_Map.erase(m_Map.begin()); 
+            m_Map.erase(m_Map.begin());
          }
       }
       virtual bool Register(std::auto_ptr<NASD_MapElement> e) {
@@ -104,7 +104,7 @@ class NASD_Map
 };
 
 template <class PROTOCOL>
-class NASD_ProtocolElement : 
+class NASD_ProtocolElement :
    public NASD_MapElement
 {
    public:
@@ -115,11 +115,11 @@ class NASD_ProtocolElement :
          return m_bEnabled;
       }
       virtual void Dump() {
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)    ** Protocol: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)    ** Protocol: %s\n",
                   m_Name.data());
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)        Enabled: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)        Enabled: %s\n",
                   m_bEnabled ? "true" : "false");
          m_Protocol.Dump();
       }
@@ -140,11 +140,11 @@ class NASD_ApPanaElement
          return m_EpScript;
       }
       void Dump() {
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)       Cfg File: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)       Cfg File: %s\n",
                   m_CfgFile.data());
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)           EP S: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)           EP S: %s\n",
                   m_EpScript.data());
       }
    protected:
@@ -160,9 +160,9 @@ class NASD_Ap8021xElement
       }
 };
 
-typedef NASD_ProtocolElement<NASD_ApPanaElement> 
+typedef NASD_ProtocolElement<NASD_ApPanaElement>
         NASD_ApPanaData;
-typedef NASD_ProtocolElement<NASD_Ap8021xElement> 
+typedef NASD_ProtocolElement<NASD_Ap8021xElement>
         NASD_Ap8021xData;
 typedef NASD_Map NASD_AccessProtocolTable;
 
@@ -176,11 +176,11 @@ class NASD_AaaLocalEapAuth
          return m_Identity;
       }
       void Dump() {
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)         Secret: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)         Secret: %s\n",
                   m_SharedSecretFile.data());
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)       Identity: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)       Identity: %s\n",
                   m_Identity.data());
       }
    protected:
@@ -195,22 +195,22 @@ class NASD_AaaDiameterEap
          return m_DiameterCfgFile;
       }
       void Dump() {
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)        Cfgfile: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)        Cfgfile: %s\n",
                   m_DiameterCfgFile.data());
       }
    protected:
       std::string m_DiameterCfgFile;
 };
 
-typedef NASD_ProtocolElement<NASD_AaaLocalEapAuth> 
+typedef NASD_ProtocolElement<NASD_AaaLocalEapAuth>
         NASD_AaaLocalEapAuthData;
-typedef NASD_ProtocolElement<NASD_AaaDiameterEap> 
+typedef NASD_ProtocolElement<NASD_AaaDiameterEap>
         NASD_AaaDiameterEapData;
 typedef NASD_Map NASD_AaaProtocolTable;
 
 template <class POLICY>
-class NASD_PolicyElement : 
+class NASD_PolicyElement :
    public NASD_MapElement
 {
    public:
@@ -218,8 +218,8 @@ class NASD_PolicyElement :
          return m_Policy;
       }
       virtual void Dump() {
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)  Access Policy: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)  Access Policy: %s\n",
                   m_Name.data());
          m_Policy.Dump();
       }
@@ -234,19 +234,19 @@ class NASD_ScriptPolicy
          return m_ScriptFile;
       }
       void Dump() {
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)         Script: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)         Script: %s\n",
                   m_ScriptFile.data());
       }
    protected:
       std::string m_ScriptFile;
 };
 
-typedef NASD_PolicyElement<NASD_ScriptPolicy> 
+typedef NASD_PolicyElement<NASD_ScriptPolicy>
         NASD_PolicyScriptData;
 typedef NASD_Map NASD_PolicyTable;
 
-class NASD_RouteEntry : 
+class NASD_RouteEntry :
    public NASD_MapElement
 {
    public:
@@ -257,22 +257,22 @@ class NASD_RouteEntry :
       }
       AccessPolicyList &PolicyList() {
          return m_PolicyList;
-      }      
+      }
       std::string &AaaProtocol() {
          return m_AaaProtocol;
       }
       virtual void Dump() {
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)            NAI: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)            NAI: %s\n",
                   m_Name.data());
-         NASD_LOG(LM_INFO, 
-                  "(%P|%t)            AAA: %s\n", 
+         NASD_LOG(LM_INFO,
+                  "(%P|%t)            AAA: %s\n",
                   m_AaaProtocol.data());
 	 AccessPolicyList::iterator i;
-         for (i = m_PolicyList.begin(); 
+         for (i = m_PolicyList.begin();
               i != m_PolicyList.end(); i++) {
-            NASD_LOG(LM_INFO, 
-                     "(%P|%t)         Policy: %s\n", 
+            NASD_LOG(LM_INFO,
+                     "(%P|%t)         Policy: %s\n",
                      (*i).data());
 	 }
       }
@@ -281,7 +281,7 @@ class NASD_RouteEntry :
       std::string m_AaaProtocol;
 };
 
-class NASD_RouteMap : 
+class NASD_RouteMap :
    public NASD_Map
 {
    public:
@@ -290,7 +290,7 @@ class NASD_RouteMap :
          /// Lookup method
 	 ///
          /// 1. Exact match on NAI, else
-         /// 2. Nai is stripped of username and 
+         /// 2. Nai is stripped of username and
          ///    domain is used for exact match, else
          /// 3. Default route is used
          ///
@@ -309,8 +309,8 @@ class NASD_RouteMap :
              }
          }
          else {
-             NASD_LOG(LM_INFO, 
-                  "(%P|%t) Cannot determine domain in [%s]\n", 
+             NASD_LOG(LM_INFO,
+                  "(%P|%t) Cannot determine domain in [%s]\n",
                   Nai.data());
 	     }
 	 }
@@ -349,24 +349,24 @@ class NASD_CallManagementData
          return m_AccessProtocolTable;
       }
       void Dump() {
-         NASD_LOG(LM_INFO, 
+         NASD_LOG(LM_INFO,
                   "(%P|%t)--- Call Management ---\n");
-         NASD_LOG(LM_INFO, 
+         NASD_LOG(LM_INFO,
                   "(%P|%t)     Thread Cnt: %d\n", m_ThreadCount);
 
-         NASD_LOG(LM_INFO, 
+         NASD_LOG(LM_INFO,
                   "(%P|%t)--- Call Routing    ---\n");
          m_CallRouteTable.Dump();
 
-         NASD_LOG(LM_INFO, 
+         NASD_LOG(LM_INFO,
                   "(%P|%t)--- Access Protocol ---\n");
          m_AccessProtocolTable.Dump();
 
-         NASD_LOG(LM_INFO, 
+         NASD_LOG(LM_INFO,
                   "(%P|%t)---   AAA Protocol  ---\n");
          m_AAAProtocolTable.Dump();
 
-         NASD_LOG(LM_INFO, 
+         NASD_LOG(LM_INFO,
                   "(%P|%t)---  Access Policy  ---\n");
          m_PolicyTable.Dump();
       }
@@ -379,8 +379,8 @@ class NASD_CallManagementData
 };
 
 // Global database
-typedef ACE_Singleton<NASD_CallManagementData, 
-                      ACE_Recursive_Thread_Mutex> 
+typedef ACE_Singleton<NASD_CallManagementData,
+                      ACE_Recursive_Thread_Mutex>
                       NASD_CallManagementData_S;
 
 // Access macros for all databases

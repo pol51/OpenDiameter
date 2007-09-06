@@ -26,8 +26,8 @@
             <enabled>true</enabled>
             <pana>
                 <!-- protocol specific configuration entry -->
-                <cfg_file>/etc/opendiameter/nas/config/nasd_pana_paa.xml</cfg_file>
-                <ep_script>/etc/opendiameter/nas/scripts/script_pana_paa_ep.sh</ep_script>
+                <cfg_file>config/nasd_pana_paa.xml</cfg_file>
+                <ep_script>scripts/script_pana_paa_ep.sh</ep_script>
                 <dhcp_bootstrap>true</dhcp_bootstrap>
             </pana>
         </access_entry>
@@ -65,7 +65,7 @@
             <enabled>true</enabled>
             <!-- protocol specific configuration entry -->             
             <local_eap_auth>
-                <shared_secret_file>/etc/opendiameter/nas/config/nasd_eap_shared_secret.bin</shared_secret_file>
+                <shared_secret_file>config/nasd_eap_shared_secret.bin</shared_secret_file>
                 <identity>user1@isp.net</identity>
             </local_eap_auth>
         </aaa_entry>
@@ -74,7 +74,7 @@
             <enabled>false</enabled>
             <diameter_eap>
                 <!-- protocol specific configuration entry -->             
-                <diameter_cfg_file>/etc/opendiameter/nas/config/nasd_diameter_eap.xml</diameter_cfg_file>
+                <diameter_cfg_file>config/nasd_diameter_eap.xml</diameter_cfg_file>
             </diameter_eap>
         </aaa_entry>
     </aaa_protocols>
@@ -104,7 +104,7 @@
             <name>script</name>
             <!-- policy specific configuration entry -->
             <script>
-                <file>/etc/opendiameter/nas/scripts/script_policy</file>
+                <file>scripts/script_policy</file>
             </script>
         </policy_entry>
         <policy_entry>

@@ -55,6 +55,8 @@
 #include "user_db.h"
 #include "pana_auth_script.h"
 
+#define KEY_TESTING 1
+
 class MyPeerSwitchStateMachine;
 class MyStandAloneAuthSwitchStateMachine;
 class MyBackendAuthSwitchStateMachine;
@@ -252,7 +254,16 @@ class PeerApplication : public AAA_JobData,
      PANA_AuthScriptCtl::Print(args);
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
-     return false;
+#ifdef KEY_TESTING
+    static int toggle = 0;
+    static char *keys[] = { "0123456789012345678901234567890123456789012345678901234567890123",
+                            "3210987654321098765432109876543210987654321098765432109876543210" };
+    key.assign(keys[toggle]);
+    toggle = (toggle) ? 0 : 1;
+    return true;
+#else
+    return false;
+#endif
   }
   void Disconnect(ACE_UINT32 cause) {
   }
@@ -310,7 +321,16 @@ class StandAloneAuthApplication : public AAA_JobData,
      paaSession.Ping();
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
-     return false;
+#ifdef KEY_TESTING
+    static int toggle = 0;
+    static char *keys[] = { "0123456789012345678901234567890123456789012345678901234567890123",
+                            "3210987654321098765432109876543210987654321098765432109876543210" };
+    key.assign(keys[toggle]);
+    toggle = (toggle) ? 0 : 1;
+    return true;
+#else
+    return false;
+#endif
   }
   bool IsUserAuthorized() {
       return true;

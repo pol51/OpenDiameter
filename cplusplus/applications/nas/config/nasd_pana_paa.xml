@@ -12,7 +12,7 @@
         <listen_port>3001</listen_port>
 
         <!-- Filename of the parser dictionary -->
-        <dictionary_filename>config/dictionary.xml</dictionary_filename>
+        <dictionary_filename>config/nasd_pana_dictionary.xml</dictionary_filename>
 
         <!-- Configurable retransmission parameters
              as specified in the PANA draft. See

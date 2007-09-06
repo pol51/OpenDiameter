@@ -140,6 +140,11 @@ void PANA_Client::RxPARStart()
     else {
        TxPANStart(false);
     }
+
+    // Save the PAR-Start for AUTH generation
+    PANA_MsgByteStream byteConverter;
+    PANA_MessageBuffer *buffer = byteConverter.Get(msg);
+    SecurityAssociation().PARStart().assign(buffer->base(), msg.length());
 }
 
 void PANA_Client::TxPANStart(bool eapOptimization)
@@ -190,6 +195,11 @@ void PANA_Client::TxPANStart(bool eapOptimization)
             msg->sessionId(), msg->seq()));
 
     SendAnsMsg(msg);
+
+    // Save the PAN-Start for AUTH generation
+    PANA_MsgByteStream byteConverter;
+    PANA_MessageBuffer *buffer = byteConverter.Get(*msg);
+    SecurityAssociation().PANStart().assign(buffer->base(), msg->length());
 }
 
 void PANA_Client::TxPCI()
@@ -244,6 +254,7 @@ void PANA_Client::RxPAR()
 
     AAA_LOG((LM_INFO, "(%P|%t) RxPAR: id=%u seq=%u\n",
              msg.sessionId(), msg.seq()));
+
 
     // Stop any RtxTimerStop()
     m_Timer.CancelTxRetry();
@@ -510,7 +521,7 @@ void PANA_Client::TxPANComplete(bool authSuccess)
         pana_octetstring_t newKey;
         if (m_Event.IsKeyAvailable(newKey)) {
             SecurityAssociation().MSK().Set(newKey);
-            SecurityAssociation().GenerateAuthKey(this->SessionId());
+            SecurityAssociation().GenerateAuthKey();
         }
     }
 

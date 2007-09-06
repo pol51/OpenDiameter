@@ -36,11 +36,13 @@
 
 #include "pana_exports.h"
 #include "pana_message.h"
+#include "pana_memory_manager.h"
 
 // mandatory key algorithm and integrity schemes
 #define PANA_PRF_HMAC_SHA1         0x02
 #define PANA_AUTH_HMAC_SHA1_160    0x07
 #define PANA_AUTH_HMACSIZE         20
+#define PANA_AUTH_HMACSIZE_FACTOR  4
 
 class PANA_EXPORT PANA_Nonce :
     public PANA_ScholarValue<pana_octetstring_t>
@@ -64,7 +66,7 @@ class PANA_EXPORT PANA_Nonce :
             return *this;
         }
         void Generate() {
-            ACE_UINT32 v[4];
+            ACE_UINT32 v[5];
             for (unsigned int i=0; i<sizeof(v)/sizeof(ACE_UINT32); i++) {
                  v[i] = ACE_OS::rand();
             }
@@ -99,11 +101,29 @@ class PANA_EXPORT PANA_AuthKey :
     public PANA_ScholarValue<pana_octetstring_t>
 {
     public:
-        void Generate(PANA_Nonce &pac,
-                      PANA_Nonce &paa,
-                      pana_octetstring_t &aaaKey,
-                      ACE_UINT32 sessionId,
+        void Generate(PANA_Nonce &pacNonce,
+                      PANA_Nonce &paaNonce,
+                      pana_octetstring_t &iPAR,
+                      pana_octetstring_t &iPAN,
+                      pana_octetstring_t &msk,
                       ACE_UINT32 keyId);
+};
+
+class PANA_EXPORT PANA_MsgByteStream
+{
+    public:
+        PANA_MsgByteStream() {
+           m_RawBuffer = PANA_MESSAGE_POOL()->malloc();
+        }
+        virtual ~PANA_MsgByteStream() {
+           PANA_MESSAGE_POOL()->free(m_RawBuffer);
+           m_RawBuffer = NULL;
+        }
+
+        PANA_MessageBuffer *Get(PANA_Message &msg);
+
+    private:
+        PANA_MessageBuffer *m_RawBuffer;
 };
 
 class PANA_EXPORT PANA_SecurityAssociation
@@ -117,6 +137,12 @@ class PANA_EXPORT PANA_SecurityAssociation
         PANA_Nonce &PaaNonce() {
             return m_PaaNonce;
         }
+        pana_octetstring_t &PARStart() {
+            return m_PARStart;
+        }
+        pana_octetstring_t &PANStart() {
+            return m_PANStart;
+        }
         void Reset() {
             m_MSK.Reset();
             m_AuthKey.Reset();
@@ -128,7 +154,7 @@ class PANA_EXPORT PANA_SecurityAssociation
             return m_AuthKey;
         }
 
-        void GenerateAuthKey(ACE_UINT32 sessionId);
+        void GenerateAuthKey();
         bool AddKeyIdAvp(PANA_Message &msg);
         bool AddAuthAvp(PANA_Message &msg);
         bool ValidateAuthAvp(PANA_Message &msg);
@@ -143,6 +169,8 @@ class PANA_EXPORT PANA_SecurityAssociation
         PANA_Nonce   m_PacNonce;
         PANA_Nonce   m_PaaNonce;
         PANA_MSK     m_MSK;
+        pana_octetstring_t m_PARStart;
+        pana_octetstring_t m_PANStart;
 };
 
 #endif /* __PANA_SECURITY_ASSOC_H__ */

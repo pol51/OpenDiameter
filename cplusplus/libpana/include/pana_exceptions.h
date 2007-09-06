@@ -68,7 +68,10 @@ class PANA_Exception
          CONFIG_ERROR,
          INVALID_MESSAGE,
          MISSING_EAP_PAYLOAD,
-         MISSING_ALORITHM,
+         MISSING_ALGORITHM,
+         MISSING_PRF,
+         INVALID_ALGORITHM,
+         INVALID_PRF
       } CODE;
 
    public:

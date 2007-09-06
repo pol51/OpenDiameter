@@ -34,68 +34,124 @@
 #include "od_utl_sha1.h"
 #include "pana_security_assoc.h"
 #include "pana_exceptions.h"
-#include "pana_memory_manager.h"
 #include "pana_parser.h"
+#include "openssl/hmac.h"
+#include "openssl/sha.h"
 
 ACE_UINT32 PANA_MSK::m_GlobalId = 0;
 
-void PANA_AuthKey::Generate(PANA_Nonce &pac,
-                            PANA_Nonce &paa,
+PANA_MessageBuffer *PANA_MsgByteStream::Get(PANA_Message &msg)
+{
+    m_RawBuffer->reset();
+
+    PANA_HeaderParser hp;
+    hp.setRawData(m_RawBuffer);
+    hp.setAppData(&msg);
+
+    hp.parseAppToRaw();
+
+    // Parse the payload
+    PANA_PayloadParser pp;
+    pp.setRawData(m_RawBuffer);
+    pp.setAppData(&(msg.avpList()));
+    pp.setDictData(hp.getDictData());
+
+    pp.parseAppToRaw();
+
+    // Re-do the header again to set the length
+    msg.length() = m_RawBuffer->wr_ptr() - m_RawBuffer->base();
+    hp.parseAppToRaw();
+
+#if PANA_SA_DEBUG
+    printf("RAW MSG [%d]: ", msg.length());
+    for (size_t i=0; i<msg.length(); i++) {
+        printf("%02X ", (unsigned char)((char*)m_RawBuffer->base())[i]);
+    }
+    printf("\n");
+#endif
+    return m_RawBuffer;
+}
+
+void PANA_AuthKey::Generate(PANA_Nonce &pacNonce,
+                            PANA_Nonce &paaNonce,
+                            pana_octetstring_t &iPAR,
+                            pana_octetstring_t &iPAN,
                             pana_octetstring_t &msk,
-                            ACE_UINT32 sessionId,
                             ACE_UINT32 keyId)
 {
    /*
-   The PANA_AUTH_KEY is derived from the available MSK and it is used to
-   integrity protect PANA messages.  The PANA_AUTH_KEY is computed in
-   the following way:
+    The PANA_AUTH_KEY is derived from the available MSK and it is used to
+    integrity protect PANA messages.  The PANA_AUTH_KEY is computed in
+    the following way:
 
-    PANA_AUTH_KEY = prf+(MSK, PaC_nonce|PAA_nonce|Session_ID|Key_ID)
+      PANA_AUTH_KEY = prf+(MSK, I_PAR|I_PAN|PaC_nonce|PAA_nonce|Key_ID)
 
-   where the prf+ function is defined in IKEv2 [RFC4306].  The
-   pseudo-random function to be used for the prf+ function is specified
-   in the Algorithm AVP in a PANA-Bind-Request message.  The length of
-   PANA_AUTH_KEY depends on the integrity algorithm in use.  See
-   Section 5.4 for the detailed usage of the PANA_AUTH_KEY.  PaC_nonce
-   and PAA_nonce are values of the Nonce AVP carried in the first
-   PANA-Auth-Answer and PANA-Auth-Request messages in the authentication
-   and authorization phase or the re-authentication phase, respectively.
-   Session_ID is the session identifier of the session.  Key_ID is the
-   value of the Key-ID AVP.
+    where the prf+ function is defined in IKEv2 [RFC4306].  The
+    pseudo-random function to be used for the prf+ function is negotiated
+    using PRF-Algorithm AVP in the initial PANA-Auth-Request and
+    PANA-Auth-Answer exchange with 'S' (Start) bit set.  The length of
+    PANA_AUTH_KEY depends on the integrity algorithm in use.  See
+    Section 5.4 for the detailed usage of the PANA_AUTH_KEY.  I_PAR and
+    I_PAN are the initial PANA-Auth-Request and PANA-Auth-Answer messages
+    (the PANA header and the following PANA AVPs) with 'S' (Start) bit
+    set, respectively.  PaC_nonce and PAA_nonce are values of the Nonce
+    AVP carried in the first non-initial PANA-Auth-Answer and
+    PANA-Auth-Request messages in the authentication and authorization
+    phase or the first PANA-Auth-Answer and PANA-Auth-Request messages in
+    the re-authentication phase, respectively.  Key_ID is the value of
+    the Key-Id AVP.
    */
 
-#if PANA_SA_DEBUG
-    printf("MSK [%d]: ", msk.size());
-    for (size_t i=0; i<msk.size(); i++) {
-        printf("%02X ", (unsigned char)((char*)msk.data())[i]);
-    }
-    printf("\n");
-    printf("Pac Nonce[%d]: ", pac.Get().size());
-    for (size_t i=0; i<pac.Get().size(); i++) {
-        printf("%02X ", (unsigned char)((char*)pac.Get().data())[i]);
-    }
-    printf("\n");
-    printf("Paa Nonce[%d]: ", paa.Get().size());
-    for (size_t i=0; i<paa.Get().size(); i++) {
-        printf("%02X ", (unsigned char)((char*)paa.Get().data())[i]);
-    }
-    printf("\n");
-    printf("Key ID: %d\n", keyId);
-#endif
+    ACE_UINT32 incLen = 0;
+    ACE_UINT32 seedLen = iPAR.length() + iPAN.length() + pacNonce.Get().size() + paaNonce.Get().size() + sizeof(keyId);
+    unsigned char *seed = new unsigned char[seedLen];
 
-    OD_Utl_Sha1 sha1;
-    sha1.Update((unsigned char*)msk.data(), msk.size());
-    sha1.Update((unsigned char*)pac.Get().data(), pac.Get().size());
-    sha1.Update((unsigned char*)paa.Get().data(), paa.Get().size());
-    sha1.Update((unsigned char*)&sessionId, sizeof(sessionId));
-    sha1.Update((unsigned char*)&keyId, sizeof(keyId));
-    sha1.Final();
+    memcpy(seed, iPAR.data(), iPAR.length());
+    incLen += iPAR.length();
 
-    char sbuf[PANA_AUTH_HMACSIZE];
+    memcpy(seed + incLen, iPAN.data(), iPAN.length());
+    incLen += iPAN.length();
+
+    memcpy(seed + incLen, pacNonce.Get().data(), pacNonce.Get().size());
+    incLen += pacNonce.Get().size();
+
+    memcpy(seed + incLen, paaNonce.Get().data(), paaNonce.Get().size());
+    incLen += paaNonce.Get().size();
+
+    keyId = ACE_NTOHL(keyId);
+    memcpy(seed + incLen, &keyId, sizeof(keyId));
+    incLen += sizeof(keyId);
+
+    /*
+      prf+ (K,S) = T1 | T2 | T3 | T4 | ...
+
+      where:
+      T1 = prf (K, S | 0x01)
+      T2 = prf (K, T1 | S | 0x02)
+      T3 = prf (K, T2 | S | 0x03)
+      T4 = prf (K, T3 | S | 0x04)
+    */
+    ACE_UINT32 resLen = 0;
+    unsigned char sbuf[PANA_AUTH_HMACSIZE * PANA_AUTH_HMACSIZE_FACTOR];
     ACE_OS::memset(sbuf, 0x0, sizeof(sbuf));
-    sha1.GetHash((unsigned char*)sbuf);
 
-    m_Value.assign((char*)(sbuf), sizeof(sbuf));
+    HMAC_CTX ctx;
+    HMAC_CTX_init(&ctx);
+
+    for (unsigned char tokenCount = 1; tokenCount <= PANA_AUTH_HMACSIZE_FACTOR; tokenCount ++) {
+
+        HMAC_Init_ex(&ctx, msk.data(), msk.size(), EVP_sha1(), NULL);
+        if (tokenCount > 1) {
+            HMAC_Update(&ctx, sbuf + (PANA_AUTH_HMACSIZE * (tokenCount - 2)), PANA_AUTH_HMACSIZE);
+        }
+        HMAC_Update(&ctx, seed, seedLen);
+        HMAC_Update(&ctx, &tokenCount, 1);
+        HMAC_Final(&ctx,  sbuf + (PANA_AUTH_HMACSIZE * (tokenCount - 1)), &resLen);
+    }
+
+    HMAC_CTX_cleanup(&ctx);
+
+    m_Value.assign((char*)(sbuf), PANA_AUTH_HMACSIZE);
     m_IsSet = true;
 
 #if PANA_SA_DEBUG
@@ -107,12 +163,13 @@ void PANA_AuthKey::Generate(PANA_Nonce &pac,
 #endif
 }
 
-void PANA_SecurityAssociation::GenerateAuthKey(ACE_UINT32 sessionId)
+void PANA_SecurityAssociation::GenerateAuthKey()
 {
     m_AuthKey.Generate(m_PacNonce,
                        m_PaaNonce,
+                       m_PARStart,
+                       m_PANStart,
                        m_MSK.Get(),
-                       sessionId,
                        m_MSK.Id());
 }
 
@@ -121,30 +178,34 @@ void PANA_SecurityAssociation::GenerateAuthAvpValue
             ACE_UINT32 PDULength,
             pana_octetstring_t &authValue)
 {
-    //
-    //   A PANA message can contain a AUTH (Message Authentication Code) AVP
-    //   for cryptographically protecting the message.
-    //
-    //   When a AUTH AVP is included in a PANA message, the value field of the
-    //   AUTH AVP is calculated by using the PANA_AUTH_Key in the following
-    //   way:
-    //
-    //       AUTH AVP value = HMAC_SHA1(PANA_AUTH_Key, PANA_PDU)
-    //
-    //   where PANA_PDU is the PANA message including the PANA header, with
-    //   the AUTH AVP value field first initialized to 0.
-    //
-    OD_Utl_Sha1 sha1;
-    sha1.Update((unsigned char*)m_AuthKey.Get().data(),
-                 m_AuthKey.Get().size());
-    sha1.Update((unsigned char*)PDU, PDULength);
-    sha1.Final();
+   /*
+      5.4.  Message Authentication
 
-    // TBD: network byte ordering needs done
+        A PANA message can contain an AUTH AVP for cryptographically
+        protecting the message.
 
-    char sbuf[PANA_AUTH_HMACSIZE];
+        When an AUTH AVP is included in a PANA message, the value field of
+        the AUTH AVP is calculated by using the PANA_AUTH_KEY in the
+        following way:
+
+            AUTH AVP value = PANA_AUTH_HASH(PANA_AUTH_KEY, PANA_PDU)
+
+        where PANA_PDU is the PANA message including the PANA header, with
+        the AUTH AVP value field first initialized to 0.  PANA_AUTH_HASH
+        represents the integrity algorithm negotiated using Integrity-
+        Algorithm AVP in the initial PANA-Auth-Request and PANA-Auth-Answer
+        exchange with 'S' (Start) bit set.  The PaC and PAA MUST use the same
+        integrity algorithm to calculate an AUTH AVP they originate and
+        receive.
+     */
+
+    unsigned int reslen = 0;
+    unsigned char sbuf[PANA_AUTH_HMACSIZE];
     ACE_OS::memset(sbuf, 0x0, sizeof(sbuf));
-    sha1.GetHash((unsigned char*)sbuf);
+
+    HMAC(EVP_sha1(), m_AuthKey.Get().data(), m_AuthKey.Get().size(),
+         (const unsigned char*)PDU, PDULength, sbuf, &reslen);
+
     authValue.assign((char*)sbuf, sizeof(sbuf));
 
 #if PANA_SA_DEBUG
@@ -188,31 +249,13 @@ bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
     ACE_OS::memset(sbuf, 0x0, sizeof(sbuf));
     auth.assign(sbuf, sizeof(sbuf));
 
-    PANA_MessageBuffer *rawBuf = PANA_MESSAGE_POOL()->malloc();
-
-    PANA_HeaderParser hp;
-    hp.setRawData(rawBuf);
-    hp.setAppData(&msg);
-
-    hp.parseAppToRaw();
-
-    // Parse the payload
-    PANA_PayloadParser pp;
-    pp.setRawData(rawBuf);
-    pp.setAppData(&(msg.avpList()));
-    pp.setDictData(hp.getDictData());
-
-    pp.parseAppToRaw();
-
-    // Re-do the header again to set the length
-    msg.length() = rawBuf->wr_ptr() - rawBuf->base();
-    hp.parseAppToRaw();
+    PANA_MsgByteStream streamConverter;
+    PANA_MessageBuffer *rawBuf = streamConverter.Get(msg);
 
     // generate auth value
     GenerateAuthAvpValue(rawBuf->base(),
                          msg.length(),
                          auth);
-    PANA_MESSAGE_POOL()->free(rawBuf);
     msg.avpList().reset();
 
     return (true);

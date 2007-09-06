@@ -65,7 +65,7 @@
 
         <!-- Controls wether EAP payload will be sent
              in the PANA-Auth-Answer message during auth phase --> 
-        <eap_piggyback>0</eap_piggyback>
+        <eap_piggyback>1</eap_piggyback>
 
     </client>
 

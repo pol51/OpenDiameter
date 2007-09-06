@@ -41,9 +41,25 @@
 #include "od_utl_patterns.h"
 #include "od_utl_rbtree_dbase.h"
 
+class PANA_EXPORT PANA_ReplicatableNumbers
+{
+   public:
+      PANA_ReplicatableNumbers();
+      ACE_UINT32 Get(ACE_UINT32 seed);
+
+   private:
+      ACE_UINT32 m_GetCount;
+      ACE_Time_Value m_Base;
+};
+
 class PANA_EXPORT PANA_PaaSessionFactory :
    public PANA_PaaSessionChannel
 {
+   public:
+      typedef enum {
+          MAX_MINUTES_TO_HONOR_SID = 3,
+      };
+
    public:
       PANA_PaaSessionFactory(PANA_Node &n) :
          PANA_PaaSessionChannel(n) {
@@ -67,6 +83,7 @@ class PANA_EXPORT PANA_PaaSessionFactory :
       virtual void RxPCI(PANA_Message &msg);
       virtual void StatelessTxPARStart(ACE_INET_Addr &addr);
       virtual void StatelessRxPANStart(PANA_Message &msg);
+      virtual boost::shared_ptr<PANA_Message> GenerateStatelessPAR();
 };
 
 template<class PAA_SESSION, class ARG>

@@ -32,9 +32,28 @@
 /* END_COPYRIGHT                                                          */
 
 #include "ace/OS.h"
+#include "ace/Date_Time.h"
 #include "pana_session.h"
 #include "pana_paa_factory.h"
 #include "pana_config_manager.h"
+
+PANA_ReplicatableNumbers::PANA_ReplicatableNumbers()
+{
+    m_GetCount = 0;
+    m_Base = ACE_OS::gettimeofday();
+}
+
+ACE_UINT32 PANA_ReplicatableNumbers::Get(ACE_UINT32 seed)
+{
+    // Get current minutes
+    ACE_Date_Time dateTime;
+    dateTime.update(m_Base);
+
+    // use RAND so that the 32-bit numbers can be replicated using the same seed
+    m_GetCount ++;
+    ACE_OS::srand(seed + dateTime.minute() + m_GetCount);
+    return ACE_OS::rand();
+}
 
 void PANA_PaaSessionFactory::Receive(PANA_Message &msg)
 {
@@ -141,6 +160,28 @@ void PANA_PaaSessionFactory::RxPCI(PANA_Message &msg)
    delete &msg;
 }
 
+boost::shared_ptr<PANA_Message> PANA_PaaSessionFactory::GenerateStatelessPAR()
+{
+    boost::shared_ptr<PANA_Message> msg(new PANA_Message);
+
+    // Populate header
+    msg->type() = PANA_MTYPE_PAR;
+    msg->flags().request = true;
+    msg->flags().start = true;
+
+    // add integrity algorithm
+    PANA_UInt32AvpWidget integrityAlgoAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+    integrityAlgoAvp.Get() = PANA_AUTH_HMAC_SHA1_160;
+    msg->avpList().add(integrityAlgoAvp());
+
+    // add prf algorithm
+    PANA_UInt32AvpWidget prfAlgoAvp(PANA_AVPNAME_PRF_ALGO);
+    prfAlgoAvp.Get() = PANA_PRF_HMAC_SHA1;
+    msg->avpList().add(prfAlgoAvp());
+
+    return msg;
+}
+
 void PANA_PaaSessionFactory::StatelessTxPARStart(ACE_INET_Addr &addr)
 {
    /*
@@ -161,34 +202,16 @@ void PANA_PaaSessionFactory::StatelessTxPARStart(ACE_INET_Addr &addr)
                         * [ AVP ]
                       0*1 < AUTH >
     */
-    boost::shared_ptr<PANA_Message> msg(new PANA_Message);
+    boost::shared_ptr<PANA_Message> msg = GenerateStatelessPAR();
 
-    // generate initial seq number
-    PANA_SEQ_GENERATOR_INIT();
-
-    // Populate header
-    msg->type() = PANA_MTYPE_PAR;
-    msg->seq() = ACE_OS::rand();
-    msg->flags().request = true;
-    msg->flags().start = true;
-
-    // generate a new session identifier
-    ACE_Time_Value tv = ACE_OS::gettimeofday();
-    msg->sessionId() = tv.sec() + tv.usec();
+    // generate good numbers
+    PANA_ReplicatableNumbers replica;
+    msg->sessionId() = replica.Get(addr.get_ip_address());
+    msg->seq() = replica.Get(addr.get_ip_address());
 
     // proper addresses
     msg->destAddress() = addr;
     msg->srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
-
-    // add integrity algorithm
-    PANA_UInt32AvpWidget integrityAlgoAvp(PANA_AVPNAME_INTEGRITY_ALGO);
-    integrityAlgoAvp.Get() = PANA_AUTH_HMAC_SHA1_160;
-    msg->avpList().add(integrityAlgoAvp());
-
-    // add prf algorithm
-    PANA_UInt32AvpWidget prfAlgoAvp(PANA_AVPNAME_PRF_ALGO);
-    prfAlgoAvp.Get() = PANA_PRF_HMAC_SHA1;
-    msg->avpList().add(prfAlgoAvp());
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));
@@ -217,23 +240,25 @@ void PANA_PaaSessionFactory::StatelessRxPANStart(PANA_Message &msg)
    AAA_LOG((LM_INFO, "(%P|%t) RxPAN-Start: Stateless, id=%u seq=%u\n",
            msg.sessionId(), msg.seq()));
 
+   // sanity checks
    if (msg.sessionId() == 0) {
-       throw (PANA_Exception(PANA_Exception::NO_MEMORY,
-                             "PSA has a zero session identifier"));
+       throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                             "Invalid session ID in PAN, ingorning answer"));
+   }
+   if (msg.flags().start == 0) {
+       throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                             "Expecting PAN-Start, ingorning answer"));
    }
 
-   PANA_UInt32AvpContainerWidget integrityAlgoAvp(msg.avpList());
-   pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO);
-   if (integrityAlgo == NULL) {
-       throw (PANA_Exception(PANA_Exception::MISSING_ALORITHM,
-              "No Integrity Algorithm present"));
+   // Numbers validation
+   PANA_ReplicatableNumbers replica;
+   if (msg.sessionId() != replica.Get(msg.srcAddress().get_ip_address())) {
+       throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                             "Session ID is not what we expect, ingorning answer"));
    }
-
-   PANA_UInt32AvpContainerWidget prfAlgoAvp(msg.avpList());
-   pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO);
-   if (prfAlgo == NULL) {
-       throw (PANA_Exception(PANA_Exception::MISSING_ALORITHM,
-              "No PRF Algorithm present"));
+   if (msg.seq() != replica.Get(msg.srcAddress().get_ip_address())) {
+       throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
+                             "Sequence number is not what we expect, ingorning answer"));
    }
 
    PANA_PaaSession *session = Create();
@@ -243,6 +268,15 @@ void PANA_PaaSessionFactory::StatelessRxPANStart(PANA_Message &msg)
    }
 
    AAA_LOG((LM_INFO, "(%P|%t) New session created [stateless handshake]\n"));
+
+   // save matching PAR (stateless)
+   boost::shared_ptr<PANA_Message> matchingPAR = GenerateStatelessPAR();
+   matchingPAR->sessionId() = msg.sessionId();
+   matchingPAR->seq() = msg.seq();
+
+   PANA_MsgByteStream byteConverter;
+   PANA_MessageBuffer *buffer = byteConverter.Get(*matchingPAR);
+   session->m_PAA.SecurityAssociation().PARStart().assign(buffer->base(), matchingPAR->length());
 
    // save address of PaC
    session->m_PAA.PacAddress() = msg.srcAddress();

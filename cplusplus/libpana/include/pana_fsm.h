@@ -41,7 +41,8 @@
 
 typedef enum {
   PANA_ST_INITIAL = 1,
-  PANA_ST_WAIT_PAA,
+  PANA_ST_WAIT_PAR,
+  PANA_ST_WAIT_PAN,
   PANA_ST_WAIT_SUCC_PAN,
   PANA_ST_WAIT_FAIL_PAN,
   PANA_ST_WAIT_EAP_MSG,
@@ -259,7 +260,8 @@ class PANA_EXPORT PANA_StateMachine :
    private:
        const char *StrState(int state) {
            static char *str[] = { "INITIAL",
-                                  "WAIT_PAA",
+                                  "WAIT_PAR",
+                                  "WAIT_PAN",
                                   "WAIT_SUCC_PAN",
                                   "WAIT_FAIL_PAN",
                                   "WAIT_EAP_MSG",
