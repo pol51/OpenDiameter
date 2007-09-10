@@ -44,9 +44,15 @@
 #include "pana_config_manager.h"
 #include "pana_pmk_bootstrap.h"
 
+#if (ACE_MAJOR_VERSION == 5 && ACE_MINOR_VERSION > 5)
 #define  PANA_SEQ_GENERATOR_INIT()  { time_t seed = 0; \
                                       ACE_System_Time::get_local_system_time(seed); \
                                       ACE_OS::srand(seed + ACE_OS::rand()); }
+#else
+#define  PANA_SEQ_GENERATOR_INIT()  { ACE_UINT32 seed = 0; \
+                                      ACE_System_Time::get_local_system_time(seed); \
+                                      ACE_OS::srand(seed + ACE_OS::rand()); }
+#endif
 
 typedef PANA_SimpleQueue<PANA_Message*> PANA_MsgQueue;
 typedef PANA_SimpleQueue<AAAMessageBlock*> PANA_BufferQueue;
