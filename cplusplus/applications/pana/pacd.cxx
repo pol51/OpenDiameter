@@ -35,6 +35,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <ace/Get_Opt.h>
+#include <ace/Signal.h>
 #include "eap_peerfsm.hxx"
 #include "eap_identity.hxx"
 #include "eap_md5.hxx"

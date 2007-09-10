@@ -34,6 +34,7 @@
 // $Id: Test2.cxx,v 1.36 2006/05/04 19:46:40 vfajardo Exp $
 
 #include <fstream>
+#include <ace/Signal.h>
 #include "eap.hxx"
 #include "eap_peerfsm.hxx"
 #include "eap_authfsm.hxx"
@@ -639,10 +640,12 @@ int main(int argc, char **argv)
     (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE),
      Authenticator, myAuthArchieCreator);
 
+#if defined (ACE_HAS_SIG_C_FUNC)
   ACE_Sig_Action sa(reinterpret_cast <ACE_SignalHandler> (MySigHandler));
   sa.register_action (SIGUSR1);
   sa.register_action (SIGHUP);
   sa.register_action (SIGTERM);
+#endif
 
   EapTask task(cfgfile);
 

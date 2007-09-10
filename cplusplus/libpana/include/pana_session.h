@@ -44,7 +44,7 @@
 #include "pana_config_manager.h"
 #include "pana_pmk_bootstrap.h"
 
-#define  PANA_SEQ_GENERATOR_INIT()  { ACE_UINT32 seed = 0; \
+#define  PANA_SEQ_GENERATOR_INIT()  { time_t seed = 0; \
                                       ACE_System_Time::get_local_system_time(seed); \
                                       ACE_OS::srand(seed + ACE_OS::rand()); }
 

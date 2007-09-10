@@ -34,12 +34,16 @@
 #ifndef __AAA_TRANSPORT_ACE_H__
 #define __AAA_TRANSPORT_ACE_H__
 
+#include "ace/Signal.h"
+#if (ACE_MAJOR_VERSION == 5 && ACE_MINOR_VERSION > 5)
+#include "ace/Sig_Handler.h"
+#endif
+#include "ace/Reactor.h"
+#include "ace/Handle_Set.h"
 #include "ace/SOCK_Connector.h"
 #include "ace/SOCK_Acceptor.h"
 #include "ace/SOCK_SEQPACK_Acceptor.h"
 #include "ace/SOCK_SEQPACK_Connector.h"
-#include "ace/Signal.h"
-#include "ace/Handle_Set.h"
 #include "aaa_transport_interface.h"
 
 // interface implemented by transport

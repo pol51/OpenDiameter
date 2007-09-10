@@ -52,6 +52,7 @@
 #include "ace/Get_Opt.h"
 #include <openssl/rand.h>
 #include <iostream>
+#include <ace/Signal.h>
 #include "user_db.h"
 #include "pana_auth_script.h"
 
