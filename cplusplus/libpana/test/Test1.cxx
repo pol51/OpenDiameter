@@ -55,7 +55,7 @@
 #include "user_db.h"
 #include "pana_auth_script.h"
 
-#define KEY_TESTING 1
+// #define KEY_TESTING 1
 
 class MyPeerSwitchStateMachine;
 class MyStandAloneAuthSwitchStateMachine;
