@@ -35,6 +35,12 @@
 #include "framework.h"
 #include "od_utl_xml_sax_parser.h"
 
+#if (ACE_MAJOR_VERSION == 5 && ACE_MINOR_VERSION > 5)
+#define OD_UTL_XML_THROW_SPEC(X)
+#else
+#define OD_UTL_XML_THROW_SPEC(X) ACE_THROW_SPEC (X)
+#endif
+
 class OD_UTL_XML_SAXHandler : 
   public ACEXML_DefaultHandler
 {
@@ -54,63 +60,77 @@ class OD_UTL_XML_SAXHandler :
      // Methods inherit from ACEXML_ContentHandler.
      virtual void characters (const ACEXML_Char *ch,
                               size_t start,
-                              size_t length ACEXML_ENV_ARG_DECL) {
+                              size_t length ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          m_parser.characters(ch, start, length);
      }
-     virtual void endDocument (ACEXML_ENV_SINGLE_ARG_DECL) {
+     virtual void endDocument (ACEXML_ENV_SINGLE_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          m_parser.endDocument();
      }
      virtual void endElement (const ACEXML_Char *namespaceURI,
                               const ACEXML_Char *localName,
-                              const ACEXML_Char *qName ACEXML_ENV_ARG_DECL) {
+                              const ACEXML_Char *qName ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          m_parser.endElement(namespaceURI, localName, qName);
      }
-     virtual void endPrefixMapping (const ACEXML_Char *prefix ACEXML_ENV_ARG_DECL) {
+     virtual void endPrefixMapping (const ACEXML_Char *prefix ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
      }  
      virtual void ignorableWhitespace (const ACEXML_Char *ch,
                                        int start,
-                                       int length ACEXML_ENV_ARG_DECL) {
+                                       int length ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
      }
      virtual void processingInstruction (const ACEXML_Char *target,
-                                         const ACEXML_Char *data ACEXML_ENV_ARG_DECL) {
+                                         const ACEXML_Char *data ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
      }
      virtual void setDocumentLocator (ACEXML_Locator *locator) {
          m_locator = locator;
      }
-     virtual void skippedEntity (const ACEXML_Char *name ACEXML_ENV_ARG_DECL) {
+     virtual void skippedEntity (const ACEXML_Char *name ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
      }
-     virtual void startDocument (ACEXML_ENV_SINGLE_ARG_DECL) {
+     virtual void startDocument (ACEXML_ENV_SINGLE_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          m_parser.startDocument();
      }
      virtual void startElement (const ACEXML_Char *namespaceURI,
                                 const ACEXML_Char *localName,
                                 const ACEXML_Char *qName,
-                                ACEXML_Attributes *atts ACEXML_ENV_ARG_DECL) {
+                                ACEXML_Attributes *atts ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          m_parser.startElement(namespaceURI, localName, qName, atts);
      }
      virtual void startPrefixMapping (const ACEXML_Char *prefix,
-                                      const ACEXML_Char *uri ACEXML_ENV_ARG_DECL) {
+                                      const ACEXML_Char *uri ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
      }
 
      // *** Methods inherit from ACEXML_DTDHandler.
      virtual void notationDecl (const ACEXML_Char *name,
                                 const ACEXML_Char *publicId,
-                                const ACEXML_Char *systemId ACEXML_ENV_ARG_DECL) {
+                                const ACEXML_Char *systemId ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
      }
      virtual void unparsedEntityDecl (const ACEXML_Char *name,
                                       const ACEXML_Char *publicId,
                                       const ACEXML_Char *systemId,
-                                      const ACEXML_Char *notationName ACEXML_ENV_ARG_DECL) {
+                                      const ACEXML_Char *notationName ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
      }
 
      // Methods inherit from ACEXML_EnitityResolver.
      virtual ACEXML_InputSource *resolveEntity (const ACEXML_Char *publicId,
-                                                const ACEXML_Char *systemId ACEXML_ENV_ARG_DECL) {
+                                                const ACEXML_Char *systemId ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          return (NULL);
      }
 
      // Methods inherit from ACEXML_ErrorHandler.
-     virtual void error (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL) {
+     virtual void error (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          AAA_LOG ((LM_INFO, "Error %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
@@ -118,7 +138,8 @@ class OD_UTL_XML_SAXHandler :
          exception.print();
          m_errorCount ++;
      }
-     virtual void fatalError (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL) {
+     virtual void fatalError (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          AAA_LOG ((LM_INFO, "Fatal error %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
@@ -126,7 +147,8 @@ class OD_UTL_XML_SAXHandler :
          exception.print();
          m_fatalError = true;
      }
-     virtual void warning (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL) {
+     virtual void warning (ACEXML_SAXParseException &exception ACEXML_ENV_ARG_DECL)
+            OD_UTL_XML_THROW_SPEC ((ACEXML_SAXException)) {
          AAA_LOG ((LM_INFO, "Warning %s: line: %d col: %d \n",
                     (m_locator->getSystemId() == 0 ? m_fileName : m_locator->getSystemId()),
                      m_locator->getLineNumber(),
