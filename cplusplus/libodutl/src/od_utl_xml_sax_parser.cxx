@@ -58,10 +58,17 @@ class OD_UTL_XML_SAXHandler :
      }
 
      // Methods inherit from ACEXML_ContentHandler.
+#if (ACE_MAJOR_VERSION == 5) && (ACE_MINOR_VERSION > 5)
+     virtual void characters (const ACEXML_Char *ch,
+                              size_t start,
+                              size_t length ACEXML_ENV_ARG_DECL)
+         OD_UTL_THROW_SPEC ((ACEXML_SAXException)) {
+#else
      virtual void characters (const ACEXML_Char *ch,
                               int start,
                               int length ACEXML_ENV_ARG_DECL)
          OD_UTL_THROW_SPEC ((ACEXML_SAXException)) {
+#endif
          m_parser.characters(ch, start, length);
      }
      virtual void endDocument (ACEXML_ENV_SINGLE_ARG_DECL)
