@@ -74,10 +74,13 @@ CORE_HDR = include/eap_api.h \
 	include/eap_archie_crypto.hxx \
 	include/eap_archie_fsm.hxx \
 	include/eap_archie_parser.hxx \
-	include/eap_archie.hxx
+	include/eap_archie.hxx \
+	include/eap_gpsk.hxx
 endif
 
 ARCHIE_SRC = eap-archie/eap_archie_fsm.cxx
+
+GPSK_SRC = eap-gpsk/eap_gpsk_fsm.cxx
 
 if compile_EAPTLS
 TLS_SRC = eap-tls/eap_tls_mng.cxx \
@@ -102,6 +105,7 @@ endif
 
 libeap_la_SOURCES = $(CORE_SRC) $(CORE_HDR)
 libeaparchie_la_SOURCES = $(ARCHIE_SRC)
+libegpsk_la_SOURCES = $(GPSK_SRC)
 
 if compile_EAPTLS
 libeaptls_la_SOURCES = $(TLS_SRC)
@@ -109,8 +113,12 @@ endif
 
 libeap_la_LDFLAGS = -version-info 1:0:0 
 libeap_la_AR = $(AR) -qcs
+
 libeaparchie_la_LDFLAGS = -version-info 1:0:0 
 libeaparchie_la_AR = $(AR) -qcs
+
+libeapgpsk_la_LDFLAGS = -version-info 1:0:0 
+libeapgpsk_la_AR = $(AR) -qcs
 
 if compile_EAPTLS
 libeaptls_la_LDFLAGS = -version-info 1:0:0 
