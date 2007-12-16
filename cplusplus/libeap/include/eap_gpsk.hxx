@@ -120,9 +120,6 @@ public:
 
 protected:
 
-  /// The number of octets used in the ID_Server field.
-  ACE_UINT16 serverIdLength;
-
   /// The ID_Server fo the EAP server.
   std::string idServer;
 
@@ -166,14 +163,8 @@ public:
 
 private:
 
-  /// The number of octets used in the ID_Peer field.
-  ACE_UINT16 peerIdLength;
-
   /// The ID_Peer fo the EAP server.
   std::string idPeer;
-
-  /// The number of octets used in the ID_Server field.
-  ACE_UINT16 serverIdLength;
 
   /// The ID_Server fo the EAP server.
   std::string idServer;
@@ -233,17 +224,11 @@ protected:
   /// 32-octet random number for RAND_Server.
   std::string randServer;
 
-  /// The number of octets used in the ID_Server field.
-  ACE_UINT16 serverIdLength;
-
   /// The ID_Server fo the EAP server.
   std::string idServer;
 
   /// Selected cipher suite.
   EapGpskCipherSuite csuiteSelected;
-
-  /// The number of octets used in the PD_Payload_Block field.
-  ACE_UINT16 pdPayloadLength;
 
   /// The PD_Payload_Block fo the EAP server.
   std::string pdPayload;
@@ -269,9 +254,6 @@ public:
   EapGpskCipherSuite& CSuiteSelected() { return csuiteSelected; }
 
 private:
-
-  /// The number of octets used in the PD_Payload_Block field.
-  ACE_UINT16 pdPayloadLength;
 
   /// The PD_Payload_Block fo the EAP server.
   std::string pdPayload;
