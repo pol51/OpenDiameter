@@ -75,6 +75,7 @@ CORE_HDR = include/eap_api.h \
 	include/eap_archie_fsm.hxx \
 	include/eap_archie_parser.hxx \
 	include/eap_archie.hxx \
+	include/eap_gpsk_parser.hxx \
 	include/eap_gpsk.hxx
 endif
 
@@ -98,14 +99,14 @@ sysconf_DATA = config/client.eap-tls.xml \
                config/server.eap-tls.xml
 
 if compile_EAPTLS
-lib_LTLIBRARIES = libeap.la libeaparchie.la libeaptls.la
+lib_LTLIBRARIES = libeap.la libeaparchie.la libeapgpsk.la libeaptls.la
 else
-lib_LTLIBRARIES = libeap.la libeaparchie.la
+lib_LTLIBRARIES = libeap.la libeaparchie.la libeapgpsk.la
 endif
 
 libeap_la_SOURCES = $(CORE_SRC) $(CORE_HDR)
 libeaparchie_la_SOURCES = $(ARCHIE_SRC)
-libegpsk_la_SOURCES = $(GPSK_SRC)
+libeapgpsk_la_SOURCES = $(GPSK_SRC)
 
 if compile_EAPTLS
 libeaptls_la_SOURCES = $(TLS_SRC)
@@ -126,12 +127,14 @@ libeaptls_la_AR = $(AR) -qcs
 LDADD = @L_LIBS@ \
         $(top_builddir)/libeap/libeap.la \
         $(top_builddir)/libeap/libeaparchie.la \
+        $(top_builddir)/libeap/libeapgpsk.la \
         $(top_builddir)/libeap/libeaptls.la \
         $(top_builddir)/libdiamparser/libdiamparser.la
 else
 LDADD = @L_LIBS@ \
         $(top_builddir)/libeap/libeap.la \
-        $(top_builddir)/libeap/libeaparchie.la
+        $(top_builddir)/libeap/libeaparchie.la \
+        $(top_builddir)/libeap/libeapgpsk.la
 endif
 
 if compile_EAPTLS
