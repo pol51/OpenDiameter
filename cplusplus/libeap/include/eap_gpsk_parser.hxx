@@ -31,19 +31,16 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-// Archie parser definition.
-// Written by Yoshihiro Ohba (yohba@tari.toshiba.com)
+#ifndef  __EAP_GPSK_PARSER_H__
+#define  __EAP_GPSK_PARSER_H__
 
-#ifndef  __EAP_ARCHIE_PARSER_H__
-#define  __EAP_ARCHIE_PARSER_H__
-
-#include "eap_archie.hxx"
+#include "eap_gpsk.hxx"
 #include "eap_parser.hxx"
 #include "eap_log.hxx"
 
-/// EAP-Request/Archie parser
-typedef AAAParser<AAAMessageBlock*, EapRequestArchie*> 
-EapRequestArchieParser;
+/// EAP-Request/Gpsk parser
+typedef AAAParser<AAAMessageBlock*, EapRequestGpsk*>
+EapRequestGpskParser;
 
 inline void
 copyWithPadding(AAAMessageBlock *msg, const char *data, 
@@ -57,191 +54,300 @@ copyWithPadding(AAAMessageBlock *msg, const char *data,
     }
 }
 
-/// Use this function to convert raw EAP-Request/Archie data (data
+inline void
+readCipherSuiteList(std::string &strlist, int length,
+  std::list<EapGpskCipherSuite> &clist)
+{
+  char *cc;
+  int csuiteLength = length/6;
+  for (int i = 0; i < csuiteLength; i++)
+    {
+      EapGpskCipherSuite csuite;
+      cc = cipherList.data();
+      csuite.Vendor() = ACE_NTOHL(*(ACE_UINT32*)cc);
+      cc += 4;
+      csuite.ChiperSuite = ACE_NTOHS(*(ACE_UINT16*)cc);
+      cc += 2;
+      clist.push_back(csuite);
+    }
+}
+
+inline void
+writeCipherSuiteList(std::string &strlist,
+  std::list<EapGpskCipherSuite> &clist)
+{
+  std::string *container = new std::string(clist.length() * 6, 0);
+  char *cc = container->data();
+  std::list<EapGpskCipherSuite>::iterator i = clist.begin();
+  for (; i != clist.end(); i++)
+    {
+      EapGpskCipherSuite csuite = *i;
+      *(ACE_UINT32*)cc = ACE_HTONL(csuite.Vendor());
+      cc += 4;
+      *(ACE_UINT16*)cc = ACE_HTONS(csuite.ChiperSuite());
+      cc += 2;
+    }
+  strlist = *container;
+  delete container;
+}
+
+inline size_t
+getMacLength(EapGpskCipherSuite &cipher)
+{
+  if (response->CSuiteSelected().ChiperSuite() == 1)
+    {
+       return 16;
+    }
+  else (response->CSuiteSelected().ChiperSuite() == 2)
+    {
+       return 32;
+    }
+  else
+    {
+      EAP_LOG(LM_ERROR, "Un-support cphier %d (1 or 2 is expected).\n",
+        response->CSuiteSelected().ChiperSuite());
+      throw -1;
+    }
+  return 0;
+}
+
+/// Use this function to convert raw EAP-Request/Gpsk data (data
 /// following the Type field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
-/// message block points to one octet after the MsgID field.
+/// message block points to one octet after the Op-Code field.
 template<> inline void
-EapRequestArchieParser::parseRawToApp() 
+EapRequestGpskParser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestArchie* request = getAppData();
-  // Read msgID.
-  request->MsgID() = *(ACE_Byte*)msg->rd_ptr();
+  EapRequestGpsk* request = getAppData();
+
+  // Read Op-Code.
+  request->OpCode() = *(ACE_Byte*)msg->rd_ptr();
   msg->rd_ptr(1);
   return;
 }
 
 /// Use this function to convert application-specific
-/// EAP-Request/Archie payload data to raw EAP-Request/Archie-Request
+/// EAP-Request/Gpsk payload data to raw EAP-Request/Gpsk-Request
 /// payload data (data following the MsgID field).  As a result of
 /// calling this function, the write pointer of the message block
 /// points to one octet after the MsgID field.
-//void EapRequestArchieParser::parseAppToRaw();
+//void EapRequestGpskParser::parseAppToRaw();
 template<> inline void
-EapRequestArchieParser::parseAppToRaw() 
+EapRequestGpskParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestArchie* request = getAppData();
+  EapRequestGpsk* request = getAppData();
 
-  // Write msgID.
-  *(ACE_Byte*)msg->wr_ptr() = request->MsgID();
+  // Write Op-Code.
+  *(ACE_Byte*)msg->wr_ptr() = request->OpCode();
   msg->wr_ptr(1);
   return;
 }
 
 
-/// EAP-Request/Archie-Request parser
-typedef AAAParser<AAAMessageBlock*, EapRequestArchieRequest*> 
-EapRequestArchieRequestParser;
+/// EAP-Request/Gpsk-Request parser
+typedef AAAParser<AAAMessageBlock*, EapRequestGpsk1*>
+EapRequestGpsk1Parser;
 
-/// Use this function to convert raw EAP-Request/Archie-Request data (data
+/// Use this function to convert raw EAP-Request/Gpsk1 data (data
 /// following the MsgID field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
 template<> inline void 
-EapRequestArchieRequestParser::parseRawToApp()
+EapRequestGpsk1Parser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestArchieRequest* request = getAppData();
+  EapRequestGpsk1* request = getAppData();
 
-  ACE_Byte msgId = *(ACE_Byte*)msg->rd_ptr();
-  // Read msgID.
-  if (msgId != 1)
+  ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
+  // Read Op-Code.
+  if (opCode != 1)
     {
-      EAP_LOG(LM_ERROR, "Invalid msgID %d (1 is expected).\n", msgId);
+      EAP_LOG(LM_ERROR, "Invalid opCode %d (1 is expected).\n", opCode);
       throw -1;
     }
 
-  msg->rd_ptr(2);  
-  
-  // Read NaiLength.
-  ACE_Byte& naiLength = *(ACE_Byte*)msg->rd_ptr();
   msg->rd_ptr(1);
 
-  // Read AuthID.
-  request->AuthID() = std::string(msg->rd_ptr(), naiLength ? naiLength : 256);
-  msg->rd_ptr(256);
+  // Read ID_Server length.
+  ACE_UINT16& idServerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  msg->rd_ptr(2);
 
-  // Read Session ID.
-  request->SessionID() = std::string(msg->rd_ptr(), 32);
+  // Read ID_Server.
+  request->IDServer() = std::string(msg->rd_ptr(), idServerLength);
+  msg->rd_ptr(idServerLength);
+
+  // Read RAND_Server.
+  request->RANDServer() = std::string(msg->rd_ptr(), 32);
   msg->rd_ptr(32);
+
+  // Read CSuite List length.
+  ACE_UINT16& csuiteLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  msg->rd_ptr(2);
+
+  if (csuiteLength % 6)
+    {
+      EAP_LOG(LM_ERROR, "Invalid chiper suite length %d (not divisible by 6).\n", csuiteLength);
+      throw -1;
+    }
+
+  // Read CSuite List.
+  std::string cipherList = std::string(msg->rd_ptr(), csuiteLength);
+  msg->rd_ptr(csuiteLength);
+
+  readCipherSuiteList(cipherList, csuiteLength, request->CSuiteList);
 }
 
 /// Use this function to convert application-specific
-/// EAP-Request/Archie payload data to raw EAP-Request/Archie-Request
+/// EAP-Request/Gpsk payload data to raw EAP-Request/Gpsk-Request
 /// payload data (data following the MsgID field).  As a result of
 /// calling this function, the write pointer of the message block
 /// points to one octet after the end of the payload.
-//void EapRequestArchieRequestParser::parseAppToRaw();
+//void EapRequestGpskRequestParser::parseAppToRaw();
 template<> inline void 
-EapRequestArchieRequestParser::parseAppToRaw()
+EapRequestGpsk1Parser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestArchieRequest* request = getAppData();
-  
+  EapRequestGpsk1* request = getAppData();
+
   // Write type field
   EapRequestParser requestParser;
   requestParser.setRawData(msg);
   requestParser.setAppData(request);
-  requestParser.parseAppToRaw();     
+  requestParser.parseAppToRaw();
 
-  // Write msgID.
-  *(ACE_Byte*)msg->wr_ptr() = request->MsgID();
+  // Write Op-Code.
+  *(ACE_Byte*)msg->wr_ptr() = request->OpCode();
   msg->wr_ptr(1);
 
-  *msg->wr_ptr() = 0;  msg->wr_ptr(1);  // Skip Reserved field.
-
-  // Check AuthID length.
-  int length = request->AuthID().size();
+  // Check ID_Server length.
+  int length = request->IDServer().size();
   if (length == 0)
     {
-      EAP_LOG(LM_ERROR, "AuthID is empty.");
+      EAP_LOG(LM_ERROR, "ID_Server is empty.");
       throw -1;
     }
-  ACE_Byte naiLength = (ACE_Byte)length;
 
-  *(ACE_Byte*)msg->wr_ptr() = naiLength;
-  msg->wr_ptr(1);
+  // Write the ID_Server length.
+  ACE_UINT16 idServerLength = (ACE_UINT16)length;
+  *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(idServerLength);
+  msg->wr_ptr(2);
 
-  copyWithPadding(msg, request->AuthID().data(), naiLength, 256);
+  // Write the ID_Server
+  msg->copy(request->IDServer().data(), idServerLength);
 
-  msg->copy(request->SessionID().data(), 32);
+  // Write RAND_Server
+  msg->copy(request->RANDServer().data(), 32);
+
+  // Check CSuite List length.
+  length = request->CSuiteList().size();
+  if (length == 0)
+    {
+      EAP_LOG(LM_ERROR, "CSuite List is empty.");
+      throw -1;
+    }
+
+  // Write CSuite list length
+  ACE_UINT16 csuiteLength = (ACE_UINT16)(request->CSuiteList().length() * 6);
+  *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(csuiteLength);
+  msg->wr_ptr(2);
+
+  // Write CSuite list
+  std::string strlist;
+  writeCipherSuiteList(strlist, request->CSuiteList());
+  msg->copy(strlist.data(), csuiteLength);
 }
 
-/// EAP-Response/Archie-Response parser
-typedef AAAParser<AAAMessageBlock*, EapResponseArchieResponse*> 
-EapResponseArchieResponseParser;
+/// EAP-Response/Gpsk-Response parser
+typedef AAAParser<AAAMessageBlock*, EapResponseGpsk2*>
+EapResponseGpsk2Parser;
 
-/// Use this function to convert raw EAP-Response/Archie-Response data (data
+/// Use this function to convert raw EAP-Response/Gpsk-Response data (data
 /// following the MsgID field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
 template<> inline void 
-EapResponseArchieResponseParser::parseRawToApp()
+EapResponseGpsk2Parser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseArchieResponse* response = getAppData();
+  EapResponseGpsk2* response = getAppData();
 
-  // Read msgID.
-  if (*(ACE_Byte*)msg->rd_ptr() != 2)
+  ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
+  // Read Op-Code.
+  if (opCode != 1)
     {
-      EAP_LOG(LM_ERROR, "Invalid msgID.");
+      EAP_LOG(LM_ERROR, "Invalid opCode %d (2 is expected).\n", opCode);
       throw -1;
     }
 
-  msg->rd_ptr(2);
-
-  // Read NaiLength.
-  ACE_Byte& naiLength = *(ACE_Byte*)msg->rd_ptr();
   msg->rd_ptr(1);
 
-  // Read session id.
-  response->SessionID() = std::string(msg->rd_ptr(), 32);
+  // Read ID_Peer length.
+  ACE_UINT16& idPeerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  msg->rd_ptr(2);
+
+  // Read ID_Peer.
+  request->IDPeer() = std::string(msg->rd_ptr(), idPeerLength);
+  msg->rd_ptr(idPeerLength);
+
+  // Read ID_Server length.
+  ACE_UINT16& idServerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  msg->rd_ptr(2);
+
+  // Read ID_Server.
+  request->IDServer() = std::string(msg->rd_ptr(), idServerLength);
+  msg->rd_ptr(idServerLength);
+
+  // Read RAND_Peer.
+  response->RANDPeer() = std::string(msg->rd_ptr(), 32);
   msg->rd_ptr(32);
 
-  // Read peer id.
-  response->PeerID() = std::string(msg->rd_ptr(), naiLength ? naiLength : 256);
-  msg->rd_ptr(256);
+  // Read RAND_Server.
+  response->RANDServer() = std::string(msg->rd_ptr(), 32);
+  msg->rd_ptr(32);
 
-  // Read nonceP.
-  response->NonceP() = std::string(msg->rd_ptr(), 40);
-  msg->rd_ptr(40);
-
-  // Read binding.
-  response->Binding().bType = ntohs(*(ACE_UINT16*)msg->rd_ptr());
+  // Read CSuite List length.
+  ACE_UINT16& csuiteLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
-  ACE_Byte& sLength = *(ACE_Byte*)msg->rd_ptr();
-  msg->rd_ptr(1);
+  // Read CSuite List.
+  std::string cipherList = std::string(msg->rd_ptr(), csuiteLength);
+  msg->rd_ptr(csuiteLength);
+  readCipherSuiteList(cipherList, csuiteLength, response->CSuiteList);
 
-  ACE_Byte& pLength = *(ACE_Byte*)msg->rd_ptr();
-  msg->rd_ptr(1);
+  // Read CSuite Selected.
+  response->CSuiteSelected().Vendor() = ACE_NTOHL(*(ACE_UINT32*)msg->rd_ptr());
+  msg->rd_ptr(4);
+  response->CSuiteSelected().ChiperSuite() = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  msg->rd_ptr(2);
 
-  response->Binding().addrS = 
-    std::string(msg->rd_ptr(), sLength ? sLength : 256);
-  msg->rd_ptr(256);
+  // Read PD Payload length.
+  ACE_UINT16& pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  msg->rd_ptr(2);
 
-  response->Binding().addrP = 
-    std::string(msg->rd_ptr(), pLength ? pLength : 256);
-  msg->rd_ptr(256);
+  // Read PD Payload
+  request->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
+  msg->rd_ptr(pdPayloadLength);
 
-  // Read MAC1
-  response->Mac1() = std::string(msg->rd_ptr(), 12);
-  msg->rd_ptr(12);
+  // Only AES and SHA is supported
+  int macLength = getMacLength(response->CSuiteSelected());
+
+  // Read Payload MAC
+  request->Mac() = std::string(msg->rd_ptr(), macLength);
 }
 
 /// Use this function to convert application-specific
-/// EAP-Response/Archie-Response payload data to raw payload data
+/// EAP-Response/Gpsk-Response payload data to raw payload data
 /// (data following the MsgID field).  As a result of calling this
 /// function, the write pointer of the message block points to one
 /// octet after the end of the payload.
-//void EapResponseArchieResponseParser::parseAppToRaw();
+//void EapResponseGpskResponseParser::parseAppToRaw();
 template<> inline void 
-EapResponseArchieResponseParser::parseAppToRaw()
+EapResponseGpskResponseParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseArchieResponse* response = getAppData();
+  EapResponseGpskResponse* response = getAppData();
 
   // Write type field
   EapResponseParser responseParser;
@@ -295,19 +401,19 @@ EapResponseArchieResponseParser::parseAppToRaw()
   msg->copy(response->Mac1().data(), 12);
 }
 
-/// EAP-Request/Archie-Confirm parser
-typedef AAAParser<AAAMessageBlock*, EapRequestArchieConfirm*> 
-EapRequestArchieConfirmParser;
+/// EAP-Request/Gpsk-Confirm parser
+typedef AAAParser<AAAMessageBlock*, EapRequestGpskConfirm*> 
+EapRequestGpskConfirmParser;
 
-/// Use this function to convert raw EAP-Request/Archie-Confirm data (data
+/// Use this function to convert raw EAP-Request/Gpsk-Confirm data (data
 /// following the MsgID field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
 template<> inline void 
-EapRequestArchieConfirmParser::parseRawToApp()
+EapRequestGpskConfirmParser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestArchieConfirm* confirm = getAppData();
+  EapRequestGpskConfirm* confirm = getAppData();
 
   // Read msgID.
   if (*(ACE_Byte*)msg->rd_ptr() != 3)
@@ -350,15 +456,15 @@ EapRequestArchieConfirmParser::parseRawToApp()
 }
 
 /// Use this function to convert application-specific
-/// EAP-Request/Archie-Confirm data to raw payload data
+/// EAP-Request/Gpsk-Confirm data to raw payload data
 /// (data following the MsgID field).  As a result of calling this
 /// function, the write pointer of the message block points to one
 /// octet after the end of the payload.
 template<> inline void 
-EapRequestArchieConfirmParser::parseAppToRaw()
+EapRequestGpskConfirmParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestArchieConfirm* confirm = getAppData();
+  EapRequestGpskConfirm* confirm = getAppData();
 
   // Write type field
   EapRequestParser requestParser;
@@ -398,19 +504,19 @@ EapRequestArchieConfirmParser::parseAppToRaw()
   msg->copy(confirm->Mac2().data(), 12);
 }
 
-/// EAP-Response/Archie-Finisht parser
-typedef AAAParser<AAAMessageBlock*, EapResponseArchieFinish*> 
-EapResponseArchieFinishParser;
+/// EAP-Response/Gpsk-Finisht parser
+typedef AAAParser<AAAMessageBlock*, EapResponseGpskFinish*> 
+EapResponseGpskFinishParser;
 
-/// Use this function to convert raw EAP-Response/Archie-Finish data (data
+/// Use this function to convert raw EAP-Response/Gpsk-Finish data (data
 /// following the MsgID field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
 template<> inline void 
-EapResponseArchieFinishParser::parseRawToApp()
+EapResponseGpskFinishParser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseArchieFinish* finish = getAppData();
+  EapResponseGpskFinish* finish = getAppData();
 
   // Read msgID.
   if (*(ACE_Byte*)msg->rd_ptr() != 4)
@@ -431,15 +537,15 @@ EapResponseArchieFinishParser::parseRawToApp()
 }
 
 /// Use this function to convert application-specific
-/// EAP-Response/Archie-Finish data to raw payload data
+/// EAP-Response/Gpsk-Finish data to raw payload data
 /// (data following the MsgID field).  As a result of calling this
 /// function, the write pointer of the message block points to one
 /// octet after the end of the payload.
 template<> inline void 
-EapResponseArchieFinishParser::parseAppToRaw()
+EapResponseGpskFinishParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseArchieFinish* finish = getAppData();
+  EapResponseGpskFinish* finish = getAppData();
 
   // Write type field
   EapResponseParser responseParser;
@@ -461,4 +567,4 @@ EapResponseArchieFinishParser::parseAppToRaw()
   msg->copy(finish->Mac3().data(), 12);
 }
 
-#endif // __EAP_ARCHIE_PARSER_H__
+#endif // __EAP_GPSK_PARSER_H__
