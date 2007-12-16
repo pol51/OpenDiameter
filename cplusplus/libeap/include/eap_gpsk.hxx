@@ -265,6 +265,9 @@ public:
   /// Use this function to obtain a reference to KS-octet payload MAC.
   std::string& PayloadMAC() { return payloadMac; }
 
+  /// Use this function to obtain a reference to csuiteSelected.
+  EapGpskCipherSuite& CSuiteSelected() { return csuiteSelected; }
+
 private:
 
   /// The number of octets used in the PD_Payload_Block field.
@@ -275,6 +278,9 @@ private:
 
   /// KS-octet payload MAC.
   std::string payloadMac;
+
+  /// Selected cipher suite.
+  EapGpskCipherSuite csuiteSelected;
 };
 
 /// EAP-Request/Gpsk-Fail payload.
@@ -297,7 +303,7 @@ private:
 typedef EapRequestGpskFail EapResponseGpskFail;
 
 /// EAP-Request/Gpsk-Protected-Fail payload.
-class EAP_GPSK_EXPORTS EapRequestGpsProtectedkFail: public EapRequestGpskFail
+class EAP_GPSK_EXPORTS EapRequestGpskProtectedFail: public EapRequestGpskFail
 {
 public:
   /// Initialized with a specific message id (6).
@@ -306,13 +312,19 @@ public:
   /// Use this function to obtain a reference to KS-octet payload MAC.
   std::string& PayloadMAC() { return payloadMac; }
 
+  /// Use this function to obtain a reference to csuiteSelected.
+  EapGpskCipherSuite& CSuiteSelected() { return csuiteSelected; }
+
 private:
 
   /// KS-octet payload MAC.
   std::string payloadMac;
+
+  /// Selected cipher suite.
+  EapGpskCipherSuite csuiteSelected;
 };
 
 /// EAP-Response/Gpsk-Protected-Fail payload.
-typedef EapRequestGpsProtectedkFail EapResponseGpskProtectedkFail;
+typedef EapRequestGpskProtectedFail EapResponseGpskProtectedFail;
 
 #endif // __EAP_GPSK_HXX__
