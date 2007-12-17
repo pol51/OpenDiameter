@@ -558,16 +558,16 @@ private:
 };
 
 /// State table used by EapAuthGpskStateMachine.
-class EAP_ARCHIE_EXPORTS EapAuthGpskStateTable_S : 
+class EAP_ARCHIE_EXPORTS EapAuthGpskStateTable_S :
   public AAA_StateTable<EapAuthGpskStateMachine>
 
 {
-  friend class ACE_Singleton<EapAuthGpskStateTable_S, 
+  friend class ACE_Singleton<EapAuthGpskStateTable_S,
 			     ACE_Recursive_Thread_Mutex>;
 
 private:
 
-  class AcBuildRequest : public EapAuthGpskAction
+  class AcBuildGpsk1 : public EapAuthGpskAction
   {
     void operator()(EapAuthGpskStateMachine &msm)
     {
@@ -575,7 +575,7 @@ private:
       EAP_LOG(LM_DEBUG, "AuthGpsk: Building a request message.\n");
 
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(8 + 256 + 32);
-    
+
       ACE_OS::memset(msg->base(), 0, 8 + 256 + 32);
 
       EapRequestGpskRequest request;
@@ -584,14 +584,14 @@ private:
 
       // Generate a session id.
       if (RAND_bytes(sessionID, sizeof sessionID) == 0)
-	  {
-	    EAP_LOG(LM_ERROR, 
-		  "AuthGpsk: Failed to generate a session id.\n");
-	    return;
-	  }
+        {
+          EAP_LOG(LM_ERROR,
+                "AuthGpsk: Failed to generate a session id.\n");
+          return;
+        }
 
-      request.SessionID() = msm.SessionID() 
-	    = std::string((char*)sessionID, sizeof(sessionID));
+      request.SessionID() = msm.SessionID()
+        = std::string((char*)sessionID, sizeof(sessionID));
 
       // Get an AuthID.
       request.AuthID() = msm.AuthID() = msm.InputIdentity();
@@ -615,6 +615,37 @@ private:
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
     }
   };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   class AcDoIntegrityCheckForResponseMsg : public EapAuthGpskAction
   {
@@ -837,22 +868,44 @@ private:
     }
   };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   enum {
     EvSgValid,
     EvSgInvalid,
   };
   enum state {
-    StInitialize, 
-    StRequestSent, 
-    StProcessResponse,
-    StConfirmSent, 
-    StProcessFinish,
+    StInitialize,
+    StGpsk1Sent,
+    StProcessGpsk2,
+    StGpsk3Sent,
+    StProcessGpsk4,
     StSuccess
   };
 
+  AcBuildRequest acBuildGpsk1;
+
   AcDoIntegrityCheckForResponseMsg acDoIntegrityCheckForResponseMsg;
   AcDoIntegrityCheckForFinishMsg acDoIntegrityCheckForFinishMsg;
-  AcBuildRequest acBuildRequest;
   AcBuildConfirm acBuildConfirm;
   AcNotifySuccess acNotifySuccess;
   AcNotifyFailure acNotifyFailure;
@@ -860,9 +913,9 @@ private:
 
   EapAuthGpskStateTable_S() 
   {
-    AddStateTableEntry(StInitialize, 
-		       EapMethodStateMachine::EvSgIntegrityCheck, 
-		       StRequestSent, acBuildRequest);
+    AddStateTableEntry(StInitialize,
+		       EapMethodStateMachine::EvSgIntegrityCheck,
+		       StGpsk1Sent, acBuildGpsk1);
     AddStateTableEntry(StInitialize, StInitialize, 0);
 
     AddStateTableEntry(StRequestSent, 
