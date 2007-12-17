@@ -43,20 +43,8 @@ typedef AAAParser<AAAMessageBlock*, EapRequestGpsk*>
 EapRequestGpskParser;
 
 inline void
-copyWithPadding(AAAMessageBlock *msg, const char *data, 
-		int dataLength, int blockSize)
-{
-  msg->copy(data, dataLength ? dataLength : blockSize);
-  if (dataLength)
-    {
-      ACE_OS::memset(msg->wr_ptr(), 0, blockSize - dataLength);
-      msg->wr_ptr(blockSize - dataLength);
-    }
-}
-
-inline void
 readCipherSuiteList(std::string &strlist, int length,
-  std::list<EapGpskCipherSuite> &clist)
+  EapGpskCipherSuiteList &clist)
 {
   char *cc;
   int csuiteLength = length/6;
@@ -74,7 +62,7 @@ readCipherSuiteList(std::string &strlist, int length,
 
 inline void
 writeCipherSuiteList(std::string &strlist,
-  std::list<EapGpskCipherSuite> &clist)
+  EapGpskCipherSuiteList &clist)
 {
   std::string *container = new std::string(clist.length() * 6, 0);
   char *cc = container->data();

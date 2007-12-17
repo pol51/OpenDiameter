@@ -70,6 +70,19 @@ protected:
    ACE_UINT16 chiperSuite;
 };
 
+/// EAP-Gpsk Cipher Suite List
+class EAP_GPSK_EXPORTS EapGpskCipherSuiteList :
+   public std::list<EapGpskCipherSuite>
+{
+public:
+   std::list<EapGpskCipherSuite> &operator=(std::list<EapGpskCipherSuite> &from) {
+      std::list<EapGpskCipherSuite>::iterator i = from.begin();
+      for (; i != from.end(); i++) {
+          this->push_back(*i);
+      }
+   }
+};
+
 /// EAP-Gpsk/Request-Gpsk message.
 class EAP_GPSK_EXPORTS EapRequestGpsk: public EapRequest
 {
@@ -116,7 +129,7 @@ public:
   std::string& RANDServer() { return randServer; }
 
   /// Use this function to obtain a reference to CSuite_List.
-  std::list<EapGpskCipherSuite>& CSuiteList() { return csuiteList; }
+  EapGpskCipherSuiteList& CSuiteList() { return csuiteList; }
 
 protected:
 
@@ -127,7 +140,7 @@ protected:
   std::string randServer;
 
   /// The CSuite_List given by the EAP server.
-  std::list<EapGpskCipherSuite> csuiteList;
+  EapGpskCipherSuiteList csuiteList;
 };
 
 /// EAP-Response/Gpsk2 payload.
@@ -150,7 +163,7 @@ public:
   std::string& RANDServer() { return randServer; }
 
   /// Use this function to obtain a reference to CSuite_List.
-  std::list<EapGpskCipherSuite>& CSuiteList() { return csuiteList; }
+  EapGpskCipherSuiteList& CSuiteList() { return csuiteList; }
 
   /// Use this function to obtain a reference to csuiteSelected.
   EapGpskCipherSuite& CSuiteSelected() { return csuiteSelected; }
@@ -176,7 +189,7 @@ private:
   std::string randServer;
 
   /// The CSuite_List given by the EAP server.
-  std::list<EapGpskCipherSuite> csuiteList;
+  EapGpskCipherSuiteList csuiteList;
 
   /// selected cipher suite.
   EapGpskCipherSuite csuiteSelected;
