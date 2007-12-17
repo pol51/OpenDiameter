@@ -55,19 +55,95 @@
 /// \def EAP Request/Response Type code temporally assigned for
 /// EAP-Gpsk.  This should be replaced with an IANA allocated value.
 #define GPSK_METHOD_TYPE  200
+#define GPSK_MAX_PKT_SIZE 1024
+
+/// Enumerations
+/*
+   The following is the initial protected data PData/Specifier registry
+   setup:
+
+   o  0x000000 : Reserved
+   o  0x000001 : Protected Results Indication
+*/
+typedef enum {
+   EAP_GPSK_PD_SPECIFIER_RESERVED = 0x0,
+   EAP_GPSK_PD_SPECIFIER_PROTECTED_RESULT_INDICATION = 0x1,
+} EAP_GPSK_PD_SPECIFIER;
+
+/*
+   The PData/Specifier field is 24 bits long and all other values are
+   available via IANA registration.  Each extension needs to indicate
+   whether confidentiality protection for transmission between the EAP
+   peer and the EAP server is mandatory.  The following layout
+   represents the initial Failure-Code registry setup:
+
+   o  0x00000001: PSK Not Found
+   o  0x00000002: Authentication Failure
+   o  0x00000003: Authorization Failure
+*/
+typedef enum {
+   EAP_GPSK_FAILURE_PSK_NOT_FOUND = 0x1,
+   EAP_GPSK_FAILURE_AUTHENTICATION_FAILURE = 0x2,
+   EAP_GPSK_FAILURE_AUTHORIZATION_FAILURE = 0x3
+} EAP_GPSK_FAILURE;
 
 /// EAP-Gpsk Cipher Suite
 class EAP_GPSK_EXPORTS EapGpskCipherSuite
 {
 public:
+   enum {
+      CIPHER_SUITE_AES = 1;
+      CIPHER_SUITE_HMAC = 2;
+   };
+
    EapGpskCipherSuite(ACE_UINT32 vendor = 0) :
-     vendor(vendor), cihperSuite(1) { }
+     vendor(vendor), cihperSuite(CIPHER_SUITE_AES) { }
    ACE_UINT32 &Vendor() { return vendor; }
-   ACE_UINT16 &ChiperSuite() { return chiperSuite; }
+   ACE_UINT16 &ChiperSuite() { return cipherSuite; }
+
+   size_t KeySize() {
+     switch(cipherSuite) {
+       case CIPHER_SUITE_AES: return 16;
+       case CIPHER_SUITE_HMAC: return 32;
+       default:
+          EAP_LOG(LM_ERROR, "Un-support cphier %d (1 or 2 is expected).\n",
+            response->CSuiteSelected().ChiperSuite());
+          throw -1;
+          break;
+     }
+     return 0;
+   }
+
+   std::string toString() {
+     char cps[6];
+     *(ACE_UINT32*)cps = ACE_HTONL(response->CSuiteSelected().Vendor());
+     *(ACE_UINT16*)(&cps[4]) = ACE_HTONS(response->CSuiteSelected().ChiperSuite());
+     return std::string(cps, sizeof(cps));
+   }
+
+   void fromString(char *cps) {
+     vendor() = ACE_NTOHL(*(ACE_UINT32*)cps);
+     cps += 4;
+     cipherSuite = ACE_NTOHS(*(ACE_UINT16*)cps);
+   }
+
+   void fromString(std::string &cps) {
+     fromString(cps.data());
+   }
+
+   bool operator==(EapGpskCipherSuite &st) {
+     return ((st.Vendor() == vendor) && (st.CipherSuite() == cipherSuite));
+   }
+
+   bool operator!=(EapGpskCipherSuite &st) {
+     return !(st == *this);
+   }
+}
+
 
 protected:
    ACE_UINT32 vendor;
-   ACE_UINT16 chiperSuite;
+   ACE_UINT16 cipherSuite;
 };
 
 /// EAP-Gpsk Cipher Suite List
@@ -227,7 +303,7 @@ public:
   std::string& PDPayload() { return pdPayload; }
 
   /// Use this function to obtain a reference to KS-octet payload MAC.
-  std::string& PayloadMAC() { return payloadMac; }
+  std::string& MAC() { return mac; }
 
 protected:
 
@@ -247,7 +323,7 @@ protected:
   std::string pdPayload;
 
   /// KS-octet payload MAC.
-  std::string payloadMac;
+  std::string mac;
 };
 
 /// EAP-Response/Gpsk4 payload.
@@ -261,7 +337,7 @@ public:
   std::string& PDPayload() { return pdPayload; }
 
   /// Use this function to obtain a reference to KS-octet payload MAC.
-  std::string& PayloadMAC() { return payloadMac; }
+  std::string& MAC() { return mac; }
 
   /// Use this function to obtain a reference to csuiteSelected.
   EapGpskCipherSuite& CSuiteSelected() { return csuiteSelected; }
@@ -272,7 +348,7 @@ private:
   std::string pdPayload;
 
   /// KS-octet payload MAC.
-  std::string payloadMac;
+  std::string mac;
 
   /// Selected cipher suite.
   EapGpskCipherSuite csuiteSelected;

@@ -140,8 +140,8 @@ public:
   /// This function is used for obtaining a reference to cipherSuite;
   EapGpskCipherSuite &CipherSuite() { return cipherSuite; }
 
-  /// This function is used for obtaining a reference to history;
-  std::string& History() { return history; }
+  /// This function is used for obtaining a reference to payload;
+  std::string& Payload() { return payload; }
 
   void Initiliaze() {
      sharedSecret.resize(0);
@@ -188,8 +188,8 @@ protected:
   /// selected cipher suite
   EapGpskCipherSuite cipherSuite; // only AES is supported for now
 
-  /// Retains received messages with concatinating them.
-  std::string history;
+  /// Retains payload carried in the message
+  std::string payload;
 
 private:
 

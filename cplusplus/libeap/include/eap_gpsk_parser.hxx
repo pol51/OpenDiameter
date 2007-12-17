@@ -79,26 +79,6 @@ writeCipherSuiteList(std::string &strlist,
   delete container;
 }
 
-inline size_t
-getMacLength(EapGpskCipherSuite &cipher)
-{
-  if (response->CSuiteSelected().ChiperSuite() == 1)
-    {
-       return 16;
-    }
-  else (response->CSuiteSelected().ChiperSuite() == 2)
-    {
-       return 32;
-    }
-  else
-    {
-      EAP_LOG(LM_ERROR, "Un-support cphier %d (1 or 2 is expected).\n",
-        response->CSuiteSelected().ChiperSuite());
-      throw -1;
-    }
-  return 0;
-}
-
 /// Use this function to convert raw EAP-Request/Gpsk data (data
 /// following the Type field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
@@ -305,10 +285,8 @@ EapResponseGpsk2Parser::parseRawToApp()
   readCipherSuiteList(cipherList, csuiteLength, response->CSuiteList);
 
   // Read CSuite Selected.
-  response->CSuiteSelected().Vendor() = ACE_NTOHL(*(ACE_UINT32*)msg->rd_ptr());
-  msg->rd_ptr(4);
-  response->CSuiteSelected().ChiperSuite() = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
-  msg->rd_ptr(2);
+  response->CSuiteSelected().fromString(msg->rd_ptr());
+  msg->rd_ptr(6);
 
   // Read PD Payload length.
   ACE_UINT16& pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
@@ -318,11 +296,8 @@ EapResponseGpsk2Parser::parseRawToApp()
   request->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
   msg->rd_ptr(pdPayloadLength);
 
-  // Only AES and SHA is supported
-  int macLength = getMacLength(response->CSuiteSelected());
-
   // Read Payload MAC
-  request->Mac() = std::string(msg->rd_ptr(), macLength);
+  request->Mac() = std::string(msg->rd_ptr(), request->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -404,18 +379,18 @@ EapResponseGpsk2Parser::parseAppToRaw()
   msg->copy(strlist.data(), csuiteLength);
 
   // Write CSuite Selection
-  *(ACE_UINT32*)msg->wr_ptr() = ACE_HTONL(response->CSuiteSelected().Vendor());
-  msg->wr_ptr(4);
-  *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(response->CSuiteSelected().ChiperSuite());
-  msg->wr_ptr(2);
+  std::string cipherSuiteSelected = response->CSuiteSelected().toString();
+  msg->copy(cipherSuiteSelected.data(), 6);
 
   // Write payload length [TBD: no payload supported set this to 0]
   *(ACE_UINT16*)msg->wr_ptr() = 0;
   msg->wr_ptr(2);
 
-  // Write MAC. Only AES and SHA is supported
-  int macLength = getMacLength(response->CSuiteSelected());
-  msg->copy(response->Mac().data(), macLength);
+  // Write MAC.
+  if (response->Mac().size() > 0)
+  {
+     msg->copy(response->Mac().data(), response->CSuiteSelected().KeySize());
+  }
 }
 
 /// EAP-Request/Gpsk-Confirm parser
@@ -459,10 +434,8 @@ EapRequestGpsk3Parser::parseRawToApp()
   msg->rd_ptr(idServerLength);
 
   // Read CSuite Selected.
-  response->CSuiteSelected().Vendor() = ACE_NTOHL(*(ACE_UINT32*)msg->rd_ptr());
-  msg->rd_ptr(4);
-  response->CSuiteSelected().ChiperSuite() = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
-  msg->rd_ptr(2);
+  response->CSuiteSelected().fromString(msg->rd_ptr());
+  msg->rd_ptr(6);
 
   // Read PD Payload length.
   ACE_UINT16& pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
@@ -472,9 +445,8 @@ EapRequestGpsk3Parser::parseRawToApp()
   request->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
   msg->rd_ptr(pdPayloadLength);
 
-  // Read Payload MAC - Only AES and SHA is supported
-  int macLength = getMacLength(request->CSuiteSelected());
-  request->Mac() = std::string(msg->rd_ptr(), macLength);
+  // Read Payload MAC
+  request->Mac() = std::string(msg->rd_ptr(), request->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -517,18 +489,18 @@ EapRequestGpsk3Parser::parseAppToRaw()
   msg->copy(response->IDServer().data(), idServerLength);
 
   // Write CSuite Selection
-  *(ACE_UINT32*)msg->wr_ptr() = ACE_HTONL(response->CSuiteSelected().Vendor());
-  msg->wr_ptr(4);
-  *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(response->CSuiteSelected().ChiperSuite());
-  msg->wr_ptr(2);
+  std::string cipherSuiteSelected = response->CSuiteSelected().toString();
+  msg->copy(cipherSuiteSelected.data(), 6);
 
   // Write payload length [TBD: no payload supported set this to 0]
   *(ACE_UINT16*)msg->wr_ptr() = 0;
   msg->wr_ptr(2);
 
-  // Write MAC. Only AES and SHA is supported
-  int macLength = getMacLength(response->CSuiteSelected());
-  msg->copy(response->Mac().data(), macLength);
+  // Write MAC.
+  if (response->Mac().size() > 0)
+  {
+     msg->copy(response->Mac().data(), response->CSuiteSelected().KeySize());
+  }
 }
 
 /// EAP-Response/Gpsk4 parser
@@ -563,9 +535,8 @@ EapResponseGpsk4Parser::parseRawToApp()
   response->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
   msg->rd_ptr(pdPayloadLength);
 
-  // Read Payload MAC - Only AES and SHA is supported
-  int macLength = getMacLength(response->CSuiteSelected());
-  request->Mac() = std::string(msg->rd_ptr(), macLength);
+  // Read Payload MAC
+  request->Mac() = std::string(msg->rd_ptr(), response->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -589,9 +560,11 @@ EapResponseGpsk4Parser::parseAppToRaw()
   *(ACE_UINT16*)msg->wr_ptr() = 0;
   msg->wr_ptr(2);
 
-  // Write MAC. Only AES and SHA is supported
-  int macLength = getMacLength(response->CSuiteSelected());
-  msg->copy(response->Mac().data(), macLength);
+  // Write MAC.
+  if (response->Mac().size() > 0)
+  {
+     msg->copy(response->Mac().data(), response->CSuiteSelected().KeySize());
+  }
 }
 
 /// EAP-Response/GpskFail parser
@@ -670,9 +643,8 @@ EapResponseGpskProtectedFailParser::parseRawToApp()
   // Read failure code
   pfail->FailureCode() = ACE_NTOHL(*(ACE_UINT32*)msg->rd_ptr());
 
-  // Read Payload MAC - Only AES and SHA is supported
-  int macLength = getMacLength(pfail->CSuiteSelected());
-  pfail->Mac() = std::string(msg->rd_ptr(), macLength);
+  // Read Payload MAC
+  pfail->Mac() = std::string(msg->rd_ptr(), pfail->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -695,9 +667,11 @@ EapResponseGpskProtectedFailParser::parseAppToRaw()
   *(ACE_UINT32*)msg->wr_ptr() = pfail->FailureCode();
   msg->wr_ptr(4);
 
-  // Write MAC. Only AES and SHA is supported
-  int macLength = getMacLength(response->CSuiteSelected());
-  msg->copy(response->Mac().data(), macLength);
+  // Write MAC.
+  if (response->Mac().size() > 0)
+  {
+     msg->copy(response->Mac().data(), response->CSuiteSelected().KeySize());
+  }
 }
 
 #endif // __EAP_GPSK_PARSER_H__
