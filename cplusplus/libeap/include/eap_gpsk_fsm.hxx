@@ -41,82 +41,85 @@
 #include "eap_method_registrar.hxx"
 #include "eap_gpsk_crypto.hxx"
 
-/// Peer state machine for EAP EAP-Gpsk authentication method.
-class EAP_GPSK_EXPORTS EapPeerGpskStateMachine 
-  :  public EapMethodStateMachine,
-     public EapStateMachine<EapPeerGpskStateMachine>
+/// EAP-Gpsk key management
+class EAP_GPSK_EXPORT EapGpskNodeAttributes
 {
-  friend class EapMethodStateMachineCreator<EapPeerGpskStateMachine>;
-  friend class EapPeerGpskStateTable_S;
 public:
-
-  /// Reimplemented from EapMethodStateMachine
-  void Start() throw(AAA_Error)
-  {
-    isDone=false;
-    keyData.resize(0);
-    masterKey.resize(0);
-    history.resize(0);
-    keyConfirmationKey.resize(0);
-    keyEncryptionKey.resize(0);
-    keyDerivationKey.resize(0);
-
-    EapStateMachine<EapPeerGpskStateMachine>::Start();
-  }
-
-  /// Reimplemented from EapMethodStateMachine
-  inline void Notify(AAA_Event ev)
-  {
-    EapStateMachine<EapPeerGpskStateMachine>::Notify(ev);
-  }
-
-  /// This pure virtual function is a callback used when a shared-secret 
-  /// needs to be obtained.
-*  virtual std::string& InputSharedSecret()=0;
-
-  /// This pure virtual function is a callback used when a PeerID
-  /// needs to be obtained.
-  virtual std::string& InputIdentity()=0;
 
   /// This function is used for obtaining a reference to sharedSecret.
   std::string& SharedSecret() { return sharedSecret; }
 
-  /// This function is used for obtaining a reference to keyConfirmationKey.
-  std::string& KCK() 
-  { 
-    if (keyConfirmationKey.size() != 16)
-      keyConfirmationKey.assign(sharedSecret, 0, 16);
-    return keyConfirmationKey; 
-  }
-
-  /// This function is used for obtaining a reference to keyEncryptionKey.
-  std::string& KEK() { 
-    if (keyEncryptionKey.size() != 16)
-      keyEncryptionKey.assign(sharedSecret, 16, 16);
-    return keyEncryptionKey; 
-  }
-
-  /// This function is used for obtaining a reference to keyDerivationKey.
-  std::string& KDK() { 
-    if (keyDerivationKey.size() != 32)
-      keyDerivationKey.assign(sharedSecret, 32, 32);
-    return keyDerivationKey; 
-  }
-
   /// This function is used for obtaining a reference to masterKey.
-  std::string& MK() { 
-    if (masterKey.size() != 32 && 
-	this->PeerSwitchStateMachine().MethodState() 
-	== EapPeerSwitchStateMachine::DONE)
+  std::string& MK() {
+    if (mk.size() == 0)
       {
-	// Compute the master key.
-        std::string tmp(nonceA);
-	tmp.append(nonceP);
-	tmp.append("Gpsk session key");
-	EapCryptoGpskPRF prf;
-	prf(tmp, masterKey, KDK(), 32);
+        // Input string.
+        std::string input(peerRAND);
+        input.append(peerID);
+        input.append(serverRAND);
+        input.append(serverID);
+
+        // PSK[0..KS-1].
+        std::string psk = std::string(sharedSecret.data(), cipherSuite.KeySize());
+        std::string Y(psk);
+
+        // PL || PSK || CSuite_Sel || inputString.
+        char pl[2];
+        *(ACE_UINT16*)pl = ACE_HTONS(cphierSuite.KeySize());
+        std::string Z(pl, sizeof(pl));
+        Z.append(sharedSecret);
+        Z.append(cipherSuite.toString());
+        Z.append(input);
+
+        // MK = GKDF-16 (PSK[0..15], PL || PSK || CSuite_Sel || inputString)
+        EapCryptoAES_CMAC_128_GKDF gkdf;
+        gkdf(Y, Z, mk, 16);
       }
-    return masterKey; 
+    return mk;
+  }
+
+  /// This function is used for obtaining a reference to MSK.
+  std::string& MSK() {
+    if ((msk.size() == 0) && (mk.size() != 0))
+      {
+        // MSK = GKDF-160 (MK, inputString)[0..63]
+        std::string output = GKDF160();
+        msk.assign(output.data(), 8);
+      }
+    return msk;
+  }
+
+  /// This function is used for obtaining a reference to EMSK.
+  std::string& EMSK() {
+    if ((emsk.size() == 0) && (mk.size() != 0))
+      {
+        // EMSK = GKDF-160 (MK, inputString)[64..127]
+        std::string output = GKDF160();
+        emsk.assign(output.data() + 8, 8);
+      }
+    return msk;
+  }
+
+  /// This function is used for obtaining a reference to EMSK.
+  std::string& SK() {
+    if ((sk.size() == 0) && (mk.size() != 0))
+      {
+        // SK = GKDF-160 (MK, inputString)[128..143]
+        std::string output = GKDF160();
+        sk.assign(output.data() + 16, 2);
+      }
+    return msk;
+  }
+
+  /// This function is used for obtaining a reference to EMSK.
+  std::string& PK() {
+    if ((pk.size() == 0) && (mk.size() != 0))
+      {
+        // PK = GKDF-160 (MK, inputString)[144..159]
+        std::string output = GKDF160();
+        pk.assign(output.data() + 18, 2);
+      }
+    return msk;
   }
 
   /// This function is used for obtaining a reference to peerID.
@@ -134,58 +137,126 @@ public:
   /// This function is used for obtaining a reference to serverRAND;
   EapGpskCipherSuiteList &CipherSuiteList() { return cipherSuiteList; }
 
-  /// This function is used for obtaining a reference to sessionID.
-  std::string& SessionID() { return sessionID; }
-
-  /// This function is used for obtaining a reference to binding.
-  GpskBinding& Binding() { return binding; }
+  /// This function is used for obtaining a reference to cipherSuite;
+  EapGpskCipherSuite &CipherSuite() { return cipherSuite; }
 
   /// This function is used for obtaining a reference to history;
   std::string& History() { return history; }
 
-protected:
-  EapPeerGpskStateMachine(EapSwitchStateMachine &s);
+  void Initiliaze() {
+     sharedSecret.resize(0);
+     mk.resize(0);
+     msk.resize(0);
+     emsk.resize(0);
+     sk.resize(0);
+     pk.resize(0);
+     peerID.resize(0);
+     serverID.resize(0);
+     peerRAND.resize(0);
+     serverRAND.resize(0);
+  }
 
-  ~EapPeerGpskStateMachine() {} 
+protected:
 
   /// Shared secret.
   std::string sharedSecret;
 
-  /// Key-Confirmation Key.
-  std::string keyConfirmationKey;
-
-  /// Key-Encryption Key.
-  std::string keyEncryptionKey;
-
-  /// Key-Derivation Key.
-  std::string keyDerivationKey;
-
   /// Master Key that is used for deriving an MSK.
-  std::string masterKey;
+  std::string mk;
 
-  /// session id.
-  std::string sessionID;
+  /// Master Session Key
+  std::string msk;
+
+  /// Extended-Master Session Key
+  std::string emsk;
+
+  /// Session Key
+  std::string sk;
+
+  /// Protected data key
+  std::string pk;
 
   /// peer id and server id.
-*  std::string peerID, serverID;
+  std::string peerID, serverID;
 
   /// peer and server RAND
-*  std::string peerRAND, serverRAND;
+  std::string peerRAND, serverRAND;
 
   /// cipher suite list
-*  EapGpskCipherSuiteList cipherSuiteList;
+  EapGpskCipherSuiteList cipherSuiteList;
 
-  /// binding
-  GpskBinding binding;
+  /// selected cipher suite
+  EapGpskCipherSuite cipherSuite; // only AES is supported for now
 
   /// Retains received messages with concatinating them.
   std::string history;
+
+private:
+
+  /// This function is used for generated derived keys
+  std::string GKDF160() {
+    std::string output;
+    if (mk.size() != 0)
+      {
+        // Input string.
+        std::string input(peerRAND);
+        input.append(peerID);
+        input.append(serverRAND);
+        input.append(serverID);
+
+        // MSK = GKDF-160 (MK, inputString)
+        EapCryptoAES_CMAC_128_GKDF gkdf;
+        gkdf(mk, input, output, 20);
+      }
+    return output;
+  }
+};
+
+/// Peer state machine for EAP EAP-Gpsk authentication method.
+class EAP_GPSK_EXPORTS EapPeerGpskStateMachine
+  :  public EapMethodStateMachine,
+     public EapStateMachine<EapPeerGpskStateMachine>,
+     public EapGpskNodeAttributes
+{
+  friend class EapMethodStateMachineCreator<EapPeerGpskStateMachine>;
+  friend class EapPeerGpskStateTable_S;
+public:
+
+  /// Reimplemented from EapMethodStateMachine
+  void Start() throw(AAA_Error)
+  {
+    isDone=false;
+    Initialize();
+    history.resize(0);
+
+    EapStateMachine<EapPeerGpskStateMachine>::Start();
+  }
+
+  /// Reimplemented from EapMethodStateMachine
+  inline void Notify(AAA_Event ev)
+  {
+    EapStateMachine<EapPeerGpskStateMachine>::Notify(ev);
+  }
+
+  /// This pure virtual function is a callback used when a shared-secret 
+  /// needs to be obtained.
+  virtual std::string& InputSharedSecret()=0;
+
+  /// This pure virtual function is a callback used when a PeerID
+  /// needs to be obtained.
+  virtual std::string& InputIdentity()=0;
+
+protected:
+  EapPeerGpskStateMachine(EapSwitchStateMachine &s);
+
+  ~EapPeerGpskStateMachine() {}
 };
 
 /// Authenticator state machine for EAP-Gpsk authentication method.
 class EAP_GPSK_EXPORTS EapAuthGpskStateMachine 
   :  public EapMethodStateMachine,
-     public EapStateMachine<EapAuthGpskStateMachine>
+     public EapStateMachine<EapAuthGpskStateMachine>,
+     public EapGpskNodeAttributes
 {
   friend class EapMethodStateMachineCreator<EapAuthGpskStateMachine>;
   friend class EapAuthGpskStateTable_S;
@@ -194,12 +265,8 @@ public:
   /// Reimplemented from EapMethodStateMachine
   void Start() throw(AAA_Error)
   {
-    keyData.resize(0);
-    masterKey.resize(0);
     history.resize(0);
-    keyConfirmationKey.resize(0);
-    keyEncryptionKey.resize(0);
-    keyDerivationKey.resize(0);
+    Initiliaze();
     EapStateMachine<EapAuthGpskStateMachine>::Start();
   }
 
@@ -217,97 +284,13 @@ public:
   /// needs to be obtained.
   virtual std::string& InputIdentity()=0;
 
-  /// This function is used for obtaining a reference to sharedSecret.
-  std::string& SharedSecret() { return sharedSecret; }
-
-  /// This function is used for obtaining a reference to keyConfirmationKey.
-  std::string& KCK() 
-  { 
-    if (keyConfirmationKey.size() != 16)
-      keyConfirmationKey.assign(sharedSecret, 0, 16);
-    return keyConfirmationKey; 
-  }
-
-  /// This function is used for obtaining a reference to keyEncryptionKey.
-  std::string& KEK() { 
-    if (keyEncryptionKey.size() != 16)
-      keyEncryptionKey.assign(sharedSecret, 16, 16);
-    return keyEncryptionKey; 
-  }
-
-  /// This function is used for obtaining a reference to keyDerivationKey.
-  std::string& KDK() { 
-    if (keyDerivationKey.size() != 32)
-      keyDerivationKey.assign(sharedSecret, 32, 32);
-    return keyDerivationKey; 
-  }
-
-  /// This function is used for obtaining a reference to masterKey.
-  std::string& MK() { 
-    if (masterKey.size() != 32 && IsDone())
-      {
-	// Compute the master key.
-        std::string tmp(nonceA);
-	tmp.append(nonceP);
-	tmp.append("Gpsk session key");
-	EapCryptoGpskPRF prf;
-	prf(tmp, masterKey, KDK(), 32);
-      }
-    return masterKey; 
-  }
-
-  /// This function is used for obtaining a reference to sessionID.
-  std::string& SessionID() { return sessionID; }
-
-  /// This function is used for obtaining a reference to peerID.
-  std::string& PeerID() { return peerID; }
-
-  /// This function is used for obtaining a reference to authID.
-  std::string& AuthID() { return authID; }
-
-  /// This function is used for obtaining a reference to binding.
-  GpskBinding& Binding() { return binding; }
-
-  /// This function is used for obtaining a reference to nonceA;
-  std::string& NonceA() { return nonceA; }
-
-  /// This function is used for obtaining a reference to nonceP;
-  std::string& NonceP() { return nonceP; }
-
   /// This function is used for obtaining a reference to history;
   std::string& History() { return history; }
 
 protected:
   EapAuthGpskStateMachine(EapSwitchStateMachine &s);
 
-  ~EapAuthGpskStateMachine() {} 
-
-  /// Shared secret.
-  std::string sharedSecret;
-
-  /// Key-Confirmation Key.
-  std::string keyConfirmationKey;
-
-  /// Key-Encryption Key.
-  std::string keyEncryptionKey;
-
-  /// Key-Derivation Key.
-  std::string keyDerivationKey;
-
-  /// Master Key that is used for deriving an MSK.
-  std::string masterKey;
-
-  /// session id.
-  std::string sessionID;
-
-  /// peer id and auth id.
-  std::string peerID, authID;
-
-  /// nonceP and nonceA and auth id.
-  std::string nonceP, nonceA;
-
-  /// binding
-  GpskBinding binding;
+  ~EapAuthGpskStateMachine() {}
 
   /// Retains received messages with concatinating them.
   std::string history;
