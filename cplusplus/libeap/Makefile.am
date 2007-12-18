@@ -38,6 +38,10 @@ CORE_HDR = include/eap_api.h \
 	include/eap_archie_fsm.hxx \
 	include/eap_archie_parser.hxx \
 	include/eap_archie.hxx \
+	include/eap_gpsk_crypto.hxx \
+	include/eap_gpsk_fsm.hxx \
+	include/eap_gpsk_parser.hxx \
+	include/eap_gpsk.hxx \
 	include/eap_tls.hxx \
 	include/eap_tls_mng.hxx \
 	include/eap_tls_session.hxx \
@@ -75,6 +79,8 @@ CORE_HDR = include/eap_api.h \
 	include/eap_archie_fsm.hxx \
 	include/eap_archie_parser.hxx \
 	include/eap_archie.hxx \
+	include/eap_gpsk_crypto.hxx \
+	include/eap_gpsk_fsm.hxx \
 	include/eap_gpsk_parser.hxx \
 	include/eap_gpsk.hxx
 endif

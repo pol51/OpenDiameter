@@ -45,6 +45,11 @@
 class EAP_GPSK_EXPORT EapGpskNodeAttributes
 {
 public:
+  EapGpskNodeAttributes() {
+     // default cipher support - AES only
+     EapGpskCipherSuite aes;
+     cipherSuiteList.push_back(aes);
+  }
 
   /// This function is used for obtaining a reference to sharedSecret.
   std::string& SharedSecret() { return sharedSecret; }
@@ -265,7 +270,6 @@ public:
   /// Reimplemented from EapMethodStateMachine
   void Start() throw(AAA_Error)
   {
-    history.resize(0);
     Initiliaze();
     EapStateMachine<EapAuthGpskStateMachine>::Start();
   }
@@ -284,16 +288,24 @@ public:
   /// needs to be obtained.
   virtual std::string& InputIdentity()=0;
 
-  /// This function is used for obtaining a reference to history;
-  std::string& History() { return history; }
+  /// This pure virtual function is a callback used to validate
+  /// the peer identity.
+  virtual bool CheckPeerIdentity(std::string& peer)=0;
+
+  /// This pure virtual function is a callback used to validate
+  /// the peer authorization.
+  virtual bool IsPeerAuthorized(std::string& peer)=0;
+
+  /// This function is used for obtaining a reference to failureCode;
+  ACE_UINT32& FailureCode() { return failureCode; }
 
 protected:
   EapAuthGpskStateMachine(EapSwitchStateMachine &s);
 
   ~EapAuthGpskStateMachine() {}
 
-  /// Retains received messages with concatinating them.
-  std::string history;
+  /// Last failure code
+  ACE_UINT32 failureCode;
 };
 
 #endif //__EAP_GPSK_FSM_HXX__

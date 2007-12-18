@@ -157,6 +157,30 @@ public:
           this->push_back(*i);
       }
    }
+
+   bool operator==(std::list<EapGpskCipherSuite> &from) {
+      if (this->length() != from.length()) {
+         return false;
+      }
+      std::list<EapGpskCipherSuite>::iterator i = from.begin();
+      std::list<EapGpskCipherSuite>::iterator n = this->begin();
+      for (; i != from.end(); i++, n++) {
+         if (*i != *n) {
+           return false;
+         }
+      }
+      return true;
+   }
+
+   bool isPresent(EapGpskCipherSuite &csuite) {
+      std::list<EapGpskCipherSuite>::iterator i = from.begin();
+      for (; i != from.end(); i++) {
+         if (*i == suite) {
+           return true;
+         }
+      }
+      return false;
+   }
 };
 
 /// EAP-Gpsk/Request-Gpsk message.
@@ -355,11 +379,11 @@ private:
 };
 
 /// EAP-Request/Gpsk-Fail payload.
-class EAP_GPSK_EXPORTS EapRequestGpskFail: public EapRequestGpsk
+class EAP_GPSK_EXPORTS EapGpskFail: public EapRequestGpsk
 {
 public:
   /// Initialized with a specific message id (5).
-  EapRequestGpskFail() : EapRequestGpsk(5) {}
+  EapGpskFail() : EapRequestGpsk(5) {}
 
   /// Use this function to obtain a reference to failure code.
   ACE_UINT32& FailureCode() { return failureCode; }
@@ -371,10 +395,10 @@ private:
 };
 
 /// EAP-Response/Gpsk-Fail payload.
-typedef EapRequestGpskFail EapResponseGpskFail;
+typedef EapGpskFail EapResponseGpskFail;
 
 /// EAP-Request/Gpsk-Protected-Fail payload.
-class EAP_GPSK_EXPORTS EapRequestGpskProtectedFail: public EapRequestGpskFail
+class EAP_GPSK_EXPORTS EapRequestGpskProtectedFail: public EapGpskFail
 {
 public:
   /// Initialized with a specific message id (6).
