@@ -144,14 +144,16 @@ LDADD = @L_LIBS@ \
 endif
 
 if compile_EAPTLS
-noinst_PROGRAMS = md5_test archie_test tls_test
+noinst_PROGRAMS = md5_test archie_test gpsk_test tls_test
 else
-noinst_PROGRAMS = md5_test archie_test
+noinst_PROGRAMS = md5_test archie_test gpsk_test
 endif
 
 md5_test_SOURCES = tests/md5_test.cxx
 
 archie_test_SOURCES = tests/archie_test.cxx 
+
+gpsk_test_SOURCES = tests/gpsk_test.cxx 
 
 if compile_EAPTLS
 tls_test_SOURCES = tests/tls_test.cxx
