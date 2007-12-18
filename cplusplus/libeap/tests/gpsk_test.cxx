@@ -98,15 +98,15 @@ class Channel
   o Case 2 is for EAP conversation between a peer and an authenticator
   *with* a passthrough authenticator in between.
 
-  All cases completes with success after EAP-Archie authentication
+  All cases completes with success after EAP-Gpsk authentication
   method is performed.  In both cases, the peer session entity will
   prompt you to input a username.  Once the username is input, it is
-  carried in an Response/Archie-Response message and sent to the
+  carried in an Response/Gpsk-Response message and sent to the
   (backend) authenticator.  In Case 2, passthrough authenticator will
   forward the response to the backend authenticator.
 
   The authenticator or passthrough authenticator will retransmit the
-  Request/Archie-Request message until you input the username or the
+  Request/Gpsk-Request message until you input the username or the
   number of retransmission reaches its maximum value (the maximum
   value is set to 3 in this program).  For the latter case, the
   authenticator will stop its state machine and the peer will timeout
@@ -123,13 +123,13 @@ class Channel
 
   Peer                Authenticator
    |                          |
-   |  Request/Archie-Request  |
+   |  Request/Gpsk-Request  |
    |<-------------------------|
-   |  Response/Archie-Response|
+   |  Response/Gpsk-Response|
    |------------------------->|
-   |  Request/Archie-Confirm  |
+   |  Request/Gpsk-Confirm  |
    |<-------------------------|
-   |  Response/Archie-Finish  |
+   |  Response/Gpsk-Finish  |
    |------------------------->|
    |                          |
    |       Success            |
@@ -143,18 +143,18 @@ Case 2:
    |                          |  Null message            |
    |                          |------------------------->|
    |                          |                          |
-   |                          |  Request/Archie-Request  |
-   |  Request/Archie-Request  |<-------------------------|
+   |                          |  Request/Gpsk-Request  |
+   |  Request/Gpsk-Request  |<-------------------------|
    |<-------------------------|                          |
    |                          |                          |
-   |  Response/Archie-Response|                          |
-   |------------------------->|  Response/Archie-Response|
+   |  Response/Gpsk-Response|                          |
+   |------------------------->|  Response/Gpsk-Response|
    |                          |------------------------->|
-   |                          |  Request/Archie-Confirm  |
-   |  Request/Archie-Confirm  |<-------------------------|
+   |                          |  Request/Gpsk-Confirm  |
+   |  Request/Gpsk-Confirm  |<-------------------------|
    |<-------------------------|                          |
-   |  Response/Archie-Finish  |                          |
-   |------------------------->|  Response/Archie-Finish  |
+   |  Response/Gpsk-Finish  |                          |
+   |------------------------->|  Response/Gpsk-Finish  |
    |                          |------------------------->|
    |                          |                          |
    |                          |          Success         |
@@ -166,12 +166,12 @@ Case 2:
 static std::string sharedSecret;
 
 // Class definition for peer archie state machine.
-class MyEapPeerArchieStateMachine : public EapPeerArchieStateMachine
+class MyEapPeerGpskStateMachine : public EapPeerGpskStateMachine
 {
-  friend class EapMethodStateMachineCreator<MyEapPeerArchieStateMachine>;
+  friend class EapMethodStateMachineCreator<MyEapPeerGpskStateMachine>;
 public:
-  MyEapPeerArchieStateMachine(EapSwitchStateMachine &s)
-    : EapPeerArchieStateMachine(s) {}
+  MyEapPeerGpskStateMachine(EapSwitchStateMachine &s)
+    : EapPeerGpskStateMachine(s) {}
 
   /// This pure virtual function is a callback used when a shared-secret 
   /// needs to be obtained.
@@ -184,7 +184,7 @@ public:
   /// needs to be obtained.
   std::string& InputIdentity()
   {
-    std::cout << "Received an Archie-Request from " 
+    std::cout << "Received an Gpsk-Request from " 
 	      << AuthID() << std::endl;
       
     static std::string identity;
@@ -194,16 +194,16 @@ public:
     return identity;
   }
 private:
-  ~MyEapPeerArchieStateMachine() {} 
+  ~MyEapPeerGpskStateMachine() {} 
 };
 
 // Class definition for authenticator identity method for my application.
-class MyEapAuthArchieStateMachine : public EapAuthArchieStateMachine
+class MyEapAuthGpskStateMachine : public EapAuthGpskStateMachine
 {
-  friend class EapMethodStateMachineCreator<MyEapAuthArchieStateMachine>;
+  friend class EapMethodStateMachineCreator<MyEapAuthGpskStateMachine>;
 public:
-  MyEapAuthArchieStateMachine(EapSwitchStateMachine &s) :
-    EapAuthArchieStateMachine(s) {}
+  MyEapAuthGpskStateMachine(EapSwitchStateMachine &s) :
+    EapAuthGpskStateMachine(s) {}
 
   /// This pure virtual function is a callback used when a shared-secret 
   /// needs to be obtained.
@@ -221,7 +221,7 @@ public:
   }
 
 private:
-  ~MyEapAuthArchieStateMachine() {} 
+  ~MyEapAuthGpskStateMachine() {} 
 };
 
 class MyPeerSwitchStateMachine: public EapPeerSwitchStateMachine
@@ -405,7 +405,7 @@ class PeerApplication : public AAA_JobData
     semaphore(sem),
     rxChannel(PeerChannel(*eap)),
     txChannel(0),
-    method(EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE)))
+    method(EapContinuedPolicyElement(EapType(GPSK_METHOD_TYPE)))
   {
     eap->Policy().InitialPolicyElement(&method);
     semaphore.acquire();
@@ -820,21 +820,21 @@ int main(int argc, char **argv)
   // user-defined method class for each user-defined method
   // implementation.
 
-  EapMethodStateMachineCreator<MyEapPeerArchieStateMachine> 
-    myPeerArchieCreator;
+  EapMethodStateMachineCreator<MyEapPeerGpskStateMachine> 
+    myPeerGpskCreator;
 
-  EapMethodStateMachineCreator<MyEapAuthArchieStateMachine> 
-    myAuthArchieCreator;
+  EapMethodStateMachineCreator<MyEapAuthGpskStateMachine> 
+    myAuthGpskCreator;
 
   EapMethodRegistrar methodRegistrar;
 
   methodRegistrar.registerMethod
-    (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE), 
-     Peer, myPeerArchieCreator);
+    (std::string("Gpsk"), EapType(ARCHIE_METHOD_TYPE), 
+     Peer, myPeerGpskCreator);
 
   methodRegistrar.registerMethod
-    (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE), 
-     Authenticator, myAuthArchieCreator);
+    (std::string("Gpsk"), EapType(ARCHIE_METHOD_TYPE), 
+     Authenticator, myAuthGpskCreator);
 
   int com;
 
