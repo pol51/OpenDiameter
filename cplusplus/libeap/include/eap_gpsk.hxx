@@ -57,6 +57,22 @@
 #define GPSK_METHOD_TYPE  200
 #define GPSK_MAX_PKT_SIZE 1024
 
+//#define EAP_GPSK_DEBUG 1
+#ifdef EAP_GPSK_DEBUG
+void dumpHex(char *p, const char* value, int len)
+{
+   printf("DEBUG: %s with length: %d\n", p, len);
+   for (int i = 0; i < len; i ++) {
+      printf("0x%x ", value[i]);
+   }
+   printf("\n");
+}
+void dumpText(char *p, const char* value)
+{
+   printf("DEBUG: %s [%s]\n", p, value);
+}
+#endif
+
 /// Enumerations
 /*
    The following is the initial protected data PData/Specifier registry
@@ -138,6 +154,12 @@ public:
      return !(st == *this);
    }
 
+#ifdef EAP_GPSK_DEBUG
+   void dump() {
+      printf("Cipher Suite Dump: %d, %d\n", vendor, cipherSuite);
+   }
+#endif
+
 protected:
    ACE_UINT32 vendor;
    ACE_UINT16 cipherSuite;
@@ -191,6 +213,16 @@ public:
       }
       return false;
    }
+
+#ifdef EAP_GPSK_DEBUG
+   void dump() {
+      printf("Cipher Suite List Dump: %d\n", this->size());
+      std::list<EapGpskCipherSuite>::iterator i = this->begin();
+      for (; i != this->end(); i++) {
+         (*i).dump();
+      }
+   }
+#endif
 };
 
 /// EAP-Gpsk/Request-Gpsk message.

@@ -64,34 +64,20 @@ class EAP_GPSK_EXPORTS EapPeerGpskStateTable_S :
 private:
   /// defined as a leaf class
 
-  class AcCheckForGpskFailandReply : public EapPeerGpskAction
+  class ReplayGpskFail
   {
   public:
-    void operator()(EapPeerGpskStateMachine &msm)
+    void operator()(EapPeerGpskStateMachine &msm, EapGpskFail &gpsk)
     {
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
-      AAAMessageBlock *msg = ssm.GetRxMessage();
 
-      EAP_LOG(LM_DEBUG, "PeerGpsk: checking on GPSK-Fail message.\n");
-
-      // Check the GPSK-Fail.
-      EapGpskFail gpsk;
-      EapGpskFailParser parser;
-      parser.setAppData(&gpsk);
-      parser.setRawData(msg);
-      try { parser.parseRawToApp(); }
-      catch (...) {
-        EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Fail Parse error.\n");
-        msm.Event(EvSgInvalid);
-        return;
-      }
-
-      EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Fail received [%d].\n", gpsk.FailureCode());
+      EAP_LOG(LM_DEBUG, "PeerGpsk: Replay GPSK-Fail message.\n");
 
       AAAMessageBlock *reply = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
       ACE_OS::memset(reply->base(), 0, GPSK_MAX_PKT_SIZE);
 
       // Replay the failure
+      EapGpskFailParser parser;
       parser.setAppData(&gpsk);
       parser.setRawData(reply);
       try { parser.parseRawToApp(); }
@@ -112,38 +98,26 @@ private:
     }
   };
 
-  class AcCheckForGpskProtectedFailandReply : public EapPeerGpskAction
+  class ReplayGpskProtectedFail
   {
   public:
-    void operator()(EapPeerGpskStateMachine &msm)
+    void operator()(EapPeerGpskStateMachine &msm, EapGpskProtectedFail &gpsk)
     {
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
-      AAAMessageBlock *msg = ssm.GetRxMessage();
 
-      EAP_LOG(LM_DEBUG, "PeerGpsk: checking on GPSK-Protected-Fail message.\n");
-
-      // Check the GPSK-Fail.
-      EapGpskProtectedFail gpsk;
-      EapGpskProtectedFailParser parser;
-      parser.setAppData(&gpsk);
-      parser.setRawData(msg);
-      try { parser.parseRawToApp(); }
-      catch (...) {
-        EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail Parse error.\n");
-        msm.Event(EvSgInvalid);
-        return;
-      }
-
-      // Obtain shared secret from the application.
-      std::string& sharedSecret = msm.SharedSecret();
+      EAP_LOG(LM_DEBUG, "PeerGpsk: Replaying GPSK-Protected-Fail message.\n");
 
       // Save existing MAC
       std::string mac1 = gpsk.MAC();
       gpsk.MAC().resize(0);
 
+      AAAMessageBlock *reply = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(reply->base(), 0, GPSK_MAX_PKT_SIZE);
+
       // Re-generate the MAC
+      EapGpskProtectedFailParser parser;
       parser.setAppData(&gpsk);
-      parser.setRawData(msg);
+      parser.setRawData(reply);
       try { parser.parseAppToRaw(); }
       catch (...) {
         EAP_LOG(LM_ERROR, "PeerGpsk: Parse error when generating Protected-Fail for MAC validation.\n");
@@ -151,53 +125,34 @@ private:
         return;
       }
 
+      // Obtain shared secret from the application.
+      std::string& sharedSecret = msm.SharedSecret();
+
       // Get the message stream and generate MAC
       std::string mac2;
-      std::string msgInput(msg->base() + 4, msg->length());
+      std::string msgInput(reply->base() + 4, reply->length());
       EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msgInput, msgInput.size(), mac2);
 
       // do validity check.
       if (mac1 != mac2)
         {
-          EAP_LOG(LM_ERROR, "PeerGpsk: Invalid MAC2.\n");
+          EAP_LOG(LM_ERROR, "PeerGpsk: Invalid MAC2 on GPSK-Protected-Fail.\n");
           msm.Event(EvSgInvalid);
           return;
         }
 
-      EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail received [%d].\n", gpsk.FailureCode());
-
-      AAAMessageBlock *reply = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(reply->base(), 0, GPSK_MAX_PKT_SIZE);
-
       // Replay the failure
-      EapGpskProtectedFail response;
-      response.FailureCode() = gpsk.FailureCode();
+      gpsk.MAC() = mac2;
+      reply->wr_ptr(reply->base());
 
-      parser.setAppData(&response);
-      parser.setRawData(reply);
-      try { parser.parseRawToApp(); }
+      // Parse the message again to write the calculated MAC.
+      try { parser.parseAppToRaw(); }
       catch (...) {
         EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail Parse error.\n");
         msm.Event(EvSgInvalid);
         return;
       }
-
-      // Get the message stream and compute MAC
-      std::string msg2Input(reply->base() + 4, reply->length());
-      macCalculator(sharedSecret, msg2Input,
-           msg2Input.size(), response.MAC());
-
-      // Rewind the pointer.
-      reply->wr_ptr(reply->base() + 4);
-
-      // Parse the message again to write the calculated MAC.
-      try { parser.parseAppToRaw(); }
-      catch (...) {
-        EAP_LOG(LM_ERROR, "PeerGpsk: Parse error when generating GPSK-Protected-Fail.\n");
-        msm.Event(EvSgInvalid);
-        return;
-     }
 
       // Set the message to the session.
       ssm.SetTxMessage(reply);
@@ -235,6 +190,11 @@ private:
       msm.ServerRAND()  = gpsk.RANDServer();
       msm.CipherSuiteList() = gpsk.CSuiteList();
 
+#ifdef EAP_GPSK_DEBUG
+      dumpText("Server id", msm.ServerID().data());
+      dumpHex("Server RAND", msm.ServerRAND().data(), msm.ServerRAND().length());
+      msm.CipherSuiteList().dump();
+#endif
       msm.Event(EvSgValid);
     }
   };
@@ -280,13 +240,17 @@ private:
       }
 
       // Obtain shared secret from the application.
-      std::string& sharedSecret = msm.SharedSecret();
+      std::string& sharedSecret = msm.SharedSecret() = msm.InputSharedSecret();
 
       // Get the message stream and compute MAC
-      std::string msgInput(msg->base() + 4, msg->length());
+      std::string msgInput(msg->base() + 4 + 2, msg->length() - 4 - 2);
       EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msgInput,
            msgInput.size(), gpsk.MAC());
+#ifdef EAP_GPSK_DEBUG
+      dumpHex("Shared secret", sharedSecret.data(), sharedSecret.length());
+      dumpHex("Input", msgInput.data(), msgInput.length());
+#endif
 
       // Rewind the pointer.
       msg->wr_ptr(msg->base() + 4);
@@ -301,6 +265,16 @@ private:
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
+
+#ifdef EAP_GPSK_DEBUG
+      dumpText("Server id", gpsk.IDServer().data());
+      dumpText("Peer id", gpsk.IDPeer().data());
+      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
+      dumpHex("Peer RAND", gpsk.RANDPeer().data(), gpsk.RANDPeer().length());
+      gpsk.CSuiteList().dump();
+      gpsk.CSuiteSelected().dump();
+      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
+#endif
 
       // Update external method state.
       ssm.MethodState() = EapPeerSwitchStateMachine::CONT;
@@ -317,24 +291,11 @@ private:
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
       AAAMessageBlock *msg = ssm.GetRxMessage();
 
-      EAP_LOG(LM_DEBUG, "PeerGpsk: checking on GPSK3 message.\n");
+#ifdef EAP_GPSK_DEBUG
+      dumpHex("PACKET", msg->base(), msg->length());
+#endif
 
-      ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
-
-      AcCheckForGpskFailandReply gpskFailAction;
-      AcCheckForGpskProtectedFailandReply gpskProtectedFailAction;
-
-      // Read Op-Code to check for failures
-      switch (opCode)
-        {
-        case 3: break; // GPSK-3, continue
-        case 5: gpskFailAction(msm); return;
-        case 6: gpskProtectedFailAction(msm); return;
-        default:
-          EAP_LOG(LM_ERROR, "Invalid opCode %d (3 is expected).\n", opCode);
-          msm.Event(EvSgInvalid);
-          return;
-        }
+      EAP_LOG(LM_DEBUG, "PeerGpsk: Integrity check on GPSK3 message.\n");
 
       // Check the GPSK3.
       EapGpsk3 gpsk;
@@ -343,8 +304,41 @@ private:
       parser.setRawData(msg);
       try { parser.parseRawToApp(); }
       catch (...) {
-        EAP_LOG(LM_ERROR, "PeerGpsk: GPSK3 Parse error.\n");
-        msm.Event(EvSgInvalid);
+
+        EAP_LOG(LM_ERROR, "PeerGpsk: Msg is not GPSK3 ... checking for error.\n");
+
+        // Check the GPSK-Fail.
+        EapGpskFail fgpsk;
+        EapGpskFailParser fparser;
+        fparser.setAppData(&fgpsk);
+        fparser.setRawData(msg);
+        try {
+           fparser.parseRawToApp();
+           EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Fail received [%d].\n", fgpsk.FailureCode());
+           ReplayGpskFail replay;
+           replay(msm, fgpsk);
+        }
+        catch (...) {
+
+          EAP_LOG(LM_ERROR, "PeerGpsk: Msg is not GPSK-Fail ... checking for protected error.\n");
+
+          // Check the GPSK-Fail.
+          EapGpskProtectedFail pfgpsk;
+          EapGpskProtectedFailParser pfparser;
+          pfparser.setAppData(&pfgpsk);
+          pfparser.setRawData(msg);
+          try {
+             pfparser.parseRawToApp();
+             EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail received [%d].\n", pfgpsk.FailureCode());
+             ReplayGpskProtectedFail replay;
+             replay(msm, pfgpsk);
+          }
+          catch (...) {
+
+             EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail Parse error.\n");
+             msm.Event(EvSgInvalid);
+          }
+        }
         return;
       }
 
@@ -370,6 +364,14 @@ private:
       // Save the payload, TBD: Need to do something about the payload in the future
       msm.Payload() = gpsk.PDPayload();
 
+#ifdef EAP_GPSK_DEBUG
+      dumpText("Server id", gpsk.IDServer().data());
+      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
+      dumpHex("Peer RAND", gpsk.RANDPeer().data(), gpsk.RANDPeer().length());
+      gpsk.CSuiteSelected().dump();
+      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
+#endif
+
       // Obtain shared secret from the application.
       std::string& sharedSecret = msm.SharedSecret();
 
@@ -378,8 +380,10 @@ private:
       gpsk.MAC().resize(0);
 
       // Re-generate the MAC
+      AAAMessageBlock *raw = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(raw->base(), 0, GPSK_MAX_PKT_SIZE);
       parser.setAppData(&gpsk);
-      parser.setRawData(msg);
+      parser.setRawData(raw);
       try { parser.parseAppToRaw(); }
       catch (...) {
         EAP_LOG(LM_ERROR, "PeerGpsk: Parse error when generating GPSK3 for MAC validation.\n");
@@ -389,9 +393,10 @@ private:
 
       // Get the message stream and generate MAC
       std::string mac2;
-      std::string msgInput(msg->base() + 4, msg->length());
+      std::string msgInput(raw->base() + 4 + 2, raw->length() - 4 - 2);
       EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msgInput, msgInput.size(), mac2);
+      raw->Release();
 
       // do validity check.
       if (mac1 != mac2)
@@ -431,7 +436,7 @@ private:
       std::string& sharedSecret = msm.SharedSecret();
 
       // Get the message stream and compute MAC
-      std::string msgInput(msg->base() + 4, msg->length());
+      std::string msgInput(msg->base() + 4 + 2, msg->length() - 4 - 2);
       EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msgInput,
            msgInput.size(), gpsk.MAC());
@@ -446,6 +451,10 @@ private:
           msm.Event(EvSgInvalid);
           return;
         }
+
+#ifdef EAP_GPSK_DEBUG
+      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
+#endif
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
@@ -693,11 +702,14 @@ private:
                 "AuthGpsk: Failed to generate a server RAND for GPSK1.\n");
           return;
         }
-      msm.ServerRAND() = (const char*)randServer;
+      msm.ServerRAND().assign((const char*)randServer, sizeof(randServer));
+
+      // Obtain shared secret from the application.
+      msm.SharedSecret() = msm.InputSharedSecret();
 
       EapGpsk1 gpsk;
       gpsk.IDServer() = msm.ServerID() = msm.InputIdentity();
-      gpsk.RANDServer() = (const char*)randServer;
+      gpsk.RANDServer() = msm.ServerRAND();
       gpsk.CSuiteList() = msm.CipherSuiteList();
 
       EapGpsk1Parser parser;
@@ -709,6 +721,12 @@ private:
           msm.Event(EvSgInvalid);
           return;
         }
+
+#ifdef EAP_GPSK_DEBUG
+      dumpText("Server id", gpsk.IDServer().data());
+      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
+      gpsk.CSuiteList().dump();
+#endif
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
@@ -739,30 +757,40 @@ private:
           return;
         }
 
+#ifdef EAP_GPSK_DEBUG
+      dumpText("Server id", gpsk.IDServer().data());
+      dumpText("Peer id", gpsk.IDPeer().data());
+      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
+      dumpHex("Peer RAND", gpsk.RANDPeer().data(), gpsk.RANDPeer().length());
+      gpsk.CSuiteList().dump();
+      gpsk.CSuiteSelected().dump();
+      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
+#endif
+
       // Validate server RAND
       if (gpsk.RANDServer() != msm.ServerRAND()) {
-          EAP_LOG(LM_ERROR, "PeerGpsk: GPSK3 has invalid server RAND values.\n");
+          EAP_LOG(LM_ERROR, "AuthGpsk: GPSK2 has invalid server RAND values.\n");
           msm.Event(EvSgInvalid);
           return;
       }
 
       // Validate CSuite list
       if (gpsk.CSuiteList() != msm.CipherSuiteList()) {
-          EAP_LOG(LM_ERROR, "PeerGpsk: GPSK3 has invalid Cipher Suite list.\n");
+          EAP_LOG(LM_ERROR, "AuthGpsk: GPSK2 has invalid Cipher Suite list.\n");
           msm.Event(EvSgInvalid);
           return;
       }
 
       // Validate CSuite selected
-      if (msm.CipherSuiteList().isPresent(gpsk.CSuiteSelected())) {
-          EAP_LOG(LM_ERROR, "PeerGpsk: GPSK3 has invalid selected Cipher Suite.\n");
+      if (! msm.CipherSuiteList().isPresent(gpsk.CSuiteSelected())) {
+          EAP_LOG(LM_ERROR, "AuthGpsk: GPSK2 has invalid selected Cipher Suite.\n");
           msm.Event(EvSgInvalid);
           return;
       }
 
       // Validate User
-      if (msm.ValidatePeerIdentity(gpsk.IDPeer())) {
-          EAP_LOG(LM_ERROR, "PeerGpsk: GPSK3 has invalid user ID.\n");
+      if (! msm.ValidatePeerIdentity(gpsk.IDPeer())) {
+          EAP_LOG(LM_ERROR, "AuthGpsk: GPSK2 has invalid user ID.\n");
           msm.FailureCode() = EAP_GPSK_FAILURE_AUTHENTICATION_FAILURE;
           msm.Event(EvSgFail);
           return;
@@ -779,11 +807,13 @@ private:
       gpsk.MAC().resize(0);
 
       // Re-generate the MAC
+      AAAMessageBlock *raw = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(raw->base(), 0, GPSK_MAX_PKT_SIZE);
       parser.setAppData(&gpsk);
-      parser.setRawData(msg);
+      parser.setRawData(raw);
       try { parser.parseAppToRaw(); }
       catch (...) {
-        EAP_LOG(LM_ERROR, "PeerGpsk: Parse error when generating GPSK2 for MAC validation.\n");
+        EAP_LOG(LM_ERROR, "AuthGpsk: Parse error when generating GPSK2 for MAC validation.\n");
         msm.Event(EvSgInvalid);
         return;
       }
@@ -793,22 +823,30 @@ private:
 
       // Get the message stream and generate MAC
       std::string mac2;
-      std::string msgInput(msg->base() + 4, msg->length());
       EapCryptoAES_CMAC_128 macCalculator;
+      std::string msgInput(raw->base() + 4 + 2, raw->length() - 4 - 2);
       macCalculator(sharedSecret, msgInput, msgInput.size(), mac2);
+      raw->Release();
+
+#ifdef EAP_GPSK_DEBUG
+      dumpHex("Shared secret", sharedSecret.data(), sharedSecret.length());
+      dumpHex("Input", msgInput.data(), msgInput.length());
+      dumpHex("Original MAC", mac1.data(), mac1.length());
+      dumpHex("Computed local MAC", mac2.data(), mac2.length());
+#endif
 
       // do validity check.
       if (mac1 != mac2)
         {
-          EAP_LOG(LM_ERROR, "PeerGpsk: Invalid MAC2 for GPSK2.\n");
+          EAP_LOG(LM_ERROR, "AuthGpsk: Invalid MAC2 for GPSK2.\n");
           msm.Event(EvSgFail);
           return;
         }
 
       // Is peer authorized
-      if (msm.IsPeerAuthorized(gpsk.IDPeer()))
+      if (! msm.IsPeerAuthorized(gpsk.IDPeer()))
         {
-          EAP_LOG(LM_ERROR, "PeerGpsk: GPSK3 has un-authorized user ID.\n");
+          EAP_LOG(LM_ERROR, "AuthGpsk: GPSK2 has un-authorized user ID.\n");
           msm.FailureCode() = EAP_GPSK_FAILURE_AUTHORIZATION_FAILURE;
           msm.Event(EvSgProtectedFail);
           return;
@@ -830,8 +868,8 @@ private:
 
       // Get an Server ID.
       EapGpsk3 gpsk;
-      gpsk.IDServer() = msm.ServerID() = msm.InputIdentity();
-      gpsk.RANDPeer() = msm.PeerID();
+      gpsk.IDServer() = msm.ServerID();
+      gpsk.RANDPeer() = msm.PeerRAND();
       gpsk.RANDServer() = msm.ServerRAND();
       gpsk.CSuiteSelected() = msm.CipherSuite();
 
@@ -844,6 +882,39 @@ private:
           msm.Event(EvSgInvalid);
           return;
         }
+
+      // Obtain shared secret from the application.
+      std::string& sharedSecret = msm.SharedSecret();
+
+      // Get the message stream and compute MAC
+      std::string msgInput(msg->base() + 4 + 2, msg->length() - 4 - 2);
+      EapCryptoAES_CMAC_128 macCalculator;
+      macCalculator(sharedSecret, msgInput,
+           msgInput.size(), gpsk.MAC());
+#ifdef EAP_GPSK_DEBUG
+      dumpHex("Shared secret", sharedSecret.data(), sharedSecret.length());
+      dumpHex("Input", msgInput.data(), msgInput.length());
+#endif
+
+      // Rewind the pointer.
+      msg->wr_ptr(msg->base() + 4);
+
+      // Parse the message again to write the calculated MAC.
+      try { parser.parseAppToRaw(); }
+      catch (...) {
+        EAP_LOG(LM_ERROR, "AuthGpsk: Parse error when generating GPSK2.\n");
+        msm.Event(EvSgInvalid);
+        return;
+     }
+
+#ifdef EAP_GPSK_DEBUG
+      dumpText("Server id", gpsk.IDServer().data());
+      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
+      dumpHex("Peer RAND", gpsk.RANDPeer().data(), gpsk.RANDPeer().length());
+      gpsk.CSuiteSelected().dump();
+      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
+      dumpHex("PACKET", msg->base(), msg->length());
+#endif
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
@@ -874,13 +945,19 @@ private:
           return;
         }
 
+#ifdef EAP_GPSK_DEBUG
+      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
+#endif
+
       // Save existing MAC
       std::string mac1 = gpsk.MAC();
       gpsk.MAC().resize(0);
 
       // Re-generate the MAC
+      AAAMessageBlock *raw = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(raw->base(), 0, GPSK_MAX_PKT_SIZE);
       parser.setAppData(&gpsk);
-      parser.setRawData(msg);
+      parser.setRawData(raw);
       try { parser.parseAppToRaw(); }
       catch (...) {
         EAP_LOG(LM_ERROR, "PeerGpsk: Parse error when generating GPSK4 for MAC validation.\n");
@@ -893,9 +970,10 @@ private:
 
       // Get the message stream and generate MAC
       std::string mac2;
-      std::string msgInput(msg->base() + 4, msg->length());
+      std::string msgInput(raw->base() + 4 + 2, raw->length() - 4 - 2);
       EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msgInput, msgInput.size(), mac2);
+      raw->Release();
 
       // do validity check.
       if (mac1 != mac2)

@@ -466,6 +466,10 @@ EapGpsk3Parser::parseAppToRaw()
   requestParser.setAppData(gpsk);
   requestParser.parseAppToRaw();
 
+  // Write Op-Code.
+  *(ACE_Byte*)msg->wr_ptr() = gpsk->OpCode();
+  msg->wr_ptr(1);
+
   // Write RAND_Peer
   msg->copy(gpsk->RANDPeer().data(), 32);
 
@@ -481,12 +485,11 @@ EapGpsk3Parser::parseAppToRaw()
     }
 
   // Write the ID_Server length.
-  ACE_UINT16 idServerLength = (ACE_UINT16)length;
-  *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(idServerLength);
+  *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(length);
   msg->wr_ptr(2);
 
   // Write the ID_Server
-  msg->copy(gpsk->IDServer().data(), idServerLength);
+  msg->copy(gpsk->IDServer().data(), length);
 
   // Write CSuite Selection
   std::string cipherSuiteSelected = gpsk->CSuiteSelected().toString();
@@ -555,6 +558,10 @@ EapGpsk4Parser::parseAppToRaw()
   responseParser.setRawData(msg);
   responseParser.setAppData(gpsk);
   responseParser.parseAppToRaw();
+
+  // Write Op-Code.
+  *(ACE_Byte*)msg->wr_ptr() = gpsk->OpCode();
+  msg->wr_ptr(1);
 
   // Write payload length [TBD: no payload supported set this to 0]
   *(ACE_UINT16*)msg->wr_ptr() = 0;

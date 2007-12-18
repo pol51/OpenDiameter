@@ -826,7 +826,7 @@ int main(int argc, char **argv)
 {
   // Initialize the log.
 #ifndef WIN32
-  EapLogMsg_S::instance()->open("EAP", ACE_Log_Msg::SYSLOG);
+  EapLogMsg_S::instance()->open("EAP", ACE_Log_Msg::STDERR);
 #else
   EapLogMsg_S::instance()->open("EAP", ACE_Log_Msg::STDERR);
 #endif

@@ -628,6 +628,11 @@ tests/gpsk_test.$(OBJEXT): tests/$(am__dirstamp) \
 gpsk_test$(EXEEXT): $(gpsk_test_OBJECTS) $(gpsk_test_DEPENDENCIES) 
 	@rm -f gpsk_test$(EXEEXT)
 	$(CXXLINK) $(gpsk_test_LDFLAGS) $(gpsk_test_OBJECTS) $(gpsk_test_LDADD) $(LIBS)
+tests/gpsk_test.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+gpsk_test$(EXEEXT): $(gpsk_test_OBJECTS) $(gpsk_test_DEPENDENCIES) 
+	@rm -f gpsk_test$(EXEEXT)
+	$(CXXLINK) $(gpsk_test_OBJECTS) $(gpsk_test_LDADD) $(LIBS)
 tests/md5_test.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 md5_test$(EXEEXT): $(md5_test_OBJECTS) $(md5_test_DEPENDENCIES) 
