@@ -80,12 +80,16 @@ private:
       EapGpskFailParser parser;
       parser.setAppData(&gpsk);
       parser.setRawData(reply);
-      try { parser.parseRawToApp(); }
+      try { parser.parseAppToRaw(); }
       catch (...) {
         EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Fail Parse error.\n");
         msm.Event(EvSgInvalid);
         return;
       }
+
+#ifdef EAP_GPSK_DEBUG
+      dumpHex("PACKET", reply->base(), reply->length());
+#endif
 
       // Set the message to the session.
       ssm.SetTxMessage(reply);
@@ -473,13 +477,12 @@ private:
 
   class AcNotifyFailure : public EapPeerGpskAction
   {
-    void operator()(EapAuthGpskStateMachine &msm)
+    void operator()(EapPeerGpskStateMachine &msm)
     {
-      EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
+      EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
 
-      // Update external policy
-      ssm.Policy().Update(EapContinuedPolicyElement::PolicyOnFailure);
-      msm.IsDone() = true;
+      ssm.MethodState() = EapPeerSwitchStateMachine::DONE;
+      ssm.Decision() = EapPeerSwitchStateMachine::FAIL;
     }
   };
 
@@ -594,6 +597,7 @@ private:
       ssm.Policy().Update(EapContinuedPolicyElement::PolicyOnFailure);
       msm.IsDone() = true;
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
+      ssm.MethodState() = EapAuthSwitchStateMachine::END;
     }
   };
 
@@ -610,17 +614,21 @@ private:
       EapGpskFail gpsk;
       gpsk.FailureCode() = msm.FailureCode();
 
-      EAP_LOG(LM_ERROR, "AuthGpsk: Sending GPSK-Fail [%d].\n", msm.FailureCode());
+      EAP_LOG(LM_ERROR, "AuthGpsk: Building GPSK-Fail [%d].\n", msm.FailureCode());
 
       EapGpskFailParser parser;
       parser.setAppData(&gpsk);
       parser.setRawData(msg);
-      try { parser.parseRawToApp(); }
+      try { parser.parseAppToRaw(); }
       catch (...) {
         EAP_LOG(LM_ERROR, "AuthGpsk: GPSK-Fail Parse error.\n");
         msm.Event(EvSgInvalid);
         return;
       }
+
+#ifdef EAP_GPSK_DEBUG
+      dumpHex("PACKET", msg->base(), msg->length());
+#endif
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);

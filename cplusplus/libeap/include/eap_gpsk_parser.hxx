@@ -619,7 +619,12 @@ EapGpskFailParser::parseAppToRaw()
   requestParser.setAppData(fail);
   requestParser.parseAppToRaw();
 
-  *(ACE_UINT32*)msg->wr_ptr() = fail->FailureCode();
+  // Write Op-Code.
+  *(ACE_Byte*)msg->wr_ptr() = fail->OpCode();
+  msg->wr_ptr(1);
+
+  // Write Failure Code.
+  *(ACE_UINT32*)msg->wr_ptr() = ACE_HTONL(fail->FailureCode());
   msg->wr_ptr(4);
 }
 
@@ -631,7 +636,7 @@ EapGpskProtectedFailParser;
 /// following the Op-Code field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
-template<> inline void 
+template<> inline void
 EapGpskProtectedFailParser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
@@ -671,7 +676,12 @@ EapGpskProtectedFailParser::parseAppToRaw()
   requestParser.setAppData(pfail);
   requestParser.parseAppToRaw();
 
-  *(ACE_UINT32*)msg->wr_ptr() = pfail->FailureCode();
+  // Write Op-Code.
+  *(ACE_Byte*)msg->wr_ptr() = pfail->OpCode();
+  msg->wr_ptr(1);
+
+  // Write Failure Code.
+  *(ACE_UINT32*)msg->wr_ptr() = ACE_HTONL(pfail->FailureCode());
   msg->wr_ptr(4);
 
   // Write MAC.

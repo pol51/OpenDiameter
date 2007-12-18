@@ -57,7 +57,7 @@
 #define GPSK_METHOD_TYPE  200
 #define GPSK_MAX_PKT_SIZE 1024
 
-//#define EAP_GPSK_DEBUG 1
+#define EAP_GPSK_DEBUG 1
 #ifdef EAP_GPSK_DEBUG
 void dumpHex(char *p, const char* value, int len)
 {
