@@ -233,23 +233,22 @@ RFC 4493                 The AES-CMAC Algorithm                June 2006
 */
 class EapCryptoAES_CMAC_128
 {
+public:
   /// The AES-CMAC-128 implementation.
   /// \param K the string that stores key
   /// \param M the string that stores the message
   /// \param len the length of the message M
   /// \param T the message authentication code
-  void operator()(std::string& K, std::string& M, size_t len, std::string &T)
+  void operator()(std::string& K, std::string& M, size_t length, std::string &T)
   {
-    const ACE_Byte const_Rb[]   = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0x8,0x7 };
-
     unsigned char X[16],Y[16], M_last[16], padded[16];
     unsigned char K1[16], K2[16], mac[16];
 
     int n, i, flag;
 
-    generateSubkey(K.data(), K1, K2);
+    generateSubkeys((unsigned char*)K.data(), K1, K2);
 
-    n = (len + 15) / 16; /* n is number of rounds */
+    n = (length + 15) / 16; /* n is number of rounds */
 
     if ( n == 0 ) {
         n = 1;
@@ -263,9 +262,9 @@ class EapCryptoAES_CMAC_128
     }
 
     if ( flag ) { /* last block is complete block */
-        xor_128(&M.data()[16*(n-1)], K1, M_last);
+        xor_128(&((unsigned char*)M.data())[16*(n-1)], K1, M_last);
     } else {
-        padding(&M.data()[16*(n-1)], padded, length % 16);
+        padding(&((unsigned char*)M.data())[16*(n-1)], padded, length % 16);
         xor_128(padded, K2, M_last);
     }
 
@@ -274,10 +273,10 @@ class EapCryptoAES_CMAC_128
     }
 
     AES_KEY key;
-    AES_set_encrypt_key(K.data(), 128, &key);
+    AES_set_encrypt_key((unsigned char*)K.data(), 128, &key);
 
     for ( i = 0; i < n - 1; i++ ) {
-        xor_128(X, &M.data()[16*i], Y); /* Y := Mi (+) X  */
+        xor_128(X, &((unsigned char*)M.data())[16*i], Y); /* Y := Mi (+) X  */
         AES_encrypt(Y, X, &key); /* X := AES-128(KEY, Y); */
     }
 
@@ -287,7 +286,7 @@ class EapCryptoAES_CMAC_128
     for ( i=0; i<16; i++ ) {
         mac[i] = X[i];
     }
-    T.assign(mac, sizeof(mac));
+    T.assign((const char*)mac, sizeof(mac));
   }
 
 protected:
@@ -371,7 +370,7 @@ protected:
     }
     else {
       leftShift(L, tmp);
-      xor_128(tmp, const_Rb, K1);
+      xor_128(tmp, (unsigned char*)const_Rb, K1);
     }
 
     if ((K1[0] & 0x80) == 0) {
@@ -379,11 +378,11 @@ protected:
     }
     else {
       leftShift(K1, tmp);
-      xor_128(tmp, const_Rb, K2);
+      xor_128(tmp, (unsigned char*)const_Rb, K2);
     }
   }
 
-  void leftShift(char *input, char *output)
+  void leftShift(unsigned char *input, unsigned char *output)
   {
     int i;
     unsigned char overflow = 0;
@@ -462,6 +461,7 @@ protected:
 */
 class EapCryptoAES_CMAC_128_GKDF
 {
+public:
   /// The AES-CMAC-128 implementation.
   /// \param Y the string that stores the secret
   /// \param Z the string that stores the input
@@ -473,12 +473,12 @@ class EapCryptoAES_CMAC_128_GKDF
      std::string M_i, result;
 
      EapCryptoAES_CMAC_128 cmac;
-     ACE_UINT_16 i, n = (X + 15) / 16; /* n is number of rounds , key size and output block are equal*/
+     ACE_UINT16 i, n = (X + 15) / 16; /* n is number of rounds , key size and output block are equal*/
 
      for (i = 1; i <= n; i ++) {
 
         *(ACE_UINT16*)mi = ACE_HTONS(i);
-        std::string tmp(mi);
+        std::string tmp((const char*)mi);
         tmp.append(Z);
         cmac(Y, tmp, tmp.size(), M_i);
 
@@ -487,6 +487,6 @@ class EapCryptoAES_CMAC_128_GKDF
 
      output.assign(M_i.data(), X);
   }
-}
+};
 
 #endif

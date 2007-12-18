@@ -42,7 +42,7 @@
 #include "eap_gpsk_crypto.hxx"
 
 /// EAP-Gpsk key management
-class EAP_GPSK_EXPORT EapGpskNodeAttributes
+class EAP_GPSK_EXPORTS EapGpskNodeAttributes
 {
 public:
   EapGpskNodeAttributes() {
@@ -70,7 +70,7 @@ public:
 
         // PL || PSK || CSuite_Sel || inputString.
         char pl[2];
-        *(ACE_UINT16*)pl = ACE_HTONS(cphierSuite.KeySize());
+        *(ACE_UINT16*)pl = ACE_HTONS(cipherSuite.KeySize());
         std::string Z(pl, sizeof(pl));
         Z.append(sharedSecret);
         Z.append(cipherSuite.toString());
@@ -102,7 +102,7 @@ public:
         std::string output = GKDF160();
         emsk.assign(output.data() + 8, 8);
       }
-    return msk;
+    return emsk;
   }
 
   /// This function is used for obtaining a reference to EMSK.
@@ -113,7 +113,7 @@ public:
         std::string output = GKDF160();
         sk.assign(output.data() + 16, 2);
       }
-    return msk;
+    return sk;
   }
 
   /// This function is used for obtaining a reference to EMSK.
@@ -124,7 +124,7 @@ public:
         std::string output = GKDF160();
         pk.assign(output.data() + 18, 2);
       }
-    return msk;
+    return pk;
   }
 
   /// This function is used for obtaining a reference to peerID.
@@ -148,7 +148,7 @@ public:
   /// This function is used for obtaining a reference to payload;
   std::string& Payload() { return payload; }
 
-  void Initiliaze() {
+  void Initialize() {
      sharedSecret.resize(0);
      mk.resize(0);
      msk.resize(0);
@@ -162,7 +162,6 @@ public:
   }
 
 protected:
-
   /// Shared secret.
   std::string sharedSecret;
 
@@ -181,11 +180,17 @@ protected:
   /// Protected data key
   std::string pk;
 
-  /// peer id and server id.
-  std::string peerID, serverID;
+  /// peer id
+  std::string peerID;
 
-  /// peer and server RAND
-  std::string peerRAND, serverRAND;
+  /// server id.
+  std::string serverID;
+
+  /// peer RAND
+  std::string peerRAND;
+
+  /// server RAND
+  std::string serverRAND;
 
   /// cipher suite list
   EapGpskCipherSuiteList cipherSuiteList;
@@ -269,7 +274,7 @@ public:
   void Start() throw(AAA_Error)
   {
     isDone=false;
-    Initiliaze();
+    Initialize();
     EapStateMachine<EapAuthGpskStateMachine>::Start();
   }
 

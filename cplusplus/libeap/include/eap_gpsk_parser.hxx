@@ -46,15 +46,15 @@ inline void
 readCipherSuiteList(std::string &strlist, int length,
   EapGpskCipherSuiteList &clist)
 {
-  char *cc;
+  unsigned char *cc;
   int csuiteLength = length/6;
   for (int i = 0; i < csuiteLength; i++)
     {
       EapGpskCipherSuite csuite;
-      cc = cipherList.data();
+      cc = (unsigned char*)strlist.data();
       csuite.Vendor() = ACE_NTOHL(*(ACE_UINT32*)cc);
       cc += 4;
-      csuite.ChiperSuite = ACE_NTOHS(*(ACE_UINT16*)cc);
+      csuite.CipherSuite() = ACE_NTOHS(*(ACE_UINT16*)cc);
       cc += 2;
       clist.push_back(csuite);
     }
@@ -64,15 +64,15 @@ inline void
 writeCipherSuiteList(std::string &strlist,
   EapGpskCipherSuiteList &clist)
 {
-  std::string *container = new std::string(clist.length() * 6, 0);
-  char *cc = container->data();
+  std::string *container = new std::string(clist.size() * 6, 0);
+  unsigned char *cc = (unsigned char*)container->data();
   std::list<EapGpskCipherSuite>::iterator i = clist.begin();
   for (; i != clist.end(); i++)
     {
       EapGpskCipherSuite csuite = *i;
       *(ACE_UINT32*)cc = ACE_HTONL(csuite.Vendor());
       cc += 4;
-      *(ACE_UINT16*)cc = ACE_HTONS(csuite.ChiperSuite());
+      *(ACE_UINT16*)cc = ACE_HTONS(csuite.CipherSuite());
       cc += 2;
     }
   strlist = *container;
@@ -139,7 +139,7 @@ EapGpsk1Parser::parseRawToApp()
   msg->rd_ptr(1);
 
   // Read ID_Server length.
-  ACE_UINT16& idServerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 idServerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   // Read ID_Server.
@@ -151,7 +151,7 @@ EapGpsk1Parser::parseRawToApp()
   msg->rd_ptr(32);
 
   // Read CSuite List length.
-  ACE_UINT16& csuiteLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 csuiteLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   if (csuiteLength % 6)
@@ -164,7 +164,7 @@ EapGpsk1Parser::parseRawToApp()
   std::string cipherList = std::string(msg->rd_ptr(), csuiteLength);
   msg->rd_ptr(csuiteLength);
 
-  readCipherSuiteList(cipherList, csuiteLength, gpsk->CSuiteList);
+  readCipherSuiteList(cipherList, csuiteLength, gpsk->CSuiteList());
 }
 
 /// Use this function to convert application-specific
@@ -217,7 +217,7 @@ EapGpsk1Parser::parseAppToRaw()
     }
 
   // Write CSuite list length
-  ACE_UINT16 csuiteLength = (ACE_UINT16)(gpsk->CSuiteList().length() * 6);
+  ACE_UINT16 csuiteLength = (ACE_UINT16)(gpsk->CSuiteList().size() * 6);
   *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(csuiteLength);
   msg->wr_ptr(2);
 
@@ -252,7 +252,7 @@ EapGpsk2Parser::parseRawToApp()
   msg->rd_ptr(1);
 
   // Read ID_Peer length.
-  ACE_UINT16& idPeerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 idPeerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   // Read ID_Peer.
@@ -260,7 +260,7 @@ EapGpsk2Parser::parseRawToApp()
   msg->rd_ptr(idPeerLength);
 
   // Read ID_Server length.
-  ACE_UINT16& idServerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 idServerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   // Read ID_Server.
@@ -276,20 +276,20 @@ EapGpsk2Parser::parseRawToApp()
   msg->rd_ptr(32);
 
   // Read CSuite List length.
-  ACE_UINT16& csuiteLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 csuiteLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   // Read CSuite List.
   std::string cipherList = std::string(msg->rd_ptr(), csuiteLength);
   msg->rd_ptr(csuiteLength);
-  readCipherSuiteList(cipherList, csuiteLength, gpsk->CSuiteList);
+  readCipherSuiteList(cipherList, csuiteLength, gpsk->CSuiteList());
 
   // Read CSuite Selected.
   gpsk->CSuiteSelected().fromString(msg->rd_ptr());
   msg->rd_ptr(6);
 
   // Read PD Payload length.
-  ACE_UINT16& pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   // Read PD Payload
@@ -297,7 +297,7 @@ EapGpsk2Parser::parseRawToApp()
   msg->rd_ptr(pdPayloadLength);
 
   // Read Payload MAC
-  gpsk->Mac() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
+  gpsk->MAC() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -310,7 +310,7 @@ template<> inline void
 EapGpsk2Parser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpskResponse* gpsk = getAppData();
+  EapGpsk2* gpsk = getAppData();
 
   // Write type field
   EapResponseParser responseParser;
@@ -369,7 +369,7 @@ EapGpsk2Parser::parseAppToRaw()
     }
 
   // Write CSuite list length
-  ACE_UINT16 csuiteLength = (ACE_UINT16)(gpsk->CSuiteList().length() * 6);
+  ACE_UINT16 csuiteLength = (ACE_UINT16)(gpsk->CSuiteList().size() * 6);
   *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(csuiteLength);
   msg->wr_ptr(2);
 
@@ -387,9 +387,9 @@ EapGpsk2Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write MAC.
-  if (gpsk->Mac().size() > 0)
+  if (gpsk->MAC().size() > 0)
   {
-     msg->copy(gpsk->Mac().data(), gpsk->CSuiteSelected().KeySize());
+     msg->copy(gpsk->MAC().data(), gpsk->CSuiteSelected().KeySize());
   }
 }
 
@@ -426,7 +426,7 @@ EapGpsk3Parser::parseRawToApp()
   msg->rd_ptr(32);
 
   // Read ID_Server length.
-  ACE_UINT16& idServerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 idServerLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   // Read ID_Server.
@@ -438,7 +438,7 @@ EapGpsk3Parser::parseRawToApp()
   msg->rd_ptr(6);
 
   // Read PD Payload length.
-  ACE_UINT16& pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   // Read PD Payload
@@ -446,7 +446,7 @@ EapGpsk3Parser::parseRawToApp()
   msg->rd_ptr(pdPayloadLength);
 
   // Read Payload MAC
-  gpsk->Mac() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
+  gpsk->MAC() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -473,7 +473,7 @@ EapGpsk3Parser::parseAppToRaw()
   msg->copy(gpsk->RANDServer().data(), 32);
 
   // Check ID_Server length.
-  length = gpsk->IDServer().size();
+  ACE_UINT16 length = gpsk->IDServer().size();
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "ID_Server is empty.");
@@ -497,9 +497,9 @@ EapGpsk3Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write MAC.
-  if (gpsk->Mac().size() > 0)
+  if (gpsk->MAC().size() > 0)
   {
-     msg->copy(gpsk->Mac().data(), gpsk->CSuiteSelected().KeySize());
+     msg->copy(gpsk->MAC().data(), gpsk->CSuiteSelected().KeySize());
   }
 }
 
@@ -511,7 +511,7 @@ EapGpsk4Parser;
 /// following the Op-Code field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
-template<> inline void 
+template<> inline void
 EapGpsk4Parser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
@@ -528,7 +528,7 @@ EapGpsk4Parser::parseRawToApp()
   msg->rd_ptr(1);
 
   // Read PD Payload length.
-  ACE_UINT16& pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
+  ACE_UINT16 pdPayloadLength = ACE_NTOHS(*(ACE_UINT16*)msg->rd_ptr());
   msg->rd_ptr(2);
 
   // Read PD Payload
@@ -536,7 +536,7 @@ EapGpsk4Parser::parseRawToApp()
   msg->rd_ptr(pdPayloadLength);
 
   // Read Payload MAC
-  gpsk->Mac() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
+  gpsk->MAC() = std::string(msg->rd_ptr(), msg->wr_ptr() - msg->rd_ptr());
 }
 
 /// Use this function to convert application-specific
@@ -548,12 +548,12 @@ template<> inline void
 EapGpsk4Parser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapGpsk4* reponse = getAppData();
+  EapGpsk4* gpsk = getAppData();
 
   // Write type field
   EapResponseParser responseParser;
   responseParser.setRawData(msg);
-  responseParser.setAppData(reponse);
+  responseParser.setAppData(gpsk);
   responseParser.parseAppToRaw();
 
   // Write payload length [TBD: no payload supported set this to 0]
@@ -561,9 +561,9 @@ EapGpsk4Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write MAC.
-  if (gpsk->Mac().size() > 0)
+  if (gpsk->MAC().size() > 0)
   {
-     msg->copy(gpsk->Mac().data(), gpsk->CSuiteSelected().KeySize());
+     msg->copy(gpsk->MAC().data(), gpsk->MAC().size());
   }
 }
 
@@ -604,7 +604,7 @@ template<> inline void
 EapGpskFailParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapGpsk4* fail = getAppData();
+  EapGpskFail* fail = getAppData();
 
   // Write type field
   EapRequestParser requestParser;
@@ -628,7 +628,7 @@ template<> inline void
 EapGpskProtectedFailParser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapGpskFail* pfail = getAppData();
+  EapGpskProtectedFail* pfail = getAppData();
 
   ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
   // Read Op-Code.
@@ -644,7 +644,7 @@ EapGpskProtectedFailParser::parseRawToApp()
   pfail->FailureCode() = ACE_NTOHL(*(ACE_UINT32*)msg->rd_ptr());
 
   // Read Payload MAC
-  pfail->Mac() = std::string(msg->rd_ptr(), pfail->CSuiteSelected().KeySize());
+  pfail->MAC() = std::string(msg->rd_ptr(), msg->wr_ptr() - msg->rd_ptr());
 }
 
 /// Use this function to convert application-specific
@@ -656,21 +656,21 @@ template<> inline void
 EapGpskProtectedFailParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapGpsk4* pfail = getAppData();
+  EapGpskProtectedFail* pfail = getAppData();
 
   // Write type field
   EapRequestParser requestParser;
   requestParser.setRawData(msg);
-  requestParser.setAppData(fail);
+  requestParser.setAppData(pfail);
   requestParser.parseAppToRaw();
 
   *(ACE_UINT32*)msg->wr_ptr() = pfail->FailureCode();
   msg->wr_ptr(4);
 
   // Write MAC.
-  if (gpsk->Mac().size() > 0)
+  if (pfail->MAC().size() > 0)
   {
-     msg->copy(gpsk->Mac().data(), gpsk->CSuiteSelected().KeySize());
+     msg->copy(pfail->MAC().data(), pfail->MAC().size());
   }
 }
 

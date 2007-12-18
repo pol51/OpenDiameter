@@ -92,22 +92,21 @@ class EAP_GPSK_EXPORTS EapGpskCipherSuite
 {
 public:
    enum {
-      CIPHER_SUITE_AES = 1;
-      CIPHER_SUITE_HMAC = 2;
+      CIPHER_SUITE_AES = 1,
+      CIPHER_SUITE_HMAC = 2,
    };
 
    EapGpskCipherSuite(ACE_UINT32 vendor = 0) :
-     vendor(vendor), cihperSuite(CIPHER_SUITE_AES) { }
+     vendor(vendor), cipherSuite(CIPHER_SUITE_AES) { }
    ACE_UINT32 &Vendor() { return vendor; }
-   ACE_UINT16 &ChiperSuite() { return cipherSuite; }
+   ACE_UINT16 &CipherSuite() { return cipherSuite; }
 
    size_t KeySize() {
      switch(cipherSuite) {
        case CIPHER_SUITE_AES: return 16;
        case CIPHER_SUITE_HMAC: return 32;
        default:
-          EAP_LOG(LM_ERROR, "Un-support cipher %d (1 or 2 is expected).\n",
-            response->CSuiteSelected().ChiperSuite());
+          EAP_LOG(LM_ERROR, "Un-support cipher %d (1 or 2 is expected).\n", cipherSuite);
           throw -1;
           break;
      }
@@ -116,19 +115,19 @@ public:
 
    std::string toString() {
      char cps[6];
-     *(ACE_UINT32*)cps = ACE_HTONL(response->CSuiteSelected().Vendor());
-     *(ACE_UINT16*)(&cps[4]) = ACE_HTONS(response->CSuiteSelected().ChiperSuite());
+     *(ACE_UINT32*)cps = ACE_HTONL(vendor);
+     *(ACE_UINT16*)(&cps[4]) = ACE_HTONS(cipherSuite);
      return std::string(cps, sizeof(cps));
    }
 
    void fromString(char *cps) {
-     vendor() = ACE_NTOHL(*(ACE_UINT32*)cps);
+     vendor = ACE_NTOHL(*(ACE_UINT32*)cps);
      cps += 4;
      cipherSuite = ACE_NTOHS(*(ACE_UINT16*)cps);
    }
 
    void fromString(std::string &cps) {
-     fromString(cps.data());
+     fromString((char*)cps.data());
    }
 
    bool operator==(EapGpskCipherSuite &st) {
@@ -149,7 +148,7 @@ class EAP_GPSK_EXPORTS EapGpskCipherSuiteList :
    public std::list<EapGpskCipherSuite>
 {
 public:
-   std::list<EapGpskCipherSuite> &operator=(std::list<EapGpskCipherSuite> &from) {
+   EapGpskCipherSuiteList &operator=(EapGpskCipherSuiteList &from) {
       // clear the current content first
       while (! this->empty()) {
          this->pop_front();
@@ -160,10 +159,11 @@ public:
       for (; i != from.end(); i++) {
           this->push_back(*i);
       }
+      return *this;
    }
 
-   bool operator==(std::list<EapGpskCipherSuite> &from) {
-      if (this->length() != from.length()) {
+   bool operator==(EapGpskCipherSuiteList &from) {
+      if (this->size() != from.size()) {
          return false;
       }
 
@@ -178,10 +178,14 @@ public:
       return true;
    }
 
+   bool operator!=(EapGpskCipherSuiteList &clist) {
+     return !(clist == *this);
+   }
+
    bool isPresent(EapGpskCipherSuite &csuite) {
-      std::list<EapGpskCipherSuite>::iterator i = from.begin();
-      for (; i != from.end(); i++) {
-         if (*i == suite) {
+      std::list<EapGpskCipherSuite>::iterator i = this->begin();
+      for (; i != this->end(); i++) {
+         if (*i == csuite) {
            return true;
          }
       }
@@ -362,9 +366,6 @@ public:
   /// Use this function to obtain a reference to KS-octet payload MAC.
   std::string& MAC() { return mac; }
 
-  /// Use this function to obtain a reference to csuiteSelected.
-  EapGpskCipherSuite& CSuiteSelected() { return csuiteSelected; }
-
 private:
 
   /// The PD_Payload_Block fo the EAP server.
@@ -372,9 +373,6 @@ private:
 
   /// KS-octet payload MAC.
   std::string mac;
-
-  /// Selected cipher suite.
-  EapGpskCipherSuite csuiteSelected;
 };
 
 /// EAP-Request/Gpsk-Fail payload.
@@ -393,32 +391,23 @@ private:
   ACE_UINT32 failureCode;
 };
 
-/// EAP-Response/Gpsk-Fail payload.
-typedef EapGpskFail EapResponseGpskFail;
-
 /// EAP-Request/Gpsk-Protected-Fail payload.
-class EAP_GPSK_EXPORTS EapRequestGpskProtectedFail: public EapGpskFail
+class EAP_GPSK_EXPORTS EapGpskProtectedFail: public EapGpskFail
 {
 public:
   /// Initialized with a specific message id (6).
-  EapRequestGpsProtectedkFail() : EapGpskMsg(GPSKProtectedFail) {}
+  EapGpskProtectedFail() : EapGpskFail() { OpCode() = GPSKProtectedFail; }
 
   /// Use this function to obtain a reference to KS-octet payload MAC.
-  std::string& PayloadMAC() { return payloadMac; }
-
-  /// Use this function to obtain a reference to csuiteSelected.
-  EapGpskCipherSuite& CSuiteSelected() { return csuiteSelected; }
+  std::string& MAC() { return mac; }
 
 private:
 
   /// KS-octet payload MAC.
-  std::string payloadMac;
-
-  /// Selected cipher suite.
-  EapGpskCipherSuite csuiteSelected;
+  std::string mac;
 };
 
 /// EAP-Response/Gpsk-Protected-Fail payload.
-typedef EapRequestGpskProtectedFail EapResponseGpskProtectedFail;
+typedef EapGpskProtectedFail EapResponseGpskProtectedFail;
 
 #endif // __EAP_GPSK_HXX__

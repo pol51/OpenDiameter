@@ -56,17 +56,17 @@ class EapAuthGpskAction : public AAA_Action<EapAuthGpskStateMachine>
 };
 
 /// State table used by EapPeerGpskStateMachine.
-class EAP_ARCHIE_EXPORTS EapPeerGpskStateTable_S :
+class EAP_GPSK_EXPORTS EapPeerGpskStateTable_S :
   public AAA_StateTable<EapPeerGpskStateMachine>
 {
   friend class ACE_Singleton<EapPeerGpskStateTable_S,
 			     ACE_Recursive_Thread_Mutex>;
-
 private:
   /// defined as a leaf class
 
   class AcCheckForGpskFailandReply : public EapPeerGpskAction
   {
+  public:
     void operator()(EapPeerGpskStateMachine &msm)
     {
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
@@ -86,10 +86,10 @@ private:
         return;
       }
 
-      EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Fail received [%d].\n", gpsk->FailureCode());
+      EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Fail received [%d].\n", gpsk.FailureCode());
 
       AAAMessageBlock *reply = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(reply->base(), GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(reply->base(), 0, GPSK_MAX_PKT_SIZE);
 
       // Replay the failure
       parser.setAppData(&gpsk);
@@ -114,6 +114,7 @@ private:
 
   class AcCheckForGpskProtectedFailandReply : public EapPeerGpskAction
   {
+  public:
     void operator()(EapPeerGpskStateMachine &msm)
     {
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
@@ -164,14 +165,14 @@ private:
           return;
         }
 
-      EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail received [%d].\n", gpsk->FailureCode());
+      EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail received [%d].\n", gpsk.FailureCode());
 
       AAAMessageBlock *reply = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(reply->base(), GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(reply->base(), 0, GPSK_MAX_PKT_SIZE);
 
       // Replay the failure
       EapGpskProtectedFail response;
-      response.FailureCode() = gpsk->FailureCode();
+      response.FailureCode() = gpsk.FailureCode();
 
       parser.setAppData(&response);
       parser.setRawData(reply);
@@ -184,7 +185,6 @@ private:
 
       // Get the message stream and compute MAC
       std::string msg2Input(reply->base() + 4, reply->length());
-      EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msg2Input,
            msg2Input.size(), response.MAC());
 
@@ -231,9 +231,6 @@ private:
          return;
       }
 
-      // Input shared secret.
-      std::string& sharedSecret = msm.SharedSecret() = msm.InputSharedSecret();
-
       msm.ServerID()  = gpsk.IDServer();
       msm.ServerRAND()  = gpsk.RANDServer();
       msm.CipherSuiteList() = gpsk.CSuiteList();
@@ -251,7 +248,7 @@ private:
       EAP_LOG(LM_DEBUG, "PeerGpsk: Building a GPSK2 message.\n");
 
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(msg->base(), GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(msg->base(), 0, GPSK_MAX_PKT_SIZE);
 
       EapGpsk2 gpsk;
       gpsk.IDPeer() = msm.PeerID() = msm.InputIdentity();
@@ -328,7 +325,7 @@ private:
       AcCheckForGpskProtectedFailandReply gpskProtectedFailAction;
 
       // Read Op-Code to check for failures
-      swtich (opCode)
+      switch (opCode)
         {
         case 3: break; // GPSK-3, continue
         case 5: gpskFailAction(msm); return;
@@ -364,7 +361,7 @@ private:
       }
 
       // Check selection
-      if (msm.CipherSuite() != gpsk.CSuiteSelected) {
+      if (msm.CipherSuite() != gpsk.CSuiteSelected()) {
          EAP_LOG(LM_ERROR, "PeerGpsk: GPSK3 has invalid selected CSuite value.\n");
          msm.Event(EvSgInvalid);
          return;
@@ -417,7 +414,7 @@ private:
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
 
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(msg->base(), GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(msg->base(), 0, GPSK_MAX_PKT_SIZE);
 
       EapGpsk4 gpsk;
       EapGpsk4Parser parser;
@@ -465,7 +462,7 @@ private:
     }
   };
 
-  class AcNotifyFailure : public EapAuthGpskAction
+  class AcNotifyFailure : public EapPeerGpskAction
   {
     void operator()(EapAuthGpskStateMachine &msm)
     {
@@ -474,9 +471,6 @@ private:
       // Update external policy
       ssm.Policy().Update(EapContinuedPolicyElement::PolicyOnFailure);
       msm.IsDone() = true;
-
-      // Update external method state.
-      ssm.Decision() = EapPeerSwitchStateMachine::FAIL;
     }
   };
 
@@ -541,7 +535,7 @@ private:
 };
 
 /// State table used by EapAuthGpskStateMachine.
-class EAP_ARCHIE_EXPORTS EapAuthGpskStateTable_S :
+class EAP_GPSK_EXPORTS EapAuthGpskStateTable_S :
   public AAA_StateTable<EapAuthGpskStateMachine>
 
 {
@@ -550,9 +544,9 @@ class EAP_ARCHIE_EXPORTS EapAuthGpskStateTable_S :
 
 private:
 
-  class AcDoIntegrityCheckForGpskFailMsg : public EapPeerGpskAction
+  class AcDoIntegrityCheckForGpskFailMsg : public EapAuthGpskAction
   {
-    void operator()(EapPeerGpskStateMachine &msm)
+    void operator()(EapAuthGpskStateMachine &msm)
     {
       EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
       AAAMessageBlock *msg = ssm.GetRxMessage();
@@ -562,24 +556,24 @@ private:
       // Check the GPSK-Fail.
       EapGpskFail gpsk1;
       EapGpskFailParser parser1;
-      parser1.setAppData(&gpsk);
+      parser1.setAppData(&gpsk1);
       parser1.setRawData(msg);
       try {
         parser1.parseRawToApp();
 
-        EAP_LOG(LM_ERROR, "AuthGpsk: GPSK-Fail received [%d].\n", gpsk1->FailureCode());
+        EAP_LOG(LM_ERROR, "AuthGpsk: GPSK-Fail received [%d].\n", gpsk1.FailureCode());
       }
       catch (...) {
 
         // Try GPSK-Protected-Fail.
         EapGpskProtectedFail gpsk2;
         EapGpskProtectedFailParser parser2;
-        parser2.setAppData(&gpsk);
+        parser2.setAppData(&gpsk2);
         parser2.setRawData(msg);
         try {
           parser2.parseRawToApp();
 
-          EAP_LOG(LM_ERROR, "AuthGpsk: GPSK-Protected-Fail received [%d].\n", gpsk2->FailureCode());
+          EAP_LOG(LM_ERROR, "AuthGpsk: GPSK-Protected-Fail received [%d].\n", gpsk2.FailureCode());
         }
         catch (...) {
           EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail Parse error.\n");
@@ -588,22 +582,20 @@ private:
         }
       }
 
-      EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
       ssm.Policy().Update(EapContinuedPolicyElement::PolicyOnFailure);
       msm.IsDone() = true;
-      ssm.Decision() = EapAuthMethodState::DecisionFailure;
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
     }
   };
 
-  class AcBuildGpskFailMsg : public EapPeerGpskAction
+  class AcBuildGpskFailMsg : public EapAuthGpskAction
   {
-    void operator()(EapPeerGpskStateMachine &msm)
+    void operator()(EapAuthGpskStateMachine &msm)
     {
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
 
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(msg->base(), GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(msg->base(), 0, GPSK_MAX_PKT_SIZE);
 
       // Send the GPSK-Fail
       EapGpskFail gpsk;
@@ -611,6 +603,7 @@ private:
 
       EAP_LOG(LM_ERROR, "AuthGpsk: Sending GPSK-Fail [%d].\n", msm.FailureCode());
 
+      EapGpskFailParser parser;
       parser.setAppData(&gpsk);
       parser.setRawData(msg);
       try { parser.parseRawToApp(); }
@@ -623,22 +616,19 @@ private:
       // Set the message to the session.
       ssm.SetTxMessage(msg);
 
-      // Set method decision
-      ssm.Decision() = EapAuthMethodState::DecisionContinue;
-
       // Send a "valid" signal to the switch state machine.
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
     }
   };
 
-  class AcBuildGpskProtectedFailMsg : public EapPeerGpskAction
+  class AcBuildGpskProtectedFailMsg : public EapAuthGpskAction
   {
-    void operator()(EapPeerGpskStateMachine &msm)
+    void operator()(EapAuthGpskStateMachine &msm)
     {
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
 
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(msg->base(), GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(msg->base(), 0, GPSK_MAX_PKT_SIZE);
 
       // Send the GPSK-Fail
       EapGpskProtectedFail gpsk;
@@ -646,6 +636,7 @@ private:
 
       EAP_LOG(LM_ERROR, "AuthGpsk: Sending GPSK-Protected-Fail [%d].\n", msm.FailureCode());
 
+      EapGpskProtectedFailParser parser;
       parser.setAppData(&gpsk);
       parser.setRawData(msg);
       try { parser.parseRawToApp(); }
@@ -678,11 +669,9 @@ private:
       // Set the message to the session.
       ssm.SetTxMessage(msg);
 
-      // Set method decision
-      ssm.Decision() = EapAuthMethodState::DecisionContinue;
-
       // Send a "valid" signal to the switch state machine.
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
+    }
   };
 
   class AcBuildGpsk1 : public EapAuthGpskAction
@@ -694,7 +683,7 @@ private:
       EAP_LOG(LM_DEBUG, "AuthGpsk: Building GPSK1 message.\n");
 
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(msg->base(), GPSK_MAX_PKT_SIZE);
+      ACE_OS::memset(msg->base(), 0, GPSK_MAX_PKT_SIZE);
 
       // Generate a RAND for server
       unsigned char randServer[32];
@@ -704,11 +693,11 @@ private:
                 "AuthGpsk: Failed to generate a server RAND for GPSK1.\n");
           return;
         }
-      msm.ServerRAND() = randServer;
+      msm.ServerRAND() = (const char*)randServer;
 
       EapGpsk1 gpsk;
       gpsk.IDServer() = msm.ServerID() = msm.InputIdentity();
-      gpsk.RANDServer() = randServer;
+      gpsk.RANDServer() = (const char*)randServer;
       gpsk.CSuiteList() = msm.CipherSuiteList();
 
       EapGpsk1Parser parser;
@@ -723,9 +712,6 @@ private:
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
-
-      // Set method decision
-      ssm.Decision() = EapAuthMethodState::DecisionContinue;
 
       // Send a "valid" signal to the switch state machine.
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
@@ -840,23 +826,13 @@ private:
       EAP_LOG(LM_DEBUG, "AuthGpsk: Building GPSK3 message.\n");
 
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(GPSK_MAX_PKT_SIZE);
-      ACE_OS::memset(msg->base(), GPSK_MAX_PKT_SIZE);
-
-      // Generate a RAND for server
-      unsigned char randServer[32];
-      if (RAND_bytes(randServer, sizeof(randServer)) == 0)
-        {
-          EAP_LOG(LM_ERROR,
-                "AuthGpsk: Failed to generate a server RAND for GPSK3.\n");
-          return;
-        }
-      msm.ServerRAND() = randServer;
+      ACE_OS::memset(msg->base(), 0, GPSK_MAX_PKT_SIZE);
 
       // Get an Server ID.
       EapGpsk3 gpsk;
       gpsk.IDServer() = msm.ServerID() = msm.InputIdentity();
       gpsk.RANDPeer() = msm.PeerID();
-      gpsk.RANDServer() = randServer;
+      gpsk.RANDServer() = msm.ServerRAND();
       gpsk.CSuiteSelected() = msm.CipherSuite();
 
       EapGpsk3Parser parser;
@@ -871,9 +847,6 @@ private:
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
-
-      // Set method decision
-      ssm.Decision() = EapAuthMethodState::DecisionContinue;
 
       // Send a "valid" signal to the switch state machine.
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
@@ -892,7 +865,7 @@ private:
       // Check the GPSK4.
       EapGpsk4 gpsk;
       EapGpsk4Parser parser;
-      parser.setAppData(&reponse);
+      parser.setAppData(&gpsk);
       parser.setRawData(msg);
       try { parser.parseRawToApp(); }
       catch (...) {
@@ -945,7 +918,6 @@ private:
       ssm.Policy().Update(EapContinuedPolicyElement::PolicyOnSuccess);
       msm.IsDone() = true;
       msm.KeyData() = msm.MK();
-      ssm.Decision() = EapAuthMethodState::DecisionSuccess;
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
     }
   };
@@ -957,7 +929,6 @@ private:
       EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
       ssm.Policy().Update(EapContinuedPolicyElement::PolicyOnFailure);
       msm.IsDone() = true;
-      ssm.Decision() = EapAuthMethodState::DecisionFailure;
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
     }
   };
@@ -993,9 +964,10 @@ private:
   AcNotifyFailure acNotifyFailure;
   AcNotifySuccess acNotifySuccess;
   AcDoIntegrityCheckForGpsk2Msg acDoIntegrityCheckForGpsk2Msg;
+  AcDoIntegrityCheckForGpsk4Msg acDoIntegrityCheckForGpsk4Msg;
   AcBuildGpskFailMsg acBuildGpskFailMsg;
-  AcBuildGpskProtectedFailMsg acBuildGpskProtectedFailMsg;
   AcDoIntegrityCheckForGpskFailMsg acDoIntegrityCheckForGpskFailMsg;
+  AcBuildGpskProtectedFailMsg acBuildGpskProtectedFailMsg;
 
   EapAuthGpskStateTable_S()
   {
@@ -1023,7 +995,7 @@ private:
 		       StInitialize, acDoIntegrityCheckForGpskFailMsg);
     AddStateTableEntry(StGpskFailSent, EvSgValid,
 		       StInitialize, acNotifyFailure);
-    AddStateTableEntry(StGpskFailSent, EvSgInValid,
+    AddStateTableEntry(StGpskFailSent, EvSgInvalid,
 		       StInitialize, acNotifyFailure);
 
     AddStateTableEntry(StGpsk3Sent,
@@ -1064,4 +1036,5 @@ EapAuthGpskStateMachine::EapAuthGpskStateMachine
   (*this, *EapAuthGpskStateTable::instance(),
    s.Reactor(), s, "Gpsk(authenticator)")
 {
-} 
+}
+
