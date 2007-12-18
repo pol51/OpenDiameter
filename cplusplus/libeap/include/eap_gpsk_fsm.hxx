@@ -232,8 +232,6 @@ public:
   {
     isDone=false;
     Initialize();
-    history.resize(0);
-
     EapStateMachine<EapPeerGpskStateMachine>::Start();
   }
 
@@ -258,7 +256,7 @@ protected:
 };
 
 /// Authenticator state machine for EAP-Gpsk authentication method.
-class EAP_GPSK_EXPORTS EapAuthGpskStateMachine 
+class EAP_GPSK_EXPORTS EapAuthGpskStateMachine
   :  public EapMethodStateMachine,
      public EapStateMachine<EapAuthGpskStateMachine>,
      public EapGpskNodeAttributes
@@ -270,6 +268,7 @@ public:
   /// Reimplemented from EapMethodStateMachine
   void Start() throw(AAA_Error)
   {
+    isDone=false;
     Initiliaze();
     EapStateMachine<EapAuthGpskStateMachine>::Start();
   }
@@ -290,7 +289,7 @@ public:
 
   /// This pure virtual function is a callback used to validate
   /// the peer identity.
-  virtual bool CheckPeerIdentity(std::string& peer)=0;
+  virtual bool ValidatePeerIdentity(std::string& peer)=0;
 
   /// This pure virtual function is a callback used to validate
   /// the peer authorization.

@@ -106,7 +106,7 @@ public:
        case CIPHER_SUITE_AES: return 16;
        case CIPHER_SUITE_HMAC: return 32;
        default:
-          EAP_LOG(LM_ERROR, "Un-support cphier %d (1 or 2 is expected).\n",
+          EAP_LOG(LM_ERROR, "Un-support cipher %d (1 or 2 is expected).\n",
             response->CSuiteSelected().ChiperSuite());
           throw -1;
           break;
@@ -138,8 +138,6 @@ public:
    bool operator!=(EapGpskCipherSuite &st) {
      return !(st == *this);
    }
-}
-
 
 protected:
    ACE_UINT32 vendor;
@@ -152,6 +150,12 @@ class EAP_GPSK_EXPORTS EapGpskCipherSuiteList :
 {
 public:
    std::list<EapGpskCipherSuite> &operator=(std::list<EapGpskCipherSuite> &from) {
+      // clear the current content first
+      while (! this->empty()) {
+         this->pop_front();
+      }
+
+      // now copy new content
       std::list<EapGpskCipherSuite>::iterator i = from.begin();
       for (; i != from.end(); i++) {
           this->push_back(*i);
@@ -162,6 +166,8 @@ public:
       if (this->length() != from.length()) {
          return false;
       }
+
+      // MUST be equal in content and order
       std::list<EapGpskCipherSuite>::iterator i = from.begin();
       std::list<EapGpskCipherSuite>::iterator n = this->begin();
       for (; i != from.end(); i++, n++) {
@@ -184,10 +190,10 @@ public:
 };
 
 /// EAP-Gpsk/Request-Gpsk message.
-class EAP_GPSK_EXPORTS EapRequestGpsk: public EapRequest
+class EAP_GPSK_EXPORTS EapGpskMsg: public EapRequest
 {
 public:
-  EapRequestGpsk(ACE_Byte opCode) : 
+  EapGpskMsg(ACE_Byte opCode) :
     EapRequest(EapType(GPSK_METHOD_TYPE)), opCode(opCode) {}
 
   /// Use this function to obtain a reference to msgID.
@@ -208,19 +214,12 @@ protected:
   ACE_Byte opCode;
 };
 
-/// EAP-Gpsk/Response-Gpsk message.
-class EAP_GPSK_EXPORTS EapResponseGpsk: public EapRequestGpsk 
-{
-public:
-  EapResponseGpsk(ACE_Byte msgID) : EapRequestGpsk(msgID) {}
-};
-
 /// EAP-Request/Gpsk1 payload.
-class EAP_GPSK_EXPORTS EapRequestGpsk1: public EapRequestGpsk
+class EAP_GPSK_EXPORTS EapGpsk1: public EapGpskMsg
 {
 public:
   /// Initialized with a specific message id (1).
-  EapRequestGpskRequest() : EapRequestGpsk(1) {}
+  EapGpsk1() : EapGpskMsg(GPSK1) {}
 
   /// Use this function to obtain a reference to ID_Server.
   std::string& IDServer() { return idServer; }
@@ -244,11 +243,11 @@ protected:
 };
 
 /// EAP-Response/Gpsk2 payload.
-class EAP_GPSK_EXPORTS EapResponseGpsk2: public EapResponseGpsk
+class EAP_GPSK_EXPORTS EapGpsk2: public EapGpskMsg
 {
 public:
   /// Initialized with a specific message id (2).
-  EapResponseGpskResponse() : EapResponseGpsk(2) {}
+  EapGpsk2() : EapGpskMsg(GPSK2) {}
 
   /// Use this function to obtain a reference to peerID.
   std::string& IDPeer() { return idPeer; }
@@ -305,11 +304,11 @@ private:
 };
 
 /// EAP-Request/Gpsk3 payload.
-class EAP_GPSK_EXPORTS EapRequestGpsk3: public EapRequestGpsk
+class EAP_GPSK_EXPORTS EapGpsk3: public EapGpskMsg
 {
 public:
   /// Initialized with a specific message id (3).
-  EapRequestGpskRequest() : EapRequestGpsk(3) {}
+  EapGpsk3() : EapGpskMsg(GPSK3) {}
 
   /// Use this function to obtain a reference to RAND_Peer.
   std::string& RANDPeer() { return randPeer; }
@@ -351,11 +350,11 @@ protected:
 };
 
 /// EAP-Response/Gpsk4 payload.
-class EAP_GPSK_EXPORTS EapResponseGpsk4: public EapResponseGpsk
+class EAP_GPSK_EXPORTS EapGpsk4: public EapGpskMsg
 {
 public:
   /// Initialized with a specific message id (4).
-  EapResponseGpskResponse() : EapResponseGpsk(4) {}
+  EapGpsk4() : EapGpskMsg(GPSK4) {}
 
   /// Use this function to obtain a reference to csuiteSelected.
   std::string& PDPayload() { return pdPayload; }
@@ -379,11 +378,11 @@ private:
 };
 
 /// EAP-Request/Gpsk-Fail payload.
-class EAP_GPSK_EXPORTS EapGpskFail: public EapRequestGpsk
+class EAP_GPSK_EXPORTS EapGpskFail: public EapGpskMsg
 {
 public:
   /// Initialized with a specific message id (5).
-  EapGpskFail() : EapRequestGpsk(5) {}
+  EapGpskFail() : EapGpskMsg(GPSKFail) {}
 
   /// Use this function to obtain a reference to failure code.
   ACE_UINT32& FailureCode() { return failureCode; }
@@ -402,7 +401,7 @@ class EAP_GPSK_EXPORTS EapRequestGpskProtectedFail: public EapGpskFail
 {
 public:
   /// Initialized with a specific message id (6).
-  EapRequestGpsProtectedkFail() : EapRequestGpsk(6) {}
+  EapRequestGpsProtectedkFail() : EapGpskMsg(GPSKProtectedFail) {}
 
   /// Use this function to obtain a reference to KS-octet payload MAC.
   std::string& PayloadMAC() { return payloadMac; }

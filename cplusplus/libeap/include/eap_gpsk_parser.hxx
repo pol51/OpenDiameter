@@ -39,8 +39,8 @@
 #include "eap_log.hxx"
 
 /// EAP-Request/Gpsk parser
-typedef AAAParser<AAAMessageBlock*, EapRequestGpsk*>
-EapRequestGpskParser;
+typedef AAAParser<AAAMessageBlock*, EapGpskMsg*>
+EapGpskMsgParser;
 
 inline void
 readCipherSuiteList(std::string &strlist, int length,
@@ -84,13 +84,13 @@ writeCipherSuiteList(std::string &strlist,
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the Op-Code field.
 template<> inline void
-EapRequestGpskParser::parseRawToApp()
+EapGpskMsgParser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestGpsk* request = getAppData();
+  EapGpskMsg* gpsk = getAppData();
 
   // Read Op-Code.
-  request->OpCode() = *(ACE_Byte*)msg->rd_ptr();
+  gpsk->OpCode() = *(ACE_Byte*)msg->rd_ptr();
   msg->rd_ptr(1);
   return;
 }
@@ -100,33 +100,33 @@ EapRequestGpskParser::parseRawToApp()
 /// payload data (data following the MsgID field).  As a result of
 /// calling this function, the write pointer of the message block
 /// points to one octet after the MsgID field.
-//void EapRequestGpskParser::parseAppToRaw();
+//void EapGpskMsgParser::parseAppToRaw();
 template<> inline void
-EapRequestGpskParser::parseAppToRaw()
+EapGpskMsgParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestGpsk* request = getAppData();
+  EapGpskMsg* gpsk = getAppData();
 
   // Write Op-Code.
-  *(ACE_Byte*)msg->wr_ptr() = request->OpCode();
+  *(ACE_Byte*)msg->wr_ptr() = gpsk->OpCode();
   msg->wr_ptr(1);
   return;
 }
 
 
 /// EAP-Request/Gpsk-Request parser
-typedef AAAParser<AAAMessageBlock*, EapRequestGpsk1*>
-EapRequestGpsk1Parser;
+typedef AAAParser<AAAMessageBlock*, EapGpsk1*>
+EapGpsk1Parser;
 
 /// Use this function to convert raw EAP-Request/Gpsk1 data (data
 /// following the Op-Code field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
-template<> inline void 
-EapRequestGpsk1Parser::parseRawToApp()
+template<> inline void
+EapGpsk1Parser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestGpsk1* request = getAppData();
+  EapGpsk1* gpsk = getAppData();
 
   ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
   // Read Op-Code.
@@ -143,11 +143,11 @@ EapRequestGpsk1Parser::parseRawToApp()
   msg->rd_ptr(2);
 
   // Read ID_Server.
-  request->IDServer() = std::string(msg->rd_ptr(), idServerLength);
+  gpsk->IDServer() = std::string(msg->rd_ptr(), idServerLength);
   msg->rd_ptr(idServerLength);
 
   // Read RAND_Server.
-  request->RANDServer() = std::string(msg->rd_ptr(), 32);
+  gpsk->RANDServer() = std::string(msg->rd_ptr(), 32);
   msg->rd_ptr(32);
 
   // Read CSuite List length.
@@ -164,7 +164,7 @@ EapRequestGpsk1Parser::parseRawToApp()
   std::string cipherList = std::string(msg->rd_ptr(), csuiteLength);
   msg->rd_ptr(csuiteLength);
 
-  readCipherSuiteList(cipherList, csuiteLength, request->CSuiteList);
+  readCipherSuiteList(cipherList, csuiteLength, gpsk->CSuiteList);
 }
 
 /// Use this function to convert application-specific
@@ -174,23 +174,23 @@ EapRequestGpsk1Parser::parseRawToApp()
 /// points to one octet after the end of the payload.
 //void EapRequestGpskRequestParser::parseAppToRaw();
 template<> inline void 
-EapRequestGpsk1Parser::parseAppToRaw()
+EapGpsk1Parser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestGpsk1* request = getAppData();
+  EapGpsk1* gpsk = getAppData();
 
   // Write type field
   EapRequestParser requestParser;
   requestParser.setRawData(msg);
-  requestParser.setAppData(request);
+  requestParser.setAppData(gpsk);
   requestParser.parseAppToRaw();
 
   // Write Op-Code.
-  *(ACE_Byte*)msg->wr_ptr() = request->OpCode();
+  *(ACE_Byte*)msg->wr_ptr() = gpsk->OpCode();
   msg->wr_ptr(1);
 
   // Check ID_Server length.
-  int length = request->IDServer().size();
+  int length = gpsk->IDServer().size();
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "ID_Server is empty.");
@@ -203,13 +203,13 @@ EapRequestGpsk1Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write the ID_Server
-  msg->copy(request->IDServer().data(), idServerLength);
+  msg->copy(gpsk->IDServer().data(), idServerLength);
 
   // Write RAND_Server
-  msg->copy(request->RANDServer().data(), 32);
+  msg->copy(gpsk->RANDServer().data(), 32);
 
   // Check CSuite List length.
-  length = request->CSuiteList().size();
+  length = gpsk->CSuiteList().size();
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "CSuite List is empty.");
@@ -217,29 +217,29 @@ EapRequestGpsk1Parser::parseAppToRaw()
     }
 
   // Write CSuite list length
-  ACE_UINT16 csuiteLength = (ACE_UINT16)(request->CSuiteList().length() * 6);
+  ACE_UINT16 csuiteLength = (ACE_UINT16)(gpsk->CSuiteList().length() * 6);
   *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(csuiteLength);
   msg->wr_ptr(2);
 
   // Write CSuite list
   std::string strlist;
-  writeCipherSuiteList(strlist, request->CSuiteList());
+  writeCipherSuiteList(strlist, gpsk->CSuiteList());
   msg->copy(strlist.data(), csuiteLength);
 }
 
 /// EAP-Response/Gpsk-Response parser
-typedef AAAParser<AAAMessageBlock*, EapResponseGpsk2*>
-EapResponseGpsk2Parser;
+typedef AAAParser<AAAMessageBlock*, EapGpsk2*>
+EapGpsk2Parser;
 
 /// Use this function to convert raw EAP-Response/Gpsk2 data (data
 /// following the Op-Code field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
-template<> inline void 
-EapResponseGpsk2Parser::parseRawToApp()
+template<> inline void
+EapGpsk2Parser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpsk2* response = getAppData();
+  EapGpsk2* gpsk = getAppData();
 
   ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
   // Read Op-Code.
@@ -256,7 +256,7 @@ EapResponseGpsk2Parser::parseRawToApp()
   msg->rd_ptr(2);
 
   // Read ID_Peer.
-  request->IDPeer() = std::string(msg->rd_ptr(), idPeerLength);
+  gpsk->IDPeer() = std::string(msg->rd_ptr(), idPeerLength);
   msg->rd_ptr(idPeerLength);
 
   // Read ID_Server length.
@@ -264,15 +264,15 @@ EapResponseGpsk2Parser::parseRawToApp()
   msg->rd_ptr(2);
 
   // Read ID_Server.
-  request->IDServer() = std::string(msg->rd_ptr(), idServerLength);
+  gpsk->IDServer() = std::string(msg->rd_ptr(), idServerLength);
   msg->rd_ptr(idServerLength);
 
   // Read RAND_Peer.
-  response->RANDPeer() = std::string(msg->rd_ptr(), 32);
+  gpsk->RANDPeer() = std::string(msg->rd_ptr(), 32);
   msg->rd_ptr(32);
 
   // Read RAND_Server.
-  response->RANDServer() = std::string(msg->rd_ptr(), 32);
+  gpsk->RANDServer() = std::string(msg->rd_ptr(), 32);
   msg->rd_ptr(32);
 
   // Read CSuite List length.
@@ -282,10 +282,10 @@ EapResponseGpsk2Parser::parseRawToApp()
   // Read CSuite List.
   std::string cipherList = std::string(msg->rd_ptr(), csuiteLength);
   msg->rd_ptr(csuiteLength);
-  readCipherSuiteList(cipherList, csuiteLength, response->CSuiteList);
+  readCipherSuiteList(cipherList, csuiteLength, gpsk->CSuiteList);
 
   // Read CSuite Selected.
-  response->CSuiteSelected().fromString(msg->rd_ptr());
+  gpsk->CSuiteSelected().fromString(msg->rd_ptr());
   msg->rd_ptr(6);
 
   // Read PD Payload length.
@@ -293,11 +293,11 @@ EapResponseGpsk2Parser::parseRawToApp()
   msg->rd_ptr(2);
 
   // Read PD Payload
-  request->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
+  gpsk->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
   msg->rd_ptr(pdPayloadLength);
 
   // Read Payload MAC
-  request->Mac() = std::string(msg->rd_ptr(), request->CSuiteSelected().KeySize());
+  gpsk->Mac() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -307,23 +307,23 @@ EapResponseGpsk2Parser::parseRawToApp()
 /// octet after the end of the payload.
 //void EapResponseGpskResponseParser::parseAppToRaw();
 template<> inline void 
-EapResponseGpsk2Parser::parseAppToRaw()
+EapGpsk2Parser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpskResponse* response = getAppData();
+  EapResponseGpskResponse* gpsk = getAppData();
 
   // Write type field
   EapResponseParser responseParser;
   responseParser.setRawData(msg);
-  responseParser.setAppData(response);
-  responseParser.parseAppToRaw();     
+  responseParser.setAppData(gpsk);
+  responseParser.parseAppToRaw();
 
   // Write Op-Code.
-  *(ACE_Byte*)msg->wr_ptr() = request->OpCode();
+  *(ACE_Byte*)msg->wr_ptr() = gpsk->OpCode();
   msg->wr_ptr(1);
 
   // Check ID_Peer length.
-  int length = response->IDPeer().size();
+  int length = gpsk->IDPeer().size();
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "ID_Peer is empty.");
@@ -336,10 +336,10 @@ EapResponseGpsk2Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write the ID_Peer
-  msg->copy(response->IDPeer().data(), idPeerLength);
+  msg->copy(gpsk->IDPeer().data(), idPeerLength);
 
   // Check ID_Server length.
-  length = response->IDServer().size();
+  length = gpsk->IDServer().size();
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "ID_Server is empty.");
@@ -352,16 +352,16 @@ EapResponseGpsk2Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write the ID_Server
-  msg->copy(response->IDServer().data(), idServerLength);
+  msg->copy(gpsk->IDServer().data(), idServerLength);
 
   // Write RAND_Peer
-  msg->copy(response->RANDPeer().data(), 32);
+  msg->copy(gpsk->RANDPeer().data(), 32);
 
   // Write RAND_Server
-  msg->copy(response->RANDServer().data(), 32);
+  msg->copy(gpsk->RANDServer().data(), 32);
 
   // Check CSuite List length.
-  length = response->CSuiteList().size();
+  length = gpsk->CSuiteList().size();
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "CSuite List is empty.");
@@ -369,17 +369,17 @@ EapResponseGpsk2Parser::parseAppToRaw()
     }
 
   // Write CSuite list length
-  ACE_UINT16 csuiteLength = (ACE_UINT16)(response->CSuiteList().length() * 6);
+  ACE_UINT16 csuiteLength = (ACE_UINT16)(gpsk->CSuiteList().length() * 6);
   *(ACE_UINT16*)msg->wr_ptr() = ACE_HTONS(csuiteLength);
   msg->wr_ptr(2);
 
   // Write CSuite list
   std::string strlist;
-  writeCipherSuiteList(strlist, response->CSuiteList());
+  writeCipherSuiteList(strlist, gpsk->CSuiteList());
   msg->copy(strlist.data(), csuiteLength);
 
   // Write CSuite Selection
-  std::string cipherSuiteSelected = response->CSuiteSelected().toString();
+  std::string cipherSuiteSelected = gpsk->CSuiteSelected().toString();
   msg->copy(cipherSuiteSelected.data(), 6);
 
   // Write payload length [TBD: no payload supported set this to 0]
@@ -387,25 +387,25 @@ EapResponseGpsk2Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write MAC.
-  if (response->Mac().size() > 0)
+  if (gpsk->Mac().size() > 0)
   {
-     msg->copy(response->Mac().data(), response->CSuiteSelected().KeySize());
+     msg->copy(gpsk->Mac().data(), gpsk->CSuiteSelected().KeySize());
   }
 }
 
 /// EAP-Request/Gpsk-Confirm parser
-typedef AAAParser<AAAMessageBlock*, EapRequestGpsk3*>
-EapRequestGpsk3Parser;
+typedef AAAParser<AAAMessageBlock*, EapGpsk3*>
+EapGpsk3Parser;
 
 /// Use this function to convert raw EAP-Request/Gpsk3 data (data
 /// following the Op-Code field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
 template<> inline void 
-EapRequestGpsk3Parser::parseRawToApp()
+EapGpsk3Parser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestGpsk3* request = getAppData();
+  EapGpsk3* gpsk = getAppData();
 
   ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
   // Read Op-Code.
@@ -418,11 +418,11 @@ EapRequestGpsk3Parser::parseRawToApp()
   msg->rd_ptr(1);
 
   // Read RAND_Peer.
-  response->RANDPeer() = std::string(msg->rd_ptr(), 32);
+  gpsk->RANDPeer() = std::string(msg->rd_ptr(), 32);
   msg->rd_ptr(32);
 
   // Read RAND_Server.
-  response->RANDServer() = std::string(msg->rd_ptr(), 32);
+  gpsk->RANDServer() = std::string(msg->rd_ptr(), 32);
   msg->rd_ptr(32);
 
   // Read ID_Server length.
@@ -430,11 +430,11 @@ EapRequestGpsk3Parser::parseRawToApp()
   msg->rd_ptr(2);
 
   // Read ID_Server.
-  request->IDServer() = std::string(msg->rd_ptr(), idServerLength);
+  gpsk->IDServer() = std::string(msg->rd_ptr(), idServerLength);
   msg->rd_ptr(idServerLength);
 
   // Read CSuite Selected.
-  response->CSuiteSelected().fromString(msg->rd_ptr());
+  gpsk->CSuiteSelected().fromString(msg->rd_ptr());
   msg->rd_ptr(6);
 
   // Read PD Payload length.
@@ -442,11 +442,11 @@ EapRequestGpsk3Parser::parseRawToApp()
   msg->rd_ptr(2);
 
   // Read PD Payload
-  request->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
+  gpsk->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
   msg->rd_ptr(pdPayloadLength);
 
   // Read Payload MAC
-  request->Mac() = std::string(msg->rd_ptr(), request->CSuiteSelected().KeySize());
+  gpsk->Mac() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -455,25 +455,25 @@ EapRequestGpsk3Parser::parseRawToApp()
 /// function, the write pointer of the message block points to one
 /// octet after the end of the payload.
 template<> inline void
-EapRequestGpsk3Parser::parseAppToRaw()
+EapGpsk3Parser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapRequestGpsk3* request = getAppData();
+  EapGpsk3* gpsk = getAppData();
 
   // Write type field
   EapRequestParser requestParser;
   requestParser.setRawData(msg);
-  requestParser.setAppData(request);
-  requestParser.parseAppToRaw();     
+  requestParser.setAppData(gpsk);
+  requestParser.parseAppToRaw();
 
   // Write RAND_Peer
-  msg->copy(request->RANDPeer().data(), 32);
+  msg->copy(gpsk->RANDPeer().data(), 32);
 
   // Write RAND_Server
-  msg->copy(request->RANDServer().data(), 32);
+  msg->copy(gpsk->RANDServer().data(), 32);
 
   // Check ID_Server length.
-  length = response->IDServer().size();
+  length = gpsk->IDServer().size();
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "ID_Server is empty.");
@@ -486,10 +486,10 @@ EapRequestGpsk3Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write the ID_Server
-  msg->copy(response->IDServer().data(), idServerLength);
+  msg->copy(gpsk->IDServer().data(), idServerLength);
 
   // Write CSuite Selection
-  std::string cipherSuiteSelected = response->CSuiteSelected().toString();
+  std::string cipherSuiteSelected = gpsk->CSuiteSelected().toString();
   msg->copy(cipherSuiteSelected.data(), 6);
 
   // Write payload length [TBD: no payload supported set this to 0]
@@ -497,25 +497,25 @@ EapRequestGpsk3Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write MAC.
-  if (response->Mac().size() > 0)
+  if (gpsk->Mac().size() > 0)
   {
-     msg->copy(response->Mac().data(), response->CSuiteSelected().KeySize());
+     msg->copy(gpsk->Mac().data(), gpsk->CSuiteSelected().KeySize());
   }
 }
 
 /// EAP-Response/Gpsk4 parser
-typedef AAAParser<AAAMessageBlock*, EapResponseGpsk4*>
-EapResponseGpsk4Parser;
+typedef AAAParser<AAAMessageBlock*, EapGpsk4*>
+EapGpsk4Parser;
 
 /// Use this function to convert raw EAP-Response/Gpsk4 data (data
 /// following the Op-Code field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
 template<> inline void 
-EapResponseGpsk4Parser::parseRawToApp()
+EapGpsk4Parser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpsk4* response = getAppData();
+  EapGpsk4* gpsk = getAppData();
 
   ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
   // Read Op-Code.
@@ -532,11 +532,11 @@ EapResponseGpsk4Parser::parseRawToApp()
   msg->rd_ptr(2);
 
   // Read PD Payload
-  response->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
+  gpsk->PDPayload() = std::string(msg->rd_ptr(), pdPayloadLength);
   msg->rd_ptr(pdPayloadLength);
 
   // Read Payload MAC
-  request->Mac() = std::string(msg->rd_ptr(), response->CSuiteSelected().KeySize());
+  gpsk->Mac() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -545,10 +545,10 @@ EapResponseGpsk4Parser::parseRawToApp()
 /// function, the write pointer of the message block points to one
 /// octet after the end of the payload.
 template<> inline void
-EapResponseGpsk4Parser::parseAppToRaw()
+EapGpsk4Parser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpsk4* reponse = getAppData();
+  EapGpsk4* reponse = getAppData();
 
   // Write type field
   EapResponseParser responseParser;
@@ -561,25 +561,25 @@ EapResponseGpsk4Parser::parseAppToRaw()
   msg->wr_ptr(2);
 
   // Write MAC.
-  if (response->Mac().size() > 0)
+  if (gpsk->Mac().size() > 0)
   {
-     msg->copy(response->Mac().data(), response->CSuiteSelected().KeySize());
+     msg->copy(gpsk->Mac().data(), gpsk->CSuiteSelected().KeySize());
   }
 }
 
-/// EAP-Response/GpskFail parser
-typedef AAAParser<AAAMessageBlock*, EapResponseGpskFail*>
-EapResponseGpskFailParser;
+/// EAP-Request for GpskFail parser
+typedef AAAParser<AAAMessageBlock*, EapGpskFail*>
+EapGpskFailParser;
 
 /// Use this function to convert raw EAP/Gpsk-Fail data (data
 /// following the Op-Code field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
-template<> inline void 
-EapResponseGpskFailParser::parseRawToApp()
+template<> inline void
+EapGpskFailParser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpskFail* fail = getAppData();
+  EapGpskFail* fail = getAppData();
 
   ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
   // Read Op-Code.
@@ -601,34 +601,34 @@ EapResponseGpskFailParser::parseRawToApp()
 /// function, the write pointer of the message block points to one
 /// octet after the end of the payload.
 template<> inline void
-EapResponseGpskFailParser::parseAppToRaw()
+EapGpskFailParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpsk4* fail = getAppData();
+  EapGpsk4* fail = getAppData();
 
   // Write type field
-  EapResponseParser responseParser;
-  responseParser.setRawData(msg);
-  responseParser.setAppData(fail);
-  responseParser.parseAppToRaw();
+  EapRequestParser requestParser;
+  requestParser.setRawData(msg);
+  requestParser.setAppData(fail);
+  requestParser.parseAppToRaw();
 
   *(ACE_UINT32*)msg->wr_ptr() = fail->FailureCode();
   msg->wr_ptr(4);
 }
 
 /// EAP/Gpsk-Protected-Fail parser
-typedef AAAParser<AAAMessageBlock*, EapRequestGpskProtectedFail*>
-EapResponseGpskProtectedFailParser;
+typedef AAAParser<AAAMessageBlock*, EapGpskProtectedFail*>
+EapGpskProtectedFailParser;
 
 /// Use this function to convert raw EAP/Gpsk-Protected-Fail data (data
 /// following the Op-Code field) to application-specific payload data.
 /// As a result of calling this function, the read pointer of the
 /// message block points to one octet after the end of the payload.
 template<> inline void 
-EapResponseGpskProtectedFailParser::parseRawToApp()
+EapGpskProtectedFailParser::parseRawToApp()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpskFail* pfail = getAppData();
+  EapGpskFail* pfail = getAppData();
 
   ACE_Byte opCode = *(ACE_Byte*)msg->rd_ptr();
   // Read Op-Code.
@@ -653,24 +653,24 @@ EapResponseGpskProtectedFailParser::parseRawToApp()
 /// function, the write pointer of the message block points to one
 /// octet after the end of the payload.
 template<> inline void
-EapResponseGpskProtectedFailParser::parseAppToRaw()
+EapGpskProtectedFailParser::parseAppToRaw()
 {
   AAAMessageBlock* msg = getRawData();
-  EapResponseGpsk4* pfail = getAppData();
+  EapGpsk4* pfail = getAppData();
 
   // Write type field
-  EapResponseParser responseParser;
-  responseParser.setRawData(msg);
-  responseParser.setAppData(fail);
-  responseParser.parseAppToRaw();
+  EapRequestParser requestParser;
+  requestParser.setRawData(msg);
+  requestParser.setAppData(fail);
+  requestParser.parseAppToRaw();
 
   *(ACE_UINT32*)msg->wr_ptr() = pfail->FailureCode();
   msg->wr_ptr(4);
 
   // Write MAC.
-  if (response->Mac().size() > 0)
+  if (gpsk->Mac().size() > 0)
   {
-     msg->copy(response->Mac().data(), response->CSuiteSelected().KeySize());
+     msg->copy(gpsk->Mac().data(), gpsk->CSuiteSelected().KeySize());
   }
 }
 
