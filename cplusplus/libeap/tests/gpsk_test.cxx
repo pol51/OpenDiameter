@@ -185,8 +185,8 @@ public:
   std::string& InputIdentity()
   {
     std::cout << "Received an Gpsk-Request from " 
-	      << AuthID() << std::endl;
-      
+	      << ServerID() << std::endl;
+
     static std::string identity;
     std::cout << "Input username (within 10sec.): " << std::endl;
     std::cin >> identity;
@@ -218,6 +218,22 @@ public:
   {
     static std::string serverID("myserver@opendiameter.org");
     return serverID;
+  }
+
+  /// This pure virtual function is a callback used to validate
+  /// the peer authorization.
+  bool ValidatePeerIdentity(std::string& peer)
+  {
+    std::cout << "Peer: " << peer << " is known ... continue" << std::endl;
+    return true;
+  }
+
+  /// This pure virtual function is a callback used to validate
+  /// the peer authorization.
+  bool IsPeerAuthorized(std::string& peer)
+  {
+    std::cout << "Peer: " << peer << " is authorized" << std::endl;
+    return true;
   }
 
 private:
@@ -448,7 +464,7 @@ class StandAloneAuthApplication : public AAA_JobData
       semaphore(sem),
       rxChannel(StandAloneAuthChannel(*eap)),
       txChannel(0),
-      method(EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE)))
+      method(EapContinuedPolicyElement(EapType(GPSK_METHOD_TYPE)))
   {
     // Policy settings for the authenticator
     eap->Policy().InitialPolicyElement(&method);
@@ -494,7 +510,7 @@ class BackendAuthApplication : public AAA_JobData
       semaphore(sem),
       rxChannel(BackendAuthChannel(*eap)),
       txChannel(0),
-      method(EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE)))
+      method(EapContinuedPolicyElement(EapType(GPSK_METHOD_TYPE)))
   {
     // Policy settings for the backend authenticator
     eap->Policy().InitialPolicyElement(&method);
@@ -829,11 +845,11 @@ int main(int argc, char **argv)
   EapMethodRegistrar methodRegistrar;
 
   methodRegistrar.registerMethod
-    (std::string("Gpsk"), EapType(ARCHIE_METHOD_TYPE), 
+    (std::string("Gpsk"), EapType(GPSK_METHOD_TYPE), 
      Peer, myPeerGpskCreator);
 
   methodRegistrar.registerMethod
-    (std::string("Gpsk"), EapType(ARCHIE_METHOD_TYPE), 
+    (std::string("Gpsk"), EapType(GPSK_METHOD_TYPE), 
      Authenticator, myAuthGpskCreator);
 
   int com;
