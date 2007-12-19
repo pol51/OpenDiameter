@@ -87,10 +87,6 @@ private:
         return;
       }
 
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("PACKET", reply->base(), reply->length());
-#endif
-
       // Set the message to the session.
       ssm.SetTxMessage(reply);
 
@@ -110,10 +106,6 @@ private:
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
 
       EAP_LOG(LM_DEBUG, "PeerGpsk: Replaying GPSK-Protected-Fail message.\n");
-
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-#endif
 
       // Save existing MAC
       std::string mac1 = gpsk.MAC();
@@ -198,11 +190,6 @@ private:
       msm.ServerRAND()  = gpsk.RANDServer();
       msm.CipherSuiteList() = gpsk.CSuiteList();
 
-#ifdef EAP_GPSK_DEBUG
-      dumpText("Server id", msm.ServerID().data());
-      dumpHex("Server RAND", msm.ServerRAND().data(), msm.ServerRAND().length());
-      msm.CipherSuiteList().dump();
-#endif
       msm.Event(EvSgValid);
     }
   };
@@ -255,10 +242,6 @@ private:
       EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msgInput,
            msgInput.size(), gpsk.MAC());
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("Shared secret", sharedSecret.data(), sharedSecret.length());
-      dumpHex("Input", msgInput.data(), msgInput.length());
-#endif
 
       // Rewind the pointer.
       msg->wr_ptr(msg->base() + 4);
@@ -273,16 +256,6 @@ private:
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
-
-#ifdef EAP_GPSK_DEBUG
-      dumpText("Server id", gpsk.IDServer().data());
-      dumpText("Peer id", gpsk.IDPeer().data());
-      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
-      dumpHex("Peer RAND", gpsk.RANDPeer().data(), gpsk.RANDPeer().length());
-      gpsk.CSuiteList().dump();
-      gpsk.CSuiteSelected().dump();
-      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-#endif
 
       // Update external method state.
       ssm.MethodState() = EapPeerSwitchStateMachine::CONT;
@@ -300,10 +273,6 @@ private:
       AAAMessageBlock *msg = ssm.GetRxMessage();
 
       EAP_LOG(LM_DEBUG, "PeerGpsk: Integrity check on GPSK3 message.\n");
-
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("PACKET", msg->base(), msg->length());
-#endif
 
       // Check the GPSK3.
       EapGpsk3 gpsk;
@@ -337,10 +306,6 @@ private:
           pfparser.setRawData(msg);
           try {
              pfparser.parseRawToApp();
-#ifdef EAP_GPSK_DEBUG
-             dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-             dumpHex("PACKET", msg->base(), msg->length());
-#endif
              EAP_LOG(LM_ERROR, "PeerGpsk: GPSK-Protected-Fail received [%d].\n", pfgpsk.FailureCode());
              ReplayGpskProtectedFail replay;
              replay(msm, pfgpsk);
@@ -375,14 +340,6 @@ private:
 
       // Save the payload, TBD: Need to do something about the payload in the future
       msm.Payload() = gpsk.PDPayload();
-
-#ifdef EAP_GPSK_DEBUG
-      dumpText("Server id", gpsk.IDServer().data());
-      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
-      dumpHex("Peer RAND", gpsk.RANDPeer().data(), gpsk.RANDPeer().length());
-      gpsk.CSuiteSelected().dump();
-      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-#endif
 
       // Obtain shared secret from the application.
       std::string& sharedSecret = msm.SharedSecret();
@@ -463,10 +420,6 @@ private:
           msm.Event(EvSgInvalid);
           return;
         }
-
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-#endif
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
@@ -634,10 +587,6 @@ private:
         return;
       }
 
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("PACKET", msg->base(), msg->length());
-#endif
-
       // Set the message to the session.
       ssm.SetTxMessage(msg);
 
@@ -691,11 +640,6 @@ private:
           return;
         }
 
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-      dumpHex("PACKET-Fail-Protected", msg->base(), msg->length());
-#endif
-
       // Set the message to the session.
       ssm.SetTxMessage(msg);
 
@@ -743,12 +687,6 @@ private:
           return;
         }
 
-#ifdef EAP_GPSK_DEBUG
-      dumpText("Server id", gpsk.IDServer().data());
-      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
-      gpsk.CSuiteList().dump();
-#endif
-
       // Set the message to the session.
       ssm.SetTxMessage(msg);
 
@@ -777,16 +715,6 @@ private:
           msm.Event(EvSgInvalid);
           return;
         }
-
-#ifdef EAP_GPSK_DEBUG
-      dumpText("Server id", gpsk.IDServer().data());
-      dumpText("Peer id", gpsk.IDPeer().data());
-      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
-      dumpHex("Peer RAND", gpsk.RANDPeer().data(), gpsk.RANDPeer().length());
-      gpsk.CSuiteList().dump();
-      gpsk.CSuiteSelected().dump();
-      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-#endif
 
       // Validate server RAND
       if (gpsk.RANDServer() != msm.ServerRAND()) {
@@ -849,13 +777,6 @@ private:
       macCalculator(sharedSecret, msgInput, msgInput.size(), mac2);
       raw->Release();
 
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("Shared secret", sharedSecret.data(), sharedSecret.length());
-      dumpHex("Input", msgInput.data(), msgInput.length());
-      dumpHex("Original MAC", mac1.data(), mac1.length());
-      dumpHex("Computed local MAC", mac2.data(), mac2.length());
-#endif
-
       // do validity check.
       if (mac1 != mac2)
         {
@@ -912,10 +833,6 @@ private:
       EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msgInput,
            msgInput.size(), gpsk.MAC());
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("Shared secret", sharedSecret.data(), sharedSecret.length());
-      dumpHex("Input", msgInput.data(), msgInput.length());
-#endif
 
       // Rewind the pointer.
       msg->wr_ptr(msg->base() + 4);
@@ -927,15 +844,6 @@ private:
         msm.Event(EvSgInvalid);
         return;
      }
-
-#ifdef EAP_GPSK_DEBUG
-      dumpText("Server id", gpsk.IDServer().data());
-      dumpHex("Server RAND", gpsk.RANDServer().data(), gpsk.RANDServer().length());
-      dumpHex("Peer RAND", gpsk.RANDPeer().data(), gpsk.RANDPeer().length());
-      gpsk.CSuiteSelected().dump();
-      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-      dumpHex("PACKET", msg->base(), msg->length());
-#endif
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
@@ -965,10 +873,6 @@ private:
           msm.Event(EvSgInvalid);
           return;
         }
-
-#ifdef EAP_GPSK_DEBUG
-      dumpHex("MAC", gpsk.MAC().data(), gpsk.MAC().length());
-#endif
 
       // Save existing MAC
       std::string mac1 = gpsk.MAC();
