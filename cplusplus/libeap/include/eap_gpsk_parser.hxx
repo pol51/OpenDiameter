@@ -165,6 +165,7 @@ EapGpsk1Parser::parseRawToApp()
   msg->rd_ptr(csuiteLength);
 
   readCipherSuiteList(cipherList, csuiteLength, gpsk->CSuiteList());
+  msg->rd_ptr(csuiteLength * 6);
 }
 
 /// Use this function to convert application-specific
@@ -298,6 +299,7 @@ EapGpsk2Parser::parseRawToApp()
 
   // Read Payload MAC
   gpsk->MAC() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
+  msg->rd_ptr(gpsk->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -447,6 +449,7 @@ EapGpsk3Parser::parseRawToApp()
 
   // Read Payload MAC
   gpsk->MAC() = std::string(msg->rd_ptr(), gpsk->CSuiteSelected().KeySize());
+  msg->rd_ptr(gpsk->CSuiteSelected().KeySize());
 }
 
 /// Use this function to convert application-specific
@@ -540,6 +543,7 @@ EapGpsk4Parser::parseRawToApp()
 
   // Read Payload MAC
   gpsk->MAC() = std::string(msg->rd_ptr(), msg->wr_ptr() - msg->rd_ptr());
+  msg->rd_ptr(msg->wr_ptr());
 }
 
 /// Use this function to convert application-specific
@@ -600,6 +604,7 @@ EapGpskFailParser::parseRawToApp()
 
   // Read failure code
   fail->FailureCode() = ACE_NTOHL(*(ACE_UINT32*)msg->rd_ptr());
+  msg->rd_ptr(4);
 }
 
 /// Use this function to convert application-specific
@@ -654,9 +659,11 @@ EapGpskProtectedFailParser::parseRawToApp()
 
   // Read failure code
   pfail->FailureCode() = ACE_NTOHL(*(ACE_UINT32*)msg->rd_ptr());
+  msg->rd_ptr(4);
 
   // Read Payload MAC
   pfail->MAC() = std::string(msg->rd_ptr(), msg->wr_ptr() - msg->rd_ptr());
+  msg->rd_ptr(msg->wr_ptr());
 }
 
 /// Use this function to convert application-specific

@@ -225,7 +225,7 @@ public:
   bool ValidatePeerIdentity(std::string& peer)
   {
     std::cout << "Peer: " << peer << " is known ... continue" << std::endl;
-    return false;
+    return true;
   }
 
   /// This pure virtual function is a callback used to validate
