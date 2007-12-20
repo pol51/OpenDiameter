@@ -101,6 +101,7 @@ noinst_PROGRAMS = pana_test1 pana_test2 pana_test3
 pana_test1_SOURCES = test/Test1.cxx test/user_db.cxx
 pana_test1_LDADD = $(top_builddir)/libeap/libeap.la \
 		$(top_builddir)/libeap/libeaparchie.la \
+		$(top_builddir)/libeap/libeapgpsk.la \
 		$(top_builddir)/libpana/libpana.la \
                 $(top_builddir)/libodutl/libodutl.la \
                 @L_LIBS@
@@ -108,6 +109,7 @@ pana_test1_LDADD = $(top_builddir)/libeap/libeap.la \
 pana_test2_SOURCES = test/Test2.cxx test/user_db.cxx
 pana_test2_LDADD = $(top_builddir)/libeap/libeap.la \
 		$(top_builddir)/libeap/libeaparchie.la \
+		$(top_builddir)/libeap/libeapgpsk.la \
 		$(top_builddir)/libpana/libpana.la \
                 $(top_builddir)/libodutl/libodutl.la \
                 @L_LIBS@
@@ -115,6 +117,7 @@ pana_test2_LDADD = $(top_builddir)/libeap/libeap.la \
 pana_test3_SOURCES = test/Test3.cxx test/user_db.cxx
 pana_test3_LDADD = $(top_builddir)/libeap/libeap.la \
 		$(top_builddir)/libeap/libeaparchie.la \
+		$(top_builddir)/libeap/libeapgpsk.la \
 		$(top_builddir)/libpana/libpana.la \
                 $(top_builddir)/libodutl/libodutl.la \
                 @L_LIBS@

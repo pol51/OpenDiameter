@@ -9,7 +9,7 @@
              does not bind to any address or interface
              so it will receive Pac messages on any
              interface -->
-        <listen_port>3001</listen_port>
+        <listen_port>4001</listen_port>
 
         <!-- Filename of the parser dictionary -->
         <dictionary_filename>config/dictionary.xml</dictionary_filename>
