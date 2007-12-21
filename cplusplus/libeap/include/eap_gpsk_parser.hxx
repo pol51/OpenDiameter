@@ -227,14 +227,11 @@ EapGpsk1Parser::parseAppToRaw()
   writeCipherSuiteList(strlist, gpsk->CSuiteList());
   msg->copy(strlist.data(), csuiteLength);
 
-  if ((size_t)msg->wr_ptr() - (size_t)msg->base() < 0)
+  if ((size_t)msg->wr_ptr() - (size_t)msg->base() > (size_t)msg->size())
     {
       EAP_LOG(LM_ERROR, "Buffer overflow on GPSK1.");
       throw -1;
     }
-
-  // resize buffer
-  msg->size(msg->wr_ptr() - msg->base());
 }
 
 /// EAP-Response/Gpsk-Response parser
@@ -403,14 +400,11 @@ EapGpsk2Parser::parseAppToRaw()
      msg->copy(gpsk->MAC().data(), gpsk->CSuiteSelected().KeySize());
   }
 
-  if ((size_t)msg->wr_ptr() - (size_t)msg->base() < 0)
+  if ((size_t)msg->wr_ptr() - (size_t)msg->base() > (size_t)msg->size())
     {
       EAP_LOG(LM_ERROR, "Buffer overflow on GPSK2.");
       throw -1;
     }
-
-  // resize buffer
-  msg->size(msg->wr_ptr() - msg->base());
 }
 
 /// EAP-Request/Gpsk-Confirm parser
@@ -526,14 +520,11 @@ EapGpsk3Parser::parseAppToRaw()
      msg->copy(gpsk->MAC().data(), gpsk->CSuiteSelected().KeySize());
   }
 
-  if ((size_t)msg->wr_ptr() - (size_t)msg->base() < 0)
+  if ((size_t)msg->wr_ptr() - (size_t)msg->base() > (size_t)msg->size())
     {
       EAP_LOG(LM_ERROR, "Buffer overflow on GPSK3.");
       throw -1;
     }
-
-  // resize buffer
-  msg->size(msg->wr_ptr() - msg->base());
 }
 
 /// EAP-Response/Gpsk4 parser
@@ -604,14 +595,11 @@ EapGpsk4Parser::parseAppToRaw()
      msg->copy(gpsk->MAC().data(), gpsk->MAC().size());
   }
 
-  if ((size_t)msg->wr_ptr() - (size_t)msg->base() < 0)
+  if ((size_t)msg->wr_ptr() - (size_t)msg->base() > (size_t)msg->size())
     {
       EAP_LOG(LM_ERROR, "Buffer overflow on GPSK4.");
       throw -1;
     }
-
-  // resize buffer
-  msg->size(msg->wr_ptr() - msg->base());
 }
 
 /// EAP-Request for GpskFail parser
@@ -668,14 +656,11 @@ EapGpskFailParser::parseAppToRaw()
   *(ACE_UINT32*)msg->wr_ptr() = ACE_HTONL(fail->FailureCode());
   msg->wr_ptr(4);
 
-  if ((size_t)msg->wr_ptr() - (size_t)msg->base() < 0)
+  if ((size_t)msg->wr_ptr() - (size_t)msg->base() > (size_t)msg->size())
     {
       EAP_LOG(LM_ERROR, "Buffer overflow on GPSK-Fail.");
       throw -1;
     }
-
-  // resize buffer
-  msg->size(msg->wr_ptr() - msg->base());
 }
 
 /// EAP/Gpsk-Protected-Fail parser
@@ -742,14 +727,11 @@ EapGpskProtectedFailParser::parseAppToRaw()
      msg->copy(pfail->MAC().data(), pfail->MAC().size());
   }
 
-  if ((size_t)msg->wr_ptr() - (size_t)msg->base() < 0)
+  if ((size_t)msg->wr_ptr() - (size_t)msg->base() > (size_t)msg->size())
     {
       EAP_LOG(LM_ERROR, "Buffer overflow on GPSK-Protected-Fail.");
       throw -1;
     }
-
-  // resize buffer
-  msg->size(msg->wr_ptr() - msg->base());
 }
 
 #endif // __EAP_GPSK_PARSER_H__

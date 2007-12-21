@@ -87,6 +87,9 @@ private:
         return;
       }
 
+      // resize buffer
+      reply->size(reply->length());
+
       // Set the message to the session.
       ssm.SetTxMessage(reply);
 
@@ -153,6 +156,9 @@ private:
         msm.Event(EvSgInvalid);
         return;
       }
+
+      // resize buffer
+      reply->size(reply->length());
 
       // Set the message to the session.
       ssm.SetTxMessage(reply);
@@ -239,6 +245,7 @@ private:
 
       // Get the message stream and compute MAC
       std::string msgInput(msg->base() + 4 + 2, msg->length() - 4 - 2);
+
       EapCryptoAES_CMAC_128 macCalculator;
       macCalculator(sharedSecret, msgInput,
            msgInput.size(), gpsk.MAC());
@@ -252,7 +259,10 @@ private:
         EAP_LOG(LM_ERROR, "PeerGpsk: Parse error when generating GPSK2.\n");
         msm.Event(EvSgInvalid);
         return;
-     }
+      }
+
+      // resize buffer
+      msg->size(msg->length());
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
@@ -421,6 +431,9 @@ private:
           return;
         }
 
+      // resize buffer
+      msg->size(msg->length());
+
       // Set the message to the session.
       ssm.SetTxMessage(msg);
 
@@ -587,6 +600,9 @@ private:
         return;
       }
 
+      // resize buffer
+      msg->size(msg->length());
+
       // Set the message to the session.
       ssm.SetTxMessage(msg);
 
@@ -640,6 +656,9 @@ private:
           return;
         }
 
+      // resize buffer
+      msg->size(msg->length());
+
       // Set the message to the session.
       ssm.SetTxMessage(msg);
 
@@ -686,6 +705,9 @@ private:
           msm.Event(EvSgInvalid);
           return;
         }
+
+      // resize buffer
+      msg->size(msg->length());
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
@@ -774,6 +796,7 @@ private:
       std::string mac2;
       EapCryptoAES_CMAC_128 macCalculator;
       std::string msgInput(raw->base() + 4 + 2, raw->length() - 4 - 2);
+
       macCalculator(sharedSecret, msgInput, msgInput.size(), mac2);
       raw->Release();
 
@@ -844,6 +867,9 @@ private:
         msm.Event(EvSgInvalid);
         return;
      }
+
+      // resize buffer
+      msg->size(msg->length());
 
       // Set the message to the session.
       ssm.SetTxMessage(msg);
