@@ -478,7 +478,8 @@ public:
      for (i = 1; i <= n; i ++) {
 
         *(ACE_UINT16*)mi = ACE_HTONS(i);
-        std::string tmp((const char*)mi);
+        std::string tmp;
+        tmp.assign((const char*)mi, sizeof(mi));
         tmp.append(Z);
         cmac(Y, tmp, tmp.size(), M_i);
 
