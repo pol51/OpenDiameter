@@ -61,6 +61,12 @@ PANA_Paa::PANA_Paa(PANA_SessionTxInterface &tp,
 
     // use config file to set IP reconfiguration parameter
     IpReconfiguration() = (PANA_CFG_PAA().m_IpReconfig) ? true : false;
+
+    // use config file to set PAA IP address
+    char buf[32];
+    sprintf(buf, "%s:%d", PANA_CFG_GENERAL().m_ListenAddress.data(),
+            PANA_CFG_GENERAL().m_ListenPort);
+    PaaAddress().string_to_addr(buf);
 }
 
 void PANA_Paa::NotifyAuthorization()
@@ -616,7 +622,10 @@ void PANA_Paa::TxPNAAuth()
 
 void PANA_Paa::TxPrepareMessage(PANA_Message &msg)
 {
-    msg.srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
+    char buf[32];
+    sprintf(buf, "%s:%d", PANA_CFG_GENERAL().m_ListenAddress.data(),
+            PANA_CFG_GENERAL().m_ListenPort);
+    msg.srcAddress().set(buf);
     msg.destAddress() = this->PacAddress();
 }
 

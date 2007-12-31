@@ -40,6 +40,8 @@
 
 ACE_UINT32 PANA_MSK::m_GlobalId = 0;
 
+#define PANA_SA_DEBUG 1
+
 PANA_MessageBuffer *PANA_MsgByteStream::Get(PANA_Message &msg)
 {
     m_RawBuffer->reset();

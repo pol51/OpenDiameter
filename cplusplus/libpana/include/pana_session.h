@@ -262,6 +262,7 @@ class PANA_EXPORT PANA_SessionEventInterface
 {
    public:
       typedef struct {
+         AAAScholarAttribute<pana_octetstring_t> m_UserIdentity;
          AAAScholarAttribute<ACE_INET_Addr> m_PacAddress;
          AAAScholarAttribute<ACE_INET_Addr> m_PaaAddress;
          AAAScholarAttribute<pana_octetstring_t> m_Key;

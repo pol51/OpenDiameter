@@ -2,11 +2,12 @@
 
      <!ELEMENT pana_configuration (general, (client|agent))>
 
-     <!ELEMENT general (listen_port, dictionary_filename,
+     <!ELEMENT general (listen_port, listen_address, dictionary_filename,
                         retransmission_param, wpa_bootstrap,
                         session_lifetime)>
 
      <!ELEMENT listen_port (#PCDATA)>
+     <!ELEMENT listen_address (#PCDATA)>
      <!ELEMENT dictionary_filename (#PCDATA)>
      <!ELEMENT retransmission_param (initial_rt_timeout, max_rt_count,
                                      max_rt_timeout, max_rt_duration)>

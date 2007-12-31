@@ -210,8 +210,11 @@ void PANA_PaaSessionFactory::StatelessTxPARStart(ACE_INET_Addr &addr)
     msg->seq() = replica.Get(addr.get_ip_address());
 
     // proper addresses
+    char buf[32];
+    sprintf(buf, "%s:%d", PANA_CFG_GENERAL().m_ListenAddress.data(),
+            PANA_CFG_GENERAL().m_ListenPort);
+    msg->srcAddress().set(buf);
     msg->destAddress() = addr;
-    msg->srcAddress().set((u_short)PANA_CFG_GENERAL().m_ListenPort, INADDR_ANY);
 
     AAA_LOG((LM_INFO, "(%P|%t) TxPAR-Start: id=%u seq=%u\n",
              msg->sessionId(), msg->seq()));

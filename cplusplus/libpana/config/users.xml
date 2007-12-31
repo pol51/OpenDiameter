@@ -17,7 +17,7 @@
       <auth>archie</auth>
    </user>
    <user>
-      <name>user1</name>
+      <name>user1@tari.toshiba.com</name>
       <pass>12345</pass>
       <auth>md5</auth>
    </user>

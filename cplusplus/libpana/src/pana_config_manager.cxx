@@ -57,7 +57,9 @@ void PANA_CfgManager::open(std::string &cfg_file)
     // General Section
     OD_Utl_XML_UInt32Element gen01(m_Data.m_General.m_ListenPort,
                                    "listen_port", parser);
-    OD_Utl_XML_StringElement gen02(m_Data.m_General.m_Dictionary,
+    OD_Utl_XML_StringElement gen02(m_Data.m_General.m_ListenAddress,
+                                   "listen_address", parser);
+    OD_Utl_XML_StringElement gen03(m_Data.m_General.m_Dictionary,
                                    "dictionary_filename", parser);
     OD_Utl_XML_UInt32Element gen04(m_Data.m_General.m_WPASupport,
                                    "wpa_bootstrap", parser);
@@ -114,6 +116,7 @@ void PANA_CfgManager::dump()
 {
     AAA_LOG((LM_INFO, "     General configuration\n"));
     AAA_LOG((LM_INFO, "          Listen Port     : %d\n", m_Data.m_General.m_ListenPort));
+    AAA_LOG((LM_INFO, "          Listen Address  : %s\n", m_Data.m_General.m_ListenAddress.data()));
     AAA_LOG((LM_INFO, "          Dictionary      : %s\n", m_Data.m_General.m_Dictionary.data()));
     AAA_LOG((LM_INFO, "          Re-Transmission\n"));
     AAA_LOG((LM_INFO, "                     IRT  : %d\n", m_Data.m_General.m_RT.m_IRT));

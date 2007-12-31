@@ -69,6 +69,7 @@ typedef struct {
 typedef struct  {
     std::string m_Dictionary;
     ACE_UINT32 m_ListenPort;
+    std::string m_ListenAddress;
     ACE_UINT32 m_WPASupport;
     ACE_UINT32 m_SessionLifetime;
     PANA_CfgRetransmissionParam m_RT;

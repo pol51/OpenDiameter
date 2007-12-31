@@ -4,13 +4,23 @@
 
     <general>
 
-        <!-- UDP port that the PaC will listen to
-             for PAA messages. Note that this
-             does not bind to any address or interface
-             so it will receive Pac messages on any
-             interface -->
-        <listen_port>3002</listen_port>
+      <!-- UDP port that the Pac will listen to
+           for Paa messages. Note that this
+           will bind the the address stated
+           by listen_address. -->
+      <listen_port>4001</listen_port>
 
+      <!-- Local IP address where the Pac will bind to.
+           The Pac is expected to receive messages
+           only for this address. If 0.0.0.0, then INADDR_ANY
+           will be used -->
+      <listen_address>0.0.0.0</listen_address>
+
+        <!-- Local IP address where the PAA will bind to.
+             The PAA is expected to receive messages
+             only for this address. If 0, then INADDR_ANY
+             will be used -->
+        <listen_address>0</listen_address>
         <!-- Filename of the parser dictionary -->
         <dictionary_filename>config/dictionary.xml</dictionary_filename>
 
@@ -56,7 +66,7 @@
         <paa_ip_address>localhost</paa_ip_address>
 
         <!-- PAA port number used in conjuction with paa_ip_address -->
-        <paa_port_number>4001</paa_port_number>
+        <paa_port_number>3001</paa_port_number>
 
         <!-- eap response timeout. Number of seconds the EAP layer
              is allowed to send an EAP response before an EAP_RESP_TIMEOUT

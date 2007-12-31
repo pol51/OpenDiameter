@@ -1028,17 +1028,19 @@ PANA_PacSession::PANA_PacSession(PANA_Node &n,
    sprintf(strAddr, "%s:%d", PANA_CFG_PAC().m_PaaIpAddress.data(),
            PANA_CFG_PAC().m_PaaPortNumber);
    addr.string_to_addr(strAddr);
-   m_PaC.PaaAddress() = addr;
+   m_PaC.PaaAddress().string_to_addr(strAddr);
 
    // Listen to a well known port
-   addr.set((u_short)PANA_CFG_GENERAL().m_ListenPort);
-   sprintf(strAddr, "%d", PANA_CFG_GENERAL().m_ListenPort);
+   sprintf(strAddr, "%s:%d", PANA_CFG_GENERAL().m_ListenAddress.data(),
+           PANA_CFG_GENERAL().m_ListenPort);
    addr.string_to_addr(strAddr);
    m_PanaChannel.Open(addr);
    m_PanaChannel.RegisterHandler(msgHandler);
 
    // Listen to a PaC specific port - some pseudo random value
-   m_PaC.PacAddress().set((u_short)(PANA_CFG_GENERAL().m_ListenPort + ((int)this / 1000)));
+   sprintf(strAddr, "%s:%d", PANA_CFG_GENERAL().m_ListenAddress.data(),
+           (u_short)(PANA_CFG_GENERAL().m_ListenPort + ((int)this / 1000)));
+   m_PaC.PacAddress().string_to_addr(strAddr);
    m_PacChannel.Open(m_PaC.PacAddress());
    m_PacChannel.RegisterHandler(msgHandler);
 

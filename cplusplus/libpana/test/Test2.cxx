@@ -372,7 +372,7 @@ class StandAloneAuthChannel : public PANA_PaaEventInterface
   }
   bool IsKeyAvailable(pana_octetstring_t &key) {
     if (eap.KeyAvailable()) {
-       for (int i=0; i<32; i++)
+       for (size_t i=0; i<eap.KeyData().size(); i++)
          {
 	   char c[100];
            const char* p = eap.KeyData().data();

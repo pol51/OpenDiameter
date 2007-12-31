@@ -321,7 +321,11 @@ class PANA_EXPORT PANA_PaaSessionChannel
       PANA_PaaSessionChannel(PANA_Node &n) :
           m_Node(n),
           m_Channel(n.Job(), "PAA Channel") {
-          ACE_INET_Addr paaAddr(PANA_CFG_GENERAL().m_ListenPort);
+
+          char buf[32];
+          sprintf(buf, "%s:%d", PANA_CFG_GENERAL().m_ListenAddress.data(),
+                  PANA_CFG_GENERAL().m_ListenPort);
+          ACE_INET_Addr paaAddr(buf);
           m_Channel.Open(paaAddr);
       }
       virtual ~PANA_PaaSessionChannel() {

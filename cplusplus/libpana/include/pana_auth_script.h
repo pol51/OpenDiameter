@@ -70,6 +70,10 @@ class PANA_AuthScriptCtl
       static void Print(PANA_SessionEventInterface::PANA_AuthorizationArgs &args) {
          char buf[512];
 
+         if (args.m_UserIdentity.IsSet()) {
+            AAA_LOG((LM_INFO, "User Identity: %s\n", args.m_UserIdentity().data()));
+         }
+
          if (args.m_PacAddress.IsSet()) {
             FormatToString(args.m_PacAddress(), buf, sizeof(buf));
             AAA_LOG((LM_INFO, "PaC Address: %s\n", buf));
@@ -111,6 +115,11 @@ class PANA_AuthScriptCtl
 #endif
          sysCmd += cmd;
          sysCmd += " ";
+
+         if (m_Args.m_UserIdentity.IsSet()) {
+            sysCmd += m_Args.m_UserIdentity();
+            sysCmd += " ";
+         }
 
          if (m_Args.m_PacAddress.IsSet()) {
             FormatToString(m_Args.m_PacAddress(), buf, sizeof(buf));
@@ -169,6 +178,11 @@ class PANA_AuthScriptCtl
                                  char *buf,
                                  size_t bsize) {
          addr.addr_to_string(buf, bsize);
+         // remove the port number from the ip
+         char *token = strrchr(buf, ':');
+         if (token) {
+            *token = 0;
+         }
       }
 
    private:
