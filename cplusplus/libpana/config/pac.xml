@@ -63,7 +63,7 @@
              Note that the library automatically detects whether
              your are going to use IPv6 or IPv4 based on
              this address -->
-        <paa_ip_address>localhost</paa_ip_address>
+        <paa_ip_address>10.10.40.52</paa_ip_address>
 
         <!-- PAA port number used in conjuction with paa_ip_address -->
         <paa_port_number>3001</paa_port_number>
