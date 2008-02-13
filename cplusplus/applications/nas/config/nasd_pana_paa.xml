@@ -11,6 +11,12 @@
              interface -->
         <listen_port>3001</listen_port>
 
+        <!-- Local IP address where the PAA will bind to.
+             The PAA is expected to receive messages
+             only for this address. If 0.0.0.0, then INADDR_ANY
+             will be used -->
+        <listen_address>0.0.0.0</listen_address>
+
         <!-- Filename of the parser dictionary -->
         <dictionary_filename>config/nasd_pana_dictionary.xml</dictionary_filename>
 

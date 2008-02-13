@@ -44,7 +44,7 @@ nasd_SOURCES = $(SRC) $(HDR)
 nasd_LDADD = @L_LIBS@ \
              $(top_builddir)/libpana/libpana.la \
              $(top_builddir)/libeap/libeap.la \
-             $(top_builddir)/libeap/libeaparchie.la \
+             $(top_builddir)/libeap/libeapgpsk.la \
              $(top_builddir)/libdiameter/libdiameter.la \
              $(top_builddir)/libdiameternasreq/libdiameternasreq.la \
              $(top_builddir)/libdiametereap/libdiametereap.la \

@@ -38,24 +38,24 @@
 #include "nasd_call_framework.h"
 #include "eap.hxx"
 #include "eap_authfsm.hxx"
-#include "eap_archie.hxx"
-#include "eap_archie_fsm.hxx"
+#include "eap_gpsk.hxx"
+#include "eap_gpsk_fsm.hxx"
 #include "eap_md5.hxx"
 #include "eap_method_registrar.hxx"
 
-class NASD_EapBackendAuthArchieStateMachine : 
-      public EapAuthArchieStateMachine
+class NASD_EapBackendAuthGpskStateMachine : 
+      public EapAuthGpskStateMachine
 {
      friend class EapMethodStateMachineCreator
-                  <NASD_EapBackendAuthArchieStateMachine>;
+                  <NASD_EapBackendAuthGpskStateMachine>;
 
      typedef enum {
         DEFAULT_AUTH_PERIOD = 3600
      };
 
    public:
-     NASD_EapBackendAuthArchieStateMachine(EapSwitchStateMachine &s)
-        : EapAuthArchieStateMachine(s) {
+     NASD_EapBackendAuthGpskStateMachine(EapSwitchStateMachine &s)
+        : EapAuthGpskStateMachine(s) {
         
         std::string name("local_eap_auth");
         m_CfgData = (NASD_AaaLocalEapAuthData*)
@@ -69,8 +69,8 @@ class NASD_EapBackendAuthArchieStateMachine :
 
 	static std::string sharedSecret = "";
         if (sharedSecret.length() > 0) {
-	    return sharedSecret;
-	}
+	    	return sharedSecret;
+		  }
         
         if (m_CfgData) {
             char sBuf[64];
@@ -102,9 +102,19 @@ class NASD_EapBackendAuthArchieStateMachine :
 	}              
         return serverId;
      }
+     bool ValidatePeerIdentity(std::string& peer) {
+        if (m_CfgData) {
+	    	 return (m_CfgData->Protocol().Identity() == peer);
+		  }
+		  return false;
+     }
+
+     bool IsPeerAuthorized(std::string& peer) {
+        return true;
+     }
      
    private:
-     virtual ~NASD_EapBackendAuthArchieStateMachine() {
+     virtual ~NASD_EapBackendAuthGpskStateMachine() {
      } 
 
      NASD_AaaLocalEapAuthData *m_CfgData;
@@ -192,12 +202,12 @@ class NASD_EapBackendAuthSwitchStateMachine :
               NASD_CallNode &n) :
           EapBackendAuthSwitchStateMachine(r, h),
           m_Node(n),
-          m_ArchiePolicy
-              (EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE))),
+          m_GpskPolicy
+              (EapContinuedPolicyElement(EapType(GPSK_METHOD_TYPE))),
           m_Md5Policy(EapContinuedPolicyElement(EapType(4))) {
           Policy().InitialPolicyElement(&m_Md5Policy);
           m_Md5Policy.AddContinuedPolicyElement
-              (&m_ArchiePolicy, EapContinuedPolicyElement::PolicyOnFailure);
+              (&m_GpskPolicy, EapContinuedPolicyElement::PolicyOnFailure);
                
       }
       void Send(AAAMessageBlock *b) {
@@ -227,7 +237,7 @@ class NASD_EapBackendAuthSwitchStateMachine :
       NASD_CallNode &m_Node;
       
       /// policy elements
-      EapContinuedPolicyElement m_ArchiePolicy;
+      EapContinuedPolicyElement m_GpskPolicy;
       EapContinuedPolicyElement m_Md5Policy;
 };
 
@@ -252,8 +262,8 @@ class NASD_EapBackend :
          }
          
          m_MethodRegistrar.registerMethod
-             (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE),
-               Authenticator, m_NasEapAuthArchieCreator);
+             (std::string("Gpsk"), EapType(GPSK_METHOD_TYPE),
+               Authenticator, m_NasEapAuthGpskCreator);
 
          m_MethodRegistrar.registerMethod
              (std::string("MD5-Challenge"), EapType(4),
@@ -328,8 +338,8 @@ class NASD_EapBackend :
       
       /// method creators
       EapMethodRegistrar m_MethodRegistrar;
-      EapMethodStateMachineCreator<NASD_EapBackendAuthArchieStateMachine> 
-          m_NasEapAuthArchieCreator;
+      EapMethodStateMachineCreator<NASD_EapBackendAuthGpskStateMachine> 
+          m_NasEapAuthGpskCreator;
       EapMethodStateMachineCreator<NASD_EapBackendAuthMd5StateMachine> 
           m_NasEapAuthMd5Creator;
 
