@@ -36,6 +36,8 @@
 #include "diameter_api.h"
 #include "aaa_session_msg_mux.h"
 
+#define CONFIG_FILE_NAME "config/nas2.local.xml"
+
 class AAA_SampleClient : public DiameterClientAuthSession,
                          public DiameterSessionMsgMux<AAA_SampleClient>
 {
@@ -208,10 +210,10 @@ class AAA_SampleClientAction :
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterGroupedAvpContainerWidget tunneling(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
 
             if (host) {
                 AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
@@ -226,16 +228,16 @@ class AAA_SampleClientAction :
                 AAA_LOG((LM_INFO, "(%P|%t) Auth Application Id: %d\n", *authAppId));
             }
 
-            diameter_grouped_t *grouped = tunneling.GetAvp("Tunneling");
+            diameter_grouped_t *grouped = tunneling.GetAvp((char *)"Tunneling");
             DiameterEnumAvpContainerWidget ttypeAvp(*grouped);
             DiameterEnumAvpContainerWidget tmediumAvp(*grouped);
             DiameterUtf8AvpContainerWidget cepAvp(*grouped);
             DiameterUtf8AvpContainerWidget sepAvp(*grouped);
 
-            diameter_enumerated_t *ttype = ttypeAvp.GetAvp("Tunnel-Type");
-            diameter_enumerated_t *tmedium = tmediumAvp.GetAvp("Tunnel-Medium-Type");
-            diameter_utf8string_t *cep = cepAvp.GetAvp("Tunnel-Client-Endpoint");
-            diameter_utf8string_t *sep = sepAvp.GetAvp("Tunnel-Server-Endpoint");
+            diameter_enumerated_t *ttype = ttypeAvp.GetAvp((char *)"Tunnel-Type");
+            diameter_enumerated_t *tmedium = tmediumAvp.GetAvp((char *)"Tunnel-Medium-Type");
+            diameter_utf8string_t *cep = cepAvp.GetAvp((char *)"Tunnel-Client-Endpoint");
+            diameter_utf8string_t *sep = sepAvp.GetAvp((char *)"Tunnel-Server-Endpoint");
 
             if (ttype) {
                 AAA_LOG((LM_INFO, "(%P|%t) Tunnel-Type: %d\n", *ttype));
@@ -276,19 +278,19 @@ class AAA_SampleClientAction :
 
             DiameterMsgWidget msg(300, true, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
-            DiameterEnumAvpWidget reAuthAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
-            DiameterGroupedAvpWidget tunneling("Tunneling");
+            DiameterUInt32AvpWidget authIdAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            DiameterEnumAvpWidget reAuthAvp((char *)DIAMETER_AVPNAME_REAUTHREQTYPE);
+            DiameterGroupedAvpWidget tunneling((char *)"Tunneling");
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
             reAuthAvp.Get() = 1;
 
-            DiameterEnumAvpWidget ttype("Tunnel-Type");
-            DiameterEnumAvpWidget tmedium("Tunnel-Medium-Type");
-            DiameterUtf8AvpWidget cep("Tunnel-Client-Endpoint");
-            DiameterUtf8AvpWidget sep("Tunnel-Server-Endpoint");
+            DiameterEnumAvpWidget ttype((char *)"Tunnel-Type");
+            DiameterEnumAvpWidget tmedium((char *)"Tunnel-Medium-Type");
+            DiameterUtf8AvpWidget cep((char *)"Tunnel-Client-Endpoint");
+            DiameterUtf8AvpWidget sep((char *)"Tunnel-Server-Endpoint");
 
             ttype.Get() = 100;
             tmedium.Get() = 200;
@@ -325,7 +327,7 @@ class Client
         }
         void Start() {
            m_Client.Register(300, m_Action);
-           m_Client.Begin("my_client");
+           m_Client.Begin((char *)"my_client");
            m_Action.TxAuthenticationRequest(m_Client);
         }
         void Stop() {
@@ -388,7 +390,7 @@ int main(int argc, char *argv[])
 
    int msgCountPerSession = 10;
    int sessionCount = 100;
-   char *cfgFile = "config/nas2.local.xml";
+   char *cfgFile = (char *)CONFIG_FILE_NAME;
 
    if (argc == 2) {
        cfgFile = argv[1];

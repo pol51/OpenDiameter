@@ -102,6 +102,8 @@
 #include "diameter_api.h"
 #include "diameter_nasreq_client_session.hxx"
 
+#define CONFIG_FILE_NAME "config/client.local.xml"
+
 ACE_Atomic_Op<ACE_Thread_Mutex, int> TotalSuccess;
 
 typedef AAA_JobHandle<AAA_GroupedJob> MyJobHandle;
@@ -114,7 +116,7 @@ class NasreqTask : public AAA_Task
 {
  public:
   /// Constructor.
-  NasreqTask() : AAA_Task(AAA_SCHED_FIFO, "NASREQ") 
+  NasreqTask() : AAA_Task(AAA_SCHED_FIFO, (char *)"NASREQ") 
   {}
 
   /// Destructor.
@@ -267,7 +269,7 @@ class ClientApplication : public AAA_JobData
  public:
   ClientApplication(NasreqTask &task, ACE_Semaphore &sem) : 
     handle(MyJobHandle
-	   (AAA_GroupedJob::Create(task.Job(), this, "client"))),
+	   (AAA_GroupedJob::Create(task.Job(), this, (char *)"client"))),
     session(boost::shared_ptr<ClientSession>(new ClientSession(handle))),
     rxChannel(ClientChannel(*session)),
     txChannel(0)
@@ -300,7 +302,7 @@ class NAS_Application : public AAA_JobData
   NAS_Application(NasreqTask &task, AAAApplicationCore& appCore,
 		  ACE_Semaphore &sem)
     : handle(MyJobHandle
-	     (AAA_GroupedJob::Create(appCore.GetTask().Job(), this, "NAS"))),
+	     (AAA_GroupedJob::Create(appCore.GetTask().Job(), this, (char *)"NAS"))),
       diameter(boost::shared_ptr<MyDiameterNasreqClientSession>
 	       (new MyDiameterNasreqClientSession(appCore, handle))),
       semaphore(sem),
@@ -453,7 +455,7 @@ class MyInitializer
   void InitApplicationCore()
   {
     AAA_LOG((LM_DEBUG, "[%N] Application starting\n"));
-    if (applicationCore.Open("config/client.local.xml",
+    if (applicationCore.Open((char *)CONFIG_FILE_NAME,
                              task) != AAA_ERR_SUCCESS)
       {
 	ACE_ERROR((LM_ERROR, "[%N] Can't open configuraiton file."));

@@ -799,13 +799,13 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
 
           // verify integrity-algorithm is present and supported
           PANA_UInt32AvpContainerWidget integrityAlgoAvp(msg.avpList());
-          pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+          pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp((char *)PANA_AVPNAME_INTEGRITY_ALGO);
           if (integrityAlgo) {
               for (int ndx = 1; integrityAlgo; ndx++) {
                   if ((*integrityAlgo) == PANA_AUTH_HMAC_SHA1_160) {
                      break;
                   }
-                  integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO, ndx);
+                  integrityAlgo = integrityAlgoAvp.GetAvp((char *)PANA_AVPNAME_INTEGRITY_ALGO, ndx);
               }
               if (integrityAlgo == NULL) {
                   AAA_LOG((LM_INFO, "(%P|%t) Supplied integrity algorithm is not supported, session will close\n"));
@@ -816,13 +816,13 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
 
           // verify prf-algorithm is present and supported
           PANA_UInt32AvpContainerWidget prfAlgoAvp(msg.avpList());
-          pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO);
+          pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp((char *)PANA_AVPNAME_PRF_ALGO);
           if (prfAlgo) {
               for (int ndx = 1; prfAlgo; ndx++) {
                   if ((*prfAlgo) == PANA_PRF_HMAC_SHA1) {
                      break;
                   }
-                  prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO, ndx);
+                  prfAlgo = prfAlgoAvp.GetAvp((char *)PANA_AVPNAME_PRF_ALGO, ndx);
               }
               if (prfAlgo == NULL) {
                   AAA_LOG((LM_INFO, "(%P|%t) Supplied PRF algorithm is not supported, session will close\n"));
@@ -832,7 +832,7 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
           }
 
           PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-          if (eapAvp.GetAvp(PANA_AVPNAME_EAP)) {
+          if (eapAvp.GetAvp((char *)PANA_AVPNAME_EAP)) {
               ev.AvpExist_EapPayload();
           }
       }
@@ -879,12 +879,12 @@ class PANA_CsmRxPA : public PANA_ClientRxStateFilter
 
           // resolve the eap event
           PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-          pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+          pana_octetstring_t *payload = eapAvp.GetAvp((char *)PANA_AVPNAME_EAP);
           if (payload) {
               ev.AvpExist_EapPayload();
           }
           PANA_UInt32AvpContainerWidget rcodeAvp(msg.avpList());
-          pana_unsigned32_t *rcode = rcodeAvp.GetAvp(PANA_AVPNAME_RESULTCODE);
+          pana_unsigned32_t *rcode = rcodeAvp.GetAvp((char *)PANA_AVPNAME_RESULTCODE);
           if (rcode && (*rcode == PANA_RCODE_SUCCESS)) {
               ev.ResultCode(PANA_RESULT_CODE_SUCCESS);
           }
@@ -1037,9 +1037,9 @@ PANA_PacSession::PANA_PacSession(PANA_Node &n,
    m_PanaChannel.Open(addr);
    m_PanaChannel.RegisterHandler(msgHandler);
 
-   // Listen to a PaC specific port - some pseudo random value
+   // PANA_PacSession
    sprintf(strAddr, "%s:%d", PANA_CFG_GENERAL().m_ListenAddress.data(),
-           (u_short)(PANA_CFG_GENERAL().m_ListenPort + ((int)this / 1000)));
+           (u_short)(PANA_CFG_GENERAL().m_ListenPort + (((long)this) / 1000)));
    m_PaC.PacAddress().string_to_addr(strAddr);
    m_PacChannel.Open(m_PaC.PacAddress());
    m_PacChannel.RegisterHandler(msgHandler);

@@ -602,7 +602,7 @@ DiameterNasreqClientStateTable;
 DiameterNasreqClientStateMachine::DiameterNasreqClientStateMachine
 (DiameterNasreqClientSession& s, DiameterJobHandle &h)
   : AAA_StateMachine<DiameterNasreqClientStateMachine>
-  (*this, *DiameterNasreqClientStateTable::instance(), "AAA_NASREQ_CLIENT"),
+  (*this, *DiameterNasreqClientStateTable::instance(), (char *)"AAA_NASREQ_CLIENT"),
     session(s),
     handle(h),
     authenticationInfo

@@ -51,11 +51,11 @@ typedef struct
   ACE_UINT16 max;
 } AAARangeQualifier;
 
-typedef enum
+typedef enum qualifier_s
 {
   AAA_QUALIFIER_INFINITY = 65535, /* 2^16 -1 */
 
-};
+} qualifier_t;
 
 class AAADictionaryEntry
 {

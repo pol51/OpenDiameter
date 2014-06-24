@@ -36,6 +36,8 @@
 // Written by Yoshihiro Ohba
 
 #include <iostream>
+#include <openssl/md5.h>
+#include <openssl/rand.h>
 #include <ace/OS.h>
 #include <ace/Signal.h>
 #include <ace/Event_Handler.h>
@@ -49,6 +51,7 @@
 #include "eap_fsm.hxx"
 #include "eap_log.hxx"
 #include "eap_md5.hxx"
+
 
 class MyPeerSwitchStateMachine;
 class MyStandAloneAuthSwitchStateMachine;
@@ -65,7 +68,7 @@ class EapTask : public AAA_Task
 {
  public:
   /// Constructor.
-  EapTask() : AAA_Task(AAA_SCHED_FIFO, "EAP") {}
+  EapTask() : AAA_Task(AAA_SCHED_FIFO, (char *)"EAP") {}
 
   /// Destructor.
   ~EapTask() {}
@@ -412,7 +415,7 @@ class PeerApplication : public AAA_JobData
 {
  public:
   PeerApplication(EapTask &task, ACE_Semaphore &sem) : 
-    handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, "peer"))),
+    handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, (char *)"peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*task.reactor(), handle))),
     semaphore(sem),
@@ -454,7 +457,7 @@ class StandAloneAuthApplication : public AAA_JobData
 
  public:
   StandAloneAuthApplication(EapTask &task, ACE_Semaphore &sem) 
-    : handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, "standalone"))),
+    : handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, (char *)"standalone"))),
       eap(boost::shared_ptr<MyStandAloneAuthSwitchStateMachine>
 	  (new MyStandAloneAuthSwitchStateMachine(*task.reactor(), handle))),
       semaphore(sem),
@@ -508,7 +511,7 @@ class BackendAuthApplication : public AAA_JobData
  public:
   BackendAuthApplication(EapTask &task, ACE_Semaphore &sem, bool pickup=false)
     : handle(EapJobHandle
-	     (AAA_GroupedJob::Create(task.Job(), this, "backend"))),
+	     (AAA_GroupedJob::Create(task.Job(), this, (char *)"backend"))),
       eap(boost::shared_ptr<MyBackendAuthSwitchStateMachine>
 	  (new MyBackendAuthSwitchStateMachine(*task.reactor(), handle))),
       semaphore(sem),
@@ -570,7 +573,7 @@ class PassThroughAuthApplication : public AAA_JobData
   PassThroughAuthApplication(EapTask &task, ACE_Semaphore &sem,
 			     bool pickup=false)
     : handle(EapJobHandle
-	     (AAA_GroupedJob::Create(task.Job(), this, "passthrough"))),
+	     (AAA_GroupedJob::Create(task.Job(), this, (char *)"passthrough"))),
       eap(boost::shared_ptr<MyPassThroughAuthSwitchStateMachine>
 	  (new MyPassThroughAuthSwitchStateMachine(*task.reactor(), handle))),
       semaphore(sem),
@@ -923,4 +926,3 @@ int main(int argc, char **argv)
   task.Stop();
   return 0;
 }
-

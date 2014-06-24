@@ -86,47 +86,47 @@ DiameterAvpTypeList_S::registerDefaultTypes()
   // function is called from the constructor.  Since DiameterAvpTypeList is
   // used as a singleton, this function is called just one time when
   // it is used at the first time.
-  add(new DiameterAvpType("Any", AAA_AVP_DATA_TYPE, 0,
+  add(new DiameterAvpType((char *)"Any", AAA_AVP_DATA_TYPE, 0,
                     anyParserCreator, stringContainerEntryCreator));
 
-  add(new DiameterAvpType("Integer32", AAA_AVP_INTEGER32_TYPE, 4,
+  add(new DiameterAvpType((char *)"Integer32", AAA_AVP_INTEGER32_TYPE, 4,
                     integer32ParserCreator, integer32ContainerEntryCreator));
 
-  add(new DiameterAvpType("Integer64", AAA_AVP_INTEGER64_TYPE, 8,
+  add(new DiameterAvpType((char *)"Integer64", AAA_AVP_INTEGER64_TYPE, 8,
                     integer64ParserCreator, integer64ContainerEntryCreator));
 
-  add(new DiameterAvpType("Unsigned32",  AAA_AVP_UINTEGER32_TYPE, 4,
+  add(new DiameterAvpType((char *)"Unsigned32",  AAA_AVP_UINTEGER32_TYPE, 4,
                     integer32ParserCreator, unsigned32ContainerEntryCreator));
 
-  add(new DiameterAvpType("Unsigned64", AAA_AVP_UINTEGER64_TYPE, 8,
+  add(new DiameterAvpType((char *)"Unsigned64", AAA_AVP_UINTEGER64_TYPE, 8,
                     integer64ParserCreator, unsigned64ContainerEntryCreator));
 
-  add(new DiameterAvpType("UTF8String", AAA_AVP_UTF8_STRING_TYPE, 0,
+  add(new DiameterAvpType((char *)"UTF8String", AAA_AVP_UTF8_STRING_TYPE, 0,
                     utf8stringParserCreator, stringContainerEntryCreator));
 
-  add(new DiameterAvpType("Enumerated", AAA_AVP_ENUM_TYPE, 4,
+  add(new DiameterAvpType((char *)"Enumerated", AAA_AVP_ENUM_TYPE, 4,
                     integer32ParserCreator, integer32ContainerEntryCreator));
 
-  add(new DiameterAvpType("Time", AAA_AVP_TIME_TYPE, 4,
+  add(new DiameterAvpType((char *)"Time", AAA_AVP_TIME_TYPE, 4,
                     integer32ParserCreator, timeContainerEntryCreator));
 
-  add(new DiameterAvpType("OctetString", AAA_AVP_STRING_TYPE, 0,
+  add(new DiameterAvpType((char *)"OctetString", AAA_AVP_STRING_TYPE, 0,
                     octetstringParserCreator, stringContainerEntryCreator));
 
-  add(new DiameterAvpType("DiameterIdentity", AAA_AVP_DIAMID_TYPE, 0,
+  add(new DiameterAvpType((char *)"DiameterIdentity", AAA_AVP_DIAMID_TYPE, 0,
                     diamidentParserCreator, stringContainerEntryCreator));
 
-  add(new DiameterAvpType("DiameterURI", AAA_AVP_DIAMURI_TYPE, 0,
+  add(new DiameterAvpType((char *)"DiameterURI", AAA_AVP_DIAMURI_TYPE, 0,
                     diamuriParserCreator, diamuriContainerEntryCreator));
 
-  add(new DiameterAvpType("IPFilterRule", AAA_AVP_IPFILTER_RULE_TYPE, 0,
+  add(new DiameterAvpType((char *)"IPFilterRule", AAA_AVP_IPFILTER_RULE_TYPE, 0,
                     ipfilterRuleParserCreator,
                     ipfilterRuleContainerEntryCreator));
 
-  add(new DiameterAvpType("Grouped", AAA_AVP_GROUPED_TYPE, 0,
+  add(new DiameterAvpType((char *)"Grouped", AAA_AVP_GROUPED_TYPE, 0,
                     groupedParserCreator, groupedContainerEntryCreator));
 
-  add(new DiameterAvpType("Address", AAA_AVP_ADDRESS_TYPE, 0,
+  add(new DiameterAvpType((char *)"Address", AAA_AVP_ADDRESS_TYPE, 0,
                     addressParserCreator, addressContainerEntryCreator));
 }
 

@@ -100,6 +100,8 @@
 #include "eap_log.hxx"
 #include "eap_md5.hxx"
 
+#define CONFIG_FILE_NAME "config/client.local.xml"
+
 ACE_Atomic_Op<ACE_Thread_Mutex, int> TotalSuccess;
 
 typedef AAA_JobHandle<AAA_GroupedJob> MyJobHandle;
@@ -115,7 +117,7 @@ class EapTask : public AAA_Task
 {
  public:
   /// Constructor.
-  EapTask() : AAA_Task(AAA_SCHED_FIFO, "EAP") 
+  EapTask() : AAA_Task(AAA_SCHED_FIFO, (char *)"EAP") 
   {}
 
   /// Destructor.
@@ -325,7 +327,7 @@ class PeerApplication : public AAA_JobData
  public:
   PeerApplication(EapTask &task, ACE_Semaphore &sem) : 
     handle(MyJobHandle
-	   (AAA_GroupedJob::Create(task.Job(), this, "peer"))),
+	   (AAA_GroupedJob::Create(task.Job(), this, (char *)"peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*task.reactor(), handle))),
     semaphore(sem),
@@ -369,7 +371,7 @@ class NAS_Application : public AAA_JobData
   NAS_Application(EapTask &task, AAAApplicationCore& appCore,
 		  ACE_Semaphore &sem, bool pickup=false)
     : handle(MyJobHandle
-	     (AAA_GroupedJob::Create(task.Job(), this, "NAS"))),
+	     (AAA_GroupedJob::Create(task.Job(), this, (char *)"NAS"))),
       diameter(boost::shared_ptr<MyDiameterEapClientSession>
 	       (new MyDiameterEapClientSession(appCore, handle))),
       eap(boost::shared_ptr<MyPassThroughAuthSwitchStateMachine>
@@ -648,7 +650,7 @@ class MyInitializer
   void InitApplicationCore()
   {
     AAA_LOG((LM_DEBUG, "[%N] Application starting\n"));
-    if (applicationCore.Open("config/client.local.xml",
+    if (applicationCore.Open((char *)CONFIG_FILE_NAME,
                              task) != AAA_ERR_SUCCESS)
       {
 	ACE_ERROR((LM_ERROR, "[%N] Can't open configuraiton file."));

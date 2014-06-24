@@ -455,9 +455,9 @@ class DIAMETERBASEPROTOCOL_EXPORT AAAMessageControl
 
            // resolve origin host
            diameter_identity_t *oHost = oHostAvp.GetAvp
-                 (DIAMETER_AVPNAME_ORIGINHOST);
+                 ((char *)DIAMETER_AVPNAME_ORIGINHOST);
            if (oHost == NULL) {
-               oHostAvp.AddAvp(DIAMETER_AVPNAME_ORIGINHOST) = 
+               oHostAvp.AddAvp((char *)DIAMETER_AVPNAME_ORIGINHOST) = 
 		   DIAMETER_CFG_TRANSPORT()->identity;
            }
            else if (oHost->length() == 0) {
@@ -466,9 +466,9 @@ class DIAMETERBASEPROTOCOL_EXPORT AAAMessageControl
 
            // resolve origin realm
            diameter_identity_t *oRealm = oRealmAvp.GetAvp
-                   (DIAMETER_AVPNAME_ORIGINREALM);
+                   ((char *)DIAMETER_AVPNAME_ORIGINREALM);
            if (oRealm == NULL) {
-               oRealmAvp.AddAvp(DIAMETER_AVPNAME_ORIGINREALM) = 
+               oRealmAvp.AddAvp((char *)DIAMETER_AVPNAME_ORIGINREALM) = 
 		   DIAMETER_CFG_TRANSPORT()->realm;
            }
            else if (oRealm->length() == 0) {

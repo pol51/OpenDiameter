@@ -131,6 +131,8 @@ Case 2:
 #include "eap_log.hxx"
 #include "eap_md5.hxx"
 
+#define CONFIG_FILE_NAME "config/server.local.xml"
+
 typedef AAA_JobHandle<AAA_GroupedJob> MyJobHandle;
 
 class MyBackendAuthSwitchStateMachine;
@@ -208,7 +210,7 @@ class MyDiameterEapServerSession : public DiameterEapServerSession
     : DiameterEapServerSession(appCore, appId),
       handle(EapJobHandle
 	     (AAA_GroupedJob::Create(appCore.GetTask().Job(), 
-				     this, "backend"))),
+				     this, (char *)"backend"))),
       eap(boost::shared_ptr<MyBackendAuthSwitchStateMachine>
 	  (new MyBackendAuthSwitchStateMachine
 	   (*appCore.GetTask().reactor(), handle))),
@@ -375,7 +377,7 @@ class MyInitializer
   void InitApplicationCore()
   {
     AAA_LOG((LM_DEBUG, "[%N] Application starting\n"));
-    if (applicationCore.Open("config/server.local.xml",
+    if (applicationCore.Open((char *)CONFIG_FILE_NAME,
                              task) != AAA_ERR_SUCCESS)
       {
 	ACE_ERROR((LM_ERROR, "[%N] Can't open configuraiton file."));

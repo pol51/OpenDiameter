@@ -45,6 +45,8 @@
 
 using namespace std;
 
+#define DICTIONARY_FILE_NAME "./config/dictionary.xml"
+
 #define GET_DATA_REF(dataType, data, containerEntryPtr) \
         dataType &data = (containerEntryPtr)->dataRef(Type2Type<dataType>())
 
@@ -962,7 +964,7 @@ main(int argc, char** argv)
   //ACE_Log_Msg::instance()->enable_debug_messages();
 
   // Read dictionary file.
-  dm.init("./config/dictionary.xml");
+  dm.init((char *)DICTIONARY_FILE_NAME);
 
   rtest(rbuf, sizeof(rbuf));
   stest_nas_request(sbuf, sizeof(sbuf));

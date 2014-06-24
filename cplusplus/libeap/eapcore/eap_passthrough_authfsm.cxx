@@ -946,7 +946,7 @@ EapPassThroughAuthSwitchStateMachine::EapPassThroughAuthSwitchStateMachine
   EapAuthSwitchStateMachine(r, h),
   EapStateMachine<EapPassThroughAuthSwitchStateMachine>
   (*this, *EapPassThroughAuthSwitchStateTable::instance(), r, 
-   *this, "passthrough")
+   *this, (char *)"passthrough")
 {}
 
 EapPassThroughAuthSwitchStateMachine::~EapPassThroughAuthSwitchStateMachine() 

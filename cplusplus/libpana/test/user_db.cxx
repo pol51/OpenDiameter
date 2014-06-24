@@ -48,7 +48,7 @@ class AAA_XMLUserEntry :
          OD_Utl_XML_RegisteredElement
               <AAA_UserEntryDb,
                OD_Utl_XML_ContentConvNull<AAA_UserEntryDb> > 
-                  (arg, "user", parser),
+                  (arg, (char *)"user", parser),
                   m_pEntry(NULL) {
      }        
      virtual bool startElement(ACEXML_Attributes *atts) {
@@ -80,7 +80,7 @@ class AAA_XMLNameParser :
      AAA_XMLNameParser(OD_Utl_XML_SaxParser &parser) :
          OD_Utl_XML_RegisteredElement
               <std::string, OD_Utl_XML_ContentConvString> 
-                  (m_unused, "name", parser) {
+                  (m_unused, (char *)"name", parser) {
      }        
      virtual bool characters(const ACEXML_Char *ch,
                              int start,
@@ -112,7 +112,7 @@ class AAA_XMLPassParser :
      AAA_XMLPassParser(OD_Utl_XML_SaxParser &parser) :
          OD_Utl_XML_RegisteredElement
               <std::string, OD_Utl_XML_ContentConvString> 
-                  (m_unused, "pass", parser) {
+                  (m_unused, (char *)"pass", parser) {
      }        
      virtual bool characters(const ACEXML_Char *ch,
                              int start,
@@ -144,7 +144,7 @@ class AAA_XMLAuthParser :
      AAA_XMLAuthParser(OD_Utl_XML_SaxParser &parser) :
          OD_Utl_XML_RegisteredElement
               <std::string, OD_Utl_XML_ContentConvString> 
-                  (m_unused, "auth", parser) {
+                  (m_unused, (char *)"auth", parser) {
      }        
      virtual bool characters(const ACEXML_Char *ch,
                              int start,

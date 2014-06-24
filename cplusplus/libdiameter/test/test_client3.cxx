@@ -36,7 +36,7 @@
 #include "diameter_api.h"
 
 static int msgCountPerSession = 5;
-static char *cfgFile = "config/nas1.local.xml";
+static char *cfgFile = (char *)"config/nas1.local.xml";
 
 class AAA_SampleClientAcctRecCollector : 
     public DiameterClientAcctRecCollector
@@ -54,7 +54,7 @@ class AAA_SampleClientAcctRecCollector :
            /// to the ACR dictionary definition in dictionary.xml.
            /// Real applications may also need to append Vendor-
            /// Specific-Application-Id here
-           DiameterUtf8AvpWidget recAvp("Example-Accounting-Record");
+           DiameterUtf8AvpWidget recAvp((char *)"Example-Accounting-Record");
            recAvp.Get() = "My example record should show up in the server";
            avpList.add(recAvp());
 	}

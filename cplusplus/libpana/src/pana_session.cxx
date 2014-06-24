@@ -345,7 +345,7 @@ void PANA_Session::TxPTR(ACE_UINT32 cause)
     msg->seq() = ++ LastTxSeqNum();
 
     // termination cause
-    PANA_UInt32AvpWidget causeAvp(PANA_AVPNAME_TERMCAUSE);
+    PANA_UInt32AvpWidget causeAvp((char *)PANA_AVPNAME_TERMCAUSE);
     causeAvp.Get() = cause;
     msg->avpList().add(causeAvp());
 
@@ -387,7 +387,7 @@ void PANA_Session::RxPTR()
 
     // termination cause
     PANA_UInt32AvpContainerWidget causeAvp(msg.avpList());
-    pana_unsigned32_t *cause = causeAvp.GetAvp(PANA_AVPNAME_TERMCAUSE);
+    pana_unsigned32_t *cause = causeAvp.GetAvp((char *)PANA_AVPNAME_TERMCAUSE);
     if (cause) {
         Disconnect(*cause);
     }
@@ -485,7 +485,7 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
    // validate auth-avp
    if (! skipAuth) {
        PANA_StringAvpContainerWidget authAvp(msg.avpList());
-       if (authAvp.GetAvp(PANA_AVPNAME_AUTH) && SecurityAssociation().Auth().IsSet()) {
+       if (authAvp.GetAvp((char *)PANA_AVPNAME_AUTH) && SecurityAssociation().Auth().IsSet()) {
            if (SecurityAssociation().ValidateAuthAvp(msg) == false) {
                 throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                        "PANA session received msg with invalid AUTH value"));

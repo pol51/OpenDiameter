@@ -338,52 +338,52 @@ class NASD_CfgLoader
          OD_Utl_XML_SaxParser parser;
 
          OD_Utl_XML_UInt32Element setup01((unsigned int&)cfg.ThreadCount(),
-                                          "thread_count", parser);
-         OD_Utl_XML_StringElement setup02(ident.name, "name", parser);
-         OD_Utl_XML_StringElement setup03(ident.enabled, "enabled", parser);
+                                          (char *)"thread_count", parser);
+         OD_Utl_XML_StringElement setup02(ident.name, (char *)"name", parser);
+         OD_Utl_XML_StringElement setup03(ident.enabled, (char *)"enabled", parser);
 
          NASD_XML_ApPanaElm setup04(NASD_APPROTO_TBL(), 
-                                    "pana", ident, parser);
+                                    (char *)"pana", ident, parser);
          NASD_XML_Ap8021xElm setup05(NASD_APPROTO_TBL(), 
-                                    "eap_8021X", ident, parser);
+                                    (char *)"eap_8021X", ident, parser);
 
          NASD_XML_AaaLocalEapElm setup06(NASD_AAAPROTO_TBL(), 
-                                    "local_eap_auth", ident, parser);
+                                    (char *)"local_eap_auth", ident, parser);
          NASD_XML_AaaDiameterEapElm setup07(NASD_AAAPROTO_TBL(), 
-                                    "diameter_eap", ident, parser);
+                                    (char *)"diameter_eap", ident, parser);
 
          NASD_XML_PolicyScriptElm setup08(NASD_POLICY_TBL(), 
-                                    "policy_entry", ident, parser);
+                                    (char *)"policy_entry", ident, parser);
 
          NASD_XML_RouteEntryElm setup09(NASD_CALLROUTE_TBL(), 
-                                    "call_route_entry", ident, parser);
+                                    (char *)"call_route_entry", ident, parser);
          NASD_XML_RouteEntryElm setup10(NASD_CALLROUTE_TBL(), 
-                                    "call_route_default", ident, parser);
+                                    (char *)"call_route_default", ident, parser);
 
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_CfgFileConv> 
-                                      setup11(ident, "cfg_file", parser);
+                                      setup11(ident, (char *)"cfg_file", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_EpScriptConv> 
-                                      setup12(ident, "ep_script", parser);
+                                      setup12(ident, (char *)"ep_script", parser);
 
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_SharedSecretConv> 
-                                      setup14(ident, "shared_secret_file", parser);
+                                      setup14(ident, (char *)"shared_secret_file", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_IdentityConv> 
-                                      setup15(ident, "identity", parser);
+                                      setup15(ident, (char *)"identity", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_DiameterEapCfgConv> 
-                                      setup16(ident, "diameter_cfg_file", parser);
+                                      setup16(ident, (char *)"diameter_cfg_file", parser);
 
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_PolicyScriptConv> 
-                                      setup17(ident, "file", parser);
+                                      setup17(ident, (char *)"file", parser);
 
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_CallNaiConv> 
-                                      setup18(ident, "nai", parser);
+                                      setup18(ident, (char *)"nai", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_CallPolicyConv> 
-                                      setup19(ident, "access_policy", parser);
+                                      setup19(ident, (char *)"access_policy", parser);
          OD_Utl_XML_RegisteredElement<NASD_Identity, NASD_CallAaaProtocolConv> 
-                                      setup20(ident, "aaa_protocol", parser);
+                                      setup20(ident, (char *)"aaa_protocol", parser);
 
-         OD_Utl_XML_StringElement header01(unused, "pana", parser);
-         OD_Utl_XML_StringElement header02(unused, "diameter_eap", parser);
+         OD_Utl_XML_StringElement header01(unused, (char *)"pana", parser);
+         OD_Utl_XML_StringElement header02(unused, (char *)"diameter_eap", parser);
 
          try {    
             parser.Load((char*)name);

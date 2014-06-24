@@ -41,9 +41,7 @@
 #include "od_utl_rbtree.h"
 #include "ace/Singleton.h"
 
-//
 // Windows specific export declarations
-//
 #if defined (WIN32)
 #  if defined (DIAMETERBASEPROTOCOL_EXPORTS)
 #    define DIAMETERBASEPROTOCOL_EXPORT ACE_Proper_Export_Flag
@@ -63,9 +61,7 @@
 #  define DIAMETERBASEPROTOCOL_SINGLETON_DECLARE(SINGLETON_TYPE, CLASS, LOCK)
 #endif     // WIN32
 
-//
 // AVP names used internally
-//
 #define DIAMETER_AVPNAME_SESSIONID             "Session-Id"
 #define DIAMETER_AVPNAME_RESULTCODE            "Result-Code"
 #define DIAMETER_AVPNAME_ORIGINHOST            "Origin-Host"
@@ -110,9 +106,7 @@
 #define DIAMETER_AVPNAME_PROXYSTATE            "Proxy-State"
 #define DIAMETER_AVPNAME_WILDCARD              "AVP"
 
-//
 // Command Codes used internally
-//
 #define DIAMETER_MSGCODE_ABORTSESSION          274
 #define DIAMETER_MSGCODE_SESSIONTERMINATION    275
 #define DIAMETER_MSGCODE_CAPABILITIES_EXCHG    257
@@ -121,26 +115,18 @@
 #define DIAMETER_MSGCODE_ACCOUNTING            271
 #define DIAMETER_MSGCODE_REAUTH                258
 
-//
 // Application Identifiers
-//
 #define DIAMETER_RELAY_APPLICATION_ID          0xffffffff
 
-//
 // Session state values
-//
 #define DIAMETER_SESSION_STATE_MAINTAINED        0
 #define DIAMETER_SESSION_NO_STATE_MAINTAINED     1
 
-//
 // Re-auth-type values
-//
 #define DIAMETER_SESSION_AUTHORIZE_ONLY          0
 #define DIAMETER_SESSION_AUTHORIZE_AUTHENTICATE  1
 
-//
-// Accounting record types
-//
+/// Accounting record types
 typedef enum {
    DIAMETER_ACCT_RECTYPE_EVENT =                 1,
    DIAMETER_ACCT_RECTYPE_START =                 2,
@@ -148,17 +134,16 @@ typedef enum {
    DIAMETER_ACCT_RECTYPE_STOP =                  4
 } DIAMETER_ACCT_RECTYPE;
 
-//
-// Accouting realtime required values
-//
+
+/// Accouting realtime required values
 typedef enum {
    DIAMETER_ACCT_REALTIME_DELIVER_AND_GRANT =     1,
    DIAMETER_ACCT_REALTIME_GRANT_AND_STORE =       2,
    DIAMETER_ACCT_REALTIME_GRANT_AND_LOSE =        3
 } DIAMETER_ACCT_REALTIME;
 
-//
-// General timer type's
+
+/// General timer type's
 typedef enum {
    DIAMETER_TIMER_TYPE_ASR =                      1,
    DIAMETER_TIMER_TYPE_SESSION =                  2,
@@ -166,15 +151,13 @@ typedef enum {
    DIAMETER_TIMER_TYPE_INTERVAL =                 4
 } DIAMETER_TIMER_TYPE;
 
-//
+
 // Misc definitions
-//
 #define AAA_AUTH_SESSION_GRACE_PERIOD             5
 #define AAA_AUTH_SESSION_RECLAMATION_PERIOD       60
 
-//
+
 // Configuration Data Structures
-//
 typedef std::list<diameter_unsigned32_t> DiameterApplicationIdLst;
 
 typedef struct {
@@ -419,30 +402,30 @@ class DiameterErrorMsg
           DiameterUInt32AvpContainerWidget originStateReqAvp(request.acl);
           DiameterGroupedAvpContainerWidget proxyInfoReqAvp(request.acl);
 
-          DiameterIdentityAvpWidget originHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
-          DiameterIdentityAvpWidget originRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
-          DiameterUInt32AvpWidget resultCodeAvp(DIAMETER_AVPNAME_RESULTCODE);
-          DiameterUInt32AvpWidget originStateAvp(DIAMETER_AVPNAME_ORIGINSTATEID);
-          DiameterIdentityAvpWidget errorHostAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
-          DiameterGroupedAvpWidget proxyInfoAvp(DIAMETER_AVPNAME_PROXYINFO);
+          DiameterIdentityAvpWidget originHostAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+          DiameterIdentityAvpWidget originRealmAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+          DiameterUInt32AvpWidget resultCodeAvp((char *)DIAMETER_AVPNAME_RESULTCODE);
+          DiameterUInt32AvpWidget originStateAvp((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
+          DiameterIdentityAvpWidget errorHostAvp((char *)DIAMETER_AVPNAME_ERRORREPORTINGHOST);
+          DiameterGroupedAvpWidget proxyInfoAvp((char *)DIAMETER_AVPNAME_PROXYINFO);
 
           DiameterUtf8AvpContainerWidget sidAvp(errAnswer()->acl);
-          diameter_utf8string_t *sidReq = sidReqAvp.GetAvp(DIAMETER_AVPNAME_SESSIONID);
+          diameter_utf8string_t *sidReq = sidReqAvp.GetAvp((char *)DIAMETER_AVPNAME_SESSIONID);
           if (sidReq) {
-             diameter_utf8string_t &sid = sidAvp.AddAvp(DIAMETER_AVPNAME_SESSIONID);
+             diameter_utf8string_t &sid = sidAvp.AddAvp((char *)DIAMETER_AVPNAME_SESSIONID);
              sid = *sidReq;
           }
 
-          diameter_unsigned32_t *oStateId = originStateReqAvp.GetAvp(DIAMETER_AVPNAME_ORIGINSTATEID);
+          diameter_unsigned32_t *oStateId = originStateReqAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
           if (oStateId) {
               originStateAvp.Get() = *oStateId;
               errAnswer()->acl.add(originStateAvp());
           }
 
-          diameter_grouped_t *proxyInfo = proxyInfoReqAvp.GetAvp(DIAMETER_AVPNAME_PROXYINFO);
+          diameter_grouped_t *proxyInfo = proxyInfoReqAvp.GetAvp((char *)DIAMETER_AVPNAME_PROXYINFO);
           if (proxyInfo) {
               DiameterGroupedAvpContainerWidget pInfoAvp(errAnswer()->acl);
-              diameter_grouped_t &pInfoAns = pInfoAvp.AddAvp(DIAMETER_AVPNAME_PROXYINFO);
+              diameter_grouped_t &pInfoAns = pInfoAvp.AddAvp((char *)DIAMETER_AVPNAME_PROXYINFO);
 
               DiameterIdentityAvpContainerWidget pHostReq(*proxyInfo);
               DiameterStringAvpContainerWidget pStateReq(*proxyInfo);
@@ -450,12 +433,12 @@ class DiameterErrorMsg
               DiameterIdentityAvpContainerWidget pHostAns(pInfoAns);
               DiameterStringAvpContainerWidget pStateAns(pInfoAns);
 
-              diameter_identity_t *hostReq = pHostReq.GetAvp(DIAMETER_AVPNAME_PROXYHOST);
-              diameter_identity_t &hostAns = pHostAns.AddAvp(DIAMETER_AVPNAME_PROXYHOST);
+              diameter_identity_t *hostReq = pHostReq.GetAvp((char *)DIAMETER_AVPNAME_PROXYHOST);
+              diameter_identity_t &hostAns = pHostAns.AddAvp((char *)DIAMETER_AVPNAME_PROXYHOST);
               hostAns = *hostReq;
 
-              diameter_identity_t *stateReq = pStateReq.GetAvp(DIAMETER_AVPNAME_PROXYSTATE);
-              diameter_identity_t &stateAns = pStateAns.AddAvp(DIAMETER_AVPNAME_PROXYSTATE);
+              diameter_identity_t *stateReq = pStateReq.GetAvp((char *)DIAMETER_AVPNAME_PROXYSTATE);
+              diameter_identity_t &stateAns = pStateAns.AddAvp((char *)DIAMETER_AVPNAME_PROXYSTATE);
               stateAns = *stateReq;
           }
 
@@ -480,10 +463,10 @@ class DiameterErrorMsg
           errAnswer()->hdr.flags.e = DIAMETER_FLAG_SET;
           errAnswer()->hdr.flags.r = DIAMETER_FLAG_CLR;
 
-          DiameterIdentityAvpWidget originHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
-          DiameterIdentityAvpWidget originRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
-          DiameterUInt32AvpWidget resultCodeAvp(DIAMETER_AVPNAME_RESULTCODE);
-          DiameterIdentityAvpWidget errorHostAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
+          DiameterIdentityAvpWidget originHostAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+          DiameterIdentityAvpWidget originRealmAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+          DiameterUInt32AvpWidget resultCodeAvp((char *)DIAMETER_AVPNAME_RESULTCODE);
+          DiameterIdentityAvpWidget errorHostAvp((char *)DIAMETER_AVPNAME_ERRORREPORTINGHOST);
 
           originHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
           originRealmAvp.Get() = DIAMETER_CFG_TRANSPORT()->realm;

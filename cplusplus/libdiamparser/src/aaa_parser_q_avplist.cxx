@@ -164,7 +164,7 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
   DiameterAvpContainerManager cm;
   unsigned int min, max;
   const char *name;
-  int type;
+  int type = 0;
   DiameterQualifiedAvpList::iterator i;
   AAAAvpParseType pt;
 

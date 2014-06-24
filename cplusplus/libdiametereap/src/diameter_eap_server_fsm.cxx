@@ -284,7 +284,7 @@ DiameterEapServerStateTable;
 DiameterEapServerStateMachine::DiameterEapServerStateMachine
 (DiameterEapServerSession& s, DiameterJobHandle &h)
   : AAA_StateMachine<DiameterEapServerStateMachine>
-  (*this, *DiameterEapServerStateTable::instance(), "AAA_EAP_CLIENT"),
+  (*this, *DiameterEapServerStateTable::instance(), (char *)"AAA_EAP_CLIENT"),
     session(s),
     handle(h),
     authorizationDone(false)

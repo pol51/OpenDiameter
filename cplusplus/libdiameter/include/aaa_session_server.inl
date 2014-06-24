@@ -88,7 +88,7 @@ void DiameterServerAcctSession<REC_STORAGE>::RxRequest
     // filter sub-session id
     DiameterUInt64AvpContainerWidget subSessionIdAvp(msg->acl);
     diameter_unsigned64_t *subSid = subSessionIdAvp.GetAvp
-                 (DIAMETER_AVPNAME_ACCTSUBSID);
+                 ((char *)DIAMETER_AVPNAME_ACCTSUBSID);
     if (subSid) {
         Attributes().SubSessionId() = *subSid;
     }
@@ -96,7 +96,7 @@ void DiameterServerAcctSession<REC_STORAGE>::RxRequest
     // filter record number
     DiameterUInt32AvpContainerWidget recNumAvp(msg->acl);
     diameter_unsigned32_t *recNum = recNumAvp.GetAvp
-                 (DIAMETER_AVPNAME_ACCTREC_NUM);
+                 ((char *)DIAMETER_AVPNAME_ACCTREC_NUM);
     if (recNum) {
         Attributes().RecordNumber() = *recNum;
     }
@@ -104,7 +104,7 @@ void DiameterServerAcctSession<REC_STORAGE>::RxRequest
     // filter record-type
     DiameterEnumAvpContainerWidget recTypeAvp(msg->acl);
     diameter_enumerated_t *recType = recTypeAvp.GetAvp
-                 (DIAMETER_AVPNAME_ACCTREC_TYPE);
+                 ((char *)DIAMETER_AVPNAME_ACCTREC_TYPE);
     if (recType) {
         Attributes().RecordType() = *recType;
     }
@@ -112,7 +112,7 @@ void DiameterServerAcctSession<REC_STORAGE>::RxRequest
     // filter RADIUS accounting id    
     DiameterStringAvpContainerWidget radiusIdAvp(msg->acl);
     diameter_octetstring_t *radius = radiusIdAvp.GetAvp
-             (DIAMETER_AVPNAME_ACCTSID);
+             ((char *)DIAMETER_AVPNAME_ACCTSID);
     if (radius) {
         Attributes().RadiusAcctSessionId() = *radius;
     }
@@ -120,7 +120,7 @@ void DiameterServerAcctSession<REC_STORAGE>::RxRequest
     // filter multi-session id
     DiameterUtf8AvpContainerWidget multiSidAvp(msg->acl);
     diameter_utf8string_t *multi = multiSidAvp.GetAvp
-             (DIAMETER_AVPNAME_ACCTMULTISID);
+             ((char *)DIAMETER_AVPNAME_ACCTMULTISID);
     if (multi) {
         Attributes().MultiSessionId() = *multi;
     }

@@ -634,7 +634,7 @@ EapBackendAuthSwitchStateMachine::EapBackendAuthSwitchStateMachine
 (ACE_Reactor &r, EapJobHandle &h) :
   EapAuthSwitchStateMachine(r, h),
   EapStateMachine<EapBackendAuthSwitchStateMachine>
-  (*this, *EapBackendAuthSwitchStateTable::instance(), r, *this, "backend")
+  (*this, *EapBackendAuthSwitchStateTable::instance(), r, *this, (char *)"backend")
 {
   retransmissionInterval = 0;  // Disable retransmission
 }

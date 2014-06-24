@@ -170,12 +170,12 @@ boost::shared_ptr<PANA_Message> PANA_PaaSessionFactory::GenerateStatelessPAR()
     msg->flags().start = true;
 
     // add integrity algorithm
-    PANA_UInt32AvpWidget integrityAlgoAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+    PANA_UInt32AvpWidget integrityAlgoAvp((char *)PANA_AVPNAME_INTEGRITY_ALGO);
     integrityAlgoAvp.Get() = PANA_AUTH_HMAC_SHA1_160;
     msg->avpList().add(integrityAlgoAvp());
 
     // add prf algorithm
-    PANA_UInt32AvpWidget prfAlgoAvp(PANA_AVPNAME_PRF_ALGO);
+    PANA_UInt32AvpWidget prfAlgoAvp((char *)PANA_AVPNAME_PRF_ALGO);
     prfAlgoAvp.Get() = PANA_PRF_HMAC_SHA1;
     msg->avpList().add(prfAlgoAvp());
 

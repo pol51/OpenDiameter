@@ -749,7 +749,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
 
           // set the EAP flag
           PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-          pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+          pana_octetstring_t *payload = eapAvp.GetAvp((char *)PANA_AVPNAME_EAP);
           if (payload) {
               ev.AvpExist_EapPayload();
           }
@@ -774,7 +774,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
 
           // resolve event
           PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-          pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+          pana_octetstring_t *payload = eapAvp.GetAvp((char *)PANA_AVPNAME_EAP);
           if (payload) {
               ev.AvpExist_EapPayload();
           }
@@ -796,7 +796,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
               ev.MsgType(PANA_EV_MTYPE_PAN);
 
               PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-              pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+              pana_octetstring_t *payload = eapAvp.GetAvp((char *)PANA_AVPNAME_EAP);
               if (payload) {
                   ev.AvpExist_EapPayload();
               }

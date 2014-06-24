@@ -251,7 +251,7 @@ DiameterMip4HaServerStateTable;
 DiameterMip4HaServerStateMachine::DiameterMip4HaServerStateMachine
 (AAAServerSession& s, DiameterJobHandle &h)
   : AAA_StateMachine<DiameterMip4HaServerStateMachine>
-  (*this, *DiameterMip4HaServerStateTable::instance(), "MIP4_HA_SERVER"),
+  (*this, *DiameterMip4HaServerStateTable::instance(), (char *)"MIP4_HA_SERVER"),
     session(s),    handle(h) 
 {
   AAA_StateMachine<DiameterMip4HaServerStateMachine>::Start();

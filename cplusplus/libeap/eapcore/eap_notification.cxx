@@ -195,6 +195,6 @@ EapAuthNotificationStateMachine::EapAuthNotificationStateMachine
   EapMethodStateMachine(s),
   EapStateMachine<EapAuthNotificationStateMachine>
   (*this, *EapAuthNotificationStateTable::instance(), s.Reactor(), 
-   s, "notification") 
+   s, (char *)"notification") 
 {}  
 

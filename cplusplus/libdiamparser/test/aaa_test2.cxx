@@ -42,6 +42,8 @@
 #include "diameter_parser.h"
 using namespace std;
 
+#define DICTIONARY_FILE_NAME "./config/dictionary.xml"
+
 #define GET_DATA_REF(dataType, data, containerEntryPtr) \
         dataType &data = (containerEntryPtr)->dataRef(Type2Type<dataType>())
 
@@ -668,7 +670,7 @@ main(int argc, char** argv)
   //  ACE_Log_Msg::instance()->open(argv[0], ACE_Log_Msg::SYSLOG);
 
   // Read dictionary file.
-  dm.init("./config/dictionary.xml");
+  dm.init((char *)DICTIONARY_FILE_NAME);
 
   struct timeval tm1, tm2;
   long rd = 0, wr = 0, x = 0;

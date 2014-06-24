@@ -122,7 +122,7 @@ class NASD_DiameterEap :
       NASD_DiameterEap(AAAApplicationCore &c) : 
          m_JobHandle(AAA_GroupedJob::Create
                       (c.GetTask().Job(), 
-                        this, "diameter-eap")),
+                        this, (char *)"diameter-eap")),
          m_AAAClient(new NASD_DiameterEapClientSession(c, m_JobHandle, *this)) {
       }
       virtual ~NASD_DiameterEap() {

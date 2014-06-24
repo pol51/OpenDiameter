@@ -103,6 +103,8 @@
 #include "diameter_nasreq_server_session.hxx"
 #include "diameter_nasreq_authinfo.hxx"
 
+#define CONFIG_FILE_NAME "config/server.local.xml"
+
 typedef AAA_JobHandle<AAA_GroupedJob> MyJobHandle;
 
 /******** Diameter NASREQ Server Session ********/
@@ -154,7 +156,7 @@ class MyDiameterNasreqServerSession : public DiameterNasreqServerSession
     : DiameterNasreqServerSession(appCore, appId),
       handle(MyJobHandle
 	     (AAA_GroupedJob::Create(appCore.GetTask().Job(), 
-				     this, "backend"))),
+				     this, (char *)"backend"))),
       session(boost::shared_ptr<BackendSession>(new BackendSession(handle)))
   {
     this->Start();
@@ -256,7 +258,7 @@ class MyInitializer
   void InitApplicationCore()
   {
     AAA_LOG((LM_DEBUG, "[%N] Application starting\n"));
-    if (applicationCore.Open("config/server.local.xml",
+    if (applicationCore.Open((char *)CONFIG_FILE_NAME,
                              task) != AAA_ERR_SUCCESS)
       {
 	AAA_LOG((LM_ERROR, "[%N] Can't open configuraiton file."));

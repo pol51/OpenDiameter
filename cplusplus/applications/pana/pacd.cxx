@@ -60,7 +60,7 @@ class EapTask : public AAA_Task
 {
    public:
       EapTask(std::string &cfgfile) :
-            AAA_Task(AAA_SCHED_WFQ, "EAP"),
+            AAA_Task(AAA_SCHED_WFQ, (char *)"EAP"),
             m_Node(*this, cfgfile) {
       }
       virtual ~EapTask() {}
@@ -176,8 +176,8 @@ class PeerChannel : public PANA_ClientEventInterface,
        virtual bool IsKeyAvailable(pana_octetstring_t &key) {
 #ifdef KEY_TESTING
           static int toggle = 0;
-          static char *keys[] = { "0123456789012345678901234567890123456789012345678901234567890123",
-                                  "3210987654321098765432109876543210987654321098765432109876543210" };
+          static char *keys[] = {(char *) "0123456789012345678901234567890123456789012345678901234567890123",
+                                  (char *) "3210987654321098765432109876543210987654321098765432109876543210" };
           key.assign(keys[toggle]);
           toggle = (toggle) ? 0 : 1;
           return true;
@@ -229,7 +229,7 @@ class PeerApplication : public AAA_JobData
                        int type) :
           m_Handle(AppJobHandle
 	         (AAA_GroupedJob::Create
-                       (task.Job(), this, "peer"))),
+                       (task.Job(), this, (char *)"peer"))),
           m_Eap(boost::shared_ptr<AppPeerSwitchStateMachine>
 	         (new AppPeerSwitchStateMachine
                        (*task.reactor(), m_Handle, type))),

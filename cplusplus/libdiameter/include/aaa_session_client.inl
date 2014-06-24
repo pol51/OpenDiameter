@@ -144,7 +144,7 @@ void DiameterClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     // filter record-type
     DiameterEnumAvpContainerWidget recTypeAvp(msg->acl);
     diameter_enumerated_t *recType = recTypeAvp.GetAvp
-                 (DIAMETER_AVPNAME_ACCTREC_TYPE);
+                 ((char *)DIAMETER_AVPNAME_ACCTREC_TYPE);
     if (recType) {
         Attributes().RecordType() = *recType;
     }
@@ -152,7 +152,7 @@ void DiameterClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     // filter realtime-required
     DiameterEnumAvpContainerWidget realTimeAvp(msg->acl);
     diameter_enumerated_t *realTime = realTimeAvp.GetAvp
-                 (DIAMETER_AVPNAME_ACCTREALTIME);
+                 ((char *)DIAMETER_AVPNAME_ACCTREALTIME);
     if (realTime) {
         Attributes().RealtimeRequired() = *realTime;
     }
@@ -160,7 +160,7 @@ void DiameterClientAcctSubSession<REC_COLLECTOR>::RxAnswer
     // filter interval
     DiameterUInt32AvpContainerWidget intervalAvp(msg->acl);
     diameter_unsigned32_t *interval = intervalAvp.GetAvp
-                 (DIAMETER_AVPNAME_ACCTINTERVAL);
+                 ((char *)DIAMETER_AVPNAME_ACCTINTERVAL);
     if (interval) {
         Attributes().InterimInterval() = *interval;
     }
@@ -206,16 +206,3 @@ AAAReturnCode DiameterClientAcctSubSession<REC_COLLECTOR>::End()
 }
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-

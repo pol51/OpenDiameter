@@ -717,7 +717,7 @@ EapPeerArchieStateMachine::EapPeerArchieStateMachine
 (EapSwitchStateMachine &s)
   : EapMethodStateMachine(s),
     EapStateMachine<EapPeerArchieStateMachine>
-  (*this, *EapPeerArchieStateTable::instance(), s.Reactor(), s, "Archie(peer)")
+  (*this, *EapPeerArchieStateTable::instance(), s.Reactor(), s, (char *)"Archie(peer)")
 {
   history.assign("");
 } 
@@ -727,7 +727,7 @@ EapAuthArchieStateMachine::EapAuthArchieStateMachine
   : EapMethodStateMachine(s),
     EapStateMachine<EapAuthArchieStateMachine>
   (*this, *EapAuthArchieStateTable::instance(), 
-   s.Reactor(), s, "Archie(authenticator)")
+   s.Reactor(), s, (char *)"Archie(authenticator)")
 {
   history.assign("");
 } 

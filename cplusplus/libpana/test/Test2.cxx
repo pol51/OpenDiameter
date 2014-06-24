@@ -68,7 +68,7 @@ class EapTask : public AAA_Task
  public:
   /// Constructor.
   EapTask(std::string &cfgfile) :
-      AAA_Task(AAA_SCHED_WFQ, "EAP"),
+      AAA_Task(AAA_SCHED_WFQ, (char *)"EAP"),
       node(*this, cfgfile) {
   }
 
@@ -407,7 +407,7 @@ class PeerApplication : public AAA_JobData
 {
  public:
   PeerApplication(EapTask &task) :
-    handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, "peer"))),
+    handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, (char *)"peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*task.reactor(), handle))),
     channel(task.node, *eap),
@@ -436,7 +436,7 @@ class StandAloneAuthApplication : public AAA_JobData
  public:
   StandAloneAuthApplication(PANA_PaaSessionChannel &ch)
     : handle(EapJobHandle
-	     (AAA_GroupedJob::Create(ch.Node().Task().Job(), this, "standalone"))),
+	     (AAA_GroupedJob::Create(ch.Node().Task().Job(), this, (char *)"standalone"))),
       eap(boost::shared_ptr<MyStandAloneAuthSwitchStateMachine>
 	  (new MyStandAloneAuthSwitchStateMachine
            (*ch.Node().Task().reactor(), handle))),

@@ -109,25 +109,25 @@ typedef enum {
 /*!
  * values possible for transport field of diameter_uri_t
  */
-enum {
+ enum transport{
     DIAMETER_TRANSPORT_PROTO_TCP           = 0,
     DIAMETER_TRANSPORT_PROTO_SCTP,
-    DIAMETER_TRANSPORT_PROTO_UDP,
-};
+    DIAMETER_TRANSPORT_PROTO_UDP
+} ;
 
 /*!
  * values possible for protocol field of diameter_uri_t
  */
-enum {
+enum protocol{
     DIAMETER_PROTO_DIAMETER = 0,
     DIAMETER_PROTO_RADIUS,
-    DIAMETER_PROTO_TACACSPLUS,
-};
+    DIAMETER_PROTO_TACACSPLUS
+} ;
 
 /*!
  * values possible for scheme field of diameter_uri_t
  */
-enum {
+enum scheme{
     DIAMETER_SCHEME_AAA = 0,
     DIAMETER_SCHEME_AAAS
 };
@@ -195,8 +195,8 @@ typedef struct {
     public:
         std::string    fqdn;
         ACE_UINT16     port;
-        AAAInt8        transport:2;
-        AAAInt8        protocol:2;
+        AAAInt8        transport:3;
+        AAAInt8        protocol:3;
         AAAInt8        scheme:2;
 } diameter_uri_t;
 
@@ -208,9 +208,9 @@ typedef struct
 } diameter_address_t;
 
 /*!
- *==================================================
+ *======================================================
  * The following are definitions for IP filter rule AVP
- *==================================================
+ *======================================================
  */
 enum {
     DIAMETER_IPFILTER_RULE_SRCDST_EXACT,
@@ -1175,12 +1175,12 @@ class DiameterMsgResultCode
         }
         diameter_unsigned32_t ResultCode() {
             DiameterUInt32AvpContainerWidget resultCode(message.acl);
-            diameter_unsigned32_t *rc = resultCode.GetAvp("Result-Code");
+            diameter_unsigned32_t *rc = resultCode.GetAvp((char *)"Result-Code");
             return (rc) ? *rc : 0;
         }
         void ResultCode(diameter_unsigned32_t c) {
             DiameterUInt32AvpContainerWidget resultCode(message.acl);
-            resultCode.AddAvp("Result-Code") = c;
+            resultCode.AddAvp((char *)"Result-Code") = c;
         }
         static RCODE InterpretedResultCode(diameter_unsigned32_t code) {
             for (int i=RCODE_INFORMATIONAL; i<=RCODE_PERMANENT_FAILURE;

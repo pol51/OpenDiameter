@@ -85,7 +85,7 @@ class DiameterXmlVendorAppIdParser :
          OD_Utl_XML_RegisteredElement
               <DiameterVendorSpecificIdLst,
                OD_Utl_XML_ContentConvNull<DiameterVendorSpecificIdLst> >
-                  (arg, "vendor_specific_application_id", parser) {
+                  (arg, (char *)"vendor_specific_application_id", parser) {
      }
      virtual bool startElement(ACEXML_Attributes *atts) {
      	 if (! OD_Utl_XML_Element::startElement(atts)) {
@@ -260,7 +260,7 @@ class DiameterXmlPeerEntryParser :
          OD_Utl_XML_RegisteredElement
               <diameter_unsigned32_t,
                OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
-                  (m_unused, "peer", parser),
+                  (m_unused, (char *)"peer", parser),
                m_task(task) {
      }
      virtual bool endElement() {
@@ -381,7 +381,7 @@ class DiameterXmlRouteApplicationParser :
          OD_Utl_XML_RegisteredElement
               <diameter_unsigned32_t,
                OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
-                  (m_unused, "application", parser),
+                  (m_unused, (char *)"application", parser),
                    m_routeApp(NULL) {
      }
      virtual bool startElement(ACEXML_Attributes *atts) {
@@ -474,7 +474,7 @@ class DiameterXmlRouteServerEntryParser :
          OD_Utl_XML_RegisteredElement
               <diameter_unsigned32_t,
                OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
-                  (m_unused, "peer_entry", parser),
+                  (m_unused, (char *)"peer_entry", parser),
                    m_routeServer(NULL) {
      }
      virtual bool startElement(ACEXML_Attributes *atts) {
@@ -570,117 +570,117 @@ void DiameterXMLConfigParser::Load(AAA_Task &task, char *cfgfile)
     diameter_unsigned32_t m_unused;
 
     // Root marker
-    OD_Utl_XML_UInt32Element marker01(m_unused, "configuration", parser);
+    OD_Utl_XML_UInt32Element marker01(m_unused, (char *)"configuration", parser);
 
     // General Section    
     OD_Utl_XML_StringElement gen01(root.general.product, 
-                                   "product", parser);
+                                   (char *)"product", parser);
     OD_Utl_XML_UInt32Element gen02(root.general.version, 
-                                   "version", parser);
+                                   (char *)"version", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlVendorIdConv>
-                                  gen03(m_unused, "vendor_id", parser);
+                                  gen03(m_unused, (char *)"vendor_id", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlAcctAppIdConv> 
-                                  gen04(m_unused, "acct_application_id", parser);
+                                  gen04(m_unused, (char *)"acct_application_id", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlAuthAppIdConv> 
-                                  gen05(m_unused, "auth_application_id", parser);
+                                  gen05(m_unused, (char *)"auth_application_id", parser);
     DiameterXmlUInt32ListElement gen06(root.general.supportedVendorIdLst,
-                                   "supported_vendor_id", parser);
+                                   (char *)"supported_vendor_id", parser);
     DiameterXmlVendorAppIdParser gen07(root.general.vendorSpecificId, parser);
 
     // Parser Section
     OD_Utl_XML_StringElement parser01(root.parser.dictionary, 
-                                   "dictionary", parser);
+                                   (char *)"dictionary", parser);
 
     // Transport Section
     OD_Utl_XML_StringElement trans01(root.transport.identity, 
-                                   "identity", parser);
+                                   (char *)"identity", parser);
     OD_Utl_XML_UInt32Element trans02(root.transport.tcp_listen_port,
-                                   "tcp_listen_port", parser);
+                                   (char *)"tcp_listen_port", parser);
     OD_Utl_XML_UInt32Element trans03(root.transport.sctp_listen_port,
-                                   "sctp_listen_port", parser);
+                                   (char *)"sctp_listen_port", parser);
     OD_Utl_XML_UInt32Element trans04(root.transport.use_ipv6,
-                                   "use_ipv6", parser);
+                                   (char *)"use_ipv6", parser);
     OD_Utl_XML_UInt32Element trans05(root.transport.watchdog_timeout, 
-                                   "watchdog_timeout", parser);
+                                   (char *)"watchdog_timeout", parser);
     OD_Utl_XML_UInt32Element trans06(root.transport.reconnect_interval, 
-                                   "reconnect_interval", parser);
+                                   (char *)"reconnect_interval", parser);
     OD_Utl_XML_UInt32Element trans07(root.transport.reconnect_max,
-                                   "reconnect_max", parser);
+                                   (char *)"reconnect_max", parser);
     OD_Utl_XML_UInt32Element trans08(root.transport.retx_interval, 
-                                   "request_retransmission_interval", parser);
+                                   (char *)"request_retransmission_interval", parser);
     OD_Utl_XML_UInt32Element trans09(root.transport.retx_max_count, 
-                                   "max_request_retransmission_count", parser);
+                                   (char *)"max_request_retransmission_count", parser);
     OD_Utl_XML_UInt32Element trans10(root.transport.rx_buffer_size, 
-                                   "receive_buffer_size", parser);
+                                   (char *)"receive_buffer_size", parser);
     DiameterXmlStringListElement trans11(root.transport.advertised_hostname,
-                                   "advertised_hostname", parser);
+                                   (char *)"advertised_hostname", parser);
 
     // Peer table
     OD_Utl_XML_UInt32Element trans12((ACE_UINT32&)DIAMETER_PEER_TABLE()->ExpirationTime(), 
-                                   "expiration_time", parser);
+                                   (char *)"expiration_time", parser);
     DiameterXmlPeerEntryParser trans13(task, parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlHostnameConv> 
-               trans14(m_unused, "hostname", parser);
+               trans14(m_unused, (char *)"hostname", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlUseSctpConv> 
-               trans15(m_unused, "use_sctp", parser);
+               trans15(m_unused, (char *)"use_sctp", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlPortConv> 
-               trans16(m_unused, "port", parser);
+               trans16(m_unused, (char *)"port", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlTlsEnabledConv> 
-               trans17(m_unused, "tls_enabled", parser);
+               trans17(m_unused, (char *)"tls_enabled", parser);
 
     // Route table
     ACE_UINT32 transp_01 = 0;
-    OD_Utl_XML_UInt32Element trans18(transp_01, "expire_time", parser);
-    DiameterXmlRouteParser trans19("route", parser);
-    DiameterXmlRouteParser trans20("default_route", parser);
+    OD_Utl_XML_UInt32Element trans18(transp_01, (char *)"expire_time", parser);
+    DiameterXmlRouteParser trans19((char *)"route", parser);
+    DiameterXmlRouteParser trans20((char *)"default_route", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRoleConv> 
-               trans21(m_unused, "role", parser);
+               trans21(m_unused, (char *)"role", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRealmConv> 
-               trans22(m_unused, "realm", parser);
+               trans22(m_unused, (char *)"realm", parser);
 
     // Application table
     DiameterXmlRouteApplicationParser trans23(parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteApplicationIdConv> 
-               trans24(m_unused, "application_id", parser);
+               trans24(m_unused, (char *)"application_id", parser);
 
    // Server entry
    DiameterXmlRouteServerEntryParser trans25(parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteServerConv> 
-               trans26(m_unused, "server", parser);
+               trans26(m_unused, (char *)"server", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlRteServerMetricConv> 
-               trans27(m_unused, "metric", parser);
+               trans27(m_unused, (char *)"metric", parser);
 
     // Session management
     OD_Utl_XML_UInt32Element sess01(root.session.maxSessions,
-                                   "max_sessions", parser);
+                                   (char *)"max_sessions", parser);
     OD_Utl_XML_UInt32Element sess02(root.session.authSessions.stateful,
-                                   "stateful", parser);
+                                   (char *)"stateful", parser);
     OD_Utl_XML_UInt32Element sess03(root.session.authSessions.lifetimeTm,
-                                   "lifetime_timeout", parser);
+                                   (char *)"lifetime_timeout", parser);
     OD_Utl_XML_UInt32Element sess04(root.session.authSessions.graceTm,
-                                   "grace_period_timeout", parser);
+                                  (char *) "grace_period_timeout", parser);
     OD_Utl_XML_UInt32Element sess05(root.session.authSessions.abortRetryTm,
-                                   "abort_retry_timeout", parser);
+                                   (char *)"abort_retry_timeout", parser);
     OD_Utl_XML_UInt32Element sess06(root.session.acctSessions.recIntervalTm,
-                                   "interim_interval", parser);
+                                   (char *)"interim_interval", parser);
     OD_Utl_XML_UInt32Element sess07(root.session.acctSessions.realtime,
-                                   "realtime", parser);
+                                   (char *)"realtime", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  DiameterXmlSessionTimeoutConv> 
-               sess08(m_unused, "session_timeout", parser);
+               sess08(m_unused, (char *)"session_timeout", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  
                           OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
-               sess09(m_unused, "auth_sessions", parser);
+               sess09(m_unused, (char *)"auth_sessions", parser);
     OD_Utl_XML_RegisteredElement<diameter_unsigned32_t,  
                           OD_Utl_XML_ContentConvNull<diameter_unsigned32_t> > 
-               sess10(m_unused, "acct_sessions", parser);
+               sess10(m_unused, (char *)"acct_sessions", parser);
 
     // logs
     std::string lgp01, lgp02, lgp03, lgp04, lgp05;
-    OD_Utl_XML_StringElement log01(lgp01, "debug", parser);
-    OD_Utl_XML_StringElement log02(lgp02, "trace", parser);
-    OD_Utl_XML_StringElement log03(lgp03, "info", parser);
-    OD_Utl_XML_StringElement log04(lgp04, "console", parser);
-    OD_Utl_XML_StringElement log05(lgp05, "syslog", parser);
+    OD_Utl_XML_StringElement log01(lgp01, (char *)"debug", parser);
+    OD_Utl_XML_StringElement log02(lgp02, (char *)"trace", parser);
+    OD_Utl_XML_StringElement log03(lgp03, (char *)"info", parser);
+    OD_Utl_XML_StringElement log04(lgp04, (char *)"console", parser);
+    OD_Utl_XML_StringElement log05(lgp05, (char *)"syslog", parser);
 
     try {    
         parser.Load(cfgfile);
@@ -749,9 +749,9 @@ void DiameterXMLConfigParser::dump()
     DiameterApplicationIdLst *idList[] = { &root.general.supportedVendorIdLst,
                                        &root.general.authAppIdLst,
                                        &root.general.acctAppIdLst };
-    char *label[] = { "Supported Vendor",
-                      "Auth Application",
-                      "Acct Application" };
+    char *label[] = { (char *)"Supported Vendor",
+                      (char *)"Auth Application",
+                      (char *)"Acct Application" };
     for (unsigned int i=0;
          i < sizeof(idList)/sizeof(DiameterApplicationIdLst*);
         i++) {

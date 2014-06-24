@@ -35,15 +35,17 @@
 
 #include "diameter_api.h"
 
+#define CONFIG_FILE_NAME "config/nas1.local.xml"
+
 class AAA_SampleClient : public DiameterClientAuthSession {
         // AAA client session derived from DiameterClientAuthSession.
         // It provides for all the functionality of a diameter 
         // client session. Note that the application is responsible
         // for instantiating this object
     protected:
-        typedef enum {
+        typedef enum msgCount_s{
             MSG_COUNT = 5
-        };
+        } msgCount_t;
         
     public:
         AAA_SampleClient(AAA_Task &task,
@@ -136,10 +138,10 @@ class AAA_SampleClient : public DiameterClientAuthSession {
             DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
 
             if (host) {
                 AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
@@ -201,9 +203,9 @@ class AAA_SampleClient : public DiameterClientAuthSession {
 
             DiameterMsgWidget msg(300, true, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
-            DiameterEnumAvpWidget reAuthAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
+            DiameterUInt32AvpWidget authIdAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            DiameterEnumAvpWidget reAuthAvp((char *)DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
@@ -239,7 +241,7 @@ int main(int argc, char *argv[])
    AAA_Task task;
    task.Start(5);
 
-   char *cfgFile = "config/nas1.local.xml";
+   char *cfgFile = (char *)CONFIG_FILE_NAME;
 
    if (argc == 2) {
        cfgFile = argv[1];
@@ -263,7 +265,7 @@ int main(int argc, char *argv[])
 
        /// send the client request
        AAA_SampleClient client(task, 1);
-       client.Begin("my_client");
+       client.Begin((char *)"my_client");
        client.TxAuthenticationRequest();
 
        /// wait till user is authorized

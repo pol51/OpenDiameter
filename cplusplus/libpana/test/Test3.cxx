@@ -69,7 +69,7 @@ class EapTask : public AAA_Task
  public:
   /// Constructor.
   EapTask(std::string &cfgfile) :
-      AAA_Task(AAA_SCHED_WFQ, "EAP"),
+      AAA_Task(AAA_SCHED_WFQ, (char *)"EAP"),
       node(*this, cfgfile) {
   }
 
@@ -506,7 +506,7 @@ class PeerApplication : public AAA_JobData
 {
  public:
   PeerApplication(EapTask &task) :
-    handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, "peer"))),
+    handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, (char *)"peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*task.reactor(), handle))),
     channel(task.node, *eap),
@@ -537,7 +537,7 @@ class PassThroughAuthApplication : public AAA_JobData
                                bool pickup=false)
     : handle(EapJobHandle
 	     (AAA_GroupedJob::Create
-              (ch.Node().Task().Job(), this, "passthrough"))),
+              (ch.Node().Task().Job(), this, (char *)"passthrough"))),
       eap(boost::shared_ptr<MyPassThroughAuthSwitchStateMachine>
 	  (new MyPassThroughAuthSwitchStateMachine
            (*ch.Node().Task().reactor(), handle))),
@@ -578,7 +578,7 @@ class BackendAuthApplication : public AAA_JobData
  public:
   BackendAuthApplication(EapTask &task, bool pickup=false)
     : handle(EapJobHandle
-	     (AAA_GroupedJob::Create(task.Job(), this, "backend"))),
+	     (AAA_GroupedJob::Create(task.Job(), this, (char *)"backend"))),
       eap(boost::shared_ptr<MyBackendAuthSwitchStateMachine>
 	  (new MyBackendAuthSwitchStateMachine(*task.reactor(), handle))),
       rxChannel(BackendAuthChannel(*eap)),

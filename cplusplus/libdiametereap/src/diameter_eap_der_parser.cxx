@@ -56,7 +56,7 @@ DER_Parser::parseAppToRaw()
   DiameterApplicationId appId;
 
   // Obtain Command Code and Application Identifier.
-  if (!dm.getCommandCode("Diameter-EAP-Request", &code, &appId))
+  if (!dm.getCommandCode((char *)"Diameter-EAP-Request", &code, &appId))
     {
       AAA_LOG((LM_ERROR, "[%N] Cannot find message in dictionary\n."));
       throw (DIAMETER_DICTIONARY_ERROR);

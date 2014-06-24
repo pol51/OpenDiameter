@@ -39,9 +39,9 @@
 class DiameterGarbageCollectorAttribute
 {
     public:
-        typedef enum {
+        typedef enum delGrace_s{
             DELETION_GRACEPERIOD = 100000, // usec
-        };
+        }delGrace_t;
 
    public:
         DiameterGarbageCollectorAttribute() :

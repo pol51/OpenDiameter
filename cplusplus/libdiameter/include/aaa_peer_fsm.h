@@ -706,7 +706,7 @@ class DiameterPeerStateMachine :
       virtual int Serve() {
          AAA_MutexScopeLock guard(m_EventFsmMtx);
          m_CurrentPeerEventParam = m_EventQueue.Dequeue();
-         DumpEvent(m_CurrentPeerEventParam->m_Event, "Pre-Event");
+         DumpEvent(m_CurrentPeerEventParam->m_Event, (char *)"Pre-Event");
          try {
              AAA_StateMachineWithTimer
                  <DiameterPeerStateMachine>::Event
@@ -719,7 +719,7 @@ class DiameterPeerStateMachine :
          catch (...) {
              AAA_LOG((LM_ERROR, "(%P|%t) Unknown exception in FSM\n"));
          }
-         DumpEvent(m_CurrentPeerEventParam->m_Event, "Post-Event");
+         DumpEvent(m_CurrentPeerEventParam->m_Event, (char *)"Post-Event");
          m_CurrentPeerEventParam.reset();
          return (0);
       }

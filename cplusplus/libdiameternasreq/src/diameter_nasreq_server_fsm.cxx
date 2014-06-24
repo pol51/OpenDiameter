@@ -315,7 +315,7 @@ DiameterNasreqServerStateMachine::DiameterNasreqServerStateMachine
 (DiameterNasreqServerSession& s, DiameterNasreqJobHandle &h)
   : AAA_StateMachine<DiameterNasreqServerStateMachine>
   (*this, *DiameterNasreqServerStateTable::instance(), 
-   "AAA_NASREQ_SERVER"),
+   (char *)"AAA_NASREQ_SERVER"),
     session(s),
     handle(h),
     authorizationDone(false)

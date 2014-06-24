@@ -35,6 +35,8 @@
 
 #include "diameter_api.h"
 
+#define CONFIG_FILE_NAME "config/isp.local.xml"
+
 class AAA_SampleAcctRecStorage : 
     public DiameterServerAcctRecStorageWithConverter<diameter_utf8string_t>
 {
@@ -62,7 +64,7 @@ class AAA_SampleAcctRecStorage :
            /// -Id ... etc which the application may wish
            /// to track
            DiameterUtf8AvpContainerWidget recAvp(avpList);
-           diameter_utf8string_t *rec = recAvp.GetAvp("Example-Accounting-Record");
+           diameter_utf8string_t *rec = recAvp.GetAvp((char *)"Example-Accounting-Record");
            return rec;
         }
         virtual void UpdateAcctResponse(DiameterMsg &aca) {
@@ -70,10 +72,10 @@ class AAA_SampleAcctRecStorage :
            /// before it is sent, you need to override
            /// this method and insert your AVP's here
            
-           // as an example, add a timestamp to your aca
+           // As an example, add a timestamp to the ACA
            time_t currentTime = time(0);
            if (currentTime > 0) {
-              DiameterTimeAvpWidget tstampAvp("Event-Timestamp");
+              DiameterTimeAvpWidget tstampAvp((char *)"Event-Timestamp");
               tstampAvp.Get() = currentTime;
               aca.acl.add(tstampAvp());
            }
@@ -213,11 +215,11 @@ class AAA_SampleAuthServer : public DiameterServerAuthSession {
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp((char *)DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
@@ -301,8 +303,8 @@ class AAA_SampleAuthServer : public DiameterServerAuthSession {
 
             DiameterMsgWidget msg(300, false, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+            DiameterUInt32AvpWidget authIdAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp((char *)DIAMETER_AVPNAME_USERNAME);
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
@@ -336,7 +338,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   DiameterApplication appCore(task, "config/isp.local.xml");
+   DiameterApplication appCore(task, (char *)CONFIG_FILE_NAME);
 
    SampleAuthServerAllocator auth(task, 10000);
    SampleAcctServerAllocator acct(task, 20000);

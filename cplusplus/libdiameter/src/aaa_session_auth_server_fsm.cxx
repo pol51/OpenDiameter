@@ -78,13 +78,13 @@ void DiameterAuthSessionServerStateMachine::RxSTR(DiameterMsg &msg)
     DiameterUtf8AvpContainerWidget uNameAvp(msg.acl);
     DiameterStringAvpContainerWidget classAvp(msg.acl);
 
-    diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-    diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-    diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
-    diameter_unsigned32_t *acctAppId = acctAppIdAvp.GetAvp(DIAMETER_AVPNAME_ACCTAPPID);
-    diameter_unsigned32_t *termCause = termCauseAvp.GetAvp(DIAMETER_AVPNAME_TERMINATION);
-    diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-    diameter_octetstring_t *cls = classAvp.GetAvp(DIAMETER_AVPNAME_CLASS);
+    diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+    diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+    diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+    diameter_unsigned32_t *acctAppId = acctAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_ACCTAPPID);
+    diameter_unsigned32_t *termCause = termCauseAvp.GetAvp((char *)DIAMETER_AVPNAME_TERMINATION);
+    diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+    diameter_octetstring_t *cls = classAvp.GetAvp((char *)DIAMETER_AVPNAME_CLASS);
 
     AAA_LOG((LM_INFO, "(%P|%t) *** Session termination request received ***\n"));
     Attributes().MsgIdRxMessage(msg);
@@ -158,12 +158,12 @@ void DiameterAuthSessionServerStateMachine::RxASA(DiameterMsg &msg)
     DiameterUtf8AvpContainerWidget errMsgAvp(msg.acl);
     DiameterIdentityAvpContainerWidget errHostAvp(msg.acl);
 
-    diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(DIAMETER_AVPNAME_RESULTCODE);
-    diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-    diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-    diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-    diameter_utf8string_t *errMsg = errMsgAvp.GetAvp(DIAMETER_AVPNAME_ERRORMESSAGE);
-    diameter_identity_t *errHost = errHostAvp.GetAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
+    diameter_unsigned32_t *rcode = rcodeAvp.GetAvp((char *)DIAMETER_AVPNAME_RESULTCODE);
+    diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+    diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+    diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+    diameter_utf8string_t *errMsg = errMsgAvp.GetAvp((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
+    diameter_identity_t *errHost = errHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ERRORREPORTINGHOST);
 
     AAA_LOG((LM_INFO, "(%P|%t) *** Abort session answer received ***\n"));
     Attributes().MsgIdRxMessage(msg);
@@ -244,10 +244,10 @@ void DiameterAuthSessionServerStateMachine::TxSTA(diameter_unsigned32_t rcode)
     // required
     Attributes().SessionId().Set(*msg);
 
-    DiameterUInt32AvpWidget rcodeAvp(DIAMETER_AVPNAME_RESULTCODE);
-    DiameterIdentityAvpWidget orHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
-    DiameterIdentityAvpWidget orRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
-    DiameterUInt32AvpWidget orStateId(DIAMETER_AVPNAME_ORIGINSTATEID);
+    DiameterUInt32AvpWidget rcodeAvp((char *)DIAMETER_AVPNAME_RESULTCODE);
+    DiameterIdentityAvpWidget orHostAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+    DiameterIdentityAvpWidget orRealmAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+    DiameterUInt32AvpWidget orStateId((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
 
     rcodeAvp.Get() = rcode;
     orHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
@@ -259,7 +259,7 @@ void DiameterAuthSessionServerStateMachine::TxSTA(diameter_unsigned32_t rcode)
 
     // optional avps
     if (Attributes().Username().IsSet()) {
-        DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+        DiameterUtf8AvpWidget unameAvp((char *)DIAMETER_AVPNAME_USERNAME);
         unameAvp.Get() = Attributes().Username()();
         msg->acl.add(unameAvp());
     }
@@ -267,7 +267,7 @@ void DiameterAuthSessionServerStateMachine::TxSTA(diameter_unsigned32_t rcode)
     DiameterScholarAttribute<diameter_octetstring_t> cls;
     m_Session.SetClassAvp(cls);
     if (cls.IsSet()) {
-        DiameterStringAvpWidget classAvp(DIAMETER_AVPNAME_CLASS);
+        DiameterStringAvpWidget classAvp((char *)DIAMETER_AVPNAME_CLASS);
         classAvp.Get() = cls();
         msg->acl.add(classAvp());
     }
@@ -318,12 +318,12 @@ void DiameterAuthSessionServerStateMachine::TxASR()
     // required
     Attributes().SessionId().Set(*msg);
 
-    DiameterIdentityAvpWidget orHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
-    DiameterIdentityAvpWidget orRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
-    DiameterIdentityAvpWidget destHostAvp(DIAMETER_AVPNAME_DESTHOST);
-    DiameterIdentityAvpWidget destRealmAvp(DIAMETER_AVPNAME_DESTREALM);
-    DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
-    DiameterUInt32AvpWidget orStateId(DIAMETER_AVPNAME_ORIGINSTATEID);
+    DiameterIdentityAvpWidget orHostAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+    DiameterIdentityAvpWidget orRealmAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+    DiameterIdentityAvpWidget destHostAvp((char *)DIAMETER_AVPNAME_DESTHOST);
+    DiameterIdentityAvpWidget destRealmAvp((char *)DIAMETER_AVPNAME_DESTREALM);
+    DiameterUInt32AvpWidget authIdAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+    DiameterUInt32AvpWidget orStateId((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
 
     orHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
     orRealmAvp.Get() = DIAMETER_CFG_TRANSPORT()->realm;
@@ -339,7 +339,7 @@ void DiameterAuthSessionServerStateMachine::TxASR()
 
     // optional avps
     if (Attributes().Username().IsSet()) {
-        DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+        DiameterUtf8AvpWidget unameAvp((char *)DIAMETER_AVPNAME_USERNAME);
         unameAvp.Get() = Attributes().Username()();
         msg->acl.add(unameAvp());
     }
@@ -397,14 +397,14 @@ void DiameterAuthSessionServerStateMachine::TxRAR(diameter_unsigned32_t reAuthTy
     // required
     Attributes().SessionId().Set(*msg);
 
-    DiameterIdentityAvpWidget orHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
-    DiameterIdentityAvpWidget orRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
-    DiameterIdentityAvpWidget destHostAvp(DIAMETER_AVPNAME_DESTHOST);
-    DiameterIdentityAvpWidget destRealmAvp(DIAMETER_AVPNAME_DESTREALM);
-    DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
-    DiameterUInt32AvpWidget reAuthTypeAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
-    DiameterUtf8AvpWidget uNameAvp(DIAMETER_AVPNAME_USERNAME);
-    DiameterUInt32AvpWidget orStateId(DIAMETER_AVPNAME_ORIGINSTATEID);
+    DiameterIdentityAvpWidget orHostAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+    DiameterIdentityAvpWidget orRealmAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+    DiameterIdentityAvpWidget destHostAvp((char *)DIAMETER_AVPNAME_DESTHOST);
+    DiameterIdentityAvpWidget destRealmAvp((char *)DIAMETER_AVPNAME_DESTREALM);
+    DiameterUInt32AvpWidget authIdAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+    DiameterUInt32AvpWidget reAuthTypeAvp((char *)DIAMETER_AVPNAME_REAUTHREQTYPE);
+    DiameterUtf8AvpWidget uNameAvp((char *)DIAMETER_AVPNAME_USERNAME);
+    DiameterUInt32AvpWidget orStateId((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
 
     orHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;
     orRealmAvp.Get() = DIAMETER_CFG_TRANSPORT()->realm;
@@ -422,7 +422,7 @@ void DiameterAuthSessionServerStateMachine::TxRAR(diameter_unsigned32_t reAuthTy
 
     // optional avps
     if (Attributes().Username().IsSet()) {
-        DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+        DiameterUtf8AvpWidget unameAvp((char *)DIAMETER_AVPNAME_USERNAME);
         unameAvp.Get() = Attributes().Username()();
         msg->acl.add(unameAvp());
     }
@@ -473,12 +473,12 @@ void DiameterAuthSessionServerStateMachine::RxRAA(DiameterMsg &msg)
     DiameterUtf8AvpContainerWidget errMsgAvp(msg.acl);
     DiameterIdentityAvpContainerWidget errHostAvp(msg.acl);
 
-    diameter_unsigned32_t *rcode = rcodeAvp.GetAvp(DIAMETER_AVPNAME_RESULTCODE);
-    diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-    diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-    diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-    diameter_utf8string_t *errMsg = errMsgAvp.GetAvp(DIAMETER_AVPNAME_ERRORMESSAGE);
-    diameter_identity_t *errHost = errHostAvp.GetAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
+    diameter_unsigned32_t *rcode = rcodeAvp.GetAvp((char *)DIAMETER_AVPNAME_RESULTCODE);
+    diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+    diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+    diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+    diameter_utf8string_t *errMsg = errMsgAvp.GetAvp((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
+    diameter_identity_t *errHost = errHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ERRORREPORTINGHOST);
 
     AAA_LOG((LM_INFO, "(%P|%t) *** Re-Auth answer received ***\n"));
     Attributes().MsgIdRxMessage(msg);

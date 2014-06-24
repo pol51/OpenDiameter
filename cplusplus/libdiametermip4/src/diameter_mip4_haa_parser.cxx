@@ -53,7 +53,7 @@ HAA_Parser::parseAppToRaw()
   DiameterApplicationId appId;
 
   // Obtain Command Code and Application Identifier.
-  if (!dm.getCommandCode("Home-Agent-MIP-Answer", &code, &appId))
+  if (!dm.getCommandCode((char *)"Home-Agent-MIP-Answer", &code, &appId))
     {
       AAA_LOG((LM_ERROR, "Cannot find Diameter message in dictionary\n."));
       throw (DIAMETER_DICTIONARY_ERROR);

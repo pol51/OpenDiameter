@@ -60,7 +60,7 @@ class EapTask : public AAA_Task
 {
  public:
   /// Constructor.
-  EapTask() : AAA_Task(AAA_SCHED_WFQ, "EAP") 
+  EapTask() : AAA_Task(AAA_SCHED_WFQ, (char *)"EAP") 
   {}
 
   /// Destructor.
@@ -415,7 +415,7 @@ class PeerApplication : public AAA_JobData
 {
  public:
   PeerApplication(EapTask &task, ACE_Semaphore &sem) : 
-    handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, "peer"))),
+    handle(EapJobHandle(AAA_GroupedJob::Create(task.Job(), this, (char *)"peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*task.reactor(), handle))),
     semaphore(sem),
@@ -458,7 +458,7 @@ class StandAloneAuthApplication : public AAA_JobData
  public:
   StandAloneAuthApplication(EapTask &task, ACE_Semaphore &sem) 
     : handle(EapJobHandle
-	     (AAA_GroupedJob::Create(task.Job(), this, "standalone"))),
+	     (AAA_GroupedJob::Create(task.Job(), this, (char *)"standalone"))),
       eap(boost::shared_ptr<MyStandAloneAuthSwitchStateMachine>
 	  (new MyStandAloneAuthSwitchStateMachine(*task.reactor(), handle))),
       semaphore(sem),
@@ -504,7 +504,7 @@ class BackendAuthApplication : public AAA_JobData
  public:
   BackendAuthApplication(EapTask &task, ACE_Semaphore &sem, bool pickup=false)
     : handle(EapJobHandle
-	     (AAA_GroupedJob::Create(task.Job(), this, "backend"))),
+	     (AAA_GroupedJob::Create(task.Job(), this, (char *)"backend"))),
       eap(boost::shared_ptr<MyBackendAuthSwitchStateMachine>
 	  (new MyBackendAuthSwitchStateMachine(*task.reactor(), handle))),
       semaphore(sem),
@@ -563,7 +563,7 @@ class PassThroughAuthApplication : public AAA_JobData
   PassThroughAuthApplication(EapTask &task, ACE_Semaphore &sem,
 			     bool pickup=false)
     : handle(EapJobHandle
-	     (AAA_GroupedJob::Create(task.Job(), this, "passthrough"))),
+	     (AAA_GroupedJob::Create(task.Job(), this, (char *)"passthrough"))),
       eap(boost::shared_ptr<MyPassThroughAuthSwitchStateMachine>
 	  (new MyPassThroughAuthSwitchStateMachine(*task.reactor(), handle))),
       semaphore(sem),

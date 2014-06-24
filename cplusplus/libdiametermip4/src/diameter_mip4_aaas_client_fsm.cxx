@@ -275,7 +275,7 @@ DiameterMip4AaaSClientStateTable;
 DiameterMip4AaaSClientStateMachine::DiameterMip4AaaSClientStateMachine( 
 	 DiameterMip4AaaSClientSession &s,
 	 DiameterJobHandle &h) :
-  AAA_StateMachine<DiameterMip4AaaSClientStateMachine>(*this, *DiameterMip4AaaSClientStateTable::instance(), "DIAMETER_MIP4_AAAS_CLIENT"), session(s), handle(h) {}
+  AAA_StateMachine<DiameterMip4AaaSClientStateMachine>(*this, *DiameterMip4AaaSClientStateTable::instance(), (char *)"DIAMETER_MIP4_AAAS_CLIENT"), session(s), handle(h) {}
 
 
 void DiameterMip4AaaSClientStateMachine::SendHAR()

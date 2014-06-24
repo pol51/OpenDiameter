@@ -125,7 +125,7 @@ class PANAXML_DictionaryElement :
 {
   public:
      PANAXML_DictionaryElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("dictionary", stack) {
+        PANAXML_Element((char *)"dictionary", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! PANAXML_Element::startElement(alist)) {
@@ -143,7 +143,7 @@ class PANAXML_CommandElement :
 {
   public:
      PANAXML_CommandElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("command", stack),
+        PANAXML_Element((char *)"command", stack),
         m_code(0) {
      }
      virtual bool startElement(ACEXML_Attributes *alist) {
@@ -191,7 +191,7 @@ class PANAXML_RequestRulesElement :
 {
   public:
      PANAXML_RequestRulesElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("requestrules", stack),
+        PANAXML_Element((char *)"requestrules", stack),
         m_command(NULL) {
      }
      virtual bool startElement(ACEXML_Attributes *alist) {
@@ -235,7 +235,7 @@ class PANAXML_AnswerRulesElement :
 {
   public:
      PANAXML_AnswerRulesElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("answerrules", stack),
+        PANAXML_Element((char *)"answerrules", stack),
         m_command(NULL) {
      }
      virtual bool startElement(ACEXML_Attributes *alist) {
@@ -279,7 +279,7 @@ class PANAXML_TypedefElement :
 {
   public:
      PANAXML_TypedefElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("typedefn", stack) {
+        PANAXML_Element((char *)"typedefn", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! PANAXML_Element::startElement(alist)) {
@@ -303,7 +303,7 @@ class PANAXML_AvpElement :
 {
   public:
      PANAXML_AvpElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("avp", stack),
+        PANAXML_Element((char *)"avp", stack),
         m_avp(NULL) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
@@ -365,7 +365,7 @@ class PANAXML_TypeElement :
 {
   public:
      PANAXML_TypeElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("type", stack) {
+        PANAXML_Element((char *)"type", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! PANAXML_Element::startElement(alist)) {
@@ -412,7 +412,7 @@ class PANAXML_GroupedElement :
 {
   public:
      PANAXML_GroupedElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("grouped", stack),
+        PANAXML_Element((char *)"grouped", stack),
         m_grpAvp(NULL) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
@@ -536,7 +536,7 @@ class PANAXML_FixedElement :
 {
   public:
      PANAXML_FixedElement(PANAXML_ElementStack &stack) :
-        PANAXML_PositionElement("fixed", stack) {
+        PANAXML_PositionElement((char *)"fixed", stack) {
      }
 };
 
@@ -545,7 +545,7 @@ class PANAXML_RequiredElement :
 {
   public:
      PANAXML_RequiredElement(PANAXML_ElementStack &stack) :
-        PANAXML_PositionElement("required", stack) {
+        PANAXML_PositionElement((char *)"required", stack) {
      }
 };
 
@@ -554,7 +554,7 @@ class PANAXML_OptionalElement :
 {
   public:
      PANAXML_OptionalElement(PANAXML_ElementStack &stack) :
-        PANAXML_PositionElement("optional", stack) {
+        PANAXML_PositionElement((char *)"optional", stack) {
      }
 };
 
@@ -563,7 +563,7 @@ class PANAXML_AvpRuleElement :
 {
   public:
      PANAXML_AvpRuleElement(PANAXML_ElementStack &stack) :
-        PANAXML_Element("avprule", stack) {
+        PANAXML_Element((char *)"avprule", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! PANAXML_Element::startElement(alist)) {
@@ -637,9 +637,9 @@ typedef std::pair<std::string, PANAXML_Element*> PANAXML_ElementPair;
 class PANAXML_ParsingTables
 {
   public:
-     typedef enum {
+     typedef enum numParses_s{
          NUM_PARSING_PASSES = 2,
-     };
+     }numParses_t;
 
   public:
      PANAXML_ParsingTables() :

@@ -25,6 +25,7 @@ AM_CPPFLAGS = @L_CPPFLAGS@ @L_MPAFLAGS@ \
               -I@top_srcdir@/libeap/include \
               -I@top_srcdir@/libpana/include \
               -D@HOST_OS@
+              
 AM_LDFLAGS = @L_LDFLAGS@
 
 PANA_HDRS = include/pana_auth_script.h \
@@ -45,9 +46,9 @@ PANA_HDRS = include/pana_auth_script.h \
             include/pana_paa_fsm.h \
             include/pana_paa_factory.h \
             include/pana_pac_ep_key.h \
-	    include/pana_parser.h \
-	    include/pana_parser_avpvalue.h \
-	    include/pana_parser_dict.h \
+            include/pana_parser.h \
+            include/pana_parser_avpvalue.h \
+            include/pana_parser_dict.h \
             include/pana_pmk_bootstrap.h \
             include/pana_prf_plus.h \
             include/pana_psk_bootstrap.h \
@@ -125,4 +126,3 @@ pana_test3_LDADD = $(top_builddir)/libeap/libeap.la \
 pkginclude_HEADERS = test/user_db.h
 
 dist-hook:
-

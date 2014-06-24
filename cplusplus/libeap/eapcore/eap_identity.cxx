@@ -228,7 +228,7 @@ EapAuthIdentityStateMachine::EapAuthIdentityStateMachine
 (EapSwitchStateMachine &s)
   : EapMethodStateMachine(s), 
     EapStateMachine<EapAuthIdentityStateMachine>
-  (*this, *EapAuthIdentityStateTable::instance(), s.Reactor(), s, "identity"),
+  (*this, *EapAuthIdentityStateTable::instance(), s.Reactor(), s, (char *)"identity"),
     nTrial(0) 
 {} 
 

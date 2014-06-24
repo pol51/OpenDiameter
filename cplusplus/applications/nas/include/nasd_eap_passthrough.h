@@ -108,7 +108,7 @@ class NASD_EapPassThrough :
       NASD_EapPassThrough(AAA_Task &t) : 
          m_Task(t),
          m_JobHandle(AAA_GroupedJob::Create
-             (t.Job(), this, "eap-passthrough")) {
+             (t.Job(), this, (char *)"eap-passthrough")) {
       }
       virtual ~NASD_EapPassThrough() {
 	 Stop();

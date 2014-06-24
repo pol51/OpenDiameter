@@ -471,7 +471,7 @@ DiameterMip4AaaSServerStateTable;
 DiameterMip4AaaSServerStateMachine::DiameterMip4AaaSServerStateMachine
 (AAAServerSession& s, DiameterJobHandle &h)
   : AAA_StateMachine<DiameterMip4AaaSServerStateMachine>
-  (*this, *DiameterMip4AaaSServerStateTable::instance(), "MIP4_AAAS_SERVER"),
+  (*this, *DiameterMip4AaaSServerStateTable::instance(), (char *)"MIP4_AAAS_SERVER"),
     session(s),
     handle(h) 
 {

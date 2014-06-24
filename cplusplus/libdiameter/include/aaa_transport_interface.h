@@ -134,10 +134,10 @@ template<class TX_IF, class RX_HANDLER>
 class Diameter_IO : public Diameter_IO_Base
 {
    public:
-      typedef enum {
+      typedef enum params_s{
          MAX_PACKET_LENGTH = 1024,
          DEFAULT_TIMEOUT = 0, // msec
-      };
+      } params_t;
       Diameter_IO(TX_IF &iface,
              const char *name = "") :
          Diameter_IO_Base(name),
@@ -331,7 +331,7 @@ class Diameter_IO_Acceptor : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 {
    public:
       Diameter_IO_Acceptor() :
-          Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_ACCEPTOR_NAME) {
+          Diameter_IO_Factory<TX_IF, RX_HANDLER>((char *)AAA_IO_ACCEPTOR_NAME) {
               Diameter_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = true;
       }
       int Open(int port, ADDR_TYPE addrToBind) {
@@ -363,7 +363,7 @@ class Diameter_IO_Connector : public Diameter_IO_Factory<TX_IF, RX_HANDLER>
 {
    public:
       Diameter_IO_Connector() :
-          Diameter_IO_Factory<TX_IF, RX_HANDLER>(AAA_IO_CONNECTOR_NAME) {
+          Diameter_IO_Factory<TX_IF, RX_HANDLER>((char *)AAA_IO_CONNECTOR_NAME) {
               Diameter_IO_Factory<TX_IF, RX_HANDLER>::Perpetual() = false;
       }
       int Open(std::string &hostname, int port) {

@@ -49,9 +49,9 @@ class NASD_EapBackendAuthGpskStateMachine :
      friend class EapMethodStateMachineCreator
                   <NASD_EapBackendAuthGpskStateMachine>;
 
-     typedef enum {
+     typedef enum authParam_s{
         DEFAULT_AUTH_PERIOD = 3600
-     };
+     } authParam_t;
 
    public:
      NASD_EapBackendAuthGpskStateMachine(EapSwitchStateMachine &s)
@@ -126,9 +126,9 @@ class NASD_EapBackendAuthMd5StateMachine :
      friend class EapMethodStateMachineCreator
                   <NASD_EapBackendAuthMd5StateMachine>;
 
-     typedef enum {
+     typedef enum authParam_s{
         DEFAULT_AUTH_PERIOD = 3600
-     };
+     } authParam_t;
 
    public:
      NASD_EapBackendAuthMd5StateMachine(EapSwitchStateMachine &s)
@@ -248,7 +248,7 @@ class NASD_EapBackend :
       NASD_EapBackend(AAA_Task &t) : 
          m_Task(t),
          m_JobHandle(AAA_GroupedJob::Create
-            (t.Job(), this, "eap-backend")),
+            (t.Job(), this, (char *)"eap-backend")),
          m_IsFirstMsg(true) {
       }
       virtual ~NASD_EapBackend() {

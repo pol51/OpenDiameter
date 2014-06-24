@@ -280,7 +280,7 @@ class DiameterPeerAcceptor : public DiameterTcpAcceptor,
                    if (query.IsCapabilities() && query.IsRequest()) {
                        DiameterIdentityAvpContainerWidget c_orhost(msg->acl);
                        diameter_identity_t *ohost = c_orhost.GetAvp
-                           (DIAMETER_AVPNAME_ORIGINHOST);
+                           ((char *)DIAMETER_AVPNAME_ORIGINHOST);
                        if (ohost) {
                          DiameterPeerEntry *e = DIAMETER_PEER_TABLE()->Lookup(*ohost);
                          if (e) {

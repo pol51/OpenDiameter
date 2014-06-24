@@ -162,18 +162,18 @@ void PANA_Paa::TxPARStart()
         }
 
         PANA_MsgBlockGuard eapPkt(AuxVariables().TxEapMessageQueue().Dequeue());
-        PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+        PANA_StringAvpWidget eapAvp((char *)PANA_AVPNAME_EAP);
         eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
         msg->avpList().add(eapAvp());
     }
 
     // add integrity algorithm
-    PANA_UInt32AvpWidget integrityAlgoAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+    PANA_UInt32AvpWidget integrityAlgoAvp((char *)PANA_AVPNAME_INTEGRITY_ALGO);
     integrityAlgoAvp.Get() = PANA_AUTH_HMAC_SHA1_160;
     msg->avpList().add(integrityAlgoAvp());
 
     // add prf algorithm
-    PANA_UInt32AvpWidget prfAlgoAvp(PANA_AVPNAME_PRF_ALGO);
+    PANA_UInt32AvpWidget prfAlgoAvp((char *)PANA_AVPNAME_PRF_ALGO);
     prfAlgoAvp.Get() = PANA_PRF_HMAC_SHA1;
     msg->avpList().add(prfAlgoAvp());
 
@@ -213,7 +213,7 @@ void PANA_Paa::RxPANStart()
             msg.sessionId(), msg.seq()));
 
     PANA_UInt32AvpContainerWidget integrityAlgoAvp(msg.avpList());
-    pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp(PANA_AVPNAME_INTEGRITY_ALGO);
+    pana_unsigned32_t *integrityAlgo = integrityAlgoAvp.GetAvp((char *)PANA_AVPNAME_INTEGRITY_ALGO);
     if (integrityAlgo == NULL) {
         throw (PANA_Exception(PANA_Exception::MISSING_ALGORITHM,
                "No Integrity Algorithm present"));
@@ -224,7 +224,7 @@ void PANA_Paa::RxPANStart()
     }
 
     PANA_UInt32AvpContainerWidget prfAlgoAvp(msg.avpList());
-    pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp(PANA_AVPNAME_PRF_ALGO);
+    pana_unsigned32_t *prfAlgo = prfAlgoAvp.GetAvp((char *)PANA_AVPNAME_PRF_ALGO);
     if (prfAlgo == NULL) {
         throw (PANA_Exception(PANA_Exception::MISSING_PRF,
                "No PRF Algorithm present"));
@@ -235,7 +235,7 @@ void PANA_Paa::RxPANStart()
     }
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-    pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+    pana_octetstring_t *payload = eapAvp.GetAvp((char *)PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapResponse(*payload);
     }
@@ -287,7 +287,7 @@ void PANA_Paa::TxPAR()
     }
 
     PANA_MsgBlockGuard eapPkt(AuxVariables().TxEapMessageQueue().Dequeue());
-    PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+    PANA_StringAvpWidget eapAvp((char *)PANA_AVPNAME_EAP);
     eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
     msg->avpList().add(eapAvp());
 
@@ -297,7 +297,7 @@ void PANA_Paa::TxPAR()
         SecurityAssociation().PaaNonce().Generate();
 
         pana_octetstring_t &nonce = SecurityAssociation().PaaNonce().Get();
-        PANA_StringAvpWidget nonceAvp(PANA_AVPNAME_NONCE);
+        PANA_StringAvpWidget nonceAvp((char *)PANA_AVPNAME_NONCE);
         nonceAvp.Get().assign(nonce.data(), nonce.size());
         msg->avpList().add(nonceAvp());
     }
@@ -347,14 +347,14 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
     msg->sessionId() = this->SessionId();
 
     // add result-code
-    PANA_UInt32AvpWidget rcodeAvp(PANA_AVPNAME_RESULTCODE);
+    PANA_UInt32AvpWidget rcodeAvp((char *)PANA_AVPNAME_RESULTCODE);
     rcodeAvp.Get() = rcode;
     msg->avpList().add(rcodeAvp());
 
     PANA_MsgBlockGuard eapPkt(AuxVariables().TxEapMessageQueue().Dequeue());
     if (eapPkt() && (ev != EAP_TIMEOUT)) {
         // add eap payload
-        PANA_StringAvpWidget eapAvp(PANA_AVPNAME_EAP);
+        PANA_StringAvpWidget eapAvp((char *)PANA_AVPNAME_EAP);
         eapAvp.Get().assign(eapPkt()->base(), eapPkt()->size());
         msg->avpList().add(eapAvp());
     }
@@ -364,7 +364,7 @@ void PANA_Paa::TxPARComplete(pana_unsigned32_t rcode,
         if (AuxVariables().Authorized()) {
             if ((SessionLifetime() > 0) && PANA_CFG_PAA().m_CarryLifetime) {
                 // add session lifetime
-                PANA_UInt32AvpWidget lifetimeAvp(PANA_AVPNAME_SESSIONLIFETIME);
+                PANA_UInt32AvpWidget lifetimeAvp((char *)PANA_AVPNAME_SESSIONLIFETIME);
                 lifetimeAvp.Get() = SessionLifetime();
                 msg->avpList().add(lifetimeAvp());
             }
@@ -496,7 +496,7 @@ void PANA_Paa::RxPAR()
              msg.sessionId(), msg.seq()));
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-    pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+    pana_octetstring_t *payload = eapAvp.GetAvp((char *)PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapResponse(*payload);
     }
@@ -534,13 +534,13 @@ void PANA_Paa::RxPAN()
 
     // update pac nonce
     PANA_StringAvpContainerWidget nonceAvp(msg.avpList());
-    pana_octetstring_t *nonce = nonceAvp.GetAvp(PANA_AVPNAME_NONCE);
+    pana_octetstring_t *nonce = nonceAvp.GetAvp((char *)PANA_AVPNAME_NONCE);
     if (nonce && ! SecurityAssociation().PacNonce().IsSet()) {
         SecurityAssociation().PacNonce().Set(*nonce);
     }
 
     PANA_StringAvpContainerWidget eapAvp(msg.avpList());
-    pana_octetstring_t *payload = eapAvp.GetAvp(PANA_AVPNAME_EAP);
+    pana_octetstring_t *payload = eapAvp.GetAvp((char *)PANA_AVPNAME_EAP);
     if (payload) {
         NotifyEapResponse(*payload);
     }

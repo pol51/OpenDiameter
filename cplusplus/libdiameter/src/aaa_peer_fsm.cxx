@@ -192,7 +192,7 @@ void DiameterPeer_ProcessCEA::operator()(DiameterPeerStateMachine &fsm)
     else {
        DiameterUtf8AvpContainerWidget errorMsg(cea->acl);
        diameter_utf8string_t *strMsg = errorMsg.GetAvp
-           (DIAMETER_AVPNAME_ERRORMESSAGE);
+           ((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
        if (strMsg) {
            AAA_LOG((LM_INFO,
                  "(%P|%t) Peer returned an error on CEA: %s\n",
@@ -287,7 +287,7 @@ void DiameterPeerR_DisconnectIOpen::operator()(DiameterPeerStateMachine &fsm)
     else {
        DiameterUtf8AvpContainerWidget errorMsg(cea->acl);
        diameter_utf8string_t *strMsg = errorMsg.GetAvp
-           (DIAMETER_AVPNAME_ERRORMESSAGE);
+           ((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
        if (strMsg) {
            AAA_LOG((LM_INFO,
                  "(%P|%t) Peer returned an error on CEA: %s\n",
@@ -366,7 +366,7 @@ void DiameterPeer_ProcessDWA::operator()(DiameterPeerStateMachine &fsm)
     else {
         DiameterUtf8AvpContainerWidget errorMsg(dwa->acl);
         diameter_utf8string_t *strMsg = errorMsg.GetAvp
-            (DIAMETER_AVPNAME_ERRORMESSAGE);
+            ((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
         if (strMsg) {
             AAA_LOG((LM_INFO,
                   "(%P|%t) Peer returned an error on Watchdog: %s, closing peer\n",
@@ -430,7 +430,7 @@ void DiameterPeerI_SendDPADisconnect::operator()(DiameterPeerStateMachine &fsm)
     fsm.SendDPA(true, AAA_SUCCESS);
 
     DiameterUInt32AvpContainerWidget cause(dpr->acl);
-    diameter_unsigned32_t *uint32 = cause.GetAvp(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
+    diameter_unsigned32_t *uint32 = cause.GetAvp((char *)DIAMETER_AVPNAME_DISCONNECT_CAUSE);
 
     fsm.Cleanup();
     fsm.Disconnected
@@ -445,7 +445,7 @@ void DiameterPeerR_SendDPADisconnect::operator()(DiameterPeerStateMachine &fsm)
     fsm.SendDPA(false, AAA_SUCCESS);
 
     DiameterUInt32AvpContainerWidget cause(dpr->acl);
-    diameter_unsigned32_t *uint32 = cause.GetAvp(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
+    diameter_unsigned32_t *uint32 = cause.GetAvp((char *)DIAMETER_AVPNAME_DISCONNECT_CAUSE);
 
     fsm.Cleanup();
     fsm.Disconnected
@@ -472,7 +472,7 @@ void DiameterPeer_DisconnectDPA::operator()(DiameterPeerStateMachine &fsm)
     else {
         DiameterUtf8AvpContainerWidget errorMsg(dpa->acl);
         diameter_utf8string_t *strMsg = errorMsg.GetAvp
-            (DIAMETER_AVPNAME_ERRORMESSAGE);
+            ((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
         if (strMsg) {
             AAA_LOG((LM_INFO,
                "(%P|%t) Peer returned an error on Watchdog: %s, closing peer\n",
@@ -508,18 +508,18 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
    h.appId = DIAMETER_BASE_APPLICATION_ID;
    MsgIdTxMessage(msg);
 
-   DiameterIdentityAvpWidget originHost(DIAMETER_AVPNAME_ORIGINHOST);
-   DiameterIdentityAvpWidget originRealm(DIAMETER_AVPNAME_ORIGINREALM);
-   DiameterAddressAvpWidget  hostIp(DIAMETER_AVPNAME_HOSTIP);
-   DiameterUInt32AvpWidget   vendorId(DIAMETER_AVPNAME_VENDORID);
-   DiameterUtf8AvpWidget     product(DIAMETER_AVPNAME_PRODUCTNAME);
-   DiameterUInt32AvpWidget   originStateId(DIAMETER_AVPNAME_ORIGINSTATEID);
-   DiameterUInt32AvpWidget   supportedVendorId(DIAMETER_AVPNAME_SUPPORTEDVENDORID);
-   DiameterUInt32AvpWidget   authId(DIAMETER_AVPNAME_AUTHAPPID);
-   DiameterUInt32AvpWidget   acctId(DIAMETER_AVPNAME_ACCTAPPID);
-   DiameterGroupedAvpWidget  vendorSpecificId(DIAMETER_AVPNAME_VENDORAPPID);
-   DiameterUInt32AvpWidget   firmware(DIAMETER_AVPNAME_FIRMWAREREV);
-   DiameterUInt32AvpWidget   inbandSecId(DIAMETER_AVPNAME_INBANDSECID);
+   DiameterIdentityAvpWidget originHost((char *)DIAMETER_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget originRealm((char *)DIAMETER_AVPNAME_ORIGINREALM);
+   DiameterAddressAvpWidget  hostIp((char *)DIAMETER_AVPNAME_HOSTIP);
+   DiameterUInt32AvpWidget   vendorId((char *)DIAMETER_AVPNAME_VENDORID);
+   DiameterUtf8AvpWidget     product((char *)DIAMETER_AVPNAME_PRODUCTNAME);
+   DiameterUInt32AvpWidget   originStateId((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
+   DiameterUInt32AvpWidget   supportedVendorId((char *)DIAMETER_AVPNAME_SUPPORTEDVENDORID);
+   DiameterUInt32AvpWidget   authId((char *)DIAMETER_AVPNAME_AUTHAPPID);
+   DiameterUInt32AvpWidget   acctId((char *)DIAMETER_AVPNAME_ACCTAPPID);
+   DiameterGroupedAvpWidget  vendorSpecificId((char *)DIAMETER_AVPNAME_VENDORAPPID);
+   DiameterUInt32AvpWidget   firmware((char *)DIAMETER_AVPNAME_FIRMWAREREV);
+   DiameterUInt32AvpWidget   inbandSecId((char *)DIAMETER_AVPNAME_INBANDSECID);
 
    originHost.Get() = DIAMETER_CFG_TRANSPORT()->identity;
    originRealm.Get() = DIAMETER_CFG_TRANSPORT()->realm;
@@ -592,15 +592,15 @@ void DiameterPeerStateMachine::AssembleCE(DiameterMsg &msg,
        diameter_grouped_t &grp = vendorSpecificId.Get();
 
        if (vid.authAppId > 0) {
-           DiameterUInt32AvpWidget gAuthId(DIAMETER_AVPNAME_AUTHAPPID, vid.authAppId);
+           DiameterUInt32AvpWidget gAuthId((char *)DIAMETER_AVPNAME_AUTHAPPID, vid.authAppId);
            grp.add(gAuthId());
        }
        if (vid.acctAppId > 0) {
-           DiameterUInt32AvpWidget gAcctId(DIAMETER_AVPNAME_ACCTAPPID, vid.acctAppId);
+           DiameterUInt32AvpWidget gAcctId((char *)DIAMETER_AVPNAME_ACCTAPPID, vid.acctAppId);
            grp.add(gAcctId());
        }
        if (vid.vendorId > 0) {
-           DiameterUInt32AvpWidget gVendorId(DIAMETER_AVPNAME_VENDORID, vid.vendorId);
+           DiameterUInt32AvpWidget gVendorId((char *)DIAMETER_AVPNAME_VENDORID, vid.vendorId);
            grp.add(gVendorId());
        }
    }
@@ -637,11 +637,11 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
    DiameterGroupedAvpContainerWidget vendorSpecificId(msg.acl);
    DiameterUInt32AvpContainerWidget firmware(msg.acl);
 
-   diameter_identity_t *identity = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+   diameter_identity_t *identity = originHost.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
    cap.m_Host.assign((identity) ? identity->data() : "",
                      (identity) ? identity->length() : 0);
 
-   identity = originRealm.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+   identity = originRealm.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
    cap.m_Realm.assign((identity) ? identity->data() : "",
                       (identity) ? identity->length() : 0);
 
@@ -651,28 +651,28 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
        delete ip;
    }
 
-   diameter_address_t *address = hostIp.GetAvp(DIAMETER_AVPNAME_HOSTIP);
+   diameter_address_t *address = hostIp.GetAvp((char *)DIAMETER_AVPNAME_HOSTIP);
    for (ndx=1; address; ndx++) {
        diameter_address_t *newAddr = new diameter_address_t;
        *newAddr = *address;
        cap.m_HostIpLst.push_back(newAddr);
-       address = hostIp.GetAvp(DIAMETER_AVPNAME_HOSTIP, ndx);
+       address = hostIp.GetAvp((char *)DIAMETER_AVPNAME_HOSTIP, ndx);
    }
 
-   diameter_unsigned32_t *uint32 = vendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
+   diameter_unsigned32_t *uint32 = vendorId.GetAvp((char *)DIAMETER_AVPNAME_VENDORID);
    cap.m_VendorId = (uint32) ? *uint32 : 0;
 
-   diameter_utf8string_t *utf8str = product.GetAvp(DIAMETER_AVPNAME_PRODUCTNAME);
+   diameter_utf8string_t *utf8str = product.GetAvp((char *)DIAMETER_AVPNAME_PRODUCTNAME);
    cap.m_ProductName.assign((utf8str) ? utf8str->data() : "",
                             (utf8str) ? utf8str->length() : 0);
 
-   uint32 = originState.GetAvp(DIAMETER_AVPNAME_ORIGINSTATEID);
+   uint32 = originState.GetAvp((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
    cap.m_OriginStateId = (uint32) ? *uint32 : 0;
 
-   uint32 = firmware.GetAvp(DIAMETER_AVPNAME_FIRMWAREREV);
+   uint32 = firmware.GetAvp((char *)DIAMETER_AVPNAME_FIRMWAREREV);
    cap.m_FirmwareRevision = (uint32) ? *uint32 : 0;
 
-   uint32 = inbandSecId.GetAvp(DIAMETER_AVPNAME_INBANDSECID);
+   uint32 = inbandSecId.GetAvp((char *)DIAMETER_AVPNAME_INBANDSECID);
    cap.m_InbandSecurityId = (uint32) ? *uint32 : 0;
 
    DiameterApplicationIdLst *idList[] = {
@@ -686,9 +686,9 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
        &acctAppId
    };
    char *avpNames[] = {
-       DIAMETER_AVPNAME_SUPPORTEDVENDORID,
-       DIAMETER_AVPNAME_AUTHAPPID,
-       DIAMETER_AVPNAME_ACCTAPPID
+       (char *)DIAMETER_AVPNAME_SUPPORTEDVENDORID,
+       (char *)DIAMETER_AVPNAME_AUTHAPPID,
+       (char *)DIAMETER_AVPNAME_ACCTAPPID
    };
    for (unsigned int i=0;
         i<sizeof(idList)/sizeof(DiameterApplicationIdLst*);
@@ -710,22 +710,22 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
    while (! cap.m_VendorSpecificId.empty()) {
        cap.m_VendorSpecificId.pop_front();
    }
-   diameter_grouped_t *grouped = vendorSpecificId.GetAvp(DIAMETER_AVPNAME_VENDORAPPID);
+   diameter_grouped_t *grouped = vendorSpecificId.GetAvp((char *)DIAMETER_AVPNAME_VENDORAPPID);
    for (ndx=1; grouped; ndx++) {
        DiameterDataVendorSpecificApplicationId vsid = { 0, 0, 0 };
        DiameterUInt32AvpContainerWidget gAuthId(*grouped);
        DiameterUInt32AvpContainerWidget gAcctId(*grouped);
        DiameterUInt32AvpContainerWidget gVendorId(*grouped);
 
-       uint32 = gVendorId.GetAvp(DIAMETER_AVPNAME_VENDORID);
+       uint32 = gVendorId.GetAvp((char *)DIAMETER_AVPNAME_VENDORID);
        vsid.vendorId = (uint32) ? *uint32 : 0;
-       uint32 = gAuthId.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
+       uint32 = gAuthId.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
        if (uint32) {
            vsid.authAppId = *uint32;
        }
        else {
            vsid.authAppId = 0;
-           uint32 = gAcctId.GetAvp(DIAMETER_AVPNAME_ACCTAPPID);
+           uint32 = gAcctId.GetAvp((char *)DIAMETER_AVPNAME_ACCTAPPID);
            if (uint32) {
                vsid.acctAppId = *uint32;
            }
@@ -738,7 +738,7 @@ void DiameterPeerStateMachine::DisassembleCE(DiameterMsg &msg)
        if ((vsid.acctAppId != 0) || (vsid.authAppId != 0)) {
            cap.m_VendorSpecificId.push_back(vsid);
        }
-       grouped = vendorSpecificId.GetAvp(DIAMETER_AVPNAME_VENDORAPPID, ndx);
+       grouped = vendorSpecificId.GetAvp((char *)DIAMETER_AVPNAME_VENDORAPPID, ndx);
    }
 
    DumpPeerCapabilities();
@@ -757,9 +757,9 @@ void DiameterPeerStateMachine::AssembleDW(DiameterMsg &msg, bool request)
    h.appId = DIAMETER_BASE_APPLICATION_ID;
    MsgIdTxMessage(msg);
 
-   DiameterIdentityAvpWidget originHost(DIAMETER_AVPNAME_ORIGINHOST);
-   DiameterIdentityAvpWidget originRealm(DIAMETER_AVPNAME_ORIGINREALM);
-   DiameterUInt32AvpWidget   originStateId(DIAMETER_AVPNAME_ORIGINSTATEID);
+   DiameterIdentityAvpWidget originHost((char *)DIAMETER_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget originRealm((char *)DIAMETER_AVPNAME_ORIGINREALM);
+   DiameterUInt32AvpWidget   originStateId((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
 
    originHost.Get() = DIAMETER_CFG_TRANSPORT()->identity;
    originRealm.Get() = DIAMETER_CFG_TRANSPORT()->realm;
@@ -779,15 +779,15 @@ void DiameterPeerStateMachine::DisassembleDW(DiameterMsg &msg)
    DiameterIdentityAvpContainerWidget originRealm(msg.acl);
    DiameterUInt32AvpContainerWidget originState(msg.acl);
 
-   diameter_identity_t *identity = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+   diameter_identity_t *identity = originHost.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
    Host.assign((identity) ? identity->data() : "",
                (identity) ? identity->length() : 0);
 
-   identity = originRealm.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+   identity = originRealm.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
    Realm.assign((identity) ? identity->data() : "",
                 (identity) ? identity->length() : 0);
 
-   diameter_unsigned32_t *uint32 = originState.GetAvp(DIAMETER_AVPNAME_ORIGINSTATEID);
+   diameter_unsigned32_t *uint32 = originState.GetAvp((char *)DIAMETER_AVPNAME_ORIGINSTATEID);
    diameter_unsigned32_t OriginStateId = (uint32) ? *uint32 : 0;
 
    AAA_LOG((LM_INFO, "(%P|%t) Watchdog msg from [%s.%s], state=%d, time=%d\n",
@@ -808,8 +808,8 @@ void DiameterPeerStateMachine::AssembleDP(DiameterMsg &msg,
    h.appId = DIAMETER_BASE_APPLICATION_ID;
    MsgIdTxMessage(msg);
 
-   DiameterIdentityAvpWidget originHost(DIAMETER_AVPNAME_ORIGINHOST);
-   DiameterIdentityAvpWidget originRealm(DIAMETER_AVPNAME_ORIGINREALM);
+   DiameterIdentityAvpWidget originHost((char *)DIAMETER_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget originRealm((char *)DIAMETER_AVPNAME_ORIGINREALM);
 
    originHost.Get() = DIAMETER_CFG_TRANSPORT()->identity;
    originRealm.Get() = DIAMETER_CFG_TRANSPORT()->realm;
@@ -827,11 +827,11 @@ void DiameterPeerStateMachine::DisassembleDP(DiameterMsg &msg)
    DiameterIdentityAvpContainerWidget originHost(msg.acl);
    DiameterIdentityAvpContainerWidget originRealm(msg.acl);
 
-   diameter_identity_t *identity = originHost.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
+   diameter_identity_t *identity = originHost.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
    Host.assign((identity) ? identity->data() : "",
                (identity) ? identity->length() : 0);
 
-   identity = originRealm.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
+   identity = originRealm.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
    Realm.assign((identity) ? identity->data() : "",
                 (identity) ? identity->length() : 0);
               
@@ -921,7 +921,7 @@ void DiameterPeerStateMachine::SendCEA(diameter_unsigned32_t rcode,
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleCE(*msg, false);
 
-   DiameterUInt32AvpWidget resultCode(DIAMETER_AVPNAME_RESULTCODE, rcode);
+   DiameterUInt32AvpWidget resultCode((char *)DIAMETER_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
 
    DiameterMsgResultCode::RCODE interpretedRcode = 
@@ -929,7 +929,7 @@ void DiameterPeerStateMachine::SendCEA(diameter_unsigned32_t rcode,
    if ((message.length() > 0) && 
        (interpretedRcode != DiameterMsgResultCode::RCODE_NOT_PRESENT) &&
        (interpretedRcode != DiameterMsgResultCode::RCODE_SUCCESS)) {
-       DiameterUtf8AvpWidget errorMsg(DIAMETER_AVPNAME_ERRORMESSAGE);
+       DiameterUtf8AvpWidget errorMsg((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
        errorMsg.Get() = message.data();
        msg->acl.add(errorMsg());
    }
@@ -1000,12 +1000,12 @@ void DiameterPeerStateMachine::SendDWA(diameter_unsigned32_t rcode,
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDW(*msg, false);
 
-   DiameterUInt32AvpWidget resultCode(DIAMETER_AVPNAME_RESULTCODE, rcode);
+   DiameterUInt32AvpWidget resultCode((char *)DIAMETER_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
 
    if ((message.length() > 0) && 
        (DiameterMsgResultCode::InterpretedResultCode(rcode) == DiameterMsgResultCode::RCODE_SUCCESS)) {
-       DiameterUtf8AvpWidget errorMsg(DIAMETER_AVPNAME_ERRORMESSAGE);
+       DiameterUtf8AvpWidget errorMsg((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
        errorMsg.Get() = message.data();
        msg->acl.add(errorMsg());
    }
@@ -1042,7 +1042,7 @@ void DiameterPeerStateMachine::SendDPR(bool initiator)
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDP(*msg);
 
-   DiameterUInt32AvpWidget disCause(DIAMETER_AVPNAME_DISCONNECT_CAUSE);
+   DiameterUInt32AvpWidget disCause((char *)DIAMETER_AVPNAME_DISCONNECT_CAUSE);
    disCause.Get() = diameter_unsigned32_t(m_Data.m_DisconnectCause);
    msg->acl.add(disCause());
 
@@ -1078,7 +1078,7 @@ void DiameterPeerStateMachine::SendDPA(bool initiator,
    std::auto_ptr<DiameterMsg> msg(new DiameterMsg);
    AssembleDP(*msg, false);
 
-   DiameterUInt32AvpWidget resultCode(DIAMETER_AVPNAME_RESULTCODE, rcode);
+   DiameterUInt32AvpWidget resultCode((char *)DIAMETER_AVPNAME_RESULTCODE, rcode);
    msg->acl.add(resultCode());
 
    Diameter_IO_Base *io = (initiator) ?
@@ -1224,9 +1224,9 @@ void DiameterPeerStateMachine::DumpPeerCapabilities()
        &cap.m_AuthAppIdLst,
        &cap.m_AcctAppIdLst
    };
-   char *label[] = { "Supported Vendor Id",
-                     "Auth Application Id",
-                     "Acct Application Id" };
+   char *label[] = { (char *)"Supported Vendor Id",
+                     (char *)"Auth Application Id",
+                     (char *)"Acct Application Id" };
    for (unsigned int i=0;
         i < sizeof(idList)/sizeof(DiameterApplicationIdLst*);
         i++) {

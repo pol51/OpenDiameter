@@ -35,8 +35,6 @@
 #ifndef __PARSER_AVPVALUE_H__
 #define __PARSER_AVPVALUE_H__
 
-// #define BOOST_SPIRIT_THREADSAFE
-
 #include <ace/Synch.h>
 #include <ace/Singleton.h>
 #include <ace/CDR_Base.h>
@@ -46,11 +44,11 @@
 #include "aaa_parser_q_avplist.h"
 #include "aaa_q_avplist.h"
 #include "aaa_g_avplist.h"
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/utility/loops.hpp>
-#include <boost/spirit/dynamic/for.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_loops.hpp>
+#include <boost/spirit/include/classic_for.hpp>
 #include <boost/pool/detail/mutex.hpp>
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 /// Container entry type definitions.
 typedef AAATypeSpecificAvpContainerEntry<diameter_integer32_t>
@@ -1669,4 +1667,3 @@ class GroupedParser : public DiameterAvpValueParser
 typedef Integer32Parser TimeParser;
 
 #endif // __PARSER_AVPVALUE_H__
-

@@ -63,7 +63,10 @@ class NASD_PolicyScript :
        }
        virtual bool Execute() {
           if (m_Script.length() > 0) {
-              system(m_Script.data());
+              if(system(m_Script.data()) < 0) {
+				  return false;
+			  }
+              
 	  }
           else {
               NASD_LOG(LM_ERROR, "(%P|%t) WARNING: No script file defined\n");

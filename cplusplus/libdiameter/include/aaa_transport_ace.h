@@ -57,9 +57,9 @@ template<class ACE_ACCEPTOR,
 class Diameter_ACE_Transport : public DiameterTransportInterface<ACE_ADDRESS>
 {
    public:
-      typedef enum {
+      typedef enum timeOut_s{
           ACCEPTOR_TIMEOUT = 10   // 10 sec
-      };
+      } timeOut_t;
 
    public:
       Diameter_ACE_Transport() : m_PendingStream(0) {

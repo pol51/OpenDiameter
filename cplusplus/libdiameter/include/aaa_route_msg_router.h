@@ -39,11 +39,11 @@
 #include "ace/Singleton.h"
 #include "aaa_route_framework.h"
 
-typedef enum {
+typedef enum routerParams_s{
    DIAMETER_ROUTER_RETX_DIVISOR = 2,
    DIAMETER_ROUTER_MIN_RETX_INTERVAL = 8,
    DIAMETER_ROUTER_MAX_RETX_COUNT    = 10
-};
+} routerParams_t;
 
 class DiameterMsgRouterHandler
 {
@@ -106,7 +106,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
        class DcLocal : public DiameterDeliveryRoutingNode<DiameterMsgRouter> {
            public:
                DcLocal(DiameterMsgRouter &r) :
-                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, "dcLocal") {
+                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, (char *)"dcLocal") {
                }
                AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                         std::auto_ptr<DiameterMsg> &p,
@@ -123,7 +123,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
        class DcForward : public DiameterDeliveryRoutingNode<DiameterMsgRouter> {
            public:
                DcForward(DiameterMsgRouter &r) :
-                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, "dcForward") {
+                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, (char *)"dcForward") {
                }
                AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                         std::auto_ptr<DiameterMsg> &p,
@@ -138,7 +138,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
        class DcRouted : public DiameterDeliveryRoutingNode<DiameterMsgRouter> {
            public:
                DcRouted(DiameterMsgRouter &r) :
-                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, "dcRouted") {
+                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, (char *)"dcRouted") {
                }
                AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                         std::auto_ptr<DiameterMsg> &p,
@@ -152,7 +152,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
        class DcReject : public DiameterDeliveryRoutingNode<DiameterMsgRouter> {
            public:
                DcReject(DiameterMsgRouter &r) :
-                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, "dcReject") {
+                   DiameterDeliveryRoutingNode<DiameterMsgRouter>(r, 0, (char *)"dcReject") {
                }
                AAA_ROUTE_RESULT Process(std::auto_ptr<DiameterMsg> msg,
                                         std::auto_ptr<DiameterMsg> &p,
@@ -171,7 +171,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
            public:
                RcLocal(DiameterMsgRouter &r) :
                   DiameterRequestRoutingNode<DcLocal,
-                                         DiameterMsgRouter>(r, 0, "rcLocal") { }
+                                         DiameterMsgRouter>(r, 0, (char *)"rcLocal") { }
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        std::auto_ptr<DiameterMsg> &p,
                                        DiameterPeerEntry *&dest);
@@ -182,7 +182,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
            public:
                RcForwarded(DiameterMsgRouter &r) :
                    DiameterRequestRoutingNode<DcForward,
-                                          DiameterMsgRouter>(r, 0, "rcForward") {
+                                          DiameterMsgRouter>(r, 0, (char *)"rcForward") {
                }
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        std::auto_ptr<DiameterMsg> &p,
@@ -194,7 +194,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
            public:
                RcRouted(DiameterMsgRouter &r) :
                    DiameterRequestRoutingNode<DcRouted,
-                                          DiameterMsgRouter>(r, 0, "rcRouted") {
+                                          DiameterMsgRouter>(r, 0, (char *)"rcRouted") {
                }
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        std::auto_ptr<DiameterMsg> &p,
@@ -206,7 +206,7 @@ class DiameterMsgRouter : public DiameterRouterFramework,
            public:
                RcRejected(DiameterMsgRouter &r) :
                    DiameterRequestRoutingNode<DcReject,
-                                          DiameterMsgRouter>(r, 0, "rcReject") {
+                                          DiameterMsgRouter>(r, 0, (char *)"rcReject") {
                }
                AAA_ROUTE_RESULT Lookup(std::auto_ptr<DiameterMsg> &msg,
                                        std::auto_ptr<DiameterMsg> &p,

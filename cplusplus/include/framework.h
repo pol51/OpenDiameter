@@ -1647,10 +1647,10 @@ class AAA_ProtectedPtrMap
 class AAA_RangedValue
 {
    public:
-      typedef enum {
+      typedef enum ranged_s{
           DEFAULT_LOW  = 0,
           DEFAULT_HIGH = 3,
-      };
+      } ranged_t;
 
    public:
       AAA_RangedValue(int level = DEFAULT_LOW,

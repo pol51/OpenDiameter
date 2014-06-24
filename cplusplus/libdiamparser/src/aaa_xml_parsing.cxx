@@ -119,7 +119,7 @@ class AAAXML_DictionaryElement :
 {
   public:
      AAAXML_DictionaryElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("dictionary", stack) {
+        AAAXML_Element((char *)"dictionary", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! AAAXML_Element::startElement(alist)) {
@@ -137,7 +137,7 @@ class AAAXML_VendorElement :
 {
   public:
      AAAXML_VendorElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("vendor", stack) {
+        AAAXML_Element((char *)"vendor", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! AAAXML_Element::startElement(alist)) {
@@ -159,7 +159,7 @@ class AAAXML_BaseElement :
 {
   public:
      AAAXML_BaseElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("base", stack) {
+        AAAXML_Element((char *)"base", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! AAAXML_Element::startElement(alist)) {
@@ -181,7 +181,7 @@ class AAAXML_ApplicationElement :
 {
   public:
      AAAXML_ApplicationElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("application", stack),
+        AAAXML_Element((char *)"application", stack),
         m_appId(0) {
      }
      virtual bool startElement(ACEXML_Attributes *alist) {
@@ -234,7 +234,7 @@ class AAAXML_CommandElement :
 {
   public:
      AAAXML_CommandElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("command", stack),
+        AAAXML_Element((char *)"command", stack),
         m_code(0), m_appId(0), 
         m_pBit(0), m_eBit(0) {
      }
@@ -321,7 +321,7 @@ class AAAXML_RequestRulesElement :
 {
   public:
      AAAXML_RequestRulesElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("requestrules", stack),
+        AAAXML_Element((char *)"requestrules", stack),
         m_command(NULL) {
      }
      virtual bool startElement(ACEXML_Attributes *alist) {
@@ -368,7 +368,7 @@ class AAAXML_AnswerRulesElement :
 {
   public:
      AAAXML_AnswerRulesElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("answerrules", stack),
+        AAAXML_Element((char *)"answerrules", stack),
         m_command(NULL) {
      }
      virtual bool startElement(ACEXML_Attributes *alist) {
@@ -415,7 +415,7 @@ class AAAXML_TypedefElement :
 {
   public:
      AAAXML_TypedefElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("typedefn", stack) {
+        AAAXML_Element((char *)"typedefn", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! AAAXML_Element::startElement(alist)) {
@@ -439,7 +439,7 @@ class AAAXML_AvpElement :
 {
   public:
      AAAXML_AvpElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("avp", stack),
+        AAAXML_Element((char *)"avp", stack),
         m_avp(NULL) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
@@ -520,7 +520,7 @@ class AAAXML_TypeElement :
 {
   public:
      AAAXML_TypeElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("type", stack) {
+        AAAXML_Element((char *)"type", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! AAAXML_Element::startElement(alist)) {
@@ -565,7 +565,7 @@ class AAAXML_GroupedElement :
 {
   public:
      AAAXML_GroupedElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("grouped", stack),
+        AAAXML_Element((char *)"grouped", stack),
         m_grpAvp(NULL) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
@@ -689,7 +689,7 @@ class AAAXML_FixedElement :
 {
   public:
      AAAXML_FixedElement(AAAXML_ElementStack &stack) :
-        AAAXML_PositionElement("fixed", stack) {
+        AAAXML_PositionElement((char *)"fixed", stack) {
      }
 };
 
@@ -698,7 +698,7 @@ class AAAXML_RequiredElement :
 {
   public:
      AAAXML_RequiredElement(AAAXML_ElementStack &stack) :
-        AAAXML_PositionElement("required", stack) {
+        AAAXML_PositionElement((char *)"required", stack) {
      }
 };
 
@@ -707,7 +707,7 @@ class AAAXML_OptionalElement :
 {
   public:
      AAAXML_OptionalElement(AAAXML_ElementStack &stack) :
-        AAAXML_PositionElement("optional", stack) {
+        AAAXML_PositionElement((char *)"optional", stack) {
      }
 };
 
@@ -716,7 +716,7 @@ class AAAXML_AvpRuleElement :
 {
   public:
      AAAXML_AvpRuleElement(AAAXML_ElementStack &stack) :
-        AAAXML_Element("avprule", stack) {
+        AAAXML_Element((char *)"avprule", stack) {
      }
      virtual bool startElement (ACEXML_Attributes *alist) {
         if (! AAAXML_Element::startElement(alist)) {
@@ -790,9 +790,9 @@ typedef std::pair<std::string, AAAXML_Element*> AAAXML_ElementPair;
 class AAAXML_ParsingTables
 {
   public:
-     typedef enum {
+     typedef enum numParsing_s{
          NUM_PARSING_PASSES = 2,
-     };
+     } numParsing_t;
 
   public:
      AAAXML_ParsingTables() :

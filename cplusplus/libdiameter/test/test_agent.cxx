@@ -36,6 +36,8 @@
 #include "diameter_api.h"
 #include "aaa_session_msg_mux.h"
 
+#define CONFIG_FILE_NAME "config/agent.local.xml"
+
 class AAA_SampleProxy : public AAA_ProxyHandler
 {
         // This is a sample proxy handler for messages
@@ -70,11 +72,11 @@ class AAA_SampleProxy : public AAA_ProxyHandler
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp((char *)DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
@@ -111,11 +113,11 @@ class AAA_SampleProxy : public AAA_ProxyHandler
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp((char *)DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
@@ -256,7 +258,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   DiameterApplication appCore(task, "config/agent.local.xml");
+   DiameterApplication appCore(task, (char *)CONFIG_FILE_NAME);
    AAA_SampleProxy myProxy;
    AAA_SampleProxyWithMux myProxyWithMux;
 
@@ -308,9 +310,3 @@ int main(int argc, char *argv[])
    task.Stop();
    return (0);
 }
-
-
-
-
-
-

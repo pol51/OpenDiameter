@@ -807,7 +807,7 @@ EapPeerSwitchStateMachine::EapPeerSwitchStateMachine
 (ACE_Reactor &r, EapJobHandle &h) 
   :  EapSwitchStateMachine(r, h),
      EapStateMachine<EapPeerSwitchStateMachine>
-  (*this, *EapPeerSwitchStateTable::instance(), r, *this, "peer"),
+  (*this, *EapPeerSwitchStateTable::instance(), r, *this, (char *)"peer"),
      authPeriod(defaultAuthPeriod),
      receivedFirstRequest(false), 
      inputIdentityTimerType(AAA_TimerTypeAllocator::instance()->Allocate())

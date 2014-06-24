@@ -48,6 +48,8 @@ using namespace std;
 
 #define GET_DATA_REF(dataType, data, containerEntryPtr) \
         dataType &data = (containerEntryPtr)->dataRef(Type2Type<dataType>())
+        
+#define DICTIONARY_FILE_NAME "./config/dictionary.xml"
 
 #define NUM_THREADS 100   
 unsigned char rbuf[] = 
@@ -444,7 +446,7 @@ main(int argc, char** argv)
   //  ACE_Log_Msg::instance()->open(argv[0], ACE_Log_Msg::SYSLOG);
 
   // Read dictionary file.
-  dm.init("./config/dictionary.xml");
+  dm.init((char *)DICTIONARY_FILE_NAME);
   grp_id = threads->spawn_n(NUM_THREADS, worker);
   if (grp_id < 1) {
       printf("Thread creation failed\n");

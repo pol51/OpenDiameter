@@ -56,9 +56,9 @@ class PANA_EXPORT PANA_PaaSessionFactory :
    public PANA_PaaSessionChannel
 {
    public:
-      typedef enum {
+      typedef enum maxMins_s{
           MAX_MINUTES_TO_HONOR_SID = 3,
-      };
+      } maxMins_t;
 
    public:
       PANA_PaaSessionFactory(PANA_Node &n) :

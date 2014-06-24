@@ -35,6 +35,8 @@
 
 #include "diameter_api.h"
 
+#define CONFIG_FILE_NAME "config/isp.local.xml"
+
 class AAA_SampleServer : public DiameterServerAuthSession {
         // AAA serve session derived from DiameterServerAuthSession.
         // It provides for all the functionality of a diameter 
@@ -110,11 +112,11 @@ class AAA_SampleServer : public DiameterServerAuthSession {
             DiameterUInt32AvpContainerWidget authAppIdAvp(msg.acl);
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp((char *)DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
@@ -198,8 +200,8 @@ class AAA_SampleServer : public DiameterServerAuthSession {
 
             DiameterMsgWidget msg(300, false, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
+            DiameterUInt32AvpWidget authIdAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp((char *)DIAMETER_AVPNAME_USERNAME);
 
             authIdAvp.Get() = 10000; // my application id
             unameAvp.Get() = "username@domain.com";
@@ -231,7 +233,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   DiameterApplication appCore(task, "config/isp.local.xml");
+   DiameterApplication appCore(task, (char *)CONFIG_FILE_NAME);
    SampleServerAllocator allocator(task, 10000);
    appCore.RegisterServerSessionFactory(allocator);
 

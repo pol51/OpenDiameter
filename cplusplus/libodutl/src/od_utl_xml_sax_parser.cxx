@@ -224,12 +224,12 @@ void OD_Utl_XML_SaxParser::Load(char* xmlFile)
 {
    ACEXML_FileCharStream *fstm = NULL;
    if (xmlFile == NULL) {
-       throw OD_Utl_XML_SaxException("No dictionary file specified");
+       throw OD_Utl_XML_SaxException((char *)"No dictionary file specified");
    }
 
    fstm = new ACEXML_FileCharStream;
    if (fstm == NULL) {
-       throw OD_Utl_XML_SaxException("Allocation failure");
+       throw OD_Utl_XML_SaxException((char *)"Allocation failure");
    }
    
    if (fstm->open (xmlFile) != 0) {
@@ -241,7 +241,7 @@ void OD_Utl_XML_SaxParser::Load(char* xmlFile)
    auto_ptr<ACEXML_DefaultHandler> handler
        (new OD_UTL_XML_SAXHandler(xmlFile, (*this)));
    if (handler.get() == NULL) {
-       throw OD_Utl_XML_SaxException("Allocation failure");
+       throw OD_Utl_XML_SaxException((char *)"Allocation failure");
    }
 
    ACEXML_Parser parser;
@@ -259,11 +259,11 @@ void OD_Utl_XML_SaxParser::Load(char* xmlFile)
    }
    catch (ACEXML_SAXException &ex) {
        ex.print();
-       throw OD_Utl_XML_SaxException("Parsing failure");
+       throw OD_Utl_XML_SaxException((char *)"Parsing failure");
    }
 
    OD_UTL_XML_SAXHandler *h = static_cast<OD_UTL_XML_SAXHandler*>(handler.get());
    if (h->FatalError() || (h->ErrorCount() > 0)) {
-       throw OD_Utl_XML_SaxException("Parsing failure");
+       throw OD_Utl_XML_SaxException((char *)"Parsing failure");
    }       
 }

@@ -54,7 +54,7 @@ class AAAD_DiameterEapParser :
          OD_Utl_XML_RegisteredElement
               <AAAD_ApplicationTable,
                OD_Utl_XML_ContentConvNull<AAAD_ApplicationTable> > 
-                  (arg, "diameter_eap", parser),
+                  (arg, (char *)"diameter_eap", parser),
                   m_pEapApp(NULL) {
      }        
      virtual bool startElement(ACEXML_Attributes *atts) {
@@ -141,21 +141,21 @@ class AAAD_CfgLoader
          OD_Utl_XML_SaxParser parser;
 
          OD_Utl_XML_UInt32Element setup01((unsigned int&)cfg.ThreadCount(), 
-                                          "thread_count", parser);
+                                          (char *)"thread_count", parser);
 
          OD_Utl_XML_StringElement setup02(cfg.DiameterCfgFile(),
-                                          "diameter_cfg_file", parser);
+                                          (char *)"diameter_cfg_file", parser);
 
          OD_Utl_XML_StringElement appName(ident.name,
-                                          "name", parser);
+                                          (char *)"name", parser);
          OD_Utl_XML_StringElement appEnabled(ident.enabled,
-                                          "enabled", parser);
+                                          (char *)"enabled", parser);
 
          AAAD_DiameterEapParser eap01(cfg.ApplicationTable(), parser);
          OD_Utl_XML_RegisteredElement<AAAD_AppIdentity,  AAAD_DiameterEapIdentityConv> 
-                                      eap02(ident, "local_identity", parser);
+                                      eap02(ident, (char *)"local_identity", parser);
          OD_Utl_XML_RegisteredElement<AAAD_AppIdentity,  AAAD_DiameterEapUserDbConv> 
-                                      eap03(ident, "user_db", parser);
+                                      eap03(ident, (char *)"user_db", parser);
 
          try {    
             parser.Load((char*)name);

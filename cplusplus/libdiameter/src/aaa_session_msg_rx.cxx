@@ -264,11 +264,11 @@ void DiameterSessionMsgRx::TxASA(std::auto_ptr<DiameterMsg> &asr)
    msg->hdr.hh = asr->hdr.hh;
    msg->hdr.ee = asr->hdr.ee;
 
-   DiameterUInt32AvpWidget rcodeAvp(DIAMETER_AVPNAME_RESULTCODE);
-   DiameterIdentityAvpWidget orHostAvp(DIAMETER_AVPNAME_ORIGINHOST);
-   DiameterIdentityAvpWidget orRealmAvp(DIAMETER_AVPNAME_ORIGINREALM);
-   DiameterUtf8AvpWidget orErrMsgAvp(DIAMETER_AVPNAME_ERRORMESSAGE);
-   DiameterIdentityAvpWidget orErrHostAvp(DIAMETER_AVPNAME_ERRORREPORTINGHOST);
+   DiameterUInt32AvpWidget rcodeAvp((char *)DIAMETER_AVPNAME_RESULTCODE);
+   DiameterIdentityAvpWidget orHostAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+   DiameterIdentityAvpWidget orRealmAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+   DiameterUtf8AvpWidget orErrMsgAvp((char *)DIAMETER_AVPNAME_ERRORMESSAGE);
+   DiameterIdentityAvpWidget orErrHostAvp((char *)DIAMETER_AVPNAME_ERRORREPORTINGHOST);
 
    rcodeAvp.Get() = AAA_UNKNOWN_SESSION_ID;
    orHostAvp.Get() = DIAMETER_CFG_TRANSPORT()->identity;

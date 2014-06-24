@@ -58,15 +58,27 @@ void AAAXmlElement::SetText(diameter_uri_t &uri) {
     m_value += uri.port;
 
     switch (uri.transport) {
-        case DIAMETER_TRANSPORT_PROTO_TCP: m_value += ";transport=tcp"; break;
-        case DIAMETER_TRANSPORT_PROTO_SCTP: m_value += ";transport=sctp"; break;
-        case DIAMETER_TRANSPORT_PROTO_UDP: m_value += ";transport=udp"; break;
+        case DIAMETER_TRANSPORT_PROTO_TCP: 
+			m_value += ";transport=tcp"; 
+			break;
+        case DIAMETER_TRANSPORT_PROTO_SCTP: 
+			m_value += ";transport=sctp"; 
+			break;
+        case DIAMETER_TRANSPORT_PROTO_UDP: 
+			m_value += ";transport=udp"; 
+			break;
     }
 
     switch (uri.protocol) {
-        case DIAMETER_PROTO_DIAMETER: m_value += ";protocol=diameter"; break;
-        case DIAMETER_PROTO_RADIUS: m_value += ";protocol=radius"; break;
-        case DIAMETER_PROTO_TACACSPLUS: m_value += ";protocol=tacacsplus"; break;
+        case DIAMETER_PROTO_DIAMETER: 
+			m_value += ";protocol=diameter"; 
+			break;
+        case DIAMETER_PROTO_RADIUS: 
+			m_value += ";protocol=radius"; 
+			break;
+        case DIAMETER_PROTO_TACACSPLUS:
+			m_value += ";protocol=tacacsplus"; 
+			break;
     }
 
     switch (uri.scheme) {
@@ -120,30 +132,30 @@ void AAAXmlWriter::writeToString(DiameterMsg *msg, std::string &output)
 {
    output = "<Message>";
 
-   AAAXmlElement version("version");
+   AAAXmlElement version((char *)"version");
    version.SetText(ACE_UINT32(msg->hdr.ver));
    output += version.Output();
 
-   AAAXmlElement flags("flags");
+   AAAXmlElement flags((char *)"flags");
    flags.SetAttribute("request", ACE_UINT32(msg->hdr.flags.r));
    flags.SetAttribute("proxiable", ACE_UINT32(msg->hdr.flags.p));
    flags.SetAttribute("error", ACE_UINT32(msg->hdr.flags.e));
    flags.SetAttribute("retrans", ACE_UINT32(msg->hdr.flags.t));
    output += flags.Output();
 
-   AAAXmlElement code("code");
+   AAAXmlElement code((char *)"code");
    code.SetText(msg->hdr.code);
    output += flags.Output();
 
-   AAAXmlElement appId("appId");
+   AAAXmlElement appId((char *)"appId");
    appId.SetText(msg->hdr.appId);
    output += flags.Output();
 
-   AAAXmlElement HopId("HopId");
+   AAAXmlElement HopId((char *)"HopId");
    HopId.SetText(msg->hdr.hh);
    output += flags.Output();
 
-   AAAXmlElement EndId("EndId");
+   AAAXmlElement EndId((char *)"EndId");
    EndId.SetText(msg->hdr.ee);
    output += flags.Output();
 

@@ -201,7 +201,7 @@ class PANA_EXPORT PANA_StateMachine :
                         AAA_StateTable<ARG> &table,
                         PANA_Node &node,
                         CHANNEL &udp) :
-	 AAA_StateMachineWithTimer<ARG>(arg, table, *node.Task().reactor(), "PANA"),
+	 AAA_StateMachineWithTimer<ARG>(arg, table, *node.Task().reactor(), (char *)"PANA"),
          m_GroupedJob(AAA_GroupedJob::Create(node.Job(), (AAA_JobData*)this)),
          m_TxChannel(udp) {
       }

@@ -67,9 +67,9 @@ class DiameterMsgManager
         /*!
          * Definitions for default block count
          */
-        typedef enum {
-	   AAA_MIN_MESSAGE_COUNT = 512
-        };
+        typedef enum msgCount_s{
+			AAA_MIN_MESSAGE_COUNT = 512
+        }msgCount_t;
 
     public:
         /*!

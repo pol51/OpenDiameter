@@ -1,35 +1,12 @@
-/* BEGIN_COPYRIGHT                                                        */
-/*                                                                        */
-/* Open Diameter: Open-source software for the Diameter and               */
-/*                Diameter related protocols                              */
-/*                                                                        */
-/* Copyright (C) 2002-2007 Open Diameter Project                          */
-/*                                                                        */
-/* This library is free software; you can redistribute it and/or modify   */
-/* it under the terms of the GNU Lesser General Public License as         */
-/* published by the Free Software Foundation; either version 2.1 of the   */
-/* License, or (at your option) any later version.                        */
-/*                                                                        */
-/* This library is distributed in the hope that it will be useful,        */
-/* but WITHOUT ANY WARRANTY; without even the implied warranty of         */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU      */
-/* Lesser General Public License for more details.                        */
-/*                                                                        */
-/* You should have received a copy of the GNU Lesser General Public       */
-/* License along with this library; if not, write to the Free Software    */
-/* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307    */
-/* USA.                                                                   */
-/*                                                                        */
-/* In addition, when you copy and redistribute some or the entire part of */
-/* the source code of this software with or without modification, you     */
-/* MUST include this copyright notice in each copy.                       */
-/*                                                                        */
-/* If you make any changes that are appeared to be useful, please send    */
-/* sources that include the changed part to                               */
-/* diameter-developers@lists.sourceforge.net so that we can reflect your  */
-/* changes to one unified version of this software.                       */
-/*                                                                        */
-/* END_COPYRIGHT                                                          */
+/**
+ * @file nasd_main.cxx
+ * @copy 2002-2014 Open Diameter Project | GNU LGPL 2.1+ - a copy of the license
+ * should have been included with the corresponding code
+ * @author Open Diameter Project | changes (diameter-developers@lists.sourceforge.net)
+ *
+ * @brief Example NASD application
+ * @note EAPDEFINE is set via ./configure options
+ */ 
 
 #include "nasd_pana.h"
 #include "nasd_diameter_eap.h"
@@ -40,54 +17,79 @@
 #define NASD_USAGE "\nUsage: nasd [cfg_file]\n\
              cfg_file - NASD XML configuration file\n"
 
+/// Forward declaration of cfgFile ()
 std::string cfgFile(int argc, char **argv);
 
+/**
+ * main(int argc, char **argv)
+ * 
+ * @brief Main - everyone has one
+ * @param argc
+ * @param argv
+ * @return 0 if there is an error (should never return)
+ */ 
 int main(int argc, char **argv)
 {
-    /// ----------------------------------------
-    std::string fname = cfgFile(argc, argv);
+	/// Set configuration file name
+	std::string fname = cfgFile(argc, argv);
 
-    /// ----------------------------------------
-    /// Node writers MUST add thier initializer
-    /// instance here
-    NASD_PanaInitializer apPanaInit;
-    //NASD_DiameterEapInitializer aaaDiameterEapInit;
-    NASD_EapBackendInitializer aaaEapBackendInit;
-    NASD_PolicyScriptInitializer plcyScriptInit;
-    
-    std::string strApPanaName("pana");
-    //std::string strAaaDiameterEapName("diameter_eap");
-    std::string strAaaEapBackendName("local_eap_auth");
-    std::string strPlcyScriptName("script");
-    
-    NASD_CnInitializer_I->Register(strApPanaName, apPanaInit);
-    //NASD_CnInitializer_I->Register(strAaaDiameterEapName, aaaDiameterEapInit);
-    NASD_CnInitializer_I->Register(strAaaEapBackendName, aaaEapBackendInit);
-    NASD_CnInitializer_I->Register(strPlcyScriptName, plcyScriptInit);
+    /**
+    * Node writers MUST add an initializer specific to their
+    * instance below
+    */
+	NASD_PanaInitializer apPanaInit;
+#ifdef EAPDEFINE
+	NASD_DiameterEapInitializer aaaDiameterEapInit;
+#endif
+	NASD_EapBackendInitializer aaaEapBackendInit;
+	NASD_PolicyScriptInitializer plcyScriptInit;
 
-    /// ----------------------------------------
-    if (NASD_CnInitializer_I->Start(fname.data())) {
-        while (NASD_CnInitializer_I->IsRunning());
-        NASD_CnInitializer_I->Stop();
-    }
-    return (0);
+	std::string strApPanaName("pana");
+#ifdef EAPDEFINE
+	std::string strAaaDiameterEapName("diameter_eap");
+#endif
+	std::string strAaaEapBackendName("local_eap_auth");
+	std::string strPlcyScriptName("script");
+
+	/// Register each initializer
+	NASD_CnInitializer_I->Register(strApPanaName, apPanaInit);
+#ifdef EAPDEFINE   
+    NASD_CnInitializer_I->Register(strAaaDiameterEapName, aaaDiameterEapInit);
+#endif   
+	NASD_CnInitializer_I->Register(strAaaEapBackendName, aaaEapBackendInit);
+	NASD_CnInitializer_I->Register(strPlcyScriptName, plcyScriptInit);
+
+	/// Start each Initializer
+	if (NASD_CnInitializer_I->Start(fname.data())) {
+		while (NASD_CnInitializer_I->IsRunning()) ;
+		NASD_CnInitializer_I->Stop();
+	}
+	return (0);
 }
 
+/**
+ * cfgFile(int argc, char **argv)
+ * 
+ * @brief Throws errors and usage if not correct
+ * @param argc
+ * @param argv
+ * @return string
+ */ 
 std::string cfgFile(int argc, char **argv)
 {
-    std::string fname = NASD_DEFAULT_CFG_FILE;
-    try {
-        if (argc == 2) {
-            fname = argv[1];
-            throw (fname == "--help") ? -1 : 0;
-        }
-        throw (argc == 1) ? 0 : -1;
-    }
-    catch (int rc) {
-        if (rc < 0) {
-            NASD_LOG(LM_INFO, "%s\n", NASD_USAGE);
-            exit (0);
+	std::string fname = NASD_DEFAULT_CFG_FILE;
+	try {
+		if (argc == 2) {
+			fname = argv[1];
+			throw(fname == "--help") ? -1 : 0;
+		}
+		throw(argc == 1) ? 0 : -1;
 	}
-    }
-    return fname;
+	catch(int rc) {
+		if (rc < 0) {
+			NASD_LOG(LM_INFO, "%s\n", NASD_USAGE);
+			exit(0);
+		}
+	}
+	return fname;
 }

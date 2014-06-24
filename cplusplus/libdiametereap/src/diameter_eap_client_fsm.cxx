@@ -492,7 +492,7 @@ DiameterEapClientStateTable;
 DiameterEapClientStateMachine::DiameterEapClientStateMachine
 (DiameterEapClientSession& s, DiameterJobHandle &h)
   : AAA_StateMachine<DiameterEapClientStateMachine>
-  (*this, *DiameterEapClientStateTable::instance(), "AAA_EAP_CLIENT"),
+  (*this, *DiameterEapClientStateTable::instance(), (char *)"AAA_EAP_CLIENT"),
     session(s),
     handle(h)
 {}

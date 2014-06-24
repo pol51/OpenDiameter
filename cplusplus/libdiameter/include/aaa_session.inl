@@ -46,18 +46,18 @@ AAAReturnCode DiameterSession<ATTRIBUTE>::TxDelivery
 
    // resolve the destination host
    diameter_identity_t *dHost = dHostAvp.GetAvp
-           (DIAMETER_AVPNAME_DESTHOST);
+           ((char *)DIAMETER_AVPNAME_DESTHOST);
    if (dHost == NULL) {
        if (! m_Attributes.DestinationHost().IsSet()) {
            DiameterScholarAttribute<diameter_identity_t> dHostAttr;
            SetDestinationHost(dHostAttr);
            if (dHostAttr.IsSet()) {
-               dHostAvp.AddAvp(DIAMETER_AVPNAME_DESTHOST) = dHostAttr();
+               dHostAvp.AddAvp((char *)DIAMETER_AVPNAME_DESTHOST) = dHostAttr();
                m_Attributes.DestinationHost().Set(dHostAttr());
            }
        }
        else {
-           dHostAvp.AddAvp(DIAMETER_AVPNAME_DESTHOST) = 
+           dHostAvp.AddAvp((char *)DIAMETER_AVPNAME_DESTHOST) = 
                m_Attributes.DestinationHost()();
        }
    }
@@ -67,13 +67,13 @@ AAAReturnCode DiameterSession<ATTRIBUTE>::TxDelivery
 
    // resolve the destination realm
    diameter_identity_t *dRealm = dRealmAvp.GetAvp
-                   (DIAMETER_AVPNAME_DESTREALM);
+                   ((char *)DIAMETER_AVPNAME_DESTREALM);
    if (dRealm == NULL) {
        if (! m_Attributes.DestinationRealm().IsSet()) {
            DiameterScholarAttribute<diameter_identity_t> dRealmAttr;
            SetDestinationRealm(dRealmAttr);
            if (dRealmAttr.IsSet()) {
-               dRealmAvp.AddAvp(DIAMETER_AVPNAME_DESTREALM) = dRealmAttr();
+               dRealmAvp.AddAvp((char *)DIAMETER_AVPNAME_DESTREALM) = dRealmAttr();
                m_Attributes.DestinationRealm().Set(dRealmAttr());
            }
            else if (msg->hdr.flags.r) {
@@ -83,7 +83,7 @@ AAAReturnCode DiameterSession<ATTRIBUTE>::TxDelivery
            }
        }
        else {
-           dRealmAvp.AddAvp(DIAMETER_AVPNAME_DESTREALM) = 
+           dRealmAvp.AddAvp((char *)DIAMETER_AVPNAME_DESTREALM) = 
                m_Attributes.DestinationRealm()();
        }
    }
@@ -94,12 +94,12 @@ AAAReturnCode DiameterSession<ATTRIBUTE>::TxDelivery
    // gather username if any
    if (! m_Attributes.Username().IsSet()) {
        diameter_utf8string_t *uname = unameAvp.GetAvp
-           (DIAMETER_AVPNAME_USERNAME);
+           ((char *)DIAMETER_AVPNAME_USERNAME);
        if (uname == NULL) {
            DiameterScholarAttribute<diameter_utf8string_t> unameAttr;
            SetUsername(unameAttr);
            if (unameAttr.IsSet()) {
-               unameAvp.AddAvp(DIAMETER_AVPNAME_USERNAME) = unameAttr();
+               unameAvp.AddAvp((char *)DIAMETER_AVPNAME_USERNAME) = unameAttr();
                m_Attributes.Username() = unameAttr();
            }
        }
@@ -108,12 +108,12 @@ AAAReturnCode DiameterSession<ATTRIBUTE>::TxDelivery
        }
    }
 
-   if (orHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST) == 0) {
-       orHostAvp.AddAvp(DIAMETER_AVPNAME_ORIGINHOST) = 
+   if (orHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST) == 0) {
+       orHostAvp.AddAvp((char *)DIAMETER_AVPNAME_ORIGINHOST) = 
            DIAMETER_CFG_TRANSPORT()->identity;
    }
-   if (orRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM) == 0) {
-       orRealmAvp.AddAvp(DIAMETER_AVPNAME_ORIGINREALM) = 
+   if (orRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM) == 0) {
+       orRealmAvp.AddAvp((char *)DIAMETER_AVPNAME_ORIGINREALM) = 
            DIAMETER_CFG_TRANSPORT()->realm;
    }
 

@@ -152,7 +152,9 @@ class PANA_AuthScriptCtl
          }
 
          if (m_Script.length() > 0) {
-            system(sysCmd.data());
+            if(system(sysCmd.data()) < 0) {
+				return;
+			}
          }
          else {
             AAA_LOG((LM_INFO, "%s is invalid !\n"));

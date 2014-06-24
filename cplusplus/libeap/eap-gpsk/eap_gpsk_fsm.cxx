@@ -1054,7 +1054,7 @@ EapPeerGpskStateMachine::EapPeerGpskStateMachine
 (EapSwitchStateMachine &s)
   : EapMethodStateMachine(s),
     EapStateMachine<EapPeerGpskStateMachine>
-  (*this, *EapPeerGpskStateTable::instance(), s.Reactor(), s, "Gpsk(peer)")
+  (*this, *EapPeerGpskStateTable::instance(), s.Reactor(), s, (char *)"Gpsk(peer)")
 {
 } 
 
@@ -1063,7 +1063,7 @@ EapAuthGpskStateMachine::EapAuthGpskStateMachine
   : EapMethodStateMachine(s),
     EapStateMachine<EapAuthGpskStateMachine>
   (*this, *EapAuthGpskStateTable::instance(),
-   s.Reactor(), s, "Gpsk(authenticator)")
+   s.Reactor(), s, (char *)"Gpsk(authenticator)")
 {
 }
 

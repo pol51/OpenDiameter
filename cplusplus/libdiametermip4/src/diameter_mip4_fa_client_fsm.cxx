@@ -351,7 +351,7 @@ DiameterMip4FaClientStateTable;
 DiameterMip4FaClientStateMachine::DiameterMip4FaClientStateMachine
 (AAAClientSession &s, DiameterJobHandle &h)
   : AAA_StateMachine<DiameterMip4FaClientStateMachine>
-  (*this, *DiameterMip4FaClientStateTable::instance(), "DIAMETER_MIP4_FA_CLIENT"),
+  (*this, *DiameterMip4FaClientStateTable::instance(), (char *)"DIAMETER_MIP4_FA_CLIENT"),
     session(s),
     handle(h)
 {}

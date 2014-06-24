@@ -69,7 +69,9 @@ class AAAD_UserEapMd5Method
       }
       static PASSWD_TYPE PasswordType(std::string &t) {
          static char *strType[] = {
-	   "system", "flat", "none" // same order as enum
+			(char *) "system",
+			(char *)"flat", 
+			(char *)"none" // same order as enum
          };
          for (unsigned int i = 0; 
               i < sizeof(strType)/sizeof(char*);
@@ -305,19 +307,19 @@ class AAAD_UserDbLoader
 
          OD_Utl_XML_SaxParser parser;
 
-         AAAD_UserEntryParser users(db, "user_entry", parser);
-         AAAD_UserEntryParser default_user(db, "default_entry", parser);
+         AAAD_UserEntryParser users(db, (char *)"user_entry", parser);
+         AAAD_UserEntryParser default_user(db, (char *)"default_entry", parser);
 
          OD_Utl_XML_RegisteredElement<short,  AAAD_NameMatchConv> 
-                                      user01(unused, "name_match", parser);
+                                      user01(unused, (char *)"name_match", parser);
          OD_Utl_XML_RegisteredElement<short,  AAAD_EapMethodConv> 
-                                      user02(unused, "eap_method", parser);
+                                      user02(unused, (char *)"eap_method", parser);
          OD_Utl_XML_RegisteredElement<short,  AAAD_SharedSecretConv> 
-                                      user03(unused, "shared_secret_file", parser);
+                                      user03(unused, (char *)"shared_secret_file", parser);
          OD_Utl_XML_RegisteredElement<short,  AAAD_PasswordConv> 
-                                      user04(unused, "secret", parser);
+                                      user04(unused, (char *)"secret", parser);
          OD_Utl_XML_RegisteredElement<short,  AAAD_PasswordTypeConv> 
-                                      user05(unused, "password_type", parser);
+                                      user05(unused, (char *)"password_type", parser);
 
          try {    
             parser.Load((char*)name);

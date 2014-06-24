@@ -37,10 +37,10 @@
 #include "diameter_parser.h"
 #include "aaa_transport_interface.h"
 
-typedef enum {
+typedef enum maxCollector_s{
     MSG_COLLECTOR_MAX_MSG_LENGTH  = 2048,
     MSG_COLLECTOR_MAX_MSG_BLOCK   = 10
-};
+}maxCollector_t;
 
 class DiameterRxMsgCollectorHandler
 {

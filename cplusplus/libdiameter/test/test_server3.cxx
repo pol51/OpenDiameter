@@ -35,6 +35,8 @@
 
 #include "diameter_api.h"
 
+#define CONFIG_FILE_NAME "config/isp.local.xml"
+
 class AAA_SampleRecStorage : 
     public DiameterServerAcctRecStorage
 {
@@ -62,7 +64,7 @@ class AAA_SampleRecStorage :
            /// -Id ... etc which the application may wish
            /// to track
            DiameterUtf8AvpContainerWidget recAvp(avpList);
-           diameter_utf8string_t *rec = recAvp.GetAvp("Example-Accounting-Record");
+           diameter_utf8string_t *rec = recAvp.GetAvp((char *)"Example-Accounting-Record");
            if (rec) {
                std::cout << "Record: " << *rec << std::endl;
            }
@@ -76,7 +78,7 @@ class AAA_SampleRecStorage :
            // as an example, add a timestamp to your aca
            time_t currentTime = time(0);
            if (currentTime > 0) {
-              DiameterTimeAvpWidget tstampAvp("Event-Timestamp");
+              DiameterTimeAvpWidget tstampAvp((char*)"Event-Timestamp");
               tstampAvp.Get() = currentTime;
               aca.acl.add(tstampAvp());
            }
@@ -152,7 +154,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   DiameterApplication appCore(task, "config/isp.local.xml");
+   DiameterApplication appCore(task, (char *)CONFIG_FILE_NAME);
    SampleServerAllocator allocator(task, 20000);
    appCore.RegisterServerSessionFactory(allocator);
 

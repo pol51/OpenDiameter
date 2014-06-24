@@ -222,7 +222,7 @@ template<> void PANA_PayloadParser::parseRawToApp()// throw(DiameterErrorCode)
     AAAQualifiedAVP *qavp;
     AAAErrorCode st;
 
-    int type;
+    int type = 0;
     unsigned int min, max;
     const char *name;
 
@@ -262,7 +262,7 @@ template<> void PANA_PayloadParser::parseRawToApp()// throw(DiameterErrorCode)
                 }
                 catch (AAAErrorCode &st) {
                     AAA_PARSE_ERROR_TYPE type;
-                    int code;
+                    int code = 0;
                     st.get(type, code);
                     if (type == AAA_PARSE_ERROR_TYPE_NORMAL && code == AAA_MISSING_AVP) {
                         // AVP was not found
@@ -313,7 +313,7 @@ template<> void PANA_PayloadParser::parseAppToRaw()// throw(DiameterErrorCode)
     AAAErrorCode st;
     PANA_QualifiedAvpList::iterator i;
 
-    int type;
+    int type =0;
     unsigned int min, max;
     const char *name;
 

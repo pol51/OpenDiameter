@@ -11,16 +11,16 @@ AM_LDFLAGS = @L_LDFLAGS@
 
 if compile_EAPTLS
 CORE_SRC = eapcore/eap_fsm.cxx \
-	eapcore/eap_peerfsm.cxx \
-	eapcore/eap_authfsm.cxx \
+		eapcore/eap_peerfsm.cxx \
+		eapcore/eap_authfsm.cxx \
         eapcore/eap_standalone_authfsm.cxx \
         eapcore/eap_backend_authfsm.cxx \
         eapcore/eap_passthrough_authfsm.cxx \
-	eapcore/eap_identity.cxx \
-	eapcore/eap_method_registrar.cxx \
-	eapcore/eap_policy.cxx \
+		eapcore/eap_identity.cxx \
+		eapcore/eap_method_registrar.cxx \
+		eapcore/eap_policy.cxx \
         eapcore/eap_notification.cxx \
-	eapcore/eap_md5.cxx 
+		eapcore/eap_md5.cxx 
 
 CORE_HDR = include/eap_api.h \
         include/eap.hxx \
@@ -34,34 +34,34 @@ CORE_HDR = include/eap_api.h \
         include/eap_parser.hxx \
         include/eap_peerfsm.hxx \
         include/eap_policy.hxx \
-	include/eap_archie_crypto.hxx \
-	include/eap_archie_fsm.hxx \
-	include/eap_archie_parser.hxx \
-	include/eap_archie.hxx \
-	include/eap_gpsk_crypto.hxx \
-	include/eap_gpsk_fsm.hxx \
-	include/eap_gpsk_parser.hxx \
-	include/eap_gpsk.hxx \
-	include/eap_tls.hxx \
-	include/eap_tls_mng.hxx \
-	include/eap_tls_session.hxx \
-	include/eap_tls_parser.hxx \
-	include/eap_tls_fsm.hxx \
-	include/eap_tls_xml_data.hxx \
-	include/eap_tls_xml_parser.hxx \
-	include/eap_tls_data_defs.hxx
+		include/eap_archie_crypto.hxx \
+		include/eap_archie_fsm.hxx \
+		include/eap_archie_parser.hxx \
+		include/eap_archie.hxx \
+		include/eap_gpsk_crypto.hxx \
+		include/eap_gpsk_fsm.hxx \
+		include/eap_gpsk_parser.hxx \
+		include/eap_gpsk.hxx \
+		include/eap_tls.hxx \
+		include/eap_tls_mng.hxx \
+		include/eap_tls_session.hxx \
+		include/eap_tls_parser.hxx \
+		include/eap_tls_fsm.hxx \
+		include/eap_tls_xml_data.hxx \
+		include/eap_tls_xml_parser.hxx \
+		include/eap_tls_data_defs.hxx
 else
 CORE_SRC = eapcore/eap_fsm.cxx \
-	eapcore/eap_peerfsm.cxx \
-	eapcore/eap_authfsm.cxx \
+		eapcore/eap_peerfsm.cxx \
+		eapcore/eap_authfsm.cxx \
         eapcore/eap_standalone_authfsm.cxx \
         eapcore/eap_backend_authfsm.cxx \
         eapcore/eap_passthrough_authfsm.cxx \
-	eapcore/eap_identity.cxx \
-	eapcore/eap_method_registrar.cxx \
-	eapcore/eap_policy.cxx \
+		eapcore/eap_identity.cxx \
+		eapcore/eap_method_registrar.cxx \
+		eapcore/eap_policy.cxx \
         eapcore/eap_notification.cxx \
-	eapcore/eap_md5.cxx
+		eapcore/eap_md5.cxx
 
 CORE_HDR = include/eap_api.h \
         include/eap.hxx \
@@ -75,14 +75,14 @@ CORE_HDR = include/eap_api.h \
         include/eap_parser.hxx \
         include/eap_peerfsm.hxx \
         include/eap_policy.hxx \
-	include/eap_archie_crypto.hxx \
-	include/eap_archie_fsm.hxx \
-	include/eap_archie_parser.hxx \
-	include/eap_archie.hxx \
-	include/eap_gpsk_crypto.hxx \
-	include/eap_gpsk_fsm.hxx \
-	include/eap_gpsk_parser.hxx \
-	include/eap_gpsk.hxx
+		include/eap_archie_crypto.hxx \
+		include/eap_archie_fsm.hxx \
+		include/eap_archie_parser.hxx \
+		include/eap_archie.hxx \
+		include/eap_gpsk_crypto.hxx \
+		include/eap_gpsk_fsm.hxx \
+		include/eap_gpsk_parser.hxx \
+		include/eap_gpsk.hxx
 endif
 
 ARCHIE_SRC = eap-archie/eap_archie_fsm.cxx
@@ -131,14 +131,14 @@ if compile_EAPTLS
 libeaptls_la_LDFLAGS = -version-info 1:0:0 
 libeaptls_la_AR = $(AR) -qcs
 LDADD = @L_LIBS@ \
-        $(top_builddir)/libeap/libeap.la \
+		$(top_builddir)/libeap/libeap.la \
         $(top_builddir)/libeap/libeaparchie.la \
         $(top_builddir)/libeap/libeapgpsk.la \
         $(top_builddir)/libeap/libeaptls.la \
         $(top_builddir)/libdiamparser/libdiamparser.la
 else
-LDADD = @L_LIBS@ \
-        $(top_builddir)/libeap/libeap.la \
+LDADD = @L_LIBS@\
+		$(top_builddir)/libeap/libeap.la \
         $(top_builddir)/libeap/libeaparchie.la \
         $(top_builddir)/libeap/libeapgpsk.la
 endif

@@ -231,7 +231,7 @@ void PANA_SecurityAssociation::GenerateAuthAvpValue
 
 bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
 {
-    PANA_UInt32AvpWidget keyIdAvp(PANA_AVPNAME_KEYID);
+    PANA_UInt32AvpWidget keyIdAvp((char *)PANA_AVPNAME_KEYID);
     keyIdAvp.Get() = m_MSK.Id();
     msg.avpList().add(keyIdAvp());
     return (true);
@@ -240,7 +240,7 @@ bool PANA_SecurityAssociation::AddKeyIdAvp(PANA_Message &msg)
 bool PANA_SecurityAssociation::AddAuthAvp(PANA_Message &msg)
 {
     // add auth-avp
-    PANA_StringAvpWidget authAvp(PANA_AVPNAME_AUTH);
+    PANA_StringAvpWidget authAvp((char *)PANA_AVPNAME_AUTH);
     pana_octetstring_t &auth = authAvp.Get();
     msg.avpList().add(authAvp());
 
@@ -265,7 +265,7 @@ bool PANA_SecurityAssociation::ValidateAuthAvp(PANA_Message &msg)
 {
     try {
         PANA_StringAvpContainerWidget authAvp(msg.avpList());
-        pana_octetstring_t *auth = authAvp.GetAvp(PANA_AVPNAME_AUTH);
+        pana_octetstring_t *auth = authAvp.GetAvp((char *)PANA_AVPNAME_AUTH);
         if (auth == NULL) {
             throw (PANA_Exception(PANA_Exception::FAILED,
                                   "Missing AUTH-AVP"));

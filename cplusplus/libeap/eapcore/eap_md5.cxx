@@ -36,6 +36,8 @@
 // Written by Yoshihiro Ohba
 
 #include <string>
+#include <openssl/md5.h>
+#include <openssl/rand.h>
 #include <ace/Singleton.h>
 #include <ace/OS_String.h>
 #include <ace/Message_Block.h>
@@ -410,7 +412,7 @@ EapPeerMD5ChallengeStateMachine::EapPeerMD5ChallengeStateMachine
   : EapMethodStateMachine(s),
     EapStateMachine<EapPeerMD5ChallengeStateMachine>
   (*this, *EapPeerMD5ChallengeStateTable::instance(), s.Reactor(), 
-   s, "MD5(peer)")
+   s, (char *)"MD5(peer)")
 {} 
 
 EapAuthMD5ChallengeStateMachine::EapAuthMD5ChallengeStateMachine
@@ -418,6 +420,5 @@ EapAuthMD5ChallengeStateMachine::EapAuthMD5ChallengeStateMachine
   : EapMethodStateMachine(s),
     EapStateMachine<EapAuthMD5ChallengeStateMachine>
   (*this, *EapAuthMD5ChallengeStateTable::instance(), 
-   s.Reactor(), s, "MD5(authenticator)")
+   s.Reactor(), s, (char *)"MD5(authenticator)")
 {} 
-

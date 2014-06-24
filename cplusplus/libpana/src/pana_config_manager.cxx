@@ -56,43 +56,43 @@ void PANA_CfgManager::open(std::string &cfg_file)
 
     // General Section
     OD_Utl_XML_UInt32Element gen01(m_Data.m_General.m_ListenPort,
-                                   "listen_port", parser);
+                                   (char *)"listen_port", parser);
     OD_Utl_XML_StringElement gen02(m_Data.m_General.m_ListenAddress,
-                                   "listen_address", parser);
+                                   (char *)"listen_address", parser);
     OD_Utl_XML_StringElement gen03(m_Data.m_General.m_Dictionary,
-                                   "dictionary_filename", parser);
+                                   (char *)"dictionary_filename", parser);
     OD_Utl_XML_UInt32Element gen04(m_Data.m_General.m_WPASupport,
-                                   "wpa_bootstrap", parser);
+                                   (char *)"wpa_bootstrap", parser);
     OD_Utl_XML_UInt32Element gen05(m_Data.m_General.m_SessionLifetime,
-                                   "session_lifetime", parser);
+                                   (char *)"session_lifetime", parser);
 
-    // re-transmission section
+    // Retransmission section
     OD_Utl_XML_UInt32Element rt01(m_Data.m_General.m_RT.m_IRT,
-                                  "initial_rt_timeout", parser);
+                                  (char *)"initial_rt_timeout", parser);
     OD_Utl_XML_UInt32Element rt02(m_Data.m_General.m_RT.m_MRC,
-                                  "max_rt_count", parser);
+                                  (char *)"max_rt_count", parser);
     OD_Utl_XML_UInt32Element rt03(m_Data.m_General.m_RT.m_MRT,
-                                  "max_rt_timeout", parser);
+                                  (char *)"max_rt_timeout", parser);
     OD_Utl_XML_UInt32Element rt04(m_Data.m_General.m_RT.m_MRD,
-                                  "max_rt_duration", parser);
+                                  (char *)"max_rt_duration", parser);
 
     // Pac config
     OD_Utl_XML_StringElement pac01(m_Data.m_PaC.m_PaaIpAddress,
-                                   "paa_ip_address", parser);
+                                   (char *)"paa_ip_address", parser);
     OD_Utl_XML_UInt32Element pac02(m_Data.m_PaC.m_PaaPortNumber,
-                                   "paa_port_number", parser);
+                                   (char *)"paa_port_number", parser);
     OD_Utl_XML_UInt32Element pac03(m_Data.m_PaC.m_EapResponseTimeout,
-                                   "eap_response_timeout", parser);
+                                   (char *)"eap_response_timeout", parser);
     OD_Utl_XML_UInt32Element pac04(m_Data.m_PaC.m_EapPiggyback,
-                                   "eap_piggyback", parser);
+                                   (char *)"eap_piggyback", parser);
 
     // Agent config
     OD_Utl_XML_UInt32Element paa01(m_Data.m_Paa.m_OptimizedHandshake,
-                                   "optimized_handshake", parser);
+                                   (char *)"optimized_handshake", parser);
     OD_Utl_XML_UInt32Element paa02(m_Data.m_Paa.m_CarryLifetime,
-                                   "carry_lifetime", parser);
+                                   (char *)"carry_lifetime", parser);
     OD_Utl_XML_UInt32Element paa03(m_Data.m_Paa.m_IpReconfig,
-                                   "ip_reconfiguration", parser);
+                                   (char *)"ip_reconfiguration", parser);
 
     try {
         parser.Load((char*)cfg_file.c_str());

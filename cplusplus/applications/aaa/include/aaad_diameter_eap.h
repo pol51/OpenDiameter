@@ -164,7 +164,7 @@ class AAAD_DiameterEapServerSession :
 	  m_Initial(true),
           m_Handle(EapJobHandle
 	       (AAA_GroupedJob::Create(appCore.GetTask().Job(), 
-                                       this, "backend"))),
+                                       this, (char *)"backend"))),
           m_Eap(boost::shared_ptr<AAAD_EapBackendAuthSwitchStateMachine>
 	        (new AAAD_EapBackendAuthSwitchStateMachine
 		 (*appCore.GetTask().reactor(), m_Handle))) {

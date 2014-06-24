@@ -78,7 +78,7 @@ class EapTask : public AAA_Task
 {
  public:
   /// Constructor.
-  EapTask() : AAA_Task(AAA_SCHED_FIFO, "EAP") {}
+  EapTask() : AAA_Task(AAA_SCHED_FIFO, (char *)"EAP") {}
 
   /// Destructor.
   ~EapTask() {}
@@ -230,7 +230,7 @@ class PeerApplication : public AAA_JobData,
  public:
   PeerApplication(PANA_Node &n) :
     pacSession(n, *this),
-    handle(EapJobHandle(AAA_GroupedJob::Create(n.Task().Job(), this, "peer"))),
+    handle(EapJobHandle(AAA_GroupedJob::Create(n.Task().Job(), this, (char *)"peer"))),
     eap(boost::shared_ptr<MyPeerSwitchStateMachine>
 	(new MyPeerSwitchStateMachine(*n.Task().reactor(), handle))),
     md5Method(EapContinuedPolicyElement(EapType(4)))
@@ -287,7 +287,7 @@ class StandAloneAuthApplication : public AAA_JobData,
   StandAloneAuthApplication(PANA_PaaSessionChannel &ch)
     : paaSession(ch, *this),
       handle(EapJobHandle(AAA_GroupedJob::Create
-                          (ch.Node().Task().Job(), this, "standalone"))),
+                          (ch.Node().Task().Job(), this, (char *)"standalone"))),
       eap(boost::shared_ptr<MyStandAloneAuthSwitchStateMachine>
 	  (new MyStandAloneAuthSwitchStateMachine
            (*ch.Node().Task().reactor(), handle))),

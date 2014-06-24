@@ -40,25 +40,25 @@ int PACD_Config::Open(std::string &cfgfile)
     OD_Utl_XML_SaxParser parser;
 
     OD_Utl_XML_StringElement setup01(m_Data.m_PaCCfgFile,
-                                     "pana_cfg_file", parser);
+                                     (char *)"pana_cfg_file", parser);
 
     OD_Utl_XML_StringElement setup02(m_Data.m_Username,
-                                     "username", parser);
+                                     (char *)"username", parser);
 
     OD_Utl_XML_StringElement setup03(m_Data.m_Password,
-                                     "password", parser);
+                                     (char *)"password", parser);
 
     OD_Utl_XML_StringElement setup04(m_Data.m_Secret,
-                                     "secret", parser);
+                                     (char *)"secret", parser);
 
     OD_Utl_XML_StringElement setup05(m_Data.m_AuthScript,
-                                     "auth_script", parser);
+                                     (char *)"auth_script", parser);
 
     OD_Utl_XML_UInt32Element setup07(m_Data.m_UseArchie,
-                                     "use_archie", parser);
+                                     (char *)"use_archie", parser);
 
     OD_Utl_XML_UInt32Element setup09(m_Data.m_ThreadCount,
-                                     "thread_count", parser);
+                                    (char *)"thread_count", parser);
 
     try {
         parser.Load((char*)cfgfile.c_str());
@@ -95,4 +95,3 @@ void PACD_Config::print()
    std::cout <<  m_Data.m_ThreadCount;
    std::cout << std::endl;
 }
-

@@ -73,7 +73,7 @@ bool DiameterSessionAttributes::MsgIdRxMessage(DiameterMsg &msg)
 AAAReturnCode DiameterSessionId::Get(DiameterMsg &msg)
 {
    DiameterUtf8AvpContainerWidget sidAvp(msg.acl);
-   diameter_utf8string_t *sid = sidAvp.GetAvp(DIAMETER_AVPNAME_SESSIONID);
+   diameter_utf8string_t *sid = sidAvp.GetAvp((char *)DIAMETER_AVPNAME_SESSIONID);
    try {
       if (sid == NULL) {
          throw (AAA_ERR_PARSING_FAILED);

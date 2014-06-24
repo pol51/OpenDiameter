@@ -36,6 +36,8 @@
 #include "diameter_api.h"
 #include "aaa_session_msg_mux.h"
 
+#define CONFIG_FILE_NAME "config/isp.local.xml"
+
 static int gReqMsgCount = 0;
 static int gSessionCount = 0;
 
@@ -201,13 +203,13 @@ class AAA_SampleBackEndApplicationCall :
 
             DiameterMsgWidget msg(300, false, 10000);
 
-            DiameterUInt32AvpWidget authIdAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            DiameterUtf8AvpWidget unameAvp(DIAMETER_AVPNAME_USERNAME);
-            DiameterGroupedAvpWidget tunneling("Tunneling");
-            DiameterEnumAvpWidget ttype("Tunnel-Type");
-            DiameterEnumAvpWidget tmedium("Tunnel-Medium-Type");
-            DiameterUtf8AvpWidget cep("Tunnel-Client-Endpoint");
-            DiameterUtf8AvpWidget sep("Tunnel-Server-Endpoint");
+            DiameterUInt32AvpWidget authIdAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            DiameterUtf8AvpWidget unameAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            DiameterGroupedAvpWidget tunneling((char *)"Tunneling");
+            DiameterEnumAvpWidget ttype((char *)"Tunnel-Type");
+            DiameterEnumAvpWidget tmedium((char *)"Tunnel-Medium-Type");
+            DiameterUtf8AvpWidget cep((char *)"Tunnel-Client-Endpoint");
+            DiameterUtf8AvpWidget sep((char *)"Tunnel-Server-Endpoint");
 
             ttype.Get() = 100;
             tmedium.Get() = 200;
@@ -290,11 +292,11 @@ class AAA_SampleServerAction :
             DiameterEnumAvpContainerWidget reAuthAvp(msg.acl);
             DiameterGroupedAvpContainerWidget tunneling(msg.acl);
 
-            diameter_identity_t *host = oHostAvp.GetAvp(DIAMETER_AVPNAME_ORIGINHOST);
-            diameter_identity_t *realm = oRealmAvp.GetAvp(DIAMETER_AVPNAME_ORIGINREALM);
-            diameter_utf8string_t *uname = uNameAvp.GetAvp(DIAMETER_AVPNAME_USERNAME);
-            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp(DIAMETER_AVPNAME_AUTHAPPID);
-            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp(DIAMETER_AVPNAME_REAUTHREQTYPE);
+            diameter_identity_t *host = oHostAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINHOST);
+            diameter_identity_t *realm = oRealmAvp.GetAvp((char *)DIAMETER_AVPNAME_ORIGINREALM);
+            diameter_utf8string_t *uname = uNameAvp.GetAvp((char *)DIAMETER_AVPNAME_USERNAME);
+            diameter_unsigned32_t *authAppId = authAppIdAvp.GetAvp((char *)DIAMETER_AVPNAME_AUTHAPPID);
+            diameter_enumerated_t *reAuth = reAuthAvp.GetAvp((char *)DIAMETER_AVPNAME_REAUTHREQTYPE);
 
             if (host) {
                 AAA_LOG((LM_INFO, "(%P|%t) From Host: %s\n", host->c_str()));
@@ -312,16 +314,16 @@ class AAA_SampleServerAction :
                 AAA_LOG((LM_INFO, "(%P|%t) Re-Auth Request type: %d\n", *reAuth));
             }
 
-            diameter_grouped_t *grouped = tunneling.GetAvp("Tunneling");
+            diameter_grouped_t *grouped = tunneling.GetAvp((char *)"Tunneling");
             DiameterEnumAvpContainerWidget ttypeAvp(*grouped);
             DiameterEnumAvpContainerWidget tmediumAvp(*grouped);
             DiameterUtf8AvpContainerWidget cepAvp(*grouped);
             DiameterUtf8AvpContainerWidget sepAvp(*grouped);
 
-            diameter_enumerated_t *ttype = ttypeAvp.GetAvp("Tunnel-Type");
-            diameter_enumerated_t *tmedium = tmediumAvp.GetAvp("Tunnel-Medium-Type");
-            diameter_utf8string_t *cep = cepAvp.GetAvp("Tunnel-Client-Endpoint");
-            diameter_utf8string_t *sep = sepAvp.GetAvp("Tunnel-Server-Endpoint");
+            diameter_enumerated_t *ttype = ttypeAvp.GetAvp((char *)"Tunnel-Type");
+            diameter_enumerated_t *tmedium = tmediumAvp.GetAvp((char *)"Tunnel-Medium-Type");
+            diameter_utf8string_t *cep = cepAvp.GetAvp((char *)"Tunnel-Client-Endpoint");
+            diameter_utf8string_t *sep = sepAvp.GetAvp((char *)"Tunnel-Server-Endpoint");
 
             if (ttype) {
                 AAA_LOG((LM_INFO, "(%P|%t) Tunnel-Type: %d\n", *ttype));
@@ -389,7 +391,7 @@ int main(int argc, char *argv[])
 
    // Application core is responsible for providing
    // peer connectivity between AAA entities
-   DiameterApplication appCore(task, "config/isp.local.xml");
+   DiameterApplication appCore(task, (char *)CONFIG_FILE_NAME);
    AAA_SampleServerSessionAllocator allocator(task, 10000);
    appCore.RegisterServerSessionFactory(allocator);
 

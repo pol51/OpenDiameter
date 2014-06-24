@@ -277,9 +277,9 @@ class PANA_MsgHeader
        } Flags;
 
        // Default header length definition
-       typedef enum {
+       typedef enum hdrLen_s {
           HeaderLength = 16 // length in octet
-       };
+       } hdrLen_t;
 
     public:
        PANA_MsgHeader() {

@@ -550,7 +550,7 @@ EapStandAloneAuthSwitchStateMachine::EapStandAloneAuthSwitchStateMachine
   EapAuthSwitchStateMachine(r, h),
   EapStateMachine<EapStandAloneAuthSwitchStateMachine>
   (*this, *EapStandAloneAuthSwitchStateTable::instance(), 
-   r, *this, "standalone")
+   r, *this, (char *)"standalone")
 {}
 
 EapStandAloneAuthSwitchStateMachine::~EapStandAloneAuthSwitchStateMachine() {}
