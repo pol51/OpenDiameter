@@ -34,6 +34,10 @@
 #ifndef __PANA_PARSER_AVPVALUE_H__
 #define __PANA_PARSER_AVPVALUE_H__
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 // ACE headers
 #include <ace/Synch.h>
 #include <ace/Singleton.h>
@@ -422,10 +426,6 @@ class PANA_GroupedParser :
             AAAErrorCode st;
 
             /* find grouped avp structure */
-#ifdef DEBUG
-            cout << "Getting Grouped AVP" << avp->avpName << "\n";
-#endif
-
             if ((gavp = PANA_GroupedAvpList::instance()
                 ->search(avp->avpCode, avp->vendorId)) == NULL) {
                     AAA_LOG((LM_ERROR, "Grouped AVP not found."));

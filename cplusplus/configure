@@ -773,6 +773,7 @@ enable_mpa
 enable_eap_archie
 enable_eap_md5
 with_eap_tls
+enable_boost_thread_safe
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1428,6 +1429,8 @@ Optional Features:
   --enable-mpa            Compiles with MPA support
   --enable-eap-archie     Compiles the EAP-Archie library
   --enable-eap-md5        Compiles with EAP MD5 test support
+  --enable-boost-thread-safe
+                          Compiles with BOOST_SPIRIT_THREADSAFE
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -11552,7 +11555,8 @@ $as_echo "yes" >&6; }
 	else
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: fail" >&5
 $as_echo "fail" >&6; }
-		as_fn_error $? "BOOST_ROOT not defined, you MUST install spirit 1.55.0 or greater or set BOOST_ROOT if already installed" "$LINENO" 5;
+		as_fn_error $? "BOOST_ROOT not defined, you MUST install spirit 1.55.0 or greater or set BOOST_ROOT \
+		if already installed" "$LINENO" 5;
    fi
 else
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
@@ -11620,7 +11624,8 @@ $as_echo_n "checking existence of EAP_ARCHIE_ROOT variable... " >&6; }
 	if test -z "$EAP_ARCHIE_ROOT"; then
 	   { $as_echo "$as_me:${as_lineno-$LINENO}: result: fail" >&5
 $as_echo "fail" >&6; }
-	   as_fn_error $? "EAP_ARCHIE_ROOT not defined, you MUST install eap-archie and make sure EAP_ARCHIE_ROOT points to the source tree" "$LINENO" 5;
+	   as_fn_error $? "EAP_ARCHIE_ROOT not defined, you MUST install eap-archie and make sure \
+	   EAP_ARCHIE_ROOT points to the source tree" "$LINENO" 5;
 	else
 	   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -11653,6 +11658,17 @@ else
   compile_EAPTLS_FALSE=
 fi
 
+
+# Checks for BOOST_SPIRIT_THREADSAFE
+# Check whether --enable-boost-thread-safe was given.
+if test "${enable_boost_thread_safe+set}" = set; then :
+  enableval=$enable_boost_thread_safe;
+fi
+
+if test "$enable_boost_thread_safe" = "yes"; then
+	$as_echo "#define BOOST_SPIRIT_THREADSAFE 1" >>confdefs.h
+
+fi
 
 # Checks for programs.
 ac_ext=c
@@ -16939,7 +16955,7 @@ fi
 done
 
 
-# Substitutions
+# Substitutions on a per host architecture basis
 
 case $host in
   *-*-freebsd*)
@@ -16980,8 +16996,7 @@ case $host in
 
      L_LDFLAGS="-L$ACE_ROOT/lib"
 
-     #-L/usr/lib/x86_64-linux-gnu/  Sometimes there are version issues
-     # and inside of the library versioned symbols exist
+     #-L/usr/lib/x86_64-linux-gnu/  @note Sometimes there are symbol version issues
      L_LIBS=" -ldl -lACE_SSL -lACE -lACEXML_Parser -lACEXML -lpthread -lboost_system -lboost_thread -lssl -lcrypto  $LIBS"
 
      LIBS="$LIBS -lssl -lcrypto -lACE_SSL -lACE -lACEXML -lACEXML_Parser -lboost_system -lboost_thread "

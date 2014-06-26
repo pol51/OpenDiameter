@@ -108,9 +108,6 @@ parseRawToAppWithoutDict(DiameterAvpHeaderList *ahl,
       c = *i;
       c->ParseType() = AAA_PARSE_TYPE_OPTIONAL;
       name = c->getAvpName();
-#ifdef DEBUG
-      cout << __FUNCTION__ << ": Container "<< name << "matches\n";
-#endif
 
       AAADictionaryEntry* avp;
       // use default dictionary only
@@ -181,9 +178,6 @@ parseRawToAppWithDict(DiameterAvpHeaderList *ahl,
 	  max = qavp->qual.max;
 	  name = qavp->avp->avpName.c_str();
 	  type = qavp->avp->avpType;
-#ifdef DEBUG
-	  cout << __FUNCTION__ << ": Container "<< name << "matches\n";
-#endif
 
 	  c = cm.acquire(name);
 	  c->ParseType() = pt;
@@ -364,9 +358,7 @@ parseAppToRawWithDict(AAAMessageBlock *msg,
 	      continue;
 	    }
 
-#ifdef DEBUG
-	  cout << __FUNCTION__ << ": Container "<< name << "matches.\n";
-#endif
+
 	  c->ParseType() = pt;
 	  DiameterAvpParser ap;
 	  DiameterAvpRawData rawData;

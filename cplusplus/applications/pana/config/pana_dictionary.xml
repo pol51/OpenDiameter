@@ -2,21 +2,30 @@
 <!DOCTYPE dictionary SYSTEM "pana_dictionary.dtd">
 
 <dictionary>
-    <!-- *********************** Message types *************************** -->
     <command name="PANA-Client-Initiation" code="1">
       <answerrules>
       </answerrules>
     </command>
-    <command name="PANA-Auth" code="2">
+    <command name="PANA-Start" code="2">
       <requestrules>
         <optional>
            <avprule name="EAP-Payload" maximum="1" minimum="0" />
-           <avprule name="PRF-Algorithm" maximum="none" minimum="0" />
-           <avprule name="Integrity-Algorithm" maximum="none" minimum="0" />
+           <avprule name="Algorithm" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <optional>
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Auth" code="3">
+      <requestrules>
+        <fixed>
+           <avprule name="EAP-Payload" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
            <avprule name="Nonce" maximum="1" minimum="0" />
-           <avprule name="Result-Code" maximum="1" minimum="0" />
-           <avprule name="Session-Lifetime" maximum="1" minimum="0" />
-           <avprule name="Key-Id" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </requestrules>
@@ -24,14 +33,55 @@
         <optional>
            <avprule name="Nonce" maximum="1" minimum="0" />
            <avprule name="EAP-Payload" maximum="1" minimum="0" />
-           <avprule name="PRF-Algorithm" maximum="1" minimum="0" />
-           <avprule name="Integrity-Algorithm" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Reauth" code="4">
+      <requestrules>
+        <optional>
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <optional>
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Bind" code="5">
+      <requestrules>
+        <fixed>
+           <avprule name="Result-Code" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="EAP-Payload" maximum="1" minimum="0" />
+           <avprule name="Session-Lifetime" maximum="1" minimum="0" />
+           <avprule name="Key-Id" maximum="1" minimum="0" />
+           <avprule name="Algorithm" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <optional>
            <avprule name="Key-Id" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </answerrules>
     </command>
-    <command name="PANA-Termination" code="3">
+    <command name="PANA-Ping" code="6">
+      <requestrules>
+        <optional>
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <optional>
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Termination" code="7">
       <requestrules>
         <fixed>
            <avprule name="Termination-Cause" maximum="1" minimum="1" />
@@ -46,10 +96,26 @@
         </optional>
       </answerrules>
     </command>
-    <command name="PANA-Notification" code="4">
+    <command name="PANA-Error" code="8">
+      <requestrules>
+        <fixed>
+           <avprule name="Result-Code" maximum="1" minimum="1" />
+           <avprule name="Failed-Message-Header" maximum="1" minimum="1" />
+        </fixed>
+        <optional>
+           <avprule name="Failed-AVP" maximum="1" minimum="0" />
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </requestrules>
+      <answerrules>
+        <optional>
+           <avprule name="AUTH" maximum="1" minimum="0" />
+        </optional>
+      </answerrules>
+    </command>
+    <command name="PANA-Update" code="9">
       <requestrules>
         <optional>
-           <avprule name="Result-Code" maximum="1" minimum="0" />
            <avprule name="AUTH" maximum="1" minimum="0" />
         </optional>
       </requestrules>
@@ -62,10 +128,14 @@
     <!-- ********************** End Message types ************************ -->
 
     <!-- ************************ typedefn's ************************ -->
-    <typedefn type-name="Any"/> <!-- Added by Ohba-->
+    <typedefn type-name="Any"/> <!-- Added by Ohba -->
     <typedefn type-name="OctetString"/>
     <typedefn type-name="UTF8String" type-parent="OctetString"/>
     <typedefn type-name="Address" type-parent="OctetString"/>
+    <typedefn type-name="DiameterIdentity" type-parent="OctetString"/>
+    <typedefn type-name="DiameterURI" type-parent="UTF8String"/>
+    <typedefn type-name="IPFilterRule" type-parent="OctetString"/>
+    <typedefn type-name="QOSFilterRule" type-parent="OctetString"/>
     <typedefn type-name="Integer32"/>
     <typedefn type-name="Integer64"/>
     <typedefn type-name="Unsigned32"/>
@@ -77,31 +147,38 @@
     <avp name="AVP" code="0"> <!-- Added by Ohba -->
       <type type-name="Any"/>
     </avp>
-    <avp name="AUTH" code="1" mandatory="must">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="EAP-Payload" code="2" mandatory="must">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Integrity-Algorithm" code="3" mandatory="must">
-      <type type-name="Integer32"/>
-    </avp>
-    <avp name="Key-Id" code="4" mandatory="must">
-      <type type-name="Integer32"/>
-    </avp>
-    <avp name="Nonce" code="5" mandatory="must">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="PRF-Algorithm" code="6" mandatory="must">
-      <type type-name="Integer32"/>
-    </avp>
-    <avp name="Result-Code" code="7" mandatory="must">
+    <avp name="Algorithm" code="1" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Session-Lifetime" code="8" mandatory="must">
+    <avp name="AUTH" code="2" mandatory="must">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="EAP-Payload" code="3" mandatory="must">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Failed-AVP" code="4" mandatory="must">
+      <grouped>
+         <optional>
+            <avprule name="AVP"/>
+         </optional>
+      </grouped>
+    </avp>
+    <avp name="Failed-Message-Header" code="5" mandatory="must">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Key-Id" code="6" mandatory="must">
+      <type type-name="Integer32"/>
+    </avp>
+    <avp name="Nonce" code="7" mandatory="must">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Result-Code" code="8" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Termination-Cause" code="9" mandatory="must">
+    <avp name="Session-Lifetime" code="9" mandatory="must">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Termination-Cause" code="10" mandatory="must">
       <type type-name="Unsigned32"/>
       <enum name="Logout" code="1"/>
       <enum name="Administrative" code="4"/>

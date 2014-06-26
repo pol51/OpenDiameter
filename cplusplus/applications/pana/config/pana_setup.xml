@@ -6,7 +6,7 @@
    <pana_cfg_file>config/pana_pac.xml</pana_cfg_file>
     
    <!-- Username used for EAP auth -->
-   <username>user1</username>
+   <username>testuser@localdomain1.net</username>
     
    <!-- Assocaited password, used
         during EAP-MD5 -->

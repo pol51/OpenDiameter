@@ -1506,9 +1506,6 @@ class GroupedParser : public DiameterAvpValueParser
       DiameterErrorCode st;
 
       /* find grouped avp structure */
-#ifdef DEBUG
-      cout << "Getting Grouped AVP" << avp->avpName << "\n";
-#endif
 
       if ((gavp = DiameterGroupedAvpList::instance()
 	   ->search(avp->avpCode, avp->vendorId)) == NULL)

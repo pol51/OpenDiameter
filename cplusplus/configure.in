@@ -109,15 +109,9 @@ AC_ARG_WITH(eap-tls, [  --with-eap-tls          compile the EAP-TLS library])
 AM_CONDITIONAL(compile_EAPTLS, [test "$with_eap_tls" = "yes"])
 
 # Checks for BOOST_SPIRIT_THREADSAFE
-AC_ARG_ENABLE(thread-safe, AC_HELP_STRING([--enable-boost-thread-safe], [Compiles with BOOST_SPIRIT_THREADSAFE]))
+AC_ARG_ENABLE(boost-thread-safe, AC_HELP_STRING([--enable-boost-thread-safe], [Compiles with BOOST_SPIRIT_THREADSAFE]))
 if test "$enable_boost_thread_safe" = "yes"; then
 	AC_DEFINE(BOOST_SPIRIT_THREADSAFE)
-fi
-
-# Checks for DEBUG FLAGS
-AC_ARG_ENABLE(debug, AC_HELP_STRING([--enable-debug], [Compiles with DEBUG]))
-if test "$enable_debug" = "yes"; then
-	AC_DEFINE(DEBUG)
 fi
 
 # Checks for programs.
