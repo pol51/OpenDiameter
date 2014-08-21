@@ -285,6 +285,9 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
               p.Disconnect();
           }
       };
+      class PaaClosed : public AAA_Action<PANA_Paa> {
+          virtual void operator()(PANA_Paa &p){};
+      };
 
       typedef AAA_NullAction<PANA_Paa> PaaNullAction;
 
@@ -313,6 +316,7 @@ class PANA_EXPORT PANA_PaaStateTable : public AAA_StateTable<PANA_Paa>
       PaaSessExitActionRxPTA                   m_PaaSessExitActionRxPTA;
       PaaExitActionTimeout                     m_PaaExitActionTimeout;
       PaaExitActionRetransmission              m_PaaExitActionRetransmission;
+      PaaClosed				      			   m_PaaClosed;
 };
 
 class PANA_EXPORT PANA_PaaSessionChannel
@@ -322,11 +326,13 @@ class PANA_EXPORT PANA_PaaSessionChannel
           m_Node(n),
           m_Channel(n.Job(), "PAA Channel") {
 
-          char buf[32];
-          sprintf(buf, "%s:%d", PANA_CFG_GENERAL().m_ListenAddress.data(),
-                  PANA_CFG_GENERAL().m_ListenPort);
-          ACE_INET_Addr paaAddr(buf);
-          m_Channel.Open(paaAddr);
+          char strAddr[64];
+	  ACE_INET_Addr paaAddr;
+	  sprintf(strAddr, "%s:%d", PANA_CFG_PAA().m_PaaIpAddress.data(), PANA_CFG_GENERAL().m_ListenPort);
+          paaAddr.string_to_addr(strAddr);
+          //ACE_INET_Addr paaAddr(PANA_CFG_GENERAL().m_ListenPort,PANA_CFG_PAA().m_PaaIpAddress);
+          
+	  m_Channel.Open(paaAddr);
       }
       virtual ~PANA_PaaSessionChannel() {
           m_Channel.Close();
@@ -384,6 +390,9 @@ class PANA_EXPORT PANA_PaaSession : public
       ACE_UINT32 &SessionId() {
          return m_PAA.SessionId();
       }
+      ACE_INET_Addr &PaaAddress() {
+		return m_PAA.PaaAddress();
+	  }
       ACE_INET_Addr &PacAddress() {
          return m_PAA.PacAddress();
       }

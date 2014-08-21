@@ -37,10 +37,12 @@
 
 #include "eap_fsm.hxx"
 #include "eap_method_registrar.hxx"
+#include <iostream>
+
 
 void
-EapSwitchStateMachine::CreateMethodStateMachine(EapType t, EapRole role)
-{
+EapSwitchStateMachine::CreateMethodStateMachine(EapType t, EapRole role, EapType innerType) {
+	
   EapMethodTableEntry* entry = EapMethodTable::instance()->Find(t, role);
 
   if (entry == NULL)
@@ -51,7 +53,19 @@ EapSwitchStateMachine::CreateMethodStateMachine(EapType t, EapRole role)
     }
 
   methodStateMachine = entry->creator(*this);
+	
+  if(innerType == NULL) return;
+  EapMethodTableEntry* innerEntry = EapMethodTable::instance()->Find(innerType, role);
+
+  if (innerEntry == NULL)
+    {
+      EAP_LOG(LM_ERROR, "No inner EAP method creator type = %d, innertype = %d.\n", t, innerType);
+      Abort();
+      return;
+    }
+  innerMethodStateMachine = innerEntry->creator(*this);
 }
+
 
 void
 EapSwitchStateMachine::DeleteMethodStateMachine()

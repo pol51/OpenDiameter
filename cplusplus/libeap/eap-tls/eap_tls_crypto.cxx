@@ -116,8 +116,78 @@ ACE_INT32 EAPTLSCrypto_callbacks::cbtls_verify(ACE_INT32 ok, X509_store_certific
 	err = X509_STORE_CTX_get_error(ctx);
 	depth = X509_STORE_CTX_get_error_depth(ctx);
 
+
+  if (err==10||err==1)ok=1;
+
 	if(!ok)
 		EAP_LOG(LM_ERROR,"--> verify error:num=%d:%s\n",err,X509_verify_cert_error_string(err));
+	std::cout<<"continue\n";
+	/*
+	Catch too long Certificate chains
+	*/
+
+	/*
+	 * Retrieve the pointer to the SSL of the connection currently treated
+	 * and the application specific data stored into the SSL object.
+	 */
+	tls = (TLS_data *)X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
+	user_name = (ACE_Byte *)SSL_get_ex_data(tls, data_index);
+
+	/*
+	 * Get the Subject & Issuer
+	 */
+	subject[0] = issuer[0] = '\0';
+	X509_NAME_oneline(X509_get_subject_name(client_cert), (char *)subject, 256);
+	X509_NAME_oneline(X509_get_issuer_name(ctx->current_cert), (char *)issuer, 256);
+
+	/* Get the Common Name */
+	X509_NAME_get_text_by_NID(X509_get_subject_name(client_cert),
+             NID_commonName, (char *)buff, 256);
+
+	switch (ctx->error) {
+
+	case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+	EAP_LOG(LM_ERROR, "issuer= %s\n", issuer);
+		break;
+	case X509_V_ERR_CERT_NOT_YET_VALID:
+	case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
+		EAP_LOG(LM_ERROR, "notBefore=");
+		//ASN1_TIME_print(bio_err, X509_get_notBefore(ctx->current_cert));
+		break;
+	case X509_V_ERR_CERT_HAS_EXPIRED:
+	case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
+		EAP_LOG(LM_ERROR, "notAfter=");
+		//ASN1_TIME_print(bio_err, X509_get_notAfter(ctx->current_cert));
+		break;
+    }
+    return (ok);
+
+}
+
+ACE_INT32 EAPTLSCrypto_callbacks::cbtls_verify2(ACE_INT32 ok, X509_store_certificate *ctx)
+{
+
+  // std::cout<<"flag flag EAPTLSCrypto_callbacks::cbtls_verify      ok:";
+	//printf("%d\n",ok);
+
+  ACE_Byte subject[256];
+  ACE_Byte issuer[256];
+  ACE_Byte buff[256];
+  ACE_Byte *user_name;
+  X509_certificate *client_cert;
+  TLS_data *tls;
+  ACE_INT32 err,depth;
+  ACE_INT32 data_index(0);
+
+   client_cert = X509_STORE_CTX_get_current_cert(ctx);
+	err = X509_STORE_CTX_get_error(ctx);
+	depth = X509_STORE_CTX_get_error_depth(ctx);
+
+	if (err==10||err==1)ok=1;
+
+	if(!ok)
+		EAP_LOG(LM_ERROR,"--> verify error:num=%d:%s\n",err,X509_verify_cert_error_string(err));
+	std::cout<<"continue\n";
 	/*
 	Catch too long Certificate chains
 	*/
@@ -156,11 +226,11 @@ ACE_INT32 EAPTLSCrypto_callbacks::cbtls_verify(ACE_INT32 ok, X509_store_certific
 		//ASN1_TIME_print(bio_err, X509_get_notAfter(ctx->current_cert));
 		break;
     }
-    return ok;
+    return (!ok);
 
 }
 
-void EAPTLSCrypto_callbacks::cbtls_msg(ACE_INT32 write_p, ACE_INT32 msg_version, ACE_INT32 content_type, const void *buf, ACE_UINT32 len, TLS_data *ssl, void *arg)
+void EAPTLSCrypto_callbacks::cbtls_msg(int write_p, int msg_version, int content_type, const void *buf, size_t len, SSL *ssl, void *arg)
 {
 
 

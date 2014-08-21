@@ -51,7 +51,7 @@ EapAuthSwitchStateMachine::Receive(AAAMessageBlock* msg)
 {
   // Enqueue the received message with increasing reference counter
   // and generate a notification event.
-
+  EAP_LOG(LM_ERROR, "(%P|%t) AuthSwitch: Receive a message.\n");
   AAAMessageBlock*& msgR=msg;
   rxQueue.enqueue_tail(AAAMessageBlock::Acquire(msgR));
   Notify(EapAuthSwitchStateMachine::EvRxMsg);

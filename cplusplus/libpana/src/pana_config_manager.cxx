@@ -75,6 +75,8 @@ void PANA_CfgManager::open(std::string &cfg_file)
                                   (char *)"max_rt_timeout", parser);
     OD_Utl_XML_UInt32Element rt04(m_Data.m_General.m_RT.m_MRD,
                                   (char *)"max_rt_duration", parser);
+                              
+    m_Data.m_PaC.m_PaaPortNumber=0;
 
     // Pac config
     OD_Utl_XML_StringElement pac01(m_Data.m_PaC.m_PaaIpAddress,
@@ -87,11 +89,15 @@ void PANA_CfgManager::open(std::string &cfg_file)
                                    (char *)"eap_piggyback", parser);
 
     // Agent config
-    OD_Utl_XML_UInt32Element paa01(m_Data.m_Paa.m_OptimizedHandshake,
-                                   (char *)"optimized_handshake", parser);
-    OD_Utl_XML_UInt32Element paa02(m_Data.m_Paa.m_CarryLifetime,
-                                   (char *)"carry_lifetime", parser);
-    OD_Utl_XML_UInt32Element paa03(m_Data.m_Paa.m_IpReconfig,
+    OD_Utl_XML_StringElement paa01(m_Data.m_Paa.m_PaaIpAddress,
+                                   "ip_address", parser);
+    OD_Utl_XML_UInt32Element paa02(m_Data.m_Paa.m_OptimizedHandshake,
+                                   "optimized_handshake", parser);
+    OD_Utl_XML_UInt32Element paa03(m_Data.m_Paa.m_CarryLifetime,
+                                   "carry_lifetime", parser);
+    //~ OD_Utl_XML_UInt32Element paa04(m_Data.m_Paa.m_RetryPSR,
+                                    //~ "retry_psr", parser);
+    OD_Utl_XML_UInt32Element paa04(m_Data.m_Paa.m_IpReconfig,
                                    (char *)"ip_reconfiguration", parser);
 
     try {
@@ -127,13 +133,14 @@ void PANA_CfgManager::dump()
 
     if (m_Data.m_PaC.m_PaaPortNumber > 0) {
         AAA_LOG((LM_INFO, "     Client configuration\n"));
-        AAA_LOG((LM_INFO, "           PAA IP Adress  : %s\n", m_Data.m_PaC.m_PaaIpAddress.data()));
+        AAA_LOG((LM_INFO, "           PAA IP Address  : %s\n", m_Data.m_PaC.m_PaaIpAddress.data()));
         AAA_LOG((LM_INFO, "          PAA Port Number : %d\n", m_Data.m_PaC.m_PaaPortNumber));
         AAA_LOG((LM_INFO, "     EAP Response Timeout : %d\n", m_Data.m_PaC.m_EapResponseTimeout));
         AAA_LOG((LM_INFO, "            EAP Piggyback : %d\n", m_Data.m_PaC.m_EapPiggyback));
     }
     else {
         AAA_LOG((LM_INFO, "        PAA configuration\n"));
+        AAA_LOG((LM_INFO, "           PAA IP Address : %s\n", m_Data.m_Paa.m_PaaIpAddress.data()));
         AAA_LOG((LM_INFO, "      Optimized Handshake : %d\n", m_Data.m_Paa.m_OptimizedHandshake));
         AAA_LOG((LM_INFO, "           Carry Lifetime : %d\n", m_Data.m_Paa.m_CarryLifetime));
         AAA_LOG((LM_INFO, "       IP Reconfiguration : %d\n", m_Data.m_Paa.m_IpReconfig));

@@ -44,6 +44,7 @@
 #include "eap_fsm.hxx"
 #include "eap_authfsm.hxx"
 #include "eap_peerfsm.hxx"
+#include <iostream>
 
 /* MD5-Challenge Request/Response description.
 
@@ -305,6 +306,7 @@ public:
   /// Reimplemented from EapMethodStateMachine
   void Start() throw(AAA_Error)
   {
+	std::cout<<"[EapPeerMD5ChallengeStateMachine] start!!\n";
     isDone = false;
     EapStateMachine<EapPeerMD5ChallengeStateMachine>::Start();
   }

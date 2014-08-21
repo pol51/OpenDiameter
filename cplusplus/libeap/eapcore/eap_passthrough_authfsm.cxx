@@ -66,6 +66,7 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
+	  EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcDisable.\n");
       sm.Event(EapAuthSwitchStateMachine::EvSgPortEnabled);
     }
   };
@@ -74,7 +75,8 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
-      sm.CurrentIdentifier() = 0;  // Initilize the identifier
+	  EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcInitialize.\n");
+      sm.CurrentIdentifier() = 0;  // Initialize the identifier
       sm.Event(EvUCT);
     }
   };
@@ -85,9 +87,9 @@ private:
     {
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(4);
 
-      EAP_LOG(LM_DEBUG, "Passthrough: Composing Success message.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: Composing Success message.\n");
 
-      // Compose the PDU.
+      /// Compose the PDU.
       EapHeaderParser parser;
       EapHeader header;
       header.code = Success;
@@ -97,17 +99,18 @@ private:
       parser.setRawData(msg);
       parser.parseAppToRaw();
 
-      // Stop retransmission timer and reset retransmission counter.
+      /// Stop retransmission timer and reset retransmission counter.
       sm.CancelTimer();
       sm.RetransmissionCount()=0;
 
-      // Make the key available. (not specified in the state machine document.)
+      /// Make the key available. @note not specified in the state machine document.
       if (sm.KeyData().size()>0)
-	sm.KeyAvailable() = true;
+			sm.KeyAvailable() = true;
 	
-      // Call Success callback function.
+      /// Call Success callback function.
       sm.Success(msg);
       msg->release();
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcSendSuccess.\n");
     }
   };
 
@@ -118,7 +121,7 @@ private:
       AAAMessageBlock *msg = AAAMessageBlock::Acquire(4);
       EAP_LOG(LM_DEBUG, "Passthrough: Composing Failure message.\n");
 
-      // Compose the PDU.
+      /// Compose the PDU.
       EapHeaderParser parser;
       EapHeader header;
       header.code = Failure;
@@ -128,13 +131,14 @@ private:
       parser.setRawData(msg);
       parser.parseAppToRaw();
 
-      // Stop retransmission timer and reset retransmission counter.
+      /// Stop retransmission timer and reset retransmission counter.
       sm.CancelTimer();
       sm.RetransmissionCount()=0;
 
-      // Call Failure callback function.
+      /// Call Failure callback function.
       sm.Failure(msg);
       msg->release();
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcSendFailure.\n");
     }
   };
 
@@ -143,6 +147,7 @@ private:
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
       EapMethodStateMachine &msm = sm.MethodStateMachine();
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcMethodResponse.\n");
       if (msm.IsDone())
 	{
 	  sm.KeyData() = msm.KeyData();
@@ -161,13 +166,16 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
-      // Calculate the next Identifier for the new request.
+	  EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcBuildRequest.\n");
+	  
+      /// Calculate the next Identifier for the new request.
       ACE_Byte id = sm.CurrentIdentifier() = 
-	sm.MethodStateMachine().GetNextIdentifier(sm.CurrentIdentifier());
+	  sm.MethodStateMachine().GetNextIdentifier(sm.CurrentIdentifier());
 
+	  EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcSendRequest.\n");
       AAAMessageBlock *msg = sm.GetTxMessage();
 
-      // Compose the PDU.
+      /// Compose the PDU.
       EapHeaderParser headerParser;
       EapHeader header;
       header.code = Request;
@@ -177,7 +185,7 @@ private:
       headerParser.setRawData(msg);
       headerParser.parseAppToRaw();
 
-      // Set the wr_ptr to the tail of the message.
+      /// Add the wr_ptr to the tail of the message.
       msg->wr_ptr(msg->base()+header.length);
 
       sm.Event(EvUCT);
@@ -200,7 +208,7 @@ private:
 
       // Schedule retransmssion timer
       EAP_LOG(LM_DEBUG, 
-	      "Passthrough: Request sent and timer started.\n");
+	      "(%P|%t) Passthrough: Request sent and timer started.\n");
       if (sm.RetransmissionEnabled())
 	sm.ScheduleTimer(EvTo, sm.RetransmissionInterval());
 
@@ -215,7 +223,7 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
-      EAP_LOG(LM_DEBUG, "Passthrough: Integrity Check.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: Integrity Check.\n");
       sm.MethodStateMachine().Notify
 	(EapMethodStateMachine::EvSgIntegrityCheck);
     }
@@ -226,21 +234,25 @@ private:
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
       EapType type = sm.Policy().CurrentMethod();
+      EapType innerType = sm.Policy().InnerEapMethodType();
 
-      if (!type.IsVSE())
-	EAP_LOG(LM_DEBUG, "PassThrough: Trying a legacy method.\n");
-      else
-	EAP_LOG(LM_DEBUG, "PassThrough: Trying an extended method.\n");
+      if (!type.IsVSE()){
+		EAP_LOG(LM_DEBUG, "(%P|%t) PassThrough: AcProposeMethod: Trying a legacy method.\n");
+	  } else {
+		EAP_LOG(LM_DEBUG, "(%P|%t) PassThrough: AcProposeMethod: Trying an extended method.\n");
+	  }
 
       sm.DeleteMethodStateMachine();
       sm.CurrentMethod() = type;
-      sm.CreateMethodStateMachine(type, Authenticator);
+      sm.CreateMethodStateMachine(type, Authenticator, innerType);
       sm.MethodStateMachine().Start();
 
-      if (type == EapType(1) || type == EapType(2)) // Identity or Notification
-	sm.MethodState() = EapAuthSwitchStateMachine::CONT;
-      else
-	sm.MethodState() = EapAuthSwitchStateMachine::PROPOSED;
+	  // Identity or Notification
+      if (type == EapType(1) || type == EapType(2)) {
+		sm.MethodState() = EapAuthSwitchStateMachine::CONT;
+		} else {
+		sm.MethodState() = EapAuthSwitchStateMachine::PROPOSED;
+	}
 
       // Notify method
       sm.MethodStateMachine().Notify
@@ -252,6 +264,7 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
+		EAP_LOG(LM_DEBUG, "(%P|%t) PassThrough[auth]: Policy Check.\n");
       EapAuthSwitchStateMachine::EapAuthDecision decision = sm.Decision();
       if (decision == EapAuthSwitchStateMachine::DecisionSuccess)
 	sm.Event(EvSgPolicySat);
@@ -268,7 +281,7 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
-      EAP_LOG(LM_DEBUG, "Passthrough: Message Discarded.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: Message Discarded.\n");
       sm.DiscardCount()++;
       sm.Event(EvUCT);
     }
@@ -279,7 +292,7 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
-      EAP_LOG(LM_DEBUG, "Passthrough: Message discarded without parsing.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: Message discarded without parsing.\n");
       sm.DiscardCount()++;
       AAAMessageBlock *msg;
       EapMessageQueue &q = sm.RxQueue();
@@ -296,7 +309,7 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
-      EAP_LOG(LM_DEBUG, "Passthrough: Message Discarded.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: Message Discarded.\n");
       AAAMessageBlock *msg;
       EapMessageQueue &q = sm.AAARxQueue();
 
@@ -312,7 +325,7 @@ private:
     {  
       AAAMessageBlock *msg=sm.GetRxMessage();
 
-      EAP_LOG(LM_DEBUG, "Passthrough: Reset method due to receiving Nak.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: Reset method due to receiving Nak.\n");
       // Parse the nak
       EapNakParser parser;
       EapNak nak;
@@ -324,7 +337,7 @@ private:
       sm.DeleteRxMessage();
 
       // Update policy based on type list.
-      EAP_LOG(LM_DEBUG, "Passthrough: Update policy on Nak.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: Update policy on Nak.\n");
       sm.Policy().Update(nak.TypeList());
 
       sm.Event(EvUCT);
@@ -337,7 +350,7 @@ private:
     {
         if (sm.RetransmissionCount() < sm.MaxRetransmissionCount())
 	{
-	  EAP_LOG(LM_DEBUG, "Passthrough: Retransmitting Request.\n");
+	  EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: Retransmitting Request.\n");
 	  // Get the message to retransmit.
 	  AAAMessageBlock *msg = sm.GetTxMessage();
 
@@ -354,7 +367,7 @@ private:
 	}
       else
 	{
-	  EAP_LOG(LM_ERROR, "AuthSwitch: Reach max retransmission count.\n");
+	  EAP_LOG(LM_ERROR, "(%P|%t) AuthSwitch: Reach max retransmission count.\n");
 	  sm.CancelTimer();
 	  sm.Event(EvSgMaxRetransmission);
 	}
@@ -432,6 +445,7 @@ private:
 	      sm.Event(EvRxMethodResp);
 	    }
 	}
+	EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: Receive Msg.\n");
     }
   };
 
@@ -470,6 +484,7 @@ private:
 	}
 
       sm.Event(EvRxMethodResp);
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: Receive Msg2.\n");
     }
   };
 
@@ -477,10 +492,13 @@ private:
   {
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
-      if (sm.GetRxMessage()==0)
-	sm.Event(EvSgNoPickUpInit);
-      else
+      if (sm.GetRxMessage()==0) {
+		sm.Event(EvSgNoPickUpInit);
+		}
+      else {
 	sm.Event(EvSgPickUpInit);
+	}
+		EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: Pick Up Init Check.\n");
     }
   };
 
@@ -489,6 +507,7 @@ private:
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
       sm.Event(EvUCT);
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: Aaa Request.\n");
     }
   };
 
@@ -506,7 +525,7 @@ private:
       // receiving the first Response from the peer.  In this case, just
       // pick up the Response and forward to the backend.
 
-      EAP_LOG(LM_DEBUG, "Passthough: Integrity check.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthough: Integrity check.\n");
 
       // Call the callback to forward the response.
       sm.ForwardResponse(msg);
@@ -525,7 +544,7 @@ private:
 	{
 	  sm.DeleteTxMessage();
 	  EAP_LOG(LM_ERROR, 
-		  "Passthrough: AAA message does not contain EAP-Request.\n");
+		  "(%P|%t) Passthrough: AAA message does not contain EAP-Request.\n");
 	  sm.Abort();
 	  return;
 	}
@@ -560,7 +579,7 @@ private:
       if (code != Request)
 	{
 	  EAP_LOG(LM_ERROR, 
-		  "Passthrough: AAA message does not contain EAP-Request.\n");
+		 "(%P|%t) Passthrough: AAA message does not contain EAP-Request.\n");
 	  sm.Abort();
 	  return;
 	}
@@ -568,6 +587,7 @@ private:
       // XXX: If we need to modify Identifier field, this is the place
       // to do it.
       sm.Event(EvRxAaaEapReq);
+       EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcAaaContinue.\n");
     }
   };
 
@@ -611,6 +631,7 @@ private:
       // Set the pass-through transmission message.
       sm.SetTxMessage(msg);
       sm.Event(EvSgAaaSuccess);
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcAaaSuccess.\n");
     }
   };
 
@@ -654,6 +675,7 @@ private:
       // Set the pass-through transmission message.
       sm.SetTxMessage(msg);
       sm.Event(EvSgAaaFailure);
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcAaaFailure.\n");
     }
   };
 
@@ -662,6 +684,7 @@ private:
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
       sm.Event(EvUCT);
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcPrepareRequest.\n");
     }
   };
 
@@ -672,7 +695,7 @@ private:
     {
       AAAMessageBlock *msg = sm.GetTxMessage();
 
-      EAP_LOG(LM_DEBUG, "Passthrough: EAP authentication failed.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: EAP authentication failed.\n");
 
       // Stop retransmission timer and reset retransmission counter.
       sm.CancelTimer();
@@ -697,7 +720,7 @@ private:
     {
       AAAMessageBlock *msg = sm.GetTxMessage();
 
-      EAP_LOG(LM_DEBUG, "Passthrough: EAP authentication succeeded.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough: EAP authentication succeeded.\n");
 
       // Stop retransmission timer and reset retransmission counter.
       sm.CancelTimer();
@@ -724,6 +747,7 @@ private:
     void operator()(EapPassThroughAuthSwitchStateMachine &sm)
     {
       sm.Event(EapAuthSwitchStateMachine::EvSgValidResp);
+      EAP_LOG(LM_DEBUG, "(%P|%t) Passthrough[auth]: AcReturnToSwitch  .\n");
     }
   };
 

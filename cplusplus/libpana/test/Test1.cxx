@@ -395,7 +395,6 @@ void MyPeerSwitchStateMachine::Failure()
 	      << " try next time !!!" << std::endl;
     JobData(Type2Type<PeerApplication>()).pac().EapFailure();
     JobData(Type2Type<PeerApplication>()).Eap().Stop();
-    //JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
 void MyPeerSwitchStateMachine::Notification(std::string &str)
   {
@@ -407,7 +406,6 @@ void MyPeerSwitchStateMachine::Abort()
     std::cout << "Peer aborted for an error in state machine" << std::endl;
     JobData(Type2Type<PeerApplication>()).Eap().Stop();
     JobData(Type2Type<PeerApplication>()).pac().EapFailure();
-    //JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
 std::string& MyPeerSwitchStateMachine::InputIdentity()
   {
@@ -449,14 +447,12 @@ void MyStandAloneAuthSwitchStateMachine::Failure()
     std::cout << "Failure without an EAP Failure" << std::endl;
     JobData(Type2Type<StandAloneAuthApplication>()).paa().EapFailure();
     JobData(Type2Type<StandAloneAuthApplication>()).Eap().Stop();
-    //JobData(Type2Type<StandAloneAuthApplication>()).Semaphore().release();
   }
 void MyStandAloneAuthSwitchStateMachine::Abort()
   {
     std::cout << "Session aborted for an error in state machine" << std::endl;
     JobData(Type2Type<StandAloneAuthApplication>()).Eap().Stop();
     JobData(Type2Type<StandAloneAuthApplication>()).paa().EapFailure();
-    //JobData(Type2Type<StandAloneAuthApplication>()).Semaphore().release();
   }
 
 #if defined (ACE_HAS_SIG_C_FUNC)
@@ -488,6 +484,8 @@ int main(int argc, char **argv)
 
   // Gather command line options
   ACE_Get_Opt opt(argc, argv, "cf:u:U:P:A:", 1);
+  
+  gPasswd= "12345";
 
   for (int c; (c = opt()) != (-1); ) {
       switch (c) {

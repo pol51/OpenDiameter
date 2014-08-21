@@ -90,7 +90,7 @@ class DiameterRoutingNode
        }
    protected:
        DiameterRoutingNode(DiameterRoutingNode *next = NULL,
-                       char *name = "") :
+                       const char *name = "") :
            m_Next(next), m_Name(name) {
        }
        void Dump(AAA_ROUTE_RESULT r) {

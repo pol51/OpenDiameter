@@ -156,7 +156,8 @@ class DIAMETER_EAP_SERVER_EXPORTS DiameterEapServerStateMachine
 
   /// This virtual function is called when an AAA success is signaled
   /// from the EAP backend authenticator. An EAP-Success message is
-  /// contained in the argument if any.
+  /// contained in the argument if any
+  void SignalSuccess(std::string &eapMsg,std::string &key);
   void SignalSuccess(std::string &eapMsg);
 
   /// This virtual function is called when an AAA success is signaled

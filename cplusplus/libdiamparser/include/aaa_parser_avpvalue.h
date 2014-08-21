@@ -113,7 +113,7 @@ class AnyParser : public DiameterAvpValueParser
 	/* assuming 32-bit boundary */
 	{
 	  DiameterErrorCode st;
-	  AAA_LOG((LM_ERROR, "Not enough buffer"));
+	  AAA_LOG((LM_ERROR, "AAA[AnyParser]: Not enough buffer"));
 	  st.set(AAA_PARSE_ERROR_TYPE_NORMAL,
                  AAA_OUT_OF_SPACE);
 	  throw st;
@@ -166,7 +166,7 @@ class Integer32Parser : public DiameterAvpValueParser
 	/* assuming 32-bit boundary */
 	{
 	  DiameterErrorCode st;
-	  AAA_LOG((LM_ERROR, "Not enough buffer"));
+	  AAA_LOG((LM_ERROR, "AAA[Integer32Parser]: Not enough buffer"));
 	  st.set(AAA_PARSE_ERROR_TYPE_NORMAL,
                  AAA_OUT_OF_SPACE);
 	  throw st;
@@ -217,7 +217,7 @@ class Integer64Parser : public DiameterAvpValueParser
 	/* assuming 32-bit boundary */
 	{
 	  DiameterErrorCode st;
-	  AAA_LOG((LM_ERROR, "Not enough buffer"));
+	  AAA_LOG((LM_ERROR, "AAA[Integer64Parser]: Not enough buffer"));
 	  st.set(AAA_PARSE_ERROR_TYPE_NORMAL,
                  AAA_OUT_OF_SPACE);
 	  throw st;
@@ -266,7 +266,7 @@ class OctetstringParser : public DiameterAvpValueParser
       if (aBuffer->size() + (size_t)aBuffer->base() - 
           (size_t)aBuffer->wr_ptr() < str.length())
 	{
-	  AAA_LOG((LM_ERROR, "Not enough buffer\n"));
+	  AAA_LOG((LM_ERROR, "AAA[OctetstringParser]: Not enough buffer\n"));
 	  st.set(AAA_PARSE_ERROR_TYPE_NORMAL,
                  AAA_OUT_OF_SPACE);
 	  throw st;

@@ -2,6 +2,7 @@
 <!DOCTYPE dictionary SYSTEM "pana_dictionary.dtd">
 
 <dictionary>
+    <!-- *********************** Message types *************************** -->
     <command name="PANA-Client-Initiation" code="1">
       <answerrules>
       </answerrules>
@@ -128,7 +129,7 @@
     <!-- ********************** End Message types ************************ -->
 
     <!-- ************************ typedefn's ************************ -->
-    <typedefn type-name="Any"/> <!-- Added by Ohba -->
+    <typedefn type-name="Any"/> <!-- Added by Ohba-->
     <typedefn type-name="OctetString"/>
     <typedefn type-name="UTF8String" type-parent="OctetString"/>
     <typedefn type-name="Address" type-parent="OctetString"/>
@@ -147,38 +148,38 @@
     <avp name="AVP" code="0"> <!-- Added by Ohba -->
       <type type-name="Any"/>
     </avp>
-    <avp name="Algorithm" code="1" mandatory="must">
+    <avp name="Algorithm" code="3" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="AUTH" code="2" mandatory="must">
+    <avp name="AUTH" code="1" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="EAP-Payload" code="3" mandatory="must">
+    <avp name="EAP-Payload" code="2" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Failed-AVP" code="4" mandatory="must">
+    <avp name="Failed-AVP" code="10" mandatory="must">
       <grouped>
          <optional>
             <avprule name="AVP"/>
          </optional>
       </grouped>
     </avp>
-    <avp name="Failed-Message-Header" code="5" mandatory="must">
+    <avp name="Failed-Message-Header" code="11" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Key-Id" code="6" mandatory="must">
+    <avp name="Key-Id" code="4" mandatory="must">
       <type type-name="Integer32"/>
     </avp>
-    <avp name="Nonce" code="7" mandatory="must">
+    <avp name="Nonce" code="5" mandatory="must">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Result-Code" code="8" mandatory="must">
+    <avp name="Result-Code" code="7" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Session-Lifetime" code="9" mandatory="must">
+    <avp name="Session-Lifetime" code="8" mandatory="must">
       <type type-name="Unsigned32"/>
     </avp>
-    <avp name="Termination-Cause" code="10" mandatory="must">
+    <avp name="Termination-Cause" code="9" mandatory="must">
       <type type-name="Unsigned32"/>
       <enum name="Logout" code="1"/>
       <enum name="Administrative" code="4"/>

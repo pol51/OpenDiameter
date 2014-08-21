@@ -394,6 +394,16 @@ DiameterEapServerStateMachine::SignalContinue(std::string &eapMsg)
 }
 
 void
+DiameterEapServerStateMachine::SignalSuccess(std::string &eapMsg,std::string &key)
+{
+  DEA_Data& dea = deaData;
+  AAA_LOG((LM_ERROR, "[%N] EAP Success received from backend.\n"));
+  dea.EapPayload = eapMsg;
+  dea.EapMasterSessionKey = key;
+  Notify(EvRxEapSuccess);
+}
+
+void
 DiameterEapServerStateMachine::SignalSuccess(std::string &eapMsg)
 {
   DEA_Data& dea = deaData;

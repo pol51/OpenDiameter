@@ -86,6 +86,7 @@ class PANA_SessionAttribute {
 
     public:
         PANA_SessionAttribute() {
+			m_LastRxSeqNum = 0;
            Reset();
        }
        virtual ~PANA_SessionAttribute() {
@@ -97,6 +98,9 @@ class PANA_SessionAttribute {
        ACE_INET_Addr &PacAddress() {
            return m_PacAddress;
        }
+       void SetPaaAddress(ACE_INET_Addr address) {
+		m_PaaAddress = address; return;
+	}
        ACE_INET_Addr &PaaAddress() {
            return m_PaaAddress;
        }

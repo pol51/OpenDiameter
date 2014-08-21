@@ -192,7 +192,8 @@ public:
       
     static std::string identity;
     std::cout << "Input username (within 10sec.): " << std::endl;
-    std::cin >> identity;
+    //std::cin >> identity;
+    identity = std::string("myclient@opendiameter.com");
     std::cout << "username = " << identity << std::endl;
     return identity;
   }
@@ -623,6 +624,7 @@ void MyPeerSwitchStateMachine::Success()
 	  
       }
     std::cout << std::endl;
+
     Stop();
     JobData(Type2Type<PeerApplication>()).Semaphore().release();
   }
@@ -648,7 +650,8 @@ void MyPeerSwitchStateMachine::Abort()
 std::string& MyPeerSwitchStateMachine::InputIdentity() 
   {
     std::cout << "Input username (within 10sec.): " << std::endl;
-    std::cin >> identity;
+    //std::cin >> identity;
+    identity=std::string("myserver@opendiameter.org");
     std::cout << "username = " << identity << std::endl;
     return identity;
   }
@@ -898,6 +901,7 @@ int main(int argc, char **argv)
     }
   // Block until the EAP conversation completes.
   semaphore.acquire();
+  sleep(100);
 
   task.Stop();
   return 0;

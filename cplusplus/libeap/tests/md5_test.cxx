@@ -864,9 +864,9 @@ int main(int argc, char **argv)
   task.Start(2);
 
 #if WIN32
-  #define num 100
+  #define num 1
 #else
-  int num = 100;
+  int num = 1;
 #endif
 
   ACE_Semaphore semaphore(4*num);

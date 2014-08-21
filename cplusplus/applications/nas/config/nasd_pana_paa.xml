@@ -9,16 +9,10 @@
              does not bind to any address or interface
              so it will receive Pac messages on any
              interface -->
-        <listen_port>3001</listen_port>
-
-        <!-- Local IP address where the PAA will bind to.
-             The PAA is expected to receive messages
-             only for this address. If 0.0.0.0, then INADDR_ANY
-             will be used -->
-        <listen_address>0.0.0.0</listen_address>
+        <listen_port>716</listen_port>
 
         <!-- Filename of the parser dictionary -->
-        <dictionary_filename>config/nasd_pana_dictionary.xml</dictionary_filename>
+        <dictionary_filename>/etc/opendiameter/nas/config/nasd_pana_dictionary.xml</dictionary_filename>
 
         <!-- Configurable retransmission parameters
              as specified in the PANA draft. See
@@ -38,10 +32,10 @@
             <max_rt_duration>120</max_rt_duration>
         </retransmission_param>
 
-        <!-- WPA (802.11i) bootstrap support
+        <!-- WPA (802.11i) bootstrap support 
              A 256-bit PMK key will be generated during the
              Authorize method (and passed to authorization
-             script) when this option is enabled.
+             script) when this option is enabled. 
              -->
         <wpa_bootstrap>1</wpa_bootstrap>
 
@@ -49,11 +43,12 @@
              session will end. Note that this can controls
              the deletion of the PANA session whether
              the session was auth successfully or not -->
-        <session_lifetime>30</session_lifetime>
+        <session_lifetime>15</session_lifetime>
 
     </general>
 
     <agent>
+	<ip_address>localhost</ip_address>
 
         <!-- When this options is enabled, the PAA will
              attempt to carry the first EAP request in
@@ -66,11 +61,10 @@
              defined previously will be sent to the PaC -->
         <carry_lifetime>1</carry_lifetime>
 
-        <!-- This tells the PAA to set the IP reconfiguration
-             flag in the PAR to let the PaC know that it
-             should re-configure its IP address after
-             successful authentication -->
-        <ip_reconfiguration>1</ip_reconfiguration>
+        <!-- This tells the PAA whether the PANA-Start-Request
+             will be retransmitted. This aids in keeping
+             a more stateless PAA if disabled -->
+        <retry_psr>0</retry_psr>
 
     </agent>
 

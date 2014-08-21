@@ -38,8 +38,6 @@
 #include "eap_tls_data_defs.hxx"
 #include "eap_tls_xml_parser.hxx"
 
-
-
 class EAPTLS_XMLDataEncryption : public EAPTLS_XMLElementParser
 {
 	public:

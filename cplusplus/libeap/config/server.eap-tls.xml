@@ -6,19 +6,21 @@
 		This information is needed for OpenSSL to work -->
 	<encryption>
 		<!-- Pass phrase for server cryptographic files -->
-		<pass_phrase>servidor</pass_phrase>
+		<pass_phrase>srv-key</pass_phrase>
 		<!-- Key file -->
-		<key_file>./tests/tls_config/auth/srv-key.pem</key_file>
+		<key_file>config/tls/auth/srv-key.pem</key_file>
 		<!-- Certificate file -->
-		<cert_file>./tests/tls_config/auth/srv-cert.pem</cert_file>
+		<cert_file>./config/tls/auth/srv-cert.pem</cert_file>
 		<!-- File used to build ramdom numbers -->
-		<random>./tests/tls_config/auth/random</random>
+		<random>./config/tls/auth/random</random>
 		<!-- Path for Certification Authorities -->
-		<ca_path>./tests/tls_config/auth</ca_path>
+		<ca_path>./config/tls/auth</ca_path>
 		<!-- Certification Authority's certificate for Certification Authority that signs server certificate -->
-		<ca_cert>./tests/tls_config/auth/ca-cert.pem</ca_cert>
+		<ca_cert>./config/tls/auth/ca-cert.pem</ca_cert>
+		<pac_file>./pac</pac_file>
 		<!-- File implementation for Diffie-Hellman algorithm -->
-		<dh>./tests/tls_config/auth/dh</dh>
+		
+		<dh>./config/tls/auth/dh</dh>
 		<!-- RSA Key -->
 		<rsa_key>0</rsa_key>
 		<!-- Diffie-Hellman Key -->

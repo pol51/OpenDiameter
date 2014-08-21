@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pana_configuration SYSTEM "pana_config.dtd">
+<!DOCTYPE pana_configuration SYSTEM "pana_pac.dtd">
 <pana_configuration>
 
     <general>
@@ -12,7 +12,7 @@
         <listen_port>3002</listen_port>
 
         <!-- Filename of the parser dictionary -->
-        <dictionary_filename>config/pana_dictionary.xml</dictionary_filename>
+        <dictionary_filename>/etc/opendiameter/pac/config/pana_dictionary.xml</dictionary_filename>
 
         <!-- Configurable retransmission parameters
              as specified in the PANA draft. See
@@ -43,7 +43,7 @@
              session will end. Note that this can controls
              the deletion of the PANA session whether
              the session was auth successfully or not -->
-        <session_lifetime>45</session_lifetime>
+        <session_lifetime>15</session_lifetime>
 
     </general>
 
@@ -56,7 +56,7 @@
         <paa_ip_address>localhost</paa_ip_address>
 
         <!-- PAA port number used in conjuction with paa_ip_address -->
-        <paa_port_number>3001</paa_port_number>
+        <paa_port_number>716</paa_port_number>
 
         <!-- eap response timeout. Number of seconds the EAP layer
              is allowed to send an EAP response before an EAP_RESP_TIMEOUT
@@ -70,3 +70,4 @@
     </client>
 
 </pana_configuration>
+

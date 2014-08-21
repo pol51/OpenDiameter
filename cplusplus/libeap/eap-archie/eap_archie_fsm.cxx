@@ -39,6 +39,8 @@
 #include "eap_archie_parser.hxx"
 #include "eap_archie_crypto.hxx"
 #include <openssl/rand.h>
+#include <stdexcept>
+#include <boost/container/throw_exception.hpp>
 
 /// Action class.
 class EapPeerArchieAction : public AAA_Action<EapPeerArchieStateMachine>

@@ -30,11 +30,7 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-
-
 #include "eap_tls_xml_data.hxx"
-
-
 
 int EAPTLS_XMLDataEncryption::svc (DOMNode *n)
 {

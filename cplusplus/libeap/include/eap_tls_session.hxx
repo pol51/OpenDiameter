@@ -56,6 +56,9 @@
 #define EAPTLS_PRF_LABEL        "client EAP encryption"
 #define EAPTLS_MPPE_KEY_LEN     32
 
+int tls_connection_set_cipher_list(void *tls_ctx, TLS_data *ssl,
+				   u8 *ciphers);
+
 typedef X509_STORE_CTX  X509_store_certificate;
 typedef X509 X509_certificate;
 typedef RSA RSA_key;
@@ -68,7 +71,8 @@ class EAPTLSCrypto_callbacks
     virtual ~EAPTLSCrypto_callbacks(){};
     static void cbtls_info(const TLS_data *s, ACE_INT32 where, ACE_INT32 ret);
     static ACE_INT32 cbtls_verify(ACE_INT32 ok, X509_store_certificate *ctx);
-    static void cbtls_msg(ACE_INT32 write_p, ACE_INT32 msg_version, ACE_INT32 content_type, const void *buf, ACE_UINT32 len, TLS_data *ssl, void *arg);
+    static ACE_INT32 cbtls_verify2(ACE_INT32 ok, X509_store_certificate *ctx);
+    static void cbtls_msg(int write_p, int msg_version, int content_type, const void *buf, size_t len, SSL *ssl, void *arg);
     static ACE_INT32 cbtls_password(char *buf, ACE_INT32 num, ACE_INT32 rwflag, void *userdata);
     static RSA_key *cbtls_rsa(TLS_data *s, ACE_INT32 is_export, ACE_INT32 keylength);
     static void P_hash(const Hash *evp_md,
@@ -132,7 +136,13 @@ class EAPTLS_session_t
 
  virtual EAPTLS_session_t *session_init(bool resume)
   {
-
+	u8 ciphers[5] = {
+		TLS_CIPHER_ANON_DH_AES128_SHA,
+		TLS_CIPHER_AES128_SHA,
+		TLS_CIPHER_RSA_DHE_AES128_SHA,
+		TLS_CIPHER_RC4_SHA,
+		TLS_CIPHER_NONE
+	};
       this->first_fragment=(this->eaptls->get_config()->get_fragment_size() != 0);
       this->tls_msg_length=0;
      
@@ -151,6 +161,13 @@ class EAPTLS_session_t
       SSL_set_msg_callback(this->tls, cb->cbtls_msg);
       SSL_set_msg_callback_arg(this->tls, this);
       SSL_set_info_callback(this->tls, cb->cbtls_info);
+      
+      if (tls_connection_set_cipher_list(eaptls->get_tls_context(), this->tls,
+					   ciphers) < 0) {
+		printf("EAP-FAST: Failed to set TLS cipher "
+			   "suites");
+		return NULL;
+	}
 
       return this;
   };

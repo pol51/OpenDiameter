@@ -88,7 +88,7 @@ void DiameterServerAuthSession::RxRequest(std::auto_ptr<DiameterMsg> msg)
             return;
         }
         Attributes().SessionId() = sid;
-        AAA_LOG((LM_DEBUG,"(%P|%t) New auth session\n"));
+        AAA_LOG((LM_DEBUG,"(%P|%t) New authentication session\n"));
         sid.Dump();
     }
 

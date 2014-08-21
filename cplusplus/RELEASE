@@ -1,7 +1,7 @@
 Open Diameter: Open-source software for the Diameter 
                and Diameter related protocols
 
-Copyright (C) 2002-2007 Open Diameter Project
+Copyright (C) 2002-2014 Open Diameter Project
 
 Plese read the accompanying COPYING file for the terms and conditions
 of the licences applied to this software.
@@ -12,7 +12,19 @@ RELEASE NOTES
 Whats new
 ---------
 
-The major changes for release 1.0.7-i includes:
+The major changes for release 1.0.8 includes:
+
+0. Post doctorate PAC/FAST work
+
+   Updated libpana and PAC applications are included - will update at a later
+   date to include further documentation and a summary of her research.
+   
+   Other changes include, modernization of code to use the newest version of Boost,
+   new autotools updates, compiler changes to reduce: errors, warnings and language
+   changes.  
+   
+   @todo - Documentation still needs to be updated from start to finish
+   including the NEW configure options.
 
 1. Parser Re-factoring
 
@@ -30,6 +42,8 @@ The major changes for release 1.0.7-i includes:
    becuase it had a smaller memory footprint compared to Xerces. ACEXML
    currently supports SAX and DTD only so the existing XML schema's now
    refer to DTD files.
+   
+   (XERCES is still used in a few places)
 
 3. Updated PANA Library
 

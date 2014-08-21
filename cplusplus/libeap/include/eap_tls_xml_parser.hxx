@@ -37,6 +37,7 @@
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include "aaa_parser_api.h"
+#include "eap_tls_data_defs.hxx"
 
 #if defined(XERCES_HAS_CPP_NAMESPACE)
 using namespace xercesc;

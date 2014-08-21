@@ -2,12 +2,13 @@
 
     <!ELEMENT configuration (general, parser, transport_mngt, session_mngt, log)>
 
-     <!ELEMENT general (product, version, vendor_id, supported_vendor_id*,
+     <!ELEMENT general (product, version, backend_auth, vendor_id, supported_vendor_id*,
                                       auth_application_id+, acct_application_id+,
                                       vendor_specific_application_id*)>
 
      <!ELEMENT product (#PCDATA)>
      <!ELEMENT version (#PCDATA)>
+     <!ELEMENT backend_auth (#PCDATA)>
      <!ELEMENT vendor_id (#PCDATA)>
      <!ELEMENT supported_vendor_id (#PCDATA)>
      <!ELEMENT auth_application_id (#PCDATA)>

@@ -32,6 +32,39 @@
 /* END_COPYRIGHT                                                          */
 
 /* Diameter peer fsm debugging */
+
+#ifdef DEBUG_ALL
+#define AAA_FSM_EVENT_DEBUG 1
+
+/* Diameter router debugging */
+#define AAA_ROUTE_DEBUG 1
+
+/* Diameter acct session fsm debugging */
+#define AAA_SESSION_ACCT_DEBUG 1
+
+/* Diameter auth session fsm debugging */
+#define AAA_SESSION_AUTH_DEBUG 1
+
+/* Diameter generic session fsm debugging */
+#define AAA_SESSION_DEBUG 1
+
+/* Diameter XML config loader debugging */
+#define AAA_XML_DEBUG 1
+
+/* PANA debugging flag */
+#define PANA_DEBUG 1
+
+/* PANA FSM debugging */
+#define PANA_FSM_DEBUG 1
+
+/* PANA key generator debugging flag */
+#define PANA_SA_DEBUG 1
+
+/* PANA parser debugging flag */
+#define PANA_PARSER_DEBUG 1
+
+#elsedef
+
 #define AAA_FSM_EVENT_DEBUG 0
 
 /* Diameter router debugging */
@@ -60,4 +93,5 @@
 
 /* PANA parser debugging flag */
 #define PANA_PARSER_DEBUG 0
+#endif
 

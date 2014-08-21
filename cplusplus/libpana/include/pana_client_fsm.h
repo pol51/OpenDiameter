@@ -344,6 +344,8 @@ class PANA_EXPORT PANA_PacSession : public
       virtual void ReAuthenticate();
       virtual void Ping();
       virtual void Stop();
+      ACE_UINT32 &GetSessionId() {return m_PaC.SessionId();}
+      ACE_INET_Addr &GetPaaAddress() {return m_PaC.PaaAddress();}
 
    private:
       virtual void InitializeMsgMaps();

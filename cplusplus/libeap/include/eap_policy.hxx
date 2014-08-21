@@ -63,7 +63,6 @@
                                 |
                                 +------> F
 
-
 \endverbatim
 
     In the above example, a policy tree is composed of five PEs,
@@ -110,176 +109,200 @@
 /// This class is used for a single policy element (PE).  
 /// See \ref authpolicy "Authentication Policy" for detailed
 /// description about authentication policy.
-class EAP_EXPORTS EapPolicyElement
-{
-  friend class EapPolicy;
-public:
-  enum PolicyType {
-    FinalSuccess,  /// Indicates final success.
-    FinalFailure,  /// Indicates final failure.
-    Continued      /// Indicates there are other PolicyElement to try.
-  };
+class EAP_EXPORTS EapPolicyElement {
+	friend class EapPolicy;
+ public:
+	enum PolicyType {
+		FinalSuccess,	/// Indicates final success.
+		FinalFailure,	/// Indicates final failure.
+		Continued	/// Indicates there are other PolicyElement to try.
+	};
 
-  /// This function returns true when the PE is of type Continued.
-  inline bool IsContinued() 
-  { 
-    if (policyType==Continued) return true;
-    return false;
-  }
-protected:
-  /// This class instance cannot be directly created.  Use constractor
-  /// of derived classes.
-  EapPolicyElement(PolicyType t) : policyType(t) {}
-  PolicyType policyType;
+	/// This function returns true when the PE is of type Continued.
+	inline bool IsContinued() {
+		if (policyType == Continued)
+			return true;
+		return false;
+	}
+ protected:
+	/// This class instance cannot be directly created.  Use constractor
+	/// of derived classes.
+	 EapPolicyElement(PolicyType t):policyType(t) {
+	}
+	PolicyType policyType;
 };
 
 /// A class for a policy element representing final success
 /// authentication.  This class is a singleton.
-class EAP_EXPORTS EapSuccessPolicyElement : public EapPolicyElement
-{
-public:
-  EapSuccessPolicyElement() : EapPolicyElement(FinalSuccess) {}
+class EAP_EXPORTS EapSuccessPolicyElement:public EapPolicyElement {
+ public:
+	EapSuccessPolicyElement():EapPolicyElement(FinalSuccess) {
+	}
 };
 
 /// A class for a policy element representing final failure
 /// authentication.  This class is a singleton.
-class EAP_EXPORTS EapFailurePolicyElement : public EapPolicyElement
-{
-public:
-  EapFailurePolicyElement() : EapPolicyElement(FinalFailure) {}
+class EAP_EXPORTS EapFailurePolicyElement:public EapPolicyElement {
+ public:
+	EapFailurePolicyElement():EapPolicyElement(FinalFailure) {
+	}
 };
 
 /// A singleton for EapSuccessPolicyElement.
-typedef ACE_Singleton<EapSuccessPolicyElement, ACE_Recursive_Thread_Mutex> 
-EapSuccessPolicyElement_S;
+typedef ACE_Singleton < EapSuccessPolicyElement, ACE_Recursive_Thread_Mutex >
+    EapSuccessPolicyElement_S;
 
 /// A singleton for EapFailurePolicyElement.
-typedef ACE_Singleton<EapFailurePolicyElement, ACE_Recursive_Thread_Mutex> 
-EapFailurePolicyElement_S;
+typedef ACE_Singleton < EapFailurePolicyElement, ACE_Recursive_Thread_Mutex >
+    EapFailurePolicyElement_S;
 
 /// This class represents an non-leaf policy element which contains a
 /// single authentication type as well as two branches each taken when
 /// the authentication type succeeds and fails, respectively.
 /// See \ref authpolicy "Authentication Policy" for detailed
 /// description about authentication policy.
-class EAP_EXPORTS EapContinuedPolicyElement : public EapPolicyElement
-{
-  friend class EapPolicy;
-public:
-  /// By default, a success leaf policy element is added to the
-  /// success branch, and a failure leaf policy element is added to
-  /// the failure branch, of this policy element.  So, when a single
-  /// EAP method is used, there is nothing to do for applications to
-  /// explicitly set the branches.
-  EapContinuedPolicyElement(EapType t) : 
-    EapPolicyElement(Continued), 
-    nextOnSuccess(EapSuccessPolicyElement_S::instance()), 
-    nextOnFailure(EapFailurePolicyElement_S::instance()), methodType(t) {}
-  /// Used for adding a policy node.
-  enum PolicySwitch {
-    PolicyOnSuccess,
-    PolicyOnFailure
-  };
-  EapPolicyElement *NextPolicyElement(PolicySwitch sw) 
-  { 
-    if (sw == PolicyOnSuccess)
-      return nextOnSuccess;
-    else
-      return nextOnFailure;
-  }
-  /// Add a success leaf policy element 
-  /// It is added to either success branch or failure branch.
-  void AddSuccessPolicyElement(PolicySwitch sw);
-  /// Add a failure leaf policy element 
-  /// It is added to failure branch only.
-  void AddFailurePolicyElement();
-  /// Add a continued policy element.
-  /// It is added to either success branch or failure branch.
-  void AddContinuedPolicyElement(EapPolicyElement *p, PolicySwitch sw);
-  bool IsContinued() { return true; }
-  EapType GetType() { return methodType; }
-private:
-  EapPolicyElement *nextOnSuccess;
-  EapPolicyElement *nextOnFailure;
-  EapType methodType;
+class EAP_EXPORTS EapContinuedPolicyElement:public EapPolicyElement {
+	friend class EapPolicy;
+ public:
+	/// By default, a success leaf policy element is added to the
+	/// success branch, and a failure leaf policy element is added to
+	/// the failure branch, of this policy element.  So, when a single
+	/// EAP method is used, there is nothing to do for applications to
+	/// explicitly set the branches.
+	 EapContinuedPolicyElement(EapType t):
+	    EapPolicyElement(Continued),
+	    nextOnSuccess(EapSuccessPolicyElement_S::instance()),
+	    nextOnFailure(EapFailurePolicyElement_S::instance()),
+	    methodType(t) {
+	}
+	// Used for adding a policy node.    
+	
+	enum PolicySwitch {
+		PolicyOnSuccess,
+		PolicyOnFailure
+	};
+	EapPolicyElement *NextPolicyElement(PolicySwitch sw) {
+		if (sw == PolicyOnSuccess)
+			return nextOnSuccess;
+		else
+			return nextOnFailure;
+	}
+	/// Add a success leaf policy element 
+	/// It is added to either success branch or failure branch.
+	void AddSuccessPolicyElement(PolicySwitch sw);
+	/// Add a failure leaf policy element 
+	/// It is added to failure branch only.
+	void AddFailurePolicyElement();
+	/// Add a continued policy element.
+	/// It is added to either success branch or failure branch.
+	void AddContinuedPolicyElement(EapPolicyElement * p, PolicySwitch sw);
+	bool IsContinued() {
+		return true;
+	}
+	EapType GetType() {
+		return methodType;
+	}
+ private:
+	EapPolicyElement * nextOnSuccess;
+	EapPolicyElement *nextOnFailure;
+	EapType methodType;
 };
 
 /// This class represents an EAP policy.  
 /// See \ref authpolicy "Authentication Policy" for detailed
 /// description about authentication policy.
-class EAP_EXPORTS EapPolicy
-{
-public:
-  enum PolicyError {
-    NoCurrentMethod // used by GetCurrentMethod
-  };
-  EapPolicy() : initialPolicyElement(0), currentPolicyElement(0) {}
-  ~EapPolicy() {}
+class EAP_EXPORTS EapPolicy {
+ public:
+	enum PolicyError {
+		NoCurrentMethod	// used by GetCurrentMethod
+	};
+	 EapPolicy():initialPolicyElement(0),
+	    currentPolicyElement(0), innerEapMethodType(0) {
+	} ~EapPolicy() {
+	}
 
-  /// This function is used for getting the next 
-  EapPolicyElement* NextPolicyElement
-  (EapContinuedPolicyElement::PolicySwitch sw);
+	/// This function is used for getting the next 
+	EapPolicyElement *NextPolicyElement
+	    (EapContinuedPolicyElement::PolicySwitch sw);
 
-  /// This function is used for getting the current PolicyElement.
-  inline EapPolicyElement* CurrentPolicyElement() 
-  { return currentPolicyElement; }
+	/// This function is used for getting the current PolicyElement.
+	inline EapPolicyElement *CurrentPolicyElement() {
+		return currentPolicyElement;
+	}
 
-  /// This function is used for setting the current PolicyElement.
-  void CurrentPolicyElement(EapPolicyElement *e) { currentPolicyElement = e; }
+	/// This function is used for setting the current PolicyElement.
+	void CurrentPolicyElement(EapPolicyElement * e) {
+		currentPolicyElement = e;
+	}
 
-  /// This function is used for getting the initial PolicyElement.
-  inline EapPolicyElement* InitialPolicyElement() 
-  { return initialPolicyElement; }
+	/// This function is used for getting the initial PolicyElement.
+	inline EapPolicyElement *InitialPolicyElement() {
+		return initialPolicyElement;
+	}
 
-  /// This function is used for setting the initial PolicyElement.
-  void InitialPolicyElement(EapPolicyElement *e) 
-  { initialPolicyElement = e; }
+	/// This function is used for setting the initial PolicyElement.
+	void InitialPolicyElement(EapPolicyElement * e) {
+		initialPolicyElement = e;
+	}
 
-  /// This function is used for getting the current method.
-  EapType CurrentMethod() throw (PolicyError);
+	/// This function is used for getting the initial PolicyElement.
+	inline EapType InnerEapMethodType() {
+		return innerEapMethodType;
+	}
 
-  /// This function is used for traversing one policy hop on the
-  /// sucess or failure branch.
-  void Update(EapContinuedPolicyElement::PolicySwitch sw);
-  
-  /// This function is used for traversing the failure policy path
-  /// until encountering a type contained in the type list contained
-  /// in Nak message.
-  void Update(EapTypeList &typeL);
+	/// This function is used for setting the initial PolicyElement.
+	void InnerEapMethodType(EapType e) {
+		innerEapMethodType = e;
+	}
 
-  /// This function is used by peers to check whether received request
-  /// type is supported or not.
-  bool Allow(EapType t);
+	/// This function is used for getting the current method.
+	EapType CurrentMethod() throw(PolicyError);
 
-  /// This function is used by peers and authenticators to check the
-  /// current policy indicates the final success or not.
-  bool IsSatisfied();
+	/// This function is used for traversing one policy hop on the
+	/// sucess or failure branch.
+	void Update(EapContinuedPolicyElement::PolicySwitch sw);
 
-  /// This function is used by Peers to generate a type list to be
-  /// included in Nak.  The type list is created based on the sub-tree
-  /// rooted at the current PolicyElement.  The second argument
-  /// indicates whether the Request to be Nak'ed is vendor-specific
-  /// Request or legacy one.
-  void MakeTypeList(EapTypeList &typeL, bool isVSE);
+	/// This function is used for traversing the failure policy path
+	/// until encountering a type contained in the type list contained
+	/// in Nak message.
+	void Update(EapTypeList & typeL);
 
-  /// This function is used by a backend authenticator to check
-  /// whether "pick-up-init" is supported for a given EAP type.
-  bool SupportPickUp(EapType type)
-  {
-    if (type == EapType(1))
-      return true;
-    return false;
-  }
+	/// This function is used by peers to check whether received request
+	/// type is supported or not.
+	bool Allow(EapType t);
 
-private:
-  /// Actual definition of MakeTypeList();
-  void MakeTypeList(EapTypeList &typeL, bool isVSE, EapPolicyElement *pe);
+	/// This function is used by peers and authenticators to check the
+	/// current policy indicates the final success or not.
+	bool IsSatisfied();
 
-  /// Indicates the initial PolicyElement;
-  EapPolicyElement *initialPolicyElement;
+	EapType innerEapMethodType;
 
-  /// Indicates the current PolicyElement;
-  EapPolicyElement *currentPolicyElement;
+	/// This function is used by Peers to generate a type list to be
+	/// included in Nak.  The type list is created based on the sub-tree
+	/// rooted at the current PolicyElement.  The second argument
+	/// indicates whether the Request to be Nak'ed is vendor-specific
+	/// Request or legacy one.
+	void MakeTypeList(EapTypeList & typeL, bool isVSE);
+
+	/// This function is used by a backend authenticator to check
+	/// whether "pick-up-init" is supported for a given EAP type.
+	bool SupportPickUp(EapType type) {
+		if (type == EapType(1)) {
+			return true;
+		}
+		return false;
+	}
+
+ private:
+	/// Actual definition of MakeTypeList();
+	void MakeTypeList(EapTypeList & typeL, bool isVSE,
+			  EapPolicyElement * pe);
+
+	/// Indicates the initial PolicyElement;
+	EapPolicyElement *initialPolicyElement;
+
+	/// Indicates the current PolicyElement;
+	EapPolicyElement *currentPolicyElement;
 };
 
-#endif // __EAP_POLICY_HXX__
+#endif				// __EAP_POLICY_HXX__

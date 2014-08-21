@@ -473,11 +473,15 @@ void PANA_Session::RxValidateMsg(PANA_Message &msg,
            }
        }
        else if (msg.seq() != (LastRxSeqNum() + 1)) {
+		   AAA_LOG((LM_DEBUG, "MSG is Request\nmsg.seq() = %d\n",msg.seq()));
+			AAA_LOG((LM_DEBUG, "LastRxSeqNum().Value()  = %d\n", LastRxSeqNum()));
            throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
                   "request msg with invalid seq number"));
        }
    }
    else if (msg.seq() != LastTxSeqNum()) {
+	   AAA_LOG((LM_DEBUG, "MSG is Answer\nmsg.seq() = %d\n",msg.seq()));
+	   AAA_LOG((LM_DEBUG, "LastRxSeqNum().Value()  = %d\n", LastRxSeqNum()));	
        throw (PANA_Exception(PANA_Exception::INVALID_MESSAGE,
               "answer msg with invalid seq number"));
    }

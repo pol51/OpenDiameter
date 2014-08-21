@@ -45,6 +45,8 @@
 #include "eap_log.hxx"
 #include "eap_parser.hxx"
 
+#include <iostream>
+
 int
 InputIdentityMethodRequest::call()
 {
@@ -108,7 +110,10 @@ private:
       sm.CancelTimer();
       EAP_LOG(LM_DEBUG, "Peer:  Success.\n");
       if (sm.KeyData().size()>0)
-	sm.KeyAvailable() = true;
+	{
+		sm.KeyAvailable() = true;printf("peer key available\n");
+		}
+      else printf("peer key not available\n");
       sm.Success();
     }
   };
@@ -148,7 +153,6 @@ private:
       // Set the received identifier to the currentId
       sm.LastIdentifier() = sm.CurrentIdentifier();
 
-      EAP_LOG(LM_DEBUG, "checking key availability.\n");
       if (sm.MethodState() == EapPeerSwitchStateMachine::NONE ||
 	  sm.MethodState() == EapPeerSwitchStateMachine::INIT)
 	goto next;
@@ -182,6 +186,7 @@ private:
     {
       EAP_LOG(LM_DEBUG, "Peer:  Do Policy Check.\n");
       EapType &type = sm.ReqMethod();
+      EapType innerType = sm.Policy().InnerEapMethodType();
       bool allowMethod;
 
       if (type == EapType(1))
@@ -208,7 +213,8 @@ private:
 	sm.DeleteMethodStateMachine();
 
 	// Create a new method with a specific type
-	sm.CreateMethodStateMachine(type, Peer);
+	printf("peer before CreateMethodStateMachine\n");
+	sm.CreateMethodStateMachine(type, Peer, innerType);
 
 	// Change the method state to INIT.
 	sm.MethodState() = EapPeerSwitchStateMachine::INIT;
@@ -539,6 +545,48 @@ private:
     }
   };
 
+class AcTunnelEstablished : public EapPeerAction
+  {
+    void operator()(EapPeerSwitchStateMachine &sm)
+    {  
+      
+      // Update policy based on type list.
+      sm.InnerMethodStateMachine().Start();
+      sm.InnerMethodStateMachine().Notify
+		(EapMethodStateMachine::EvSgIntegrityCheck);
+      EAP_LOG(LM_DEBUG, "EapPeer:Tunnel Established.\n");
+    }
+};
+
+class AcWaitTunnelProcess : public EapPeerAction
+  {
+    void operator()(EapPeerSwitchStateMachine &sm)
+    {  
+
+      ACE_Byte id = sm.CurrentIdentifier();
+
+      AAAMessageBlock *msg = sm.GetTxMessage();
+
+      // Compose the PDU.
+      EapHeaderParser headerParser;
+      EapHeader header;
+      header.code = Response;
+      header.identifier = id;
+      header.length = msg->length();
+      headerParser.setAppData(&header);
+      headerParser.setRawData(msg);
+      headerParser.parseAppToRaw();
+
+      msg->wr_ptr(msg->base()+header.length);
+	
+      sm.MethodStateMachine().Notify
+	(EapMethodStateMachine::EvSgTunnelProcess);
+      
+      EAP_LOG(LM_DEBUG, "EapPeer:Wait tunnel process.\n");
+    }
+  };
+
+
   /// Internal event definition
   enum event {
     EvUCT=100,
@@ -575,7 +623,10 @@ private:
     StIdentity,
     StNotification,
     StSuccess,
-    StFailure
+    StFailure,
+    //tunnel
+    StTunnelEstablished,
+    StWaitTunnelProcess,
   };
 
   AcInitialize acInitialize;
@@ -596,6 +647,10 @@ private:
   AcCheckRxQueue acCheckRxQueue;
   AcReceiveMsg acReceiveMsg;
   AcCheckIdentity acCheckIdentity;
+  
+  //tunnel
+  AcTunnelEstablished	acTunnelEstablished;
+  AcWaitTunnelProcess	acWaitTunnelProcess;
 
   EapPeerSwitchStateTable_S()
   {
@@ -668,6 +723,14 @@ private:
 		       StDiscard, acDiscard);
     AddStateTableEntry(StMethod, EvSgFailure,
 		       StFailure, acSendFailure);
+
+	//tunnel
+    AddStateTableEntry(StMethod, EapPeerSwitchStateMachine::EvSgTunnelEstablished,
+		       StTunnelEstablished, acTunnelEstablished);
+    AddStateTableEntry(StTunnelEstablished, EapPeerSwitchStateMachine::EvSgValidReq,
+		       StWaitTunnelProcess, acWaitTunnelProcess);
+    AddStateTableEntry(StWaitTunnelProcess, EapPeerSwitchStateMachine::EvSgValidReq,
+		       StSendResponse, acBuildResp);
 
     // The following two entries are needed because method
     // processing is asynchronously done.

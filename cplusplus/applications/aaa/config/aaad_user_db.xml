@@ -41,85 +41,22 @@
          file.
 
       -->
-
     <user_entry>
-
-       <!-- will match any identity with
-            a "user" sub-string -->           
-       <name_match>user</name_match>
-
-       <!-- Available eap methods:
-
-            md5    - MD5 challenge
-            archie - Archie method
-
-
-            For MD5, you have the option of
-            using UN*X shadow password checks
-            for each user or you can hardcode
-            the password into this file. See
-	    below for status of these features.
-            For system password you need to run 
-	    aaad under SUID root to be able to use
-	    shadow password checks. Though as of
-	    this release (1.0.7-f), this feature
-	    still has problems and is not fully
-	    functional.
-
-         -->
-
-       <eap_method>archie</eap_method>
-
-       <archie>
-          <!-- This configuration is specific
-               to EAP archie method -->
-          <shared_secret_file>/etc/aaad/config/aaad_eap_shared_secret.bin</shared_secret_file>            
-       </archie>
-          <!-- This configuration is specific
-               to MD5 method -->
-
-       <md5>
-          <!-- Possible values for password type:
-
-                system - uses UN*X shadow password lib
-                         if the system supports it. 
-			 As of this release (1.0.7-f),
-			 this feature has problems so
-			 it migth not work properly.
-                flat   - uses the value in <secret> as
-                         the password string. Note that
-                         this is NOT RECOMMENDED but for
-			 now it can be used for testing.
-                none   - no password check is done
-             -->
-                         
-          <password_type>flat</password_type>
-          <secret>12345</secret>
-       </md5>
-
-    </user_entry>
-
-    <user_entry>
-       <name_match>isp.net</name_match>
-       <eap_method>md5</eap_method>
-       <archie>
-          <shared_secret_file>/etc/aaad/config/aaad_eap_shared_secret.bin</shared_secret_file>            
-       </archie>
-       <md5>
-          <password_type>flat</password_type>
-          <secret>12345</secret>
-       </md5>
-    </user_entry>
+	<name_match>testuser@localdomain.net</name_match>
+	<eap_method>fast</eap_method>
+	<fast>
+	   <shared_secret_file>aaad.dtd</shared_secret_file>
+	   <inner_eap_method>md5</inner_eap_method>
+ 	</fast>
+	<md5>
+	   <password_type>flat</password_type>
+          <secret>abcd1234</secret>
+	</md5>
+     </user_entry>
+   
 
     <default_entry>
-       <eap_method>archie</eap_method>
-       <archie>
-          <shared_secret_file>/etc/aaad/config/aaad_eap_shared_secret.bin</shared_secret_file>            
-       </archie>
-       <md5>
-          <password_type>none</password_type>
-          <secret></secret>
-       </md5>
+       <eap_method>fast</eap_method>
     </default_entry>
 
 </user_db>

@@ -70,11 +70,12 @@ private:
   {
     void operator()(EapAuthIdentityStateMachine &msm)
     {
+	  EAP_LOG(LM_DEBUG, "(%P|%t) AuthIdentityStateTable: Check Pick Up Init.\n");
       EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
       if (ssm.IsEapBackend() && !ssm.NeedInitialRequestToSend())
-	msm.Event(EvSgPickUpInit);
+			msm.Event(EvSgPickUpInit);
       else
-	msm.Event(EvSgNoPickUpInit);
+			msm.Event(EvSgNoPickUpInit);
     }
   };
 
@@ -83,7 +84,7 @@ private:
     void operator()(EapAuthIdentityStateMachine &msm)
     {
       EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
-      EAP_LOG(LM_DEBUG, "AuthIdentityStateTable: Do Identity Check.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) AuthIdentityStateTable: Do Identity Check.\n");
 
       // Dequeue the message from the processing queue.
       AAAMessageBlock *msg = ssm.GetRxMessage();
@@ -97,7 +98,7 @@ private:
       catch (...) { 
 	if (msm.NumberOfTrial()++ < msm.maxTrial) {
 	  EAP_LOG(LM_DEBUG, 
-		  "AuthIdentityStateTable: Re-sending Request/Identity.\n");
+		  "(%P|%t) AuthIdentityStateTable: Re-sending Request/Identity.\n");
 	  msm.Event(EvSgFailure_MoreTrial);
 	}
 	else {
@@ -117,7 +118,7 @@ private:
       } 
       else if (msm.NumberOfTrial()++ < msm.maxTrial) {
 	EAP_LOG(LM_DEBUG, 
-		"AuthIdentityStateTable: Re-sending Request/Identity.\n");
+		"(%P|%t) AuthIdentityStateTable: Re-sending Request/Identity.\n");
 	msm.Event(EvSgFailure_MoreTrial);
       }
       else {
@@ -164,7 +165,7 @@ private:
 
       ssm.SetTxMessage(msg);
     
-      EAP_LOG(LM_DEBUG, "AuthIdentityStateTable: Request Prepared.\n");
+      EAP_LOG(LM_DEBUG, "(%P|%t) AuthIdentityStateTable: Request Prepared.\n");
       ssm.Notify(EapAuthSwitchStateMachine::EvSgValidResp);
     }
   };

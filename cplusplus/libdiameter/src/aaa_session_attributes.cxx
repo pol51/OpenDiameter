@@ -34,6 +34,7 @@
 #include "aaa_data_defs.h"
 #include "aaa_route_id_generator.h"
 #include "aaa_session_attributes.h"
+#include <boost/lexical_cast.hpp>
 
 void DiameterSessionAttributes::MsgIdTxMessage(DiameterMsg &msg)
 {
@@ -135,9 +136,9 @@ void DiameterSessionId::Dump(std::string &dump)
 {
    dump = DiameterId().c_str();
    dump += ';';
-   dump += High();
+   dump += (boost::lexical_cast<std::string>(High())).c_str();
    dump += ';';
-   dump += Low();
+   dump += (boost::lexical_cast<std::string>(Low())).c_str();
    dump += ';';
    dump += OptionalValue().c_str();   
 }

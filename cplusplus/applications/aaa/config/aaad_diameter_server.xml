@@ -4,11 +4,14 @@
    <general>
       <product>Open Diameter</product>
       <version>1</version>
+      <backend_auth>true</backend_auth>
       <vendor_id>0</vendor_id>
+	<backend_auth>true</backend_auth>
       <supported_vendor_id>0</supported_vendor_id>
       <supported_vendor_id>1</supported_vendor_id>
       <auth_application_id>1</auth_application_id>
       <auth_application_id>2</auth_application_id>
+      <auth_application_id>5</auth_application_id>
       <auth_application_id>2000</auth_application_id>
       <auth_application_id>10000</auth_application_id>
       <acct_application_id>3</acct_application_id>
@@ -24,13 +27,13 @@
       </vendor_specific_application_id>
    </general>
    <parser> 
-      <dictionary>config/aaad_diameter_dictionary.xml</dictionary>
+      <dictionary>/etc/opendiameter/aaa/config/aaad_diameter_dictionary.xml</dictionary>
    </parser>
    <transport_mngt>
-      <identity>server.isp.net</identity>
-      <realm>isp.net</realm>
-      <tcp_listen_port>1812</tcp_listen_port>
-      <sctp_listen_port>1813</sctp_listen_port>
+      <identity>localaaa.localdomain.net</identity>
+      <realm>localdomain.net</realm>
+      <tcp_listen_port>3868</tcp_listen_port>
+      <sctp_listen_port>3868</sctp_listen_port>
       <use_ipv6>0</use_ipv6>
       <watchdog_timeout>4</watchdog_timeout>
       <reconnect_interval>30</reconnect_interval>
@@ -38,18 +41,13 @@
       <request_retransmission_interval>10</request_retransmission_interval>
       <max_request_retransmission_count>3</max_request_retransmission_count>
       <receive_buffer_size>2048</receive_buffer_size>
-      <advertised_hostname>server1.isp.net</advertised_hostname>
+      <advertised_hostname>localaaa.localdomain.net</advertised_hostname>
       <peer_table>
           <expiration_time>1</expiration_time>
           <peer>
-              <hostname>nas.access1.net</hostname>
+              <hostname>localnas.localdomain.net</hostname>
               <port>1811</port>
               <use_sctp>0</use_sctp>
-              <tls_enabled>0</tls_enabled>
-          </peer>
-          <peer>
-              <hostname>nas.access2.net</hostname>
-              <port>1811</port>
               <tls_enabled>0</tls_enabled>
           </peer>
           <peer>
@@ -85,56 +83,6 @@
                 </peer_entry>
                 <peer_entry>
                     <server>nas3.access1.net</server>
-                    <metric>5</metric>
-                </peer_entry>
-             </application>
-          </route>
-          <route>
-             <realm>access2.net</realm>
-             <role>0</role> 
-             <redirect_usage>0</redirect_usage>
-             <application>
-                <application_id>1</application_id>
-                <vendor_id>0</vendor_id>
-                <peer_entry>
-                    <server>nas.access2.net</server>
-                    <metric>2</metric>
-                </peer_entry>
-             </application>
-          </route>
-          <route>
-             <realm>access3.net</realm>
-             <role>0</role> 
-             <redirect_usage>0</redirect_usage>
-             <application>
-                <application_id>3</application_id>
-                <vendor_id>0</vendor_id>
-                <peer_entry>
-                    <server>nas.access3.net</server>
-                    <metric>2</metric>
-                </peer_entry>
-                <peer_entry>
-                    <server>nas2.access3.net</server>
-                    <metric>4</metric>
-                </peer_entry>
-                <peer_entry>
-                    <server>nas3.access3.net</server>
-                    <metric>5</metric>
-                </peer_entry>
-             </application>
-             <application>
-                <application_id>1</application_id>
-                <vendor_id>0</vendor_id>
-                <peer_entry>
-                    <server>nas.access3.net</server>
-                    <metric>2</metric>
-                </peer_entry>
-                <peer_entry>
-                    <server>nas2.access3.net</server>
-                    <metric>4</metric>
-                </peer_entry>
-                <peer_entry>
-                    <server>nas3.access3.net</server>
                     <metric>5</metric>
                 </peer_entry>
              </application>

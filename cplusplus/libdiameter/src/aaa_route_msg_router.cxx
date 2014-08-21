@@ -146,9 +146,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
         //          be generally appropriate if we consider FQDN as
         //          a non ascii value.
         //
-        // Deprecated:
-        // if (*DestHost == DIAMETER_CFG_TRANSPORT()->identity) {
-        //
+
         if (! strcasecmp((*DestHost).c_str(),
                       DIAMETER_CFG_TRANSPORT()->identity.c_str())) {
             return (AAA_ROUTE_RESULT_SUCCESS);
@@ -164,11 +162,9 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
         //          be generally appropriate if we consider FQDN as
         //          a non ascii value.
         //
-        // Deprecated:
-        // if (*DestRealm == DIAMETER_CFG_TRANSPORT()->realm) {
-        //
-        if (! strcasecmp((*DestRealm).c_str(),
-                      DIAMETER_CFG_TRANSPORT()->realm.c_str())) {
+        if ((! strcasecmp((*DestRealm).c_str(),
+                      DIAMETER_CFG_TRANSPORT()->realm.c_str()))
+                      && DIAMETER_CFG_GENERAL()->backend_auth)  {
             DiameterApplicationIdLst *idList[] = {
                 &DIAMETER_CFG_GENERAL()->authAppIdLst,
                 &DIAMETER_CFG_GENERAL()->acctAppIdLst
@@ -179,6 +175,7 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
                 DiameterApplicationIdLst::iterator x = idList[i]->begin();
                 for (; x != idList[i]->end(); x++) {
                     if (*x == msg->hdr.appId) {
+						AAA_LOG((LM_DEBUG, "[DiameterMsgRouter::RcLocal::Lookup]  Find the item\n"));
                         return (AAA_ROUTE_RESULT_SUCCESS);
                     }
                 }
@@ -189,7 +186,8 @@ AAA_ROUTE_RESULT DiameterMsgRouter::RcLocal::Lookup(std::auto_ptr<DiameterMsg> &
                  y++) {
                 if (((*y).authAppId == msg->hdr.appId) ||
                     ((*y).acctAppId == msg->hdr.appId)) {
-                    return (AAA_ROUTE_RESULT_SUCCESS);
+						AAA_LOG((LM_DEBUG, "[DiameterMsgRouter::RcLocal::Lookup]  Find the item\n"));
+						return (AAA_ROUTE_RESULT_SUCCESS);
                 }
             }
         }
@@ -459,6 +457,7 @@ int DiameterMsgRouter::DcLocal::RequestMsg(std::auto_ptr<DiameterMsg> msg,
                                            DiameterPeerEntry *dest)
 {
     if (source) {
+		AAA_LOG((LM_DEBUG, "[DiameterMsgRouter::DcLocal::RequestMsg]  Source is not NULL\n"));
         Add(msg->hdr.hh, msg, source, dest);
         m_Arg[DiameterMsgRouterHandlerTable::H_LOCAL]->
             Request(msg, source, dest);

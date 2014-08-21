@@ -97,7 +97,7 @@ ACE_INT32 EAPTLS_tls_mng::generate_eph_rsa_key(TLS_context *ctx)
 
 TLS_context *EAPTLS_tls_mng_auth::init_tls_ctx(EAPTLS_config &conf,ACE_INT32 session_id_context)
 {
-   	TLS_method *meth;
+		const TLS_method *meth;
 	   TLS_context *ctx;
 	   ACE_INT32 verify_mode = 0;
 	   ACE_INT32 ctx_options = 0;
@@ -198,7 +198,7 @@ TLS_context *EAPTLS_tls_mng_auth::init_tls_ctx(EAPTLS_config &conf,ACE_INT32 ses
 	 */
 	verify_mode |= SSL_VERIFY_PEER;
 	verify_mode |= SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-	verify_mode |= SSL_VERIFY_CLIENT_ONCE;
+	//verify_mode |= SSL_VERIFY_CLIENT_ONCE;
 	SSL_CTX_set_verify(ctx, verify_mode, EAPTLSCrypto_callbacks::cbtls_verify);
 
 	if (conf.get_verify_depth()) {
@@ -226,7 +226,7 @@ TLS_context *EAPTLS_tls_mng_auth::init_tls_ctx(EAPTLS_config &conf,ACE_INT32 ses
 
 TLS_context *EAPTLS_tls_mng_peer::init_tls_ctx(EAPTLS_config &conf)
 {
-   	TLS_method *meth;
+	   const TLS_method *meth;
 	   TLS_context *ctx;
 	   ACE_INT32 verify_mode = 0;
 	   ACE_INT32 ctx_options = 0;
@@ -399,9 +399,10 @@ ACE_INT32 EAPTLS_tls_mng::tls_handshake_recv(EAPTLS_session_t *ssn)
 	if (err > 0) {
 		ssn->get_clean_out()->wr_ptr(err);
 	} else {
+		//std::cout<<"flag 10.2\n";
 		EAP_LOG(LM_DEBUG, "rlm_eap_tls: SSL_read Error");
 		tls_check_state(ssn->get_tls_data(), err);
-	err_code = SSL_get_error(ssn->get_tls_data(), err);
+		err_code = SSL_get_error(ssn->get_tls_data(), err);
 	} 
 
 	/* Some Extra STATE information for easy debugging */
@@ -631,4 +632,56 @@ void EAPTLS_tls_mng::tls_session_information(EAPTLS_session_t *tls_session)
   EAP_LOG(LM_ERROR,"rlm_eap_tls: %s\n", info->get_info_description().c_str());
 }
 
+int tls_connection_set_cipher_list(void *tls_ctx, TLS_data *ssl,
+				   u8 *ciphers)
+{
+	char buf[100], *pos, *end;
+	u8 *c;
+	int ret;
 
+	if (ssl == NULL || ciphers == NULL)
+		return -1;
+
+	buf[0] = '\0';
+	pos = buf;
+	end = pos + sizeof(buf);
+
+	c = ciphers;
+	while (*c != TLS_CIPHER_NONE) {
+		const char *suite;
+
+		switch (*c) {
+		case TLS_CIPHER_RC4_SHA:
+			suite = "RC4-SHA";
+			break;
+		case TLS_CIPHER_AES128_SHA:
+			suite = "AES128-SHA";
+			break;
+		case TLS_CIPHER_RSA_DHE_AES128_SHA:
+			suite = "DHE-RSA-AES128-SHA";
+			break;
+		case TLS_CIPHER_ANON_DH_AES128_SHA:
+			suite = "ADH-AES128-SHA";
+			break;
+		default:
+			printf("TLS: Unsupported "
+				   "cipher selection: %d", *c);
+			return -1;
+		}
+		ret = snprintf(pos, end - pos, ":%s", suite);
+		if (ret < 0 || ret >= end - pos)
+			break;
+		pos += ret;
+
+		c++;
+	}
+
+	printf( "OpenSSL: cipher suites: %s", buf + 1);
+
+	if (SSL_set_cipher_list(ssl, buf + 1) != 1) {
+		printf("Cipher suite configuration failed");
+		return -1;
+	}
+
+	return 0;
+}

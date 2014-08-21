@@ -40,7 +40,7 @@
 #include <aaa_global_config.h>
 #include <list>
 #include <map>
-#include <string>
+#include <string.h>
 #include <ace/Task.h>
 #include <ace/Task_T.h>
 #include <ace/Thread.h>
@@ -57,6 +57,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/shared_array.hpp>
+#include <iostream>
 
 /// Logging facility.
 #define FRAMEWORK_LOG ACE_Log_Msg::instance()->log
@@ -683,7 +684,7 @@ class AAA_GroupedJob : public AAA_QueueJob<AAA_Job*, ACE_Thread_Mutex>
   {
     while (ExistBacklog())
       {
-	AAA_Job* job;
+	AAA_Job* job = NULL;
 	Dequeue(job);   // Non-blocking dequeue.
 	job->Release();
       }
@@ -691,7 +692,7 @@ class AAA_GroupedJob : public AAA_QueueJob<AAA_Job*, ACE_Thread_Mutex>
 
   void Remove(AAA_Job *job)
   {
-    // Root job relies on Acquire/Release mechinism instead of
+    // Root job relies on Acquire/Release mechanism instead of
     // Remove().
     int n = AAA_QueueJob<AAA_Job*, ACE_Thread_Mutex>::Remove(job);
     job->Release(n);
@@ -1180,7 +1181,7 @@ protected:
       {
 	throw FoundDuplicateStateTableEntry;
       }
-    push_back(new AAA_StateTableEntry<ARG>(pSt, ev, nSt, ac));
+    this->push_back(new AAA_StateTableEntry<ARG>(pSt, ev, nSt, ac));
   }
 
   /// This function is used for adding an entry for wildcard event.
@@ -1192,7 +1193,7 @@ protected:
     if (FindStateTableEntry(pSt, dummy))
       throw FoundDuplicateStateTableEntry;
 
-    push_back(new AAA_StateTableEntry<ARG>(pSt,nSt,ac));
+    this->push_back(new AAA_StateTableEntry<ARG>(pSt,nSt,ac));
   }
 private:
   AAA_State initialState;

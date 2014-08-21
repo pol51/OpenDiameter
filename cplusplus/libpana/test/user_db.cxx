@@ -204,6 +204,12 @@ int AAA_UserDb::open(std::string &cfgFile)
 
 AAA_UserEntry *AAA_UserDb::lookup(const std::string &uname)
 {
+	AAA_UserEntry * entry = new AAA_UserEntry;
+	entry -> m_Username = "user1";
+	entry -> m_Passphrase = "12345";
+	entry -> m_AuthType = 4;
+    m_UserDb.insert(std::map<std::string, AAA_UserEntry*>::value_type("user1",entry));
+	
     AAA_UserEntryDbIterator i = m_UserDb.find(uname);
     return (i == m_UserDb.end()) ? NULL : i->second;
 }

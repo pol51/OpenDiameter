@@ -40,32 +40,32 @@
 #include "ace/Singleton.h"
 
 typedef struct {
-  std::string m_PaCCfgFile;
-  std::string m_Username;
-  std::string m_Password;
-  std::string m_Secret;
-  std::string m_AuthScript;
-  ACE_UINT32  m_UseArchie;
-  ACE_UINT32  m_ThreadCount;
+	std::string m_PaCCfgFile;
+	std::string m_Username;
+	std::string m_Password;
+	std::string m_Secret;
+	std::string m_AuthScript;
+	ACE_UINT32 m_EapMethod;
+	ACE_UINT32 m_InnerEapMethod;
+	ACE_UINT32 m_AuthPeriod;
+	ACE_UINT32 m_ThreadCount;
 } PACD_Data;
 
 class PACD_Config {
-    public:
-        int Open(std::string &cfg_file);
-        PACD_Data &Data() {
-	   return m_Data;
-	}
+ public:
+	int Open(std::string & cfg_file);
+	 PACD_Data & Data() {
+		return m_Data;
+ } protected:
+	void print();
 
-    protected:
-        void print();
-
-    private:
-        PACD_Data m_Data;
+ private:
+	PACD_Data m_Data;
 };
 
-typedef ACE_Singleton<PACD_Config, ACE_Null_Mutex> PACD_Config_S;
+typedef ACE_Singleton < PACD_Config, ACE_Null_Mutex > PACD_Config_S;
 
 #define PACD_CONFIG_OPEN(x) PACD_Config_S::instance()->Open((x))
 #define PACD_CONFIG()       PACD_Config_S::instance()->Data()
 
-#endif /* __PACD_CONFIG_H__ */
+#endif				/* __PACD_CONFIG_H__ */

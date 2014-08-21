@@ -60,6 +60,7 @@ SRC = src/aaa_application.cxx \
       src/aaa_xml_data.cxx
 
 AM_CPPFLAGS = @L_CPPFLAGS@ @L_ODBCFLAGS@ \
+              -I$(top_srcdir)/libdiamparser \
               -I@top_srcdir@/include \
               -I@top_srcdir@/libodutl/include \
               -I$(top_srcdir)/libdiamparser/include \
@@ -75,7 +76,7 @@ libdiameter_la_AR = $(AR) -qcs
 includedir = $(prefix)/include/opendiameter/diameter
 include_HEADERS = $(INC)
 
-sysconfdir = $(prefix)/etc/opendiameter/diameter
+sysconfdir = /etc/opendiameter/diameter
 sysconf_DATA = config/agent.local.xml \
                config/configuration.xml \
                config/configuration.dtd \
@@ -90,6 +91,7 @@ LDADD = @L_LIBS@ \
         $(top_builddir)/libdiameter/libdiameter.la \
         $(top_builddir)/libdiamparser/libdiamparser.la \
         $(top_builddir)/libodutl/libodutl.la
+        
 noinst_PROGRAMS = aaa_test_client1 aaa_test_server1 \
                   aaa_test_client2 aaa_test_server2 \
                   aaa_test_client3 aaa_test_server3 \
@@ -111,44 +113,57 @@ aaa_test_server6_SOURCES = test/test_server6.cxx
 aaa_test_agent_SOURCES = test/test_agent.cxx
 
 EXTRA_DIST = config
-INCLUDES = -I$(top_srcdir)/libdiamparser
 aaa_test_client1_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
-	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la @L_LIBS@
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
 
-## -lssl -lACEXML_Parser -lACEXML -lACE_SSL -lACE
 aaa_test_agent_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
-	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE_SSL \
-	-lACE -lssl
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_client2_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
 	$(top_builddir)/libdiamparser/libdiamparser.la\
-	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
-	-lACE_SSL -lssl
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_client3_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
-	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE \
-	-lACE_SSL -lssl
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_client4_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
-	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE \
-	-lACE_SSL -lssl
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_client5_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
 	$(top_builddir)/libdiamparser/libdiamparser.la\
-	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
-	-lACE_SSL -lssl
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_server1_LDADD = $(top_builddir)/libdiameter/libdiameter.la \
-	$(top_builddir)/libdiamparser/libdiamparser.la $(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE \
-	-lACE_SSL -lssl
+	$(top_builddir)/libdiamparser/libdiamparser.la \
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_server2_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
 	$(top_builddir)/libdiamparser/libdiamparser.la\
-	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
-	-lACE_SSL -lssl
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_server3_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
 	$(top_builddir)/libdiamparser/libdiamparser.la\
-	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
-	-lACE_SSL -lssl
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_server4_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
 	$(top_builddir)/libdiamparser/libdiamparser.la\
-	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
-	-lACE_SSL -lssl
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 aaa_test_server6_LDADD = $(top_builddir)/libdiameter/libdiameter.la\
 	$(top_builddir)/libdiamparser/libdiamparser.la\
-	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
-	-lACE_SSL -lssl
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@

@@ -181,7 +181,7 @@ class AAACommandList :
                 exit(1);
             }
             mutex.acquire();
-            push_back(com);
+            this->push_back(com);
             mutex.release();
         }
         virtual COMMAND* search(const char*name) {
@@ -218,7 +218,7 @@ class AAAGroupedAvpList :
                 exit(1);
             }
             mutex.acquire();
-            push_back(gavp);
+            this->push_back(gavp);
             mutex.release();
         }
         virtual GROUP* search(ACE_UINT32 code,

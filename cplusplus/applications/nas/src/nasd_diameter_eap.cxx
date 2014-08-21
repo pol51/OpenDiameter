@@ -57,6 +57,7 @@ class NASD_DiameterEapClientSession :
           msg->Release();
       }
       void SignalSuccess(std::string &eapMsg) {
+		  NASD_LOG(LM_DEBUG,"signal success in nasd_diameter_eap.cxx\n");
           if (eapMsg.length() > 0) {
               AAAMessageBlock *msg = AAAMessageBlock::Acquire
                       ((char*)eapMsg.data(), (ACE_UINT32)eapMsg.length());
@@ -143,6 +144,12 @@ class NASD_DiameterEap :
          m_AAAClient->Stop();
       }
       bool CurrentKey(std::string &key) {
+	     if (m_AAAClient->IsKeyAvailable()) {
+             NASD_LOG(LM_INFO, "(%P|%t) Assigning key in nasd_diameter_eap.cxx\n");
+             key.assign(m_AAAClient->GetKeyData().data(), 
+                        m_AAAClient->GetKeyData().size());
+             return true;
+         }
          return false; // don't generate keys
       }
       bool Identity(std::string &ident) {
@@ -158,6 +165,7 @@ class NASD_DiameterEap :
          return (0); // diameter eap has no next node
       }
       void Success(AAAMessageBlock *msg = 0) {
+		  NASD_LOG(LM_DEBUG, "success in nasd_diameter_eap.cxx\n");
       }
       void Failure(AAAMessageBlock *msg = 0) {
       }
@@ -183,6 +191,10 @@ bool NASD_DiameterEapInitializer::Initialize(AAA_Task &t)
          NASD_AAAPROTO_TBL().Lookup(name);
      if (aaa == NULL) {
          NASD_LOG(LM_ERROR, "(%P|%t) Diameter-EAP configuration entry not found\n");
+         return false;
+     }
+     if(!aaa->Enabled()) {
+         NASD_LOG(LM_ERROR, "(%P|%t) Diameter-EAP is disabled.\n");
          return false;
      }
 

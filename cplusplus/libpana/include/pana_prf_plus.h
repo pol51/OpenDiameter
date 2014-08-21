@@ -76,7 +76,7 @@ class PANA_PrfPlus {
         * @param sequence_length Sequence length.
         * @param result Buffer where store result.
         */
-       virtual void PRF(ACE_Byte *key, 
+       virtual int PRF(ACE_Byte *key, 
                         ACE_UINT16 key_length, 
                         ACE_Byte *sequence, 
                         ACE_UINT16 sequence_length, 

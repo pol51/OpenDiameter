@@ -149,9 +149,10 @@ EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseClienteHello: AlertReceive.\n");
 EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseClienteHello: AlertSend.\n");
       	msm.Event(EvSgAlertSend);
       }
-      else
+      else {
 
-      msm.Event(EvSgValid);
+		msm.Event(EvSgValid);
+		}
     }
   };
 
@@ -364,6 +365,11 @@ EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseClienteHello: AlertSend.\n");
       EAPTLS_session_t_auth *session_auth = msm.get_tls_session();
       ACE_Byte flags = 0x00;
       EAP_LOG(LM_DEBUG, "-------------->AuthTls: Process response second way message.\n");
+      
+      /*if(session_auth->get_tls_data()->enc_read_ctx)
+	{if(session_auth->get_tls_data()->enc_read_ctx->cipher)printf("********cipher is not null\n");
+	else printf("************cipher is null but ctx is not null\n");}
+      else printf("********ctx is null\n");*/
 
 	ACE_INT32 err;
       if((err = tls_mng_auth.tls_handshake_recv(session_auth)) == EAPTLS_tls_mng::StAlertReceive)
@@ -378,8 +384,19 @@ EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseSecondWay: AlertSend.\n");
       	msm.Event(EvSgAlertSend);
 	return;
       }
+      
+      /*if(session_auth->get_tls_data()->enc_read_ctx)
+	{if(session_auth->get_tls_data()->enc_read_ctx->cipher)printf("********cipher is not null\n");
+	else printf("************cipher is null but ctx is not null\n");}
+      else printf("********ctx is null\n");*/
 
       AAAMessageBlock *data = session_auth->get_dirty_out();
+      
+      printf("dirty out:[length = %d]\n",data->length());
+	for(unsigned int i=0;i<data->length();i++) {
+		printf("%5x", (*((u8 *)(data->base()+i)))&0xff);
+	}
+	printf("\n");
 
       //Now to send final packet.
       ACE_UINT32 header_length = 6;
@@ -455,7 +472,7 @@ EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseSecondWay: AlertSend.\n");
     {
       EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
       AAAMessageBlock *msg = ssm.GetRxMessage();
-      EAP_LOG(LM_DEBUG, "------------>AuthTls: Process response second way message.\n");
+      EAP_LOG(LM_DEBUG, "------------>AuthTls: Process response finished.\n");
 
       EapResponseTls response((ACE_Byte)0x00);
       EapResponseTlsParser parser;
@@ -478,12 +495,12 @@ EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseSecondWay: AlertSend.\n");
       EAPTLS_tls_mng_auth &tls_mng_auth = msm.get_mng_auth();
       if((err = tls_mng_auth.tls_handshake_recv(session_auth)) == EAPTLS_tls_mng::StAlertReceive)
       {
-EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseFinish: AlertReceive.\n");
+		EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseFinish: AlertReceive.\n");
       	msm.Event(EvSgAlertReceive);
       }
       else if (err == EAPTLS_tls_mng::StAlertSend)
       {
-EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseFinish: AlertSend.\n");
+		EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseFinish: AlertSend.\n");
       	msm.Event(EvSgAlertSend);
       }
       else
@@ -500,6 +517,15 @@ EAP_LOG(LM_ERROR, "AuthTls: AcProcessResponseFinish: AlertSend.\n");
       EapAuthSwitchStateMachine &ssm = msm.AuthSwitchStateMachine();
       EAPTLS_session_t_auth *session_auth = msm.get_tls_session();
       EAP_LOG(LM_DEBUG,"AuthTls: AcNotifySuccess\n");
+      if(session_auth->get_tls_data()->enc_read_ctx)
+		{
+			if(session_auth->get_tls_data()->enc_read_ctx->cipher){
+				printf("********cipher is not null\n");
+			} else {printf("************cipher is null but ctx is not null\n");}
+		}
+		else {
+			printf("********ctx is null\n");
+	 }
       session_auth->session_close();
       ssm.Policy().Update(EapContinuedPolicyElement::PolicyOnSuccess);
       msm.IsDone() = true;
@@ -1014,7 +1040,7 @@ EAP_LOG(LM_ERROR, "PeerTls: AcProcessRequestFinish: AlertSend.\n");
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
       EAPTLS_tls_mng_peer &tls_mng_peer = msm.get_mng_peer();
       AAAMessageBlock *msg = ssm.GetRxMessage();
-      EAP_LOG(LM_DEBUG, "PeerTls: Process Request Finish.\n");
+      EAP_LOG(LM_DEBUG, "---------------------------->PeerTls: Process Request Finish.\n");
 
       EapRequestTls request((ACE_Byte)0x00);
       EapRequestTlsParser parser;
@@ -1053,7 +1079,7 @@ EAP_LOG(LM_ERROR, "PeerTls: AcProcessRequestFinish: AlertSend.\n");
     void operator()(EapPeerTlsStateMachine &msm)
     {
       EapPeerSwitchStateMachine &ssm = msm.PeerSwitchStateMachine();
-      EAP_LOG(LM_DEBUG, "PeerTls: Send Ack.\n");
+      EAP_LOG(LM_DEBUG, "<------------------PeerTls: Send Ack.\n");
 
       EAPTLS_session_t_peer *session_peer = msm.get_tls_session();
       AAAMessageBlock *data = session_peer->get_dirty_out(); //Getting TLS records to be encapsulated in request
@@ -1284,6 +1310,7 @@ EapPeerTlsStateMachine::EapPeerTlsStateMachine
   (*this, *EapPeerTlsStateTable::instance(), s.Reactor(), s, "TLS(peer)")
 {
   this->ssn=NULL;
+  history.assign("");
 }
 
 EapAuthTlsStateMachine::EapAuthTlsStateMachine
@@ -1294,5 +1321,6 @@ EapAuthTlsStateMachine::EapAuthTlsStateMachine
    s.Reactor(), s, "TLS(authenticator)")
 {
   this->ssn=NULL;
+  history.assign("");
   
 }

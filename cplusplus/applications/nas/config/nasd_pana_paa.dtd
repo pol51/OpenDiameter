@@ -26,8 +26,9 @@
      <!ELEMENT eap_response_timeout (#PCDATA)>
      <!ELEMENT eap_piggyback (#PCDATA)>
 
-     <!ELEMENT agent (optimized_handshake, carry_lifetime)>
+     <!ELEMENT agent (paa_ip_address, optimized_handshake, carry_lifetime, retry_psr)>
 
+     <!ELEMENT paa_ip_address (#PCDATA)>
      <!ELEMENT optimized_handshake (#PCDATA)>
      <!ELEMENT carry_lifetime (#PCDATA)>
-     <!ELEMENT ip_reconfiguration (#PCDATA)>
+     <!ELEMENT retry_psr (#PCDATA)>

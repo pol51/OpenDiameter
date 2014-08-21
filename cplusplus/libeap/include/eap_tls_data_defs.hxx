@@ -38,7 +38,6 @@
 #include "StdAfx.h"
 #endif
 #include "aaa_parser_api.h"
-//#include "rbtree.h"
 #include "ace/Singleton.h"
 
 //
@@ -47,11 +46,11 @@
 #define EAPTLS_CFG_XML_ROOT_SERVER                  "configuration_server"
 #define EAPTLS_CFG_XML_ROOT_CLIENT                  "configuration_client"
 
-
-
 //
 // Configuration Data Structures
 //
+
+typedef ACE_UINT32 diameter_unsigned32_t;
 
 typedef struct {
 	std::string pass_phrase;
@@ -60,6 +59,7 @@ typedef struct {
 	std::string random;
 	std::string ca_path;
 	std::string ca_cert;
+	std::string pac_file;
 	std::string dh;
 	diameter_unsigned32_t rsa_key;
 	diameter_unsigned32_t dh_key;

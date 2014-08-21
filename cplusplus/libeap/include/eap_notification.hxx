@@ -133,6 +133,7 @@ public:
   /// Reimplemented from EapMethodStateMachine
   inline void Notify(AAA_Event ev)
   {
+	printf("EapAuthNotificationStateMachine notify\n");
     EapStateMachine<EapAuthNotificationStateMachine>::Notify(ev);
   }
 

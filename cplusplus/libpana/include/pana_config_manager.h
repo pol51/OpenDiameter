@@ -60,6 +60,7 @@ typedef struct {
 
 // Agent configuration data loaded from XML file
 typedef struct {
+	std::string m_PaaIpAddress;
     ACE_UINT32 m_OptimizedHandshake;
     ACE_UINT32 m_CarryLifetime;
     ACE_UINT32 m_IpReconfig;

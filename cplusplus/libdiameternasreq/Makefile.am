@@ -35,7 +35,7 @@ libdiameternasreq_la_AR = $(AR) -qcs
 includedir = $(prefix)/include/opendiameter/diameternasreq
 include_HEADERS = $(DIAMETER_NASREQ_HDR)
 
-sysconfdir = $(prefix)/etc/opendiameter/diameternasreq
+sysconfdir = /etc/opendiameter/diameternasreq
 sysconf_DATA = config/client.local.xml \
                config/configuration.xml \
                config/configuration.dtd \
@@ -45,9 +45,9 @@ sysconf_DATA = config/client.local.xml \
 
 LDADD = @L_LIBS@ \
         $(top_builddir)/libdiameternasreq/libdiameternasreq.la \
-	$(top_builddir)/libdiameter/libdiameter.la \
-	$(top_builddir)/libdiamparser/libdiamparser.la \
-	$(top_builddir)/libodutl/libodutl.la
+		$(top_builddir)/libdiameter/libdiameter.la \
+		$(top_builddir)/libdiamparser/libdiamparser.la \
+		$(top_builddir)/libodutl/libodutl.la
 
 noinst_PROGRAMS = client_test server_test
 
@@ -60,10 +60,11 @@ EXTRA_DIST = config
 client_test_LDADD = $(top_builddir)/libdiameternasreq/libdiameternasreq.la\
 	$(top_builddir)/libdiameter/libdiameter.la\
 	$(top_builddir)/libdiamparser/libdiamparser.la\
-	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
-	-lACE_SSL -lssl
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@
+	
 server_test_LDADD = $(top_builddir)/libdiameternasreq/libdiameternasreq.la\
 	$(top_builddir)/libdiameter/libdiameter.la\
 	$(top_builddir)/libdiamparser/libdiamparser.la\
-	$(top_builddir)/libodutl/libodutl.la -lACEXML_Parser -lACEXML -lACE\
-	-lACE_SSL -lssl
+	$(top_builddir)/libodutl/libodutl.la \
+	@L_LIBS@

@@ -31,197 +31,207 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-
 #ifndef __NASD_EAP_PASSTHROUGH_H__
 #define __NASD_EAP_PASSTHROUGH_H__
 
 #include "nasd_call_framework.h"
 #include "eap_identity.hxx"
+#include "eap_md5.hxx"
+#include "eap_archie.hxx"
+#include "eap_fast_fsm.hxx"
 #include "eap_method_registrar.hxx"
 
-class NASD_EapPassThroughAuthIdentityStateMachine : 
-      public EapAuthIdentityStateMachine
-{
-     friend class EapMethodStateMachineCreator
-                  <NASD_EapPassThroughAuthIdentityStateMachine>;
-   public:
-     NASD_EapPassThroughAuthIdentityStateMachine(EapSwitchStateMachine &s)
-        : EapAuthIdentityStateMachine(s) {
-     } 
-     ProcessIdentityResult ProcessIdentity(std::string& identity);
-     
-   private:
-     virtual ~NASD_EapPassThroughAuthIdentityStateMachine() {
-     } 
+class NASD_EapPassThroughAuthIdentityStateMachine:public
+    EapAuthIdentityStateMachine {
+	friend class EapMethodStateMachineCreator <
+	    NASD_EapPassThroughAuthIdentityStateMachine >;
+ public:
+	 NASD_EapPassThroughAuthIdentityStateMachine(EapSwitchStateMachine & s)
+	:EapAuthIdentityStateMachine(s) {
+	} ProcessIdentityResult ProcessIdentity(std::string & identity);
+
+ private:
+	virtual ~ NASD_EapPassThroughAuthIdentityStateMachine() {
+	}
 };
 
-class NASD_EapPassThroughAuthSwitchStateMachine :
-      public EapPassThroughAuthSwitchStateMachine
-{
-   public:
-      NASD_EapPassThroughAuthSwitchStateMachine
-             (ACE_Reactor &r, 
-              EapJobHandle& h,
-              NASD_CallRouting &rte) :
-          EapPassThroughAuthSwitchStateMachine(r, h),
-          m_Node(rte),
-          m_IdentityPolicy(EapContinuedPolicyElement(EapType(1))) {
-          Policy().InitialPolicyElement(&m_IdentityPolicy);
-      }
-      void Send(AAAMessageBlock *b) {
-          m_Node.SendEgress(*b);
-      }
-      void ForwardResponse(AAAMessageBlock *b) {
-          m_Node.SendIngress(*b);
-      }
-      void Success(AAAMessageBlock *b) {
-          m_Node.PrevNode()->Success(b);
-      }
-      void Success() {
-          m_Node.PrevNode()->Success(0);
-      }
-      void Failure(AAAMessageBlock *b) {
-          m_Node.PrevNode()->Failure(b);
-      }
-      void Failure() {
-          m_Node.PrevNode()->Failure(0);
-      }
-      void Abort() {
-          m_Node.PrevNode()->Failure(0);
-      }
-      NASD_CallRouting &CallRouting() {
-          return dynamic_cast<NASD_CallRouting&>(m_Node);
-      }
-      
-   private:
-      /// node reference
-      NASD_CallNode &m_Node;
-      
-      /// policy elements
-      EapContinuedPolicyElement m_IdentityPolicy;
+/**
+ *  @brief Class definition for authenticator identity method for my application.
+ */
+class NASD_EapPassThroughAuthSwitchStateMachine:public
+    EapPassThroughAuthSwitchStateMachine {
+ public:
+	NASD_EapPassThroughAuthSwitchStateMachine
+	    (ACE_Reactor & r,
+	     EapJobHandle & h,
+	     NASD_CallRouting & rte):EapPassThroughAuthSwitchStateMachine(r, h),
+	    m_Node(rte),
+	    m_IdentityPolicy(EapContinuedPolicyElement(EapType(1))) {
+		Policy().InitialPolicyElement(&m_IdentityPolicy);
+		Policy().InnerEapMethodType(0);
+	} void Send(AAAMessageBlock * b) {
+		m_Node.SendEgress(*b);
+	}
+	void ForwardResponse(AAAMessageBlock * b) {
+		m_Node.SendIngress(*b);
+	}
+	void Success(AAAMessageBlock * b) {
+		m_Node.PrevNode()->Success(b);
+	}
+	void Success() {
+		m_Node.PrevNode()->Success(0);
+	}
+	void Failure(AAAMessageBlock * b) {
+		m_Node.PrevNode()->Failure(b);
+	}
+	void Failure() {
+		m_Node.PrevNode()->Failure(0);
+	}
+	void Abort() {
+		m_Node.PrevNode()->Failure(0);
+	}
+	NASD_CallRouting & CallRouting() {
+		return dynamic_cast < NASD_CallRouting & >(m_Node);
+	}
+
+ private:
+	/// node reference
+	NASD_CallNode & m_Node;
+
+	/// policy elements
+	EapContinuedPolicyElement m_IdentityPolicy;
 };
 
-class NASD_EapPassThrough : 
-   public NASD_CallRouting
-{
-   public:
-      NASD_EapPassThrough(AAA_Task &t) : 
-         m_Task(t),
-         m_JobHandle(AAA_GroupedJob::Create
-             (t.Job(), this, (char *)"eap-passthrough")) {
-      }
-      virtual ~NASD_EapPassThrough() {
-	 Stop();
-         m_JobHandle->Stop();
-         m_JobHandle.reset();
-      }
-      int Start() {
-         if (m_Eap.get()) {
-             return (-1);
-         }
-         
-         m_MethodRegistrar.registerMethod
-             (std::string("Identity"), EapType(1),
-               Authenticator, m_NasEapAuthIdentityCreator);
+class NASD_EapPassThrough:public NASD_CallRouting {
+ public:
+	NASD_EapPassThrough(AAA_Task & t):m_Task(t),
+	    m_JobHandle(AAA_GroupedJob::Create
+			(t.Job(), this, (char *)"eap-passthrough")) {
+	} virtual ~ NASD_EapPassThrough() {
+		Stop();
+		m_JobHandle->Stop();
+		m_JobHandle.reset();
+	}
+	int Start() {
+		if (m_Eap.get()) {
+			return (-1);
+		}
 
-         m_Eap = boost::shared_ptr<NASD_EapPassThroughAuthSwitchStateMachine>
-                  (new NASD_EapPassThroughAuthSwitchStateMachine
-                      (*m_Task.reactor(), m_JobHandle, *this));
+		m_MethodRegistrar.registerMethod
+		    (std::string("Identity"), EapType(1),
+		     Authenticator, m_NasEapAuthIdentityCreator);
 
-         m_Eap->NeedInitialRequestToSend(false);
-         m_Eap->Start();
-         return (0);
-      }
-      bool IsRunning() {
-         return (m_Eap.get()) ? true : false;
-      }
-      void Stop() {
-         if (m_Eap.get()) {         
-             m_Eap->Stop();
-             m_Eap.reset();
-         }
-      }
-      bool CurrentKey(std::string &key) {
-        if (m_Eap->KeyAvailable()) {
-             NASD_LOG(LM_INFO, "(%P|%t) Assigning key\n");
-             key.assign(m_Eap->KeyData().data(), 
-                        m_Eap->KeyData().size());
-             return true;
-         }
-         return false;
-      }
-      bool Identity(std::string &ident) {
-	 if (m_Identity.length() > 0) {
-	     ident = m_Identity;
-             return true;
-	 }
-         return false;
-      }
-      int ReceiveIngress(AAAMessageBlock &msg) {
-         m_Eap->Receive(&msg);
-         return (0);
-      }
-      int ReceiveEgress(AAAMessageBlock &msg) {
-         m_Eap->AAA_Continue(&msg);
-         return (0); // standalone does not have next
-      }
-      void Success(AAAMessageBlock *msg = 0) {
-         if (msg) {
-	     std::string key;
-	     if (NextNode()->CurrentKey(key)) {
-                 m_Eap->AAA_Success(msg, key);
-	     }
-             else {
-                 m_Eap->AAA_Success(msg);
-	     }
-         }
-      }
-      void Failure(AAAMessageBlock *msg = 0) {
-         if (msg) {
-             m_Eap->AAA_Failure(msg);
-         }
-      }
-      void Timeout() {
-         Stop();
-      }
-      void Error() {
-         Stop();
-      }
-   
-   private:
-      /// framework
-      AAA_Task &m_Task;
-      AAA_JobHandle<AAA_GroupedJob> m_JobHandle;
-      
-      /// eap instance
-      boost::shared_ptr<NASD_EapPassThroughAuthSwitchStateMachine> m_Eap;
-      
-      /// method creators
-      EapMethodRegistrar m_MethodRegistrar;
-      EapMethodStateMachineCreator<NASD_EapPassThroughAuthIdentityStateMachine> 
-          m_NasEapAuthIdentityCreator;
+		m_Eap =
+		    boost::shared_ptr <
+		    NASD_EapPassThroughAuthSwitchStateMachine >
+		    (new
+		     NASD_EapPassThroughAuthSwitchStateMachine(*m_Task.
+							       reactor(),
+							       m_JobHandle,
+							       *this));
 
-      /// user information
-      std::string m_Identity;
+		m_Eap->NeedInitialRequestToSend(false);
+		m_Eap->Start();
+		return (0);
+	}
+	bool IsRunning() {
+		return (m_Eap.get())? true : false;
+	}
+	void Stop() {
+		if (m_Eap.get()) {
+			m_Eap->Stop();
+			m_Eap.reset();
+		}
+	}
+	bool CurrentKey(std::string & key) {
+		if (m_Eap->KeyAvailable()) {
+			NASD_LOG(LM_DEBUG, "(%P|%t) Assigning key\n");
+			key.assign(m_Eap->KeyData().data(),
+				   m_Eap->KeyData().size());
+			return true;
+		}
+		return false;
+	}
+	bool Identity(std::string & ident) {
+		if (m_Identity.length() > 0) {
+			ident = m_Identity;
+			return true;
+		}
+		return false;
+	}
+	int ReceiveIngress(AAAMessageBlock & msg) {
+		m_Eap->Receive(&msg);
+		return (0);
+	}
+	int ReceiveEgress(AAAMessageBlock & msg) {
+		m_Eap->AAA_Continue(&msg);
+		return (0);	// standalone does not have next
+	}
+	void Success(AAAMessageBlock * msg = 0) {
+		if (msg) {
+			std::string key;
+			if (NextNode()->CurrentKey(key)) {
+				m_Eap->AAA_Success(msg, key);
+			} else {
+				NASD_LOG(LM_DEBUG, "NO KEY! \n");
+				m_Eap->AAA_Success(msg);
+			}
+		}
+	}
+	void Failure(AAAMessageBlock * msg = 0) {
+		if (msg) {
+			m_Eap->AAA_Failure(msg);
+		}
+	}
+	void Timeout() {
+		Stop();
+	}
+	void Error() {
+		Stop();
+	}
 
-      friend class NASD_EapPassThroughAuthIdentityStateMachine;
+ private:
+	/// framework
+	AAA_Task & m_Task;
+	AAA_JobHandle < AAA_GroupedJob > m_JobHandle;
+
+	/// eap instance
+	boost::shared_ptr < NASD_EapPassThroughAuthSwitchStateMachine > m_Eap;
+
+	/// method creators
+	EapMethodRegistrar m_MethodRegistrar;
+	EapMethodStateMachineCreator <
+	    NASD_EapPassThroughAuthIdentityStateMachine >
+	    m_NasEapAuthIdentityCreator;
+
+	/// user information
+	std::string m_Identity;
+
+	friend class NASD_EapPassThroughAuthIdentityStateMachine;
 };
 
-inline EapAuthIdentityStateMachine::ProcessIdentityResult 
-NASD_EapPassThroughAuthIdentityStateMachine::ProcessIdentity
-    (std::string& identity) 
-{
-    NASD_EapPassThroughAuthSwitchStateMachine &fsm = 
-       (NASD_EapPassThroughAuthSwitchStateMachine&)
-            SwitchStateMachine();
- 
-    NASD_EapPassThrough &pt = (NASD_EapPassThrough&)fsm.CallRouting();
-    pt.m_Identity = identity;
+inline EapAuthIdentityStateMachine::ProcessIdentityResult
+    NASD_EapPassThroughAuthIdentityStateMachine::ProcessIdentity
+    (std::string & identity) {
+	NASD_EapPassThroughAuthSwitchStateMachine & fsm =
+	    (NASD_EapPassThroughAuthSwitchStateMachine &)
+	    SwitchStateMachine();
 
-    pt.IncommingCall(identity);
-    return EapAuthIdentityStateMachine::Success;
+	NASD_EapPassThrough & pt = (NASD_EapPassThrough &) fsm.CallRouting();
+	pt.m_Identity = identity;
+
+	pt.IncommingCall(identity);
+	return EapAuthIdentityStateMachine::Success;
 }
 
-#endif // __NASD_EAP_PASSTHROUGH_H__
+class NASD_EapPassThroughInitializer:public NASD_CnInitCallback {
+ public:
+	virtual bool Initialize(AAA_Task & t) {
+		NASD_LOG(LM_INFO, "(%P|%t) Initializing Local EAP auth\n");
+		return (true);
+	} virtual NASD_CallElement *Create(AAA_Task & t) {
+		return (new NASD_EapPassThrough(t));
+	}
+};
 
-
+#endif				// __NASD_EAP_PASSTHROUGH_H__

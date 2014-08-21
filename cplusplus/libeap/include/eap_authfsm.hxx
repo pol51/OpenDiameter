@@ -44,6 +44,8 @@
 #include "eap_fsm.hxx"
 #include "eap_method_registrar.hxx"
 
+#include <iostream>
+
 
 /// A class for authetnicator state machine.  Class creation can be made
 /// only by EapSession.
@@ -162,6 +164,10 @@ public:
     EvSgAaaSuccess=-8,          // Event generated when AAA succeeds.
 
     EvSgAaaFailure=-9,          // Event generated when AAA fails.
+    
+    EvSgTunnelEstablished = -10, // Event generated when tunnel is established successfull (EAP-FAST, EAP-TLS)
+    
+    EvSgInnerEap	= -11,	// Event generated when receiving the tunneled Message.
   };
 
 protected:

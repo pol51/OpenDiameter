@@ -6,16 +6,15 @@
  *
  * @brief Example NASD application
  * @note EAPDEFINE is set via ./configure options
- */ 
+ */
 
 #include "nasd_pana.h"
 #include "nasd_diameter_eap.h"
-#include "nasd_eap_backend.h"
+//#include "nasd_eap_backend.h"
 #include "nasd_policy_script.h"
 
 #define NASD_DEFAULT_CFG_FILE  "/etc/opendiameter/nas/config/nasd.xml"
-#define NASD_USAGE "\nUsage: nasd [cfg_file]\n\
-             cfg_file - NASD XML configuration file\n"
+#define NASD_USAGE "\nUsage: nasd [cfg_file]\n cfg_file - NASD XML configuration file\n"
 
 /// Forward declaration of cfgFile ()
 std::string cfgFile(int argc, char **argv);
@@ -27,7 +26,7 @@ std::string cfgFile(int argc, char **argv);
  * @param argc
  * @param argv
  * @return 0 if there is an error (should never return)
- */ 
+ */
 int main(int argc, char **argv)
 {
 	/// Set configuration file name
@@ -41,22 +40,23 @@ int main(int argc, char **argv)
 #ifdef EAPDEFINE
 	NASD_DiameterEapInitializer aaaDiameterEapInit;
 #endif
-	NASD_EapBackendInitializer aaaEapBackendInit;
+	//NASD_EapBackendInitializer aaaEapBackendInit;
 	NASD_PolicyScriptInitializer plcyScriptInit;
 
 	std::string strApPanaName("pana");
 #ifdef EAPDEFINE
 	std::string strAaaDiameterEapName("diameter_eap");
 #endif
-	std::string strAaaEapBackendName("local_eap_auth");
+	//std::string strAaaEapBackendName("local_eap_auth");
 	std::string strPlcyScriptName("script");
 
 	/// Register each initializer
 	NASD_CnInitializer_I->Register(strApPanaName, apPanaInit);
-#ifdef EAPDEFINE   
-    NASD_CnInitializer_I->Register(strAaaDiameterEapName, aaaDiameterEapInit);
-#endif   
-	NASD_CnInitializer_I->Register(strAaaEapBackendName, aaaEapBackendInit);
+#ifdef EAPDEFINE
+	NASD_CnInitializer_I->Register(strAaaDiameterEapName,
+				       aaaDiameterEapInit);
+#endif
+	//NASD_CnInitializer_I->Register(strAaaEapBackendName, aaaEapBackendInit);
 	NASD_CnInitializer_I->Register(strPlcyScriptName, plcyScriptInit);
 
 	/// Start each Initializer
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
  * @param argc
  * @param argv
  * @return string
- */ 
+ */
 std::string cfgFile(int argc, char **argv)
 {
 	std::string fname = NASD_DEFAULT_CFG_FILE;

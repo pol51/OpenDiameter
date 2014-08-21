@@ -221,6 +221,12 @@ class DiameterEapClientStateTable_S
       DiameterEapClientSession& session = sm.Session();
       DEA_Data& dea = sm.DEA();
       DER_Data& der = sm.DER();
+     
+     if (dea.EapMasterSessionKey.IsSet()){
+		AAA_LOG((LM_DEBUG, "EnforceEapMasterSessionKey in AcAccessAccept\n"));
+		sm.EnforceEapMasterSessionKey(dea.EapMasterSessionKey());
+      }
+
       sm.SignalSuccess(dea.EapPayload());
       session.Update(AAASession::EVENT_AUTH_SUCCESS);  
 
@@ -343,9 +349,6 @@ class DiameterEapClientStateTable_S
       der.Tunneling = dea.Tunneling;
       if (dea.Tunneling.size()>0)
 	sm.EnforceTunneling(dea.Tunneling);
-
-      if (dea.EapMasterSessionKey.IsSet())
-	sm.EnforceEapMasterSessionKey(dea.EapMasterSessionKey());
 
       if (dea.AccountingEapAuthMethod.IsSet())
 	sm.EnforceAccountingEapAuthMethod(dea.AccountingEapAuthMethod);

@@ -119,6 +119,20 @@ class DIAMETER_EAP_CLIENT_EXPORTS DiameterEapClientSession :
   /// responsibility of the derived class to override this function
   /// and capture this events if it is interested in it.
   AAAReturnCode HandleAbort() { return AAA_ERR_SUCCESS; }
+  
+  void SetKeyData(std::string msk) {keyData = msk;}
+  void SetIsKeyAvailable(bool available) {isKeyAvailable = available;}
+  bool IsKeyAvailable() {return isKeyAvailable;}
+  std::string GetKeyData() {return keyData;}
+
+  void EnforceEapMasterSessionKey
+  (const diameter_octetstring_t &eapMasterSessionKey)
+  {
+	AAA_LOG((LM_DEBUG, "EnforceEapMasterSessionKey\n"));
+	this->SetIsKeyAvailable(true);
+	this->SetKeyData(eapMasterSessionKey);
+  }
+
 
   void Start() throw (AAA_Error)
   {
@@ -130,6 +144,8 @@ class DIAMETER_EAP_CLIENT_EXPORTS DiameterEapClientSession :
  private:
 
   DEA_Handler answerHandler;
+  std::string keyData;
+  bool isKeyAvailable;
 };
 
 #endif

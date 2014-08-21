@@ -1,12 +1,14 @@
 #include "pana_prf_plus.h"
+#include "openssl/sha.h"
+#include <openssl/engine.h>
 
 PANA_PrfPlus::PANA_PrfPlus(PANA_TypeHash hash)
 {
 #ifndef WIN32
    switch (hash) {
      case PRF_HMAC_SHA1:
-        this->prf_function =(EVP_MD*) EVP_sha1();
-        this->prf_size=EVP_MD_size(this->prf_function);
+		this->prf_function = (EVP_MD*) EVP_sha1();
+        this->prf_size = EVP_MD_size(this->prf_function);
         break;
      case PRF_HMAC_MD5:
         this->prf_function =(EVP_MD*) EVP_md5();
@@ -22,7 +24,7 @@ PANA_PrfPlus::PANA_PrfPlus(PANA_TypeHash hash)
 #endif
 }
 
-void PANA_PrfPlus::PRF(ACE_Byte * key, 
+int PANA_PrfPlus::PRF(ACE_Byte * key,  
                        ACE_UINT16 key_length, 
                        ACE_Byte * sequence, 
                        ACE_UINT16 sequence_length, 
@@ -31,10 +33,21 @@ void PANA_PrfPlus::PRF(ACE_Byte * key,
 #ifndef WIN32
     ACE_UINT32 size;
     HMAC(prf_function, key, key_length, sequence, sequence_length, result, &size);
+    return size;
 #else
 // TBD: need windows version
 #endif
 }
+
+/*void PANA_prfPlus::HMAC_SHA_1(ACE_Byte * key, 
+                            ACE_UINT16 key_length, 
+                            ACE_Byte * sequence, 
+                            ACE_UINT16 sequence_length, 
+                            ACE_Byte * result)
+{
+	this->prf_function =(EVP_MD*) EVP_sha1();
+	PRF(key, key_length, new_sequence, sequence_length + 1, result);	
+}*/
 
 void PANA_PrfPlus::PRF_plus(ACE_Byte iter, 
                             ACE_Byte * key, 

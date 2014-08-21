@@ -199,7 +199,8 @@ public:
       
     static std::string identity;
     std::cout << "Input username (within 10sec.): " << std::endl;
-    std::cin >> identity;
+    //std::cin >> identity;
+    identity=std::string("myclient@opendiameter.com");
     std::cout << "username = " << identity << std::endl;
     return identity;
   }
@@ -212,7 +213,7 @@ public:
     std::cin >> configFile;
     std::cout << "Config file name = " << configFile << std::endl;
     return configFile;*/
-static std::string configFile ("./config/client.eap-tls.xml");
+	static std::string configFile ("config/client.eap-tls.xml");
     return configFile;
   }
 
@@ -251,7 +252,7 @@ public:
     std::cin >> configFile;
     std::cout << "Config file name = " << configFile << std::endl;
     return configFile;*/
-static std::string configFile ("./config/server.eap-tls.xml");
+	static std::string configFile ("config/server.eap-tls.xml");
     return configFile;
   }
 
@@ -660,7 +661,8 @@ void MyPeerSwitchStateMachine::Abort()
 std::string& MyPeerSwitchStateMachine::InputIdentity() 
   {
     std::cout << "Input username (within 10sec.): " << std::endl;
-    std::cin >> identity;
+    //std::cin >> identity;
+    identity=std::string("myclient@opendiameter.com");
     std::cout << "username = " << identity << std::endl;
     return identity;
   }
@@ -881,6 +883,7 @@ int main(int argc, char **argv)
     }
   // Block until the EAP conversation completes.
   semaphore.acquire();
+  sleep(100);
 
   task.Stop();
   return 0;

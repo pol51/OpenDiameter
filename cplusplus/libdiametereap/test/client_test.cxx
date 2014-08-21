@@ -704,6 +704,7 @@ main(int argc, char *argv[])
   std::cout << "Input number of sessions: ";
   std::cin >> num;
 #endif
+	num=5;
   ACE_Semaphore semaphore(2*num);
 
   TotalSuccess=0;

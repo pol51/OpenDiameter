@@ -378,7 +378,7 @@ template<> void PANA_PayloadParser::parseAppToRaw()// throw(DiameterErrorCode)
             }
             catch (AAAErrorCode &st)
                 {
-                AAA_LOG((LM_ERROR, "Error in AVP %s.\n", name));
+                AAA_LOG((LM_ERROR, "PANA_PayloadParser[parseAppToRaw]: Error in AVP %s.\n", name));
                 throw;
                 }
             }

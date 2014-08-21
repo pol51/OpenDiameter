@@ -30,8 +30,8 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-#include "xml.h"
-#include "xml_errorreporter.h"
+//#include "eap_tls_xml.h"
+//#include "eap_tls_xml_errorreporter.h"
 #include "eap_tls_xml_parser.hxx"
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
@@ -90,15 +90,17 @@ int EAPTLS_XMLTreeParser::open(std::string &filename, EAPTLS_XMLElementParser &r
       XMLPlatformUtils::Initialize();
 
       XercesDOMParser parser;
-      myDOMTreeErrorReporter errReporter;
+      //myDOMTreeErrorReporter errReporter;
 
-      parser.setValidationScheme(XercesDOMParser::Val_Always);
+      parser.setValidationScheme(XercesDOMParser::Val_Auto);
       parser.setDoNamespaces(true);
       parser.setDoSchema(true);
-      parser.setErrorHandler(&errReporter);
-
+      //parser.setErrorHandler(&errReporter);
+	  std::cout<<"[EAPTLS_XMLTreeParser::open]filename:"<<filename<<"\n";
       try {
          parser.parse(filename.data());
+         int i=parser.getErrorCount();
+         std::cout<<"error No:"<<i<<"\n";
 
          if (parser.getErrorCount() == 0) {
             DOMNode *doc = parser.getDocument();

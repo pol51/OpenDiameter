@@ -111,8 +111,8 @@ typedef enum {
  */
  enum transport{
     DIAMETER_TRANSPORT_PROTO_TCP           = 0,
-    DIAMETER_TRANSPORT_PROTO_SCTP,
-    DIAMETER_TRANSPORT_PROTO_UDP
+    DIAMETER_TRANSPORT_PROTO_SCTP		   = 1,
+    DIAMETER_TRANSPORT_PROTO_UDP           = -1,
 } ;
 
 /*!
@@ -120,8 +120,8 @@ typedef enum {
  */
 enum protocol{
     DIAMETER_PROTO_DIAMETER = 0,
-    DIAMETER_PROTO_RADIUS,
-    DIAMETER_PROTO_TACACSPLUS
+    DIAMETER_PROTO_RADIUS   = 1,
+    DIAMETER_PROTO_TACACSPLUS = -1,
 } ;
 
 /*!

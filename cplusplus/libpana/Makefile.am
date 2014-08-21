@@ -77,7 +77,7 @@ PANA_SRC  = src/pana_config_manager.cxx \
 includedir = $(prefix)/include/opendiameter/pana
 include_HEADERS = $(PANA_HDRS)
 
-sysconfdir = $(prefix)/etc/opendiameter/pana
+sysconfdir = /etc/opendiameter/pana
 sysconf_DATA = config/dictionary.dtd \
                config/dictionary.xml \
                config/paa.xml \

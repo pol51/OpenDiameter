@@ -117,7 +117,10 @@ class AAAD_DiameterEapUserDbConv :
          if (m_element->Parent()->Name() == std::string("diameter_eap")) {
              AAAD_DiameterEapParser *eapElm = 
                  (AAAD_DiameterEapParser*)m_element->Parent();
-                 eapElm->Get()->Application().UserDbFile() = ch;               
+                 eapElm->Get()->Application().UserDbFile() = ch;
+                 eapElm->Get()->Enabled() = (arg.enabled == std::string("true")) ?
+					true : false;  
+				eapElm->Get()->Name() = arg.name;                        
          }
          else {
              std::cout << "user db has an invalid parent !!!\n";

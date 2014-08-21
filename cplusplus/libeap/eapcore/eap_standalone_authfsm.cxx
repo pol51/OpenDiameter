@@ -42,6 +42,7 @@
 #include "eap_policy.hxx"
 #include "eap_log.hxx"
 #include "eap_parser.hxx"
+#include <iostream>
 
 /// Action class for EAP. 
 class EapStandAloneAuthSwitchAction : 
@@ -227,15 +228,19 @@ private:
     void operator()(EapStandAloneAuthSwitchStateMachine &sm)
     {
       EapType type = sm.Policy().CurrentMethod();
+      
+      EapType innerType = sm.Policy().InnerEapMethodType();
 
       if (!type.IsVSE())
-	EAP_LOG(LM_DEBUG, "Standalone: Trying a legacy method.\n");
+	{
+		EAP_LOG(LM_DEBUG, "Standalone: Trying a legacy method.\n");
+		}
       else
 	EAP_LOG(LM_DEBUG, "Standalone: Trying an extended method.\n");
 
       sm.DeleteMethodStateMachine();
       sm.CurrentMethod() = type;
-      sm.CreateMethodStateMachine(type, Authenticator);
+       sm.CreateMethodStateMachine(type, Authenticator, innerType);
       sm.MethodStateMachine().Start();
 
       if (type == EapType(1) || type == EapType(1)) // Identity or Notification
@@ -419,6 +424,62 @@ private:
     }
   };
 
+class AcWaitTunnelProcess : public EapStandAloneAuthSwitchAction
+ {
+    void operator()(EapStandAloneAuthSwitchStateMachine &sm)
+    { 
+      EAP_LOG(LM_DEBUG, "EapStandAloneAuthSwitchAction: AcWaitTunnelProcess.\n"); 
+
+      ACE_Byte id = sm.CurrentIdentifier() = 
+       	sm.MethodStateMachine().GetNextIdentifier(sm.CurrentIdentifier());
+
+      AAAMessageBlock *msg = sm.GetTxMessage();
+
+      // Compose the PDU.
+      EapHeaderParser headerParser;
+      EapHeader header;
+      header.code = Request;
+      header.identifier = id;
+      header.length = msg->length();
+      headerParser.setAppData(&header);
+      headerParser.setRawData(msg);
+      headerParser.parseAppToRaw();
+
+      msg->wr_ptr(msg->base()+header.length);
+	
+      sm.MethodStateMachine().Notify
+	(EapMethodStateMachine::EvSgTunnelProcess);
+	EAP_LOG(LM_DEBUG, "EapStandAloneAuthSwitchAction: AcWaitTunnelProcess   2.\n"); 
+
+    }
+  };
+  
+  class AcTunnelEstablished : public EapStandAloneAuthSwitchAction
+  {
+    void operator()(EapStandAloneAuthSwitchStateMachine &sm)
+    { 
+	sm.InnerMethodStateMachine().Start();
+
+      sm.InnerMethodStateMachine().Notify
+	(EapMethodStateMachine::EvSgIntegrityCheck); 
+      
+      // Update policy based on type list.
+      EAP_LOG(LM_DEBUG, "EapAuth: Tunnel Established.\n");
+    }
+  };
+  
+  class AcNotifyInnerEap : public EapStandAloneAuthSwitchAction
+  {
+    void operator()(EapStandAloneAuthSwitchStateMachine &sm)
+    { 
+      sm.InnerMethodStateMachine().Notify
+	(EapMethodStateMachine::EvSgIntegrityCheck); 
+      
+      // Update policy based on type list.
+      EAP_LOG(LM_DEBUG, "EapAuth: Notify Inner EAP.\n");
+    }
+  };
+
   AcDisable acDisable;
   AcInitialize acInitialize;
   AcProposeMethod acProposeMethod;
@@ -434,37 +495,45 @@ private:
   AcResetMethod acResetMethod;
   AcRetransmit acRetransmit;
   AcReceiveMsg acReceiveMsg;
+  //tunnel
+  AcTunnelEstablished acTunnelEstablished;
+  AcWaitTunnelProcess acWaitTunnelProcess;
+  AcNotifyInnerEap acNotifyInnerEap;
 
   enum event {
-    EvUCT,
-    EvSgPolicySat,
-    EvSgPolicyNotSat_EndSess,
-    EvSgPolicyNotSat_ContSess,
-    EvRxMethodResp,
-    EvRxNak,
-    EvTo,
-    EvSgMaxRetransmission,
-    EvElse,
+	EvUCT = 1,
+    EvSgPolicySat =2,
+    EvSgPolicyNotSat_EndSess = 3,
+    EvSgPolicyNotSat_ContSess = 4,
+    EvRxMethodResp = 5,
+    EvRxNak = 6 ,
+    EvTo = 7 ,
+    EvSgMaxRetransmission = 8,
+    EvElse = 9,
   };
 
   enum state {
-    StBegin,
-    StDisabled,
-    StInitialize,
-    StSelectAction,
-    StProposeMethod,
-    StIdle,
-    StIntegrityCheck,
-    StMethodRequest,
-    StMethodResponse,
-    StSendRequest,
-    StNak,
-    StRetransmit,
-    StDiscard,
-    StSuccess,
-    StFailure,
-    StTimeoutFailure,
-    StReceived
+    StBegin = 1,
+    StDisabled = 2,
+    StInitialize = 3,
+    StSelectAction = 4,
+    StProposeMethod = 5,
+    StIdle = 6,
+    StIntegrityCheck = 7,
+    StMethodRequest = 8,
+    StMethodResponse = 9,
+    StSendRequest = 10,
+    StNak = 11,
+    StRetransmit = 12,
+    StDiscard = 13,
+    StSuccess = 14,
+    StFailure = 15,
+    StTimeoutFailure = 16,
+    StReceived = 17,
+	//tunnel
+    StTunnelEstablished = 18,
+    StWaitTunnelProcess = 19,
+    StTunnelMethodRequest = 20,
   };
 
   EapStandAloneAuthSwitchStateTable_S()
@@ -498,6 +567,24 @@ private:
     AddStateTableEntry(StIntegrityCheck, 
 		       EapAuthSwitchStateMachine::EvSgInvalidResp,
 		       StDiscard, acDiscard);
+		       
+	//tunnel
+   AddStateTableEntry(StIntegrityCheck, 
+		       EapAuthSwitchStateMachine::EvSgTunnelEstablished,
+		       StTunnelEstablished, acTunnelEstablished);
+    AddStateTableEntry(StTunnelEstablished, 
+		       EapAuthSwitchStateMachine::EvSgValidResp,
+		       StWaitTunnelProcess, acWaitTunnelProcess);
+   AddStateTableEntry(StWaitTunnelProcess, 
+		       EapAuthSwitchStateMachine::EvSgValidResp,
+		       StMethodResponse, acMethodResponse);
+   AddStateTableEntry(StIntegrityCheck, 
+		       EapAuthSwitchStateMachine::EvSgInnerEap,
+		       StTunnelEstablished, acNotifyInnerEap);
+
+    /*AddStateTableEntry(StTunnelMethodRequest, EvElse,
+		       StTunnelEstablished, acBuildRequest);*/
+
     // This state table entry is needed for queueing incoming requests.
     AddStateTableEntry(StIntegrityCheck, EapAuthSwitchStateMachine::EvRxMsg,
 		       StIntegrityCheck, acDiscard2);

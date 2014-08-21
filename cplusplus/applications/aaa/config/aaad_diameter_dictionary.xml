@@ -1679,6 +1679,7 @@
         <optional>
 	  <avprule name="User-Name" maximum="1" />
 	  <avprule name="EAP-Payload" maximum="1"/>
+          <avprule name="EAP-Master-Session-Key" maximum="1"/>
 	  <avprule name="Multi-Round-Time-Out" maximum="1"/>
 	  <avprule name="Service-Type" maximum="1" />
 	  <avprule name="Class"/>

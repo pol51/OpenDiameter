@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dictionary SYSTEM "nasd_diameter_eap_dictionary.dtd">
 <!--
-  $Log: nasd_diameter_eap_dictionary.xml,v $
-  Revision 1.3  2006/04/19 20:37:16  vfajardo
+  $Log: dictionary.xml,v $
+  Revision 1.15  2006/05/31 17:53:32  vfajardo
+  xml migration
+
+  Revision 1.14  2006/05/02 14:29:03  vfajardo
+  interop changes
+
+  Revision 1.13  2006/05/02 14:20:21  vfajardo
+  EAP dictionary
+
+  Revision 1.12  2006/04/24 20:08:56  vfajardo
+  inband security id
+
+  Revision 1.11  2006/04/19 20:36:18  vfajardo
   1298700
 
-  Revision 1.2  2006/04/05 17:52:16  vfajardo
+  Revision 1.10  2006/04/05 17:53:25  vfajardo
   Updates to dictionary
 
-  Revision 1.1  2005/03/11 20:37:12  vfajardo
-  New nas version
+  Revision 1.9  2005/06/29 14:44:15  vfajardo
+  test changes
 
   Revision 1.8  2004/12/23 17:08:41  vfajardo
   more fixes
@@ -205,8 +217,8 @@
         <optional>
           <avprule name="Origin-State-Id" maximum="1" minimum="1"/>
           <avprule name="Error-Reporting-Host" maximum="1"/>
-          <avprule name="Redirect-Host"/>
-          <avprule name="Redirect-Host-Usage" maximum="1"/>
+	  <avprule name="Redirect-Host"/>
+	  <avprule name="Redirect-Host-Usage" maximum="1"/>
           <avprule name="Proxy-Info" maximum="1"/>
           <avprule name="AVP"/>
 	</optional>
@@ -226,9 +238,9 @@
         <optional>
           <avprule name="Origin-State-Id" maximum="1"/>
           <avprule name="Error-Reporting-Host" maximum="1"/>
-          <avprule name="Redirect-Host"/>
-          <avprule name="Redirect-Host-Usage" maximum="1"/>
           <avprule name="Proxy-Info" maximum="1"/>
+	  <avprule name="Redirect-Host"/>
+	  <avprule name="Redirect-Host-Usage" maximum="1"/>
           <avprule name="AVP"/>
 	</optional>
       </answerrules>
@@ -322,6 +334,7 @@
 	  <avprule name="Acct-Application-Id"/>
 	  <avprule name="Vendor-Specific-Application-Id"/>
 	  <avprule name="Firmware-Revision" maximum="1"/>
+	  <avprule name="Inband-Security-Id" maximum="1"/>
 	  <avprule name="AVP"/>
         </optional>
       </requestrules>
@@ -602,12 +615,6 @@
 	 protected="may" may-encrypt="no">
       <type type-name="Time"/>
     </avp>
-    <!--
-    <avp name="Failed-AVP" code="279" mandatory="must"
-	 may-encrypt="no">
-      <type type-name="OctetString"/>
-    </avp>
-    -->
     <avp name="Firmware-Revision" code="267" mandatory="mustnot"
 	 protected="mustnot" may-encrypt="no">
       <type type-name="Unsigned32"/>
@@ -615,6 +622,12 @@
     <avp name="Host-IP-Address" code="257" mandatory="must"
 	 protected="mustnot" may-encrypt="no">
       <type type-name="Address"/>
+    </avp>
+    <avp name="Inband-Security-Id" code="299" mandatory="must"
+	 protected="mustnot" may-encrypt="no">
+      <type type-name="Enumerated"/>
+      <enum name="No Security" code="0"/>
+      <enum name="TLS Security" code="1"/>
     </avp>
     <avp name="Multi-Round-Time-Out" code="272" mandatory="must"
 	 may-encrypt="yes">
@@ -745,18 +758,22 @@
       <enum name="AUTHORIZE_AUTHENTICATE" code="3"/>
     </avp>
     <avp name="Re-Auth-Request-Type" code="285" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
+	 may-encrypt="no" protected="must">
       <type type-name="Enumerated"/>
       <enum name="AUTHORIZE_ONLY" code="0"/>
       <enum name="AUTHORIZE_AUTHENTICATE" code="1"/>
     </avp>
 
-    <avp name="Failed-AVP" code="279">
+    <avp name="Failed-AVP" code="279" mandatory="must">
       <grouped>
         <optional>
 	  <avprule name="AVP" minimum="1"/>
         </optional>
       </grouped>
+    </avp>
+    <avp name="Experimental-Result-Code" code="298" mandatory="must"
+	 may-encrypt="no" protected="mustnot">
+      <type type-name="Unsigned32"/>
     </avp>
     <avp name="Experimental-Result" code="297">
       <grouped>
@@ -765,10 +782,6 @@
 	  <avprule name="Experimental-Result-Code"/>
         </required>
       </grouped>
-    </avp>
-    <avp name="Experimental-Result-Code" code="298" mandatory="must"
-	 may-encrypt="no" protected="mustnot">
-      <type type-name="Unsigned32"/>
     </avp>
     <avp name="Example-AVP" code="999999" mandatory="mustnot">
       <grouped>
@@ -975,6 +988,18 @@
 	 may-encrypt="yes">
       <type type-name="Enumerated"/>
     </avp>
+    <avp name="CHAP-Algorithm" code="403" mandatory="must"
+	 may-encrypt="yes">
+      <type type-name="Enumerated"/>
+    </avp>
+    <avp name="CHAP-Ident" code="404" mandatory="must"
+	 may-encrypt="yes">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="CHAP-Response" code="405" mandatory="must"
+	 may-encrypt="yes">
+      <type type-name="OctetString"/>
+    </avp>
     <avp name="CHAP-Auth" code="402" mandatory="must"
 	 may-encrypt="yes">
       <grouped>
@@ -987,18 +1012,6 @@
 	  <avprule name="AVP"/>
         </optional>
       </grouped>
-    </avp>
-    <avp name="CHAP-Algorithm" code="403" mandatory="must"
-	 may-encrypt="yes">
-      <type type-name="Enumerated"/>
-    </avp>
-    <avp name="CHAP-Ident" code="404" mandatory="must"
-	 may-encrypt="yes">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="CHAP-Response" code="405" mandatory="must"
-	 may-encrypt="yes">
-      <type type-name="OctetString"/>
     </avp>
     <avp name="CHAP-Challenge" code="60" mandatory="must"
 	 may-encrypt="yes">
@@ -1156,25 +1169,6 @@
 	 may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Tunneling" code="401" mandatory="must"
-	 may-encrypt="no">
-      <grouped>
-	<required>
-	  <avprule name="Tunnel-Type" maximum="1" minimum="1"/>
-	  <avprule name="Tunnel-Medium-Type" maximum="1" minimum="1"/>
-	  <avprule name="Tunnel-Client-Endpoint" maximum="1" minimum="1"/>
-	  <avprule name="Tunnel-Server-Endpoint" maximum="1" minimum="1"/>
-        </required>
-	<optional>
-	  <avprule name="Tunnel-Preference" maximum="1" />
-	  <avprule name="Tunnel-Client-Auth-Id" maximum="1" />
-	  <avprule name="Tunnel-Server-Auth-Id" maximum="1" />
-	  <avprule name="Tunnel-Assignment-Id" maximum="1" />
-	  <avprule name="Tunnel-Password" maximum="1" />
-	  <avprule name="Tunnel-Private-Group-Id" maximum="1" />
-        </optional>
-      </grouped>
-    </avp>
     <avp name="Tunnel-Type" code="64" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="Enumerated"/>
@@ -1214,6 +1208,25 @@
     <avp name="Tunnel-Server-Auth-Id" code="91" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="OctetString"/>
+    </avp>
+    <avp name="Tunneling" code="401" mandatory="must"
+	 may-encrypt="no">
+      <grouped>
+	<required>
+	  <avprule name="Tunnel-Type" maximum="1" minimum="1"/>
+	  <avprule name="Tunnel-Medium-Type" maximum="1" minimum="1"/>
+	  <avprule name="Tunnel-Client-Endpoint" maximum="1" minimum="1"/>
+	  <avprule name="Tunnel-Server-Endpoint" maximum="1" minimum="1"/>
+        </required>
+	<optional>
+	  <avprule name="Tunnel-Preference" maximum="1" />
+	  <avprule name="Tunnel-Client-Auth-Id" maximum="1" />
+	  <avprule name="Tunnel-Server-Auth-Id" maximum="1" />
+	  <avprule name="Tunnel-Assignment-Id" maximum="1" />
+	  <avprule name="Tunnel-Password" maximum="1" />
+	  <avprule name="Tunnel-Private-Group-Id" maximum="1" />
+        </optional>
+      </grouped>
     </avp>
     <avp name="Accounting-Input-Octets" code="363" mandatory="must"
 	 may-encrypt="yes">
@@ -1292,7 +1305,7 @@
 	  <avprule name="MIP-MN-AAA-Auth" maximum="1" minimum="1"/>
 	</required>
         <optional>
-	  <avprule name="Acct-Multi-Session-Id " maximum="1"/>
+	  <avprule name="Acct-Multi-Session-Id" maximum="1"/>
 	  <avprule name="Destination-Host" maximum="1"/>
 	  <avprule name="Origin-State-Id" maximum="1"/>
 	  <avprule name="MIP-Mobile-Node-Address" maximum="1"/>
@@ -1438,19 +1451,6 @@
 	 may-encrypt="yes">
       <type type-name="Address"/>
     </avp>
-    <avp name="MIP-MN-AAA-Auth" code="322" mandatory="must"
-	 may-encrypt="yes">
-      <grouped>
-	<required>
-	  <avprule name="MIP-MN-AAA-SPI" maximum="1" minimum="1"/>
-	  <avprule name="MIP-Auth-Input-Data-Length" maximum="1" minimum="1"/>
-	  <avprule name="MIP-Authenticator-Offset" maximum="1" minimum="1"/>
-        </required>
-	<optional>
-	  <avprule name="AVP"/>
-        </optional>
-      </grouped>
-    </avp>
     <avp name="MIP-MN-AAA-SPI" code="322" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="Unsigned32"/>
@@ -1466,6 +1466,19 @@
     <avp name="MIP-Reg-Reply" code="321" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="OctetString"/>
+    </avp>
+    <avp name="MIP-MN-AAA-Auth" code="322" mandatory="must"
+	 may-encrypt="yes">
+      <grouped>
+	<required>
+	  <avprule name="MIP-MN-AAA-SPI" maximum="1" minimum="1"/>
+	  <avprule name="MIP-Auth-Input-Data-Length" maximum="1" minimum="1"/>
+	  <avprule name="MIP-Authenticator-Offset" maximum="1" minimum="1"/>
+        </required>
+	<optional>
+	  <avprule name="AVP"/>
+        </optional>
+      </grouped>
     </avp>
     <avp name="MIP-Originating-Foreign-AAA" code="347" mandatory="must"
 	 may-encrypt="yes">
@@ -1483,22 +1496,21 @@
 	 may-encrypt="yes">
       <type type-name="Enumerated"/>
     </avp>
-    <avp name="MIP-FA-to-HA-Key" code="328" mandatory="must"
-	 may-encrypt="yes">
-      <grouped>
-	<required>
-	  <avprule name="MIP-FA-to-HA-SPI" maximum="1" minimum="1"/>
-	  <avprule name="MIP-Algorithm-Type" maximum="1" minimum="1"/>
-	  <avprule name="MIP-Session-Key" maximum="1" minimum="1"/>
-        </required>
-	<optional>
-	  <avprule name="AVP"/>
-        </optional>
-      </grouped>
-    </avp>
     <avp name="MIP-FA-to-HA-SPI" code="318" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="MIP-FA-to-MN-SPI" code="319" mandatory="must"
+	 may-encrypt="yes">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="MIP-Replay-Mode" code="346" mandatory="must"
+	 may-encrypt="yes">
+      <type type-name="Enumerated"/>
+    </avp>
+    <avp name="MIP-Session-Key" code="343" mandatory="must"
+	 may-encrypt="yes">
+      <type type-name="OctetString"/>
     </avp>
     <avp name="MIP-FA-to-MN-Key" code="326" mandatory="must"
 	 may-encrypt="yes">
@@ -1513,9 +1525,18 @@
         </optional>
       </grouped>
     </avp>
-    <avp name="MIP-FA-to-MN-SPI" code="319" mandatory="must"
+    <avp name="MIP-FA-to-HA-Key" code="328" mandatory="must"
 	 may-encrypt="yes">
-      <type type-name="Unsigned32"/>
+      <grouped>
+	<required>
+	  <avprule name="MIP-FA-to-HA-SPI" maximum="1" minimum="1"/>
+	  <avprule name="MIP-Algorithm-Type" maximum="1" minimum="1"/>
+	  <avprule name="MIP-Session-Key" maximum="1" minimum="1"/>
+        </required>
+	<optional>
+	  <avprule name="AVP"/>
+        </optional>
+      </grouped>
     </avp>
     <avp name="MIP-HA-to-FA-Key" code="329" mandatory="must"
 	 may-encrypt="yes">
@@ -1577,14 +1598,6 @@
         </optional>
       </grouped>
     </avp>
-    <avp name="MIP-Replay-Mode" code="346" mandatory="must"
-	 may-encrypt="yes">
-      <type type-name="Enumerated"/>
-    </avp>
-    <avp name="MIP-Session-Key" code="343" mandatory="must"
-	 may-encrypt="yes">
-      <type type-name="OctetString"/>
-    </avp>
   </application>
 
   <!-- ************* DIAMETER EAP APPLICATION ************* --> 
@@ -1594,7 +1607,7 @@
   values and are subject to change once IANA assigned values are
   obtained. -->
 
-  <application id="2000" name="EAP" 
+  <application id="5" name="EAP" 
     uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-aaa-eap-03.txt">
     <command name="Diameter-EAP" code="268" pbit="1">
       <requestrules>
@@ -1660,6 +1673,7 @@
         <optional>
 	  <avprule name="User-Name" maximum="1" />
 	  <avprule name="EAP-Payload" maximum="1"/>
+      	  <avprule name="EAP-Master-Session-Key" maximum="1"/>
 	  <avprule name="Multi-Round-Time-Out" maximum="1"/>
 	  <avprule name="Service-Type" maximum="1" />
 	  <avprule name="Class"/>
@@ -1708,19 +1722,19 @@
       </answerrules>
     </command>
     <!-- ***************** DIAMETER EAP APPLICATION AVPS ************** -->
-    <avp name="EAP-Payload" code="2001" mandatory="must"
+    <avp name="EAP-Payload" code="462" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="EAP-Reissued-Payload" code="2002" mandatory="must"
+    <avp name="EAP-Reissued-Payload" code="463" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="EAP-Master-Session-Key" code="2003" mandatory="must"
+    <avp name="EAP-Master-Session-Key" code="464" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Accounting-EAP-Auth-Method" code="2004" mandatory="must"
+    <avp name="Accounting-EAP-Auth-Method" code="465" mandatory="must"
 	 may-encrypt="yes">
       <type type-name="Unsigned64"/>
     </avp>
@@ -1749,9 +1763,10 @@
   	  <avprule name="Destination-Host" maximum="1"/>
 	  <avprule name="User-Name" maximum="1"/>
 	  <avprule name="Origin-State-Id" maximum="1"/>
-	  <avprule name="AVP"/>
 	  <avprule name="Proxy-Info"/>
 	  <avprule name="Route-Record"/>
+          <avprule name="Tunneling"/>
+	  <avprule name="AVP"/>
         </optional>
       </requestrules>
       <answerrules>
@@ -1775,6 +1790,7 @@
 	  <avprule name="Redirect-Host-Usage" maximum="1"/>
 	  <avprule name="Redirect-Max-Cache-Time" maximum="1"/>
 	  <avprule name="Proxy-Info"/>
+          <avprule name="Tunneling"/>
 	  <avprule name="AVP"/>
         </optional>
       </answerrules>
@@ -1844,4 +1860,380 @@
       <type type-name="UTF8String"/>
     </avp>
   </application>
+	<!-- ************* DIAMETER CC APPLICATION ************* -->
+	<application id="4" name="CC" uri="ftp://ftp.ietf.org/rfc/rfc4006.txt">
+		<command name="CC" code="272" pbit="1">
+			<requestrules>
+				<fixed>
+					<avprule name="Session-Id" maximum="1" minimum="1"/>
+				</fixed>
+				<required>
+					<avprule name="Origin-Host" maximum="1" minimum="1"/>
+					<avprule name="Origin-Realm" maximum="1" minimum="1"/>
+					<avprule name="Destination-Realm" maximum="1" minimum="1"/>
+					<avprule name="Auth-Application-Id" maximum="1" minimum="1"/>
+					<avprule name="Service-Context-Id" maximum="1" minimum="1"/>
+					<avprule name="CC-Request-Type" maximum="1" minimum="1"/>
+					<avprule name="CC-Request-Number" maximum="1" minimum="1"/>
+				</required>
+				<optional>
+					<avprule name="Destination-Host" maximum="1"/>
+					<avprule name="User-Name" maximum="1"/>
+					<avprule name="CC-Sub-Session-Id" maximum="1"/>
+					<avprule name="Acct-Multi-Session-Id" maximum="1"/>
+					<avprule name="Origin-State-Id" maximum="1"/>
+					<avprule name="Event-Timestamp" maximum="1"/>
+					<avprule name="Subscription-Id"/>
+					<avprule name="Service-Identifier" maximum="1"/>
+					<avprule name="Termination-Cause" maximum="1"/>
+					<avprule name="Requested-Service-Unit" maximum="1"/>
+					<avprule name="Requested-Action" maximum="1"/>
+					<avprule name="Used-Service-Unit"/>
+					<avprule name="Multiple-Services-Indicator" maximum="1"/>
+					<avprule name="Multiple-Services-Credit-Control"/>
+					<avprule name="Service-Parameter-Info"/>
+					<avprule name="CC-Correlation-Id" maximum="1"/>
+					<avprule name="User-Equipment-Info" maximum="1"/>
+					<avprule name="Proxy-Info"/>
+					<avprule name="Route-Record"/>
+					<avprule name="AVP"/>
+				</optional>
+			</requestrules>
+			<answerrules>
+				<fixed>
+					<avprule name="Session-Id" maximum="1" minimum="1"/>
+				</fixed>
+				<required>
+					<avprule name="Result-Code" maximum="1" minimum="1"/>
+					<avprule name="Origin-Host" maximum="1" minimum="1"/>
+					<avprule name="Origin-Realm" maximum="1" minimum="1"/>
+					<avprule name="Auth-Application-Id" maximum="1" minimum="1"/>
+					<avprule name="CC-Request-Type" maximum="1" minimum="1"/>
+					<avprule name="CC-Request-Number" maximum="1" minimum="1"/>
+				</required>
+				<optional>
+					<avprule name="User-Name" maximum="1"/>
+					<avprule name="CC-Session-Failover" maximum="1"/>
+					<avprule name="CC-Sub-Session-Id" maximum="1"/>
+					<avprule name="Acct-Multi-Session-Id" maximum="1"/>
+					<avprule name="Origin-State-Id" maximum="1"/>
+					<avprule name="Event-Timestamp" maximum="1"/>
+					<avprule name="Granted-Service-Unit" maximum="1"/>
+					<avprule name="Multiple-Services-Credit-Control"/>
+					<avprule name="Cost-Information" maximum="1"/>
+					<avprule name="Final-Unit-Indication" maximum="1"/>
+					<avprule name="Check-Balance-Result" maximum="1"/>
+					<avprule name="Credit-Control-Failure-Handling" maximum="1"/>
+					<avprule name="Direct-Debiting-Failure-Handling" maximum="1"/>
+					<avprule name="Validity-Time" maximum="1"/>
+					<avprule name="Redirect-Host"/>
+					<avprule name="Redirect-Host-Usage" maximum="1"/>
+					<avprule name="Redirect-Max-Cache-Time" maximum="1"/>
+					<avprule name="Proxy-Info"/>
+					<avprule name="Route-Record"/>
+					<avprule name="Failed-AVP"/>
+					<avprule name="AVP"/>
+				</optional>
+			</answerrules>
+		</command>
+	</application>
+	<!-- ***************** DIAMETER CC APPLICATION AVPS ************** -->
+	<avp name="Service-Context-Id" code="461" mandatory="must" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="CC-Request-Type" code="416" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="INITIAL_REQUEST" code="1"/>
+		<enum name="UPDATE_REQUEST" code="2"/>
+		<enum name="TERMINATION_REQUEST" code="3"/>
+		<enum name="EVENT_REQUEST" code="4"/>
+	</avp>
+	<avp name="CC-Request-Number" code="415" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CC-Session-Failover" code="418" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="FAILOVER_NOT_SUPPORTED" code="0"/>
+		<enum name="FAILOVER_SUPPORTED" code="1"/>
+	</avp>
+	<avp name="CC-Sub-Session-Id" code="419" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Subscription-Id-Type" code="450" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="END_USER_E164" code="0"/>
+		<enum name="END_USER_IMSI" code="1"/>
+		<enum name="END_USER_SIP_URI" code="2"/>
+		<enum name="END_USER_NAI" code="3"/>
+		<enum name="END_USER_PRIVATE" code="4"/>
+	</avp>
+	<avp name="Subscription-Id-Data" code="444" mandatory="must" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Subscription-Id" code="443" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<required>
+				<avprule name="Subscription-Id-Type" maximum="1" minimum="1"/>
+				<avprule name="Subscription-Id-Data" maximum="1" minimum="1"/>
+			</required>
+		</grouped>
+	</avp>
+
+	<avp name="Service-Identifier" code="439" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CC-Time" code="420" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Currency-Code" code="425" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Exponent" code="429" mandatory="must" may-encrypt="yes">
+		<type type-name="Integer32"/>
+	</avp>
+	<avp name="Value-Digits" code="447" mandatory="must" may-encrypt="yes">
+		<type type-name="Integer64"/>
+	</avp>
+	<avp name="Unit-Value" code="445" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<required>
+				<avprule name="Value-Digits" maximum="1" minimum="1"/>
+			</required>
+			<optional>
+				<avprule name="Exponent" maximum="1"/>
+			</optional>
+		</grouped>
+	</avp>
+	<avp name="CC-Money" code="413" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<required>
+				<avprule name="Unit-Value" maximum="1" minimum="1"/>
+			</required>
+			<optional>
+				<avprule name="Currency-Code" maximum="1"/>
+			</optional>
+		</grouped>
+	</avp>
+	<avp name="CC-Total-Octets" code="421" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="CC-Input-Octets" code="412" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="CC-Output-Octets" code="414" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="CC-Service-Specific-Units" code="417" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Requested-Action" code="436" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="DIRECT_DEBITING" code="0"/>
+		<enum name="REFUND_ACCOUNT" code="1"/>
+		<enum name="CHECK_BALANCE" code="2"/>
+		<enum name="PRICE_ENQUIRY" code="3"/>
+	</avp>
+	<avp name="Requested-Service-Unit" code="437" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<optional>
+				<avprule name="CC-Time" maximum="1"/>
+				<avprule name="CC-Money" maximum="1"/>
+				<avprule name="CC-Total-Octets" maximum="1"/>
+				<avprule name="CC-Input-Octets" maximum="1"/>
+				<avprule name="CC-Output-Octets" maximum="1"/>
+				<avprule name="CC-Service-Specific-Units" maximum="1"/>
+				<avprule name="AVP"/>
+			</optional>
+		</grouped>
+	</avp>
+	<avp name="Tariff-Change-Usage" code="452" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="UNIT_BEFORE_TARIFF_CHANGE" code="0"/>
+		<enum name="UNIT_AFTER_TARIFF_CHANGE" code="1"/>
+		<enum name="UNIT_INDETERMINATE" code="2"/>
+	</avp>
+	<avp name="Used-Service-Unit" code="446" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<optional>
+				<avprule name="Tariff-Change-Usage" maximum="1"/>
+				<avprule name="CC-Time" maximum="1"/>
+				<avprule name="CC-Money" maximum="1"/>
+				<avprule name="CC-Total-Octets" maximum="1"/>
+				<avprule name="CC-Input-Octets" maximum="1"/>
+				<avprule name="CC-Output-Octets" maximum="1"/>
+				<avprule name="CC-Service-Specific-Units" maximum="1"/>
+				<avprule name="AVP"/>
+			</optional>
+		</grouped>
+	</avp>
+	<avp name="Tariff-Time-Change" code="451" mandatory="must" may-encrypt="yes">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="Granted-Service-Unit" code="431" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<optional>
+				<avprule name="Tariff-Time-Change" maximum="1"/>
+				<avprule name="CC-Time" maximum="1"/>
+				<avprule name="CC-Money" maximum="1"/>
+				<avprule name="CC-Total-Octets" maximum="1"/>
+				<avprule name="CC-Input-Octets" maximum="1"/>
+				<avprule name="CC-Output-Octets" maximum="1"/>
+				<avprule name="CC-Service-Specific-Units" maximum="1"/>
+				<avprule name="AVP"/>
+			</optional>
+		</grouped>
+	</avp>
+	<avp name="Multiple-Services-Indicator" code="455" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="MULTIPLE_SERVICES_NOT_SUPPORTED" code="0"/>
+		<enum name="MULTIPLE_SERVICES_SUPPORTED" code="1"/>
+	</avp>
+	<avp name="Rating-Group" code="432" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="G-S-U-Pool-Identifier" code="453" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CC-Unit-Type" code="454" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="TIME" code="0"/>
+		<enum name="MONEY" code="1"/>
+		<enum name="TOTAL-OCTETC" code="2"/>
+		<enum name="INPUT-OCTETC" code="3"/>
+		<enum name="OUTPUT-OCTETC" code="4"/>
+		<enum name="SERVICE-SPECIFIC-UNITS" code="5"/>
+	</avp>	
+	<avp name="G-S-U-Pool-Reference" code="457" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<required>
+				<avprule name="G-S-U-Pool-Identifier" minimum="1" maximum="1"/>
+				<avprule name="CC-Unit-Type"  minimum="1" maximum="1"/>
+				<avprule name="Unit-Value"  minimum="1" maximum="1"/>
+			</required>
+		</grouped>
+	</avp>
+	<avp name="Validity-Time" code="448" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Final-Unit-Action" code="449" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="TERMINATE" code="0"/>
+		<enum name="REDIRECT" code="1"/>
+		<enum name="RESTRICT_ACCESS" code="2"/>
+	</avp>
+	<avp name="Restriction-Filter-Rule" code="438" mandatory="must" may-encrypt="yes">
+		<type type-name="IPFilterRule"/>
+	</avp>
+	<avp name="Redirect-Address-Type" code="433" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="IPv4 Address" code="0"/>
+		<enum name="IPv6 Address" code="1"/>
+		<enum name="URL" code="2"/>
+		<enum name="SIP URI" code="3"/>
+	</avp>
+	<avp name="Redirect-Server-Address" code="435" mandatory="must" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Redirect-Server" code="434" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<required>
+				<avprule name="Redirect-Address-Type" maximum="1" minimum="1"/>
+				<avprule name="Redirect-Server-Address" maximum="1" minimum="1"/>
+			</required>
+		</grouped>
+	</avp>
+	<avp name="Check-Balance-Result" code="422" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="ENOUGH_CREDIT" code="0"/>
+		<enum name="No_CREDIT" code="1"/>
+	</avp>
+	<avp name="Credit-Control-Failure-Handling" code="427" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="TERMINATE" code="0"/>
+		<enum name="CONTINUE" code="1"/>
+		<enum name="RETRY_AND_TERMINATE" code="2"/>
+	</avp>
+	<avp name="Direct-Debiting-Failure-Handling" code="428" mandatory="must" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+		<enum name="TERMINATE_OR_BUFFER" code="0"/>
+		<enum name="CONTINUE" code="1"/>
+	</avp>
+	<avp name="Final-Unit-Indication" code="430" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<required>
+				<avprule name="Final-Unit-Action" maximum="1" minimum="1" />
+			</required>
+			<optional>
+				<avprule name="Restriction-Filter-Rule"/>
+				<avprule name="Filter-Id"/>
+				<avprule name="Redirect-Server" maximum="1"/>
+			</optional>
+		</grouped>
+	</avp>
+	<avp name="Multiple-Services-Credit-Control" code="456" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<optional>
+				<avprule name="Granted-Service-Unit" maximum="1"/>
+				<avprule name="Requested-Service-Unit" maximum="1"/>
+				<avprule name="Used-Service-Unit"/>
+				<avprule name="Tariff-Change-Usage" maximum="1"/>
+				<avprule name="Service-Identifier"/>
+				<avprule name="Rating-Group" maximum="1"/>
+				<avprule name="G-S-U-Pool-Reference"/>
+				<avprule name="Validity-Time" maximum="1"/>
+				<avprule name="Result-Code" maximum="1"/>
+				<avprule name="Final-Unit-Indication" maximum="1"/>
+				<avprule name="AVP"/>
+			</optional>
+		</grouped>
+	</avp>
+	<avp name="Service-Parameter-Type" code="441" mandatory="mustnot" may-encrypt="yes">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Service-Parameter-Value" code="442" mandatory="mustnot" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Service-Parameter-Info" code="440" mandatory="mustnot" may-encrypt="yes">
+		<grouped>
+			<required>
+				<avprule name="Service-Parameter-Type" maximum="1"/>
+				<avprule name="Service-Parameter-Value" maximum="1"/>
+			</required>
+		</grouped>
+	</avp>
+	<avp name="CC-Correlation-Id" code="411" mandatory="may" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="User-Equipment-Info-Type" code="459" mandatory="may" may-encrypt="yes">
+    <type type-name="Unsigned32"/>
+		<enum name="IMEISV" code="0"/>
+		<enum name="MAC" code="1"/>
+		<enum name="EUI64" code="2"/>
+		<enum name="MODIFIED_EUI64" code="3"/>
+	</avp>
+	<avp name="User-Equipment-Info-Value" code="460" mandatory="may" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+ 	<avp name="User-Equipment-Info" code="458" mandatory="may" may-encrypt="yes">
+        <grouped>
+			<required>
+				<avprule name="User-Equipment-Info-Type" maximum="1" minimum="1"/>
+				<avprule name="User-Equipment-Info-Value" maximum="1" minimum="1"/>
+			</required>
+		</grouped>
+	</avp>	
+	<avp name="Cost-Unit" code="424" mandatory="must" may-encrypt="yes">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Cost-Information" code="423" mandatory="must" may-encrypt="yes">
+		<grouped>
+			<required>
+				<avprule name="Unit-Value" maximum="1" minimum="1"/>
+				<avprule name="Currency-Code" maximum="1" minimum="1"/>
+			</required>
+			<optional>
+				<avprule name="Cost-Unit" maximum="1"/>
+			</optional>
+		</grouped>
+	</avp>
 </dictionary>

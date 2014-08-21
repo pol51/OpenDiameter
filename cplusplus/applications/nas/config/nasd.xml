@@ -26,17 +26,10 @@
             <enabled>true</enabled>
             <pana>
                 <!-- protocol specific configuration entry -->
-                <cfg_file>config/nasd_pana_paa.xml</cfg_file>
-                <ep_script>scripts/script_pana_paa_ep.sh</ep_script>
+                <cfg_file>/etc/opendiameter/nas/config/nasd_pana_paa.xml</cfg_file>
+                <ep_script>/etc/opendiameter/nas/scripts/script_pana_paa_ep.sh</ep_script>
                 <dhcp_bootstrap>true</dhcp_bootstrap>
             </pana>
-        </access_entry>
-
-        <access_entry>
-            <name>eap_8021X</name>
-            <enabled>false</enabled>
-            <eap_8021X>
-            </eap_8021X>
         </access_entry>
 
     </access_protocols>
@@ -61,20 +54,11 @@
         -->
     <aaa_protocols>
         <aaa_entry>
-            <name>local_eap_auth</name>
-            <enabled>true</enabled>
-            <!-- protocol specific configuration entry -->             
-            <local_eap_auth>
-                <shared_secret_file>config/nasd_eap_shared_secret.bin</shared_secret_file>
-                <identity>user1</identity>
-            </local_eap_auth>
-        </aaa_entry>
-        <aaa_entry>
             <name>diameter_eap</name>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
             <diameter_eap>
                 <!-- protocol specific configuration entry -->             
-                <diameter_cfg_file>config/nasd_diameter_eap.xml</diameter_cfg_file>
+                <diameter_cfg_file>/etc/opendiameter/nas/config/nasd_diameter_eap.xml</diameter_cfg_file>
             </diameter_eap>
         </aaa_entry>
     </aaa_protocols>
@@ -104,7 +88,7 @@
             <name>script</name>
             <!-- policy specific configuration entry -->
             <script>
-                <file>scripts/script_policy</file>
+                <file>/etc/opendiameter/nas/scripts/script_policy</file>
             </script>
         </policy_entry>
         <policy_entry>
@@ -155,26 +139,6 @@
             <access_policy>script</access_policy>
             <access_policy>ep-filter</access_policy>
             <access_policy>accouting</access_policy>
-            <aaa_protocol>local_eap_auth</aaa_protocol>
-        </call_route_entry>
-        <call_route_entry>
-            <!-- route entry is specific to local_nas@opendiameter.org -->
-            <nai>local_nas@opendiameter.org</nai>
-            <access_policy>script</access_policy>
-            <access_policy>ep-filter</access_policy>
-            <access_policy>accouting</access_policy>
-            <aaa_protocol>local_eap_auth</aaa_protocol>
-        </call_route_entry>
-        <call_route_entry>
-            <nai>isp1.net</nai>
-            <access_policy>script</access_policy>
-            <access_policy>script</access_policy>
-            <aaa_protocol>local_eap_auth</aaa_protocol>
-        </call_route_entry>
-        <call_route_entry>
-            <nai>isp.net</nai>
-            <access_policy>script</access_policy>
-            <access_policy>script</access_policy>
             <aaa_protocol>diameter_eap</aaa_protocol>
         </call_route_entry>
         <call_route_default>

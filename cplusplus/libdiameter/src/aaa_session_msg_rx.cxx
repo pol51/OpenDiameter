@@ -57,6 +57,7 @@ int DiameterSessionMsgRx::RxLocalMsgHandler::Request
             return (0);
         }
         else if (m_SessionRx.m_SessionFactoryMap.Empty()) {
+			AAA_LOG((LM_DEBUG,"**************empty***\n"));
             m_SessionRx.RxUnknownSession(msg);
             return (0);
         }

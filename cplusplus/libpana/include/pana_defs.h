@@ -45,6 +45,7 @@
 
 // Global macro defining the current version
 // of this implementation.
+#define PANA_VERSION     0x0
 #define PANA_FLAG_SET    0x1
 #define PANA_FLAG_CLR    0x0
 

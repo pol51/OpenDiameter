@@ -40,6 +40,7 @@
 #include "eap_archie.hxx"
 #include "eap_parser.hxx"
 #include "eap_log.hxx"
+#include <stdexcept>
 
 /// EAP-Request/Archie parser
 typedef AAAParser<AAAMessageBlock*, EapRequestArchie*> 
@@ -110,7 +111,7 @@ EapRequestArchieRequestParser::parseRawToApp()
   if (msgId != 1)
     {
       EAP_LOG(LM_ERROR, "Invalid msgID %d (1 is expected).\n", msgId);
-      throw -1;
+      throw (-1);
     }
 
   msg->rd_ptr(2);  
@@ -157,7 +158,7 @@ EapRequestArchieRequestParser::parseAppToRaw()
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "AuthID is empty.");
-      throw -1;
+      throw (-1);
     }
   ACE_Byte naiLength = (ACE_Byte)length;
 
@@ -187,7 +188,7 @@ EapResponseArchieResponseParser::parseRawToApp()
   if (*(ACE_Byte*)msg->rd_ptr() != 2)
     {
       EAP_LOG(LM_ERROR, "Invalid msgID.");
-      throw -1;
+      throw (-1);
     }
 
   msg->rd_ptr(2);
@@ -260,7 +261,7 @@ EapResponseArchieResponseParser::parseAppToRaw()
   if (length == 0)
     {
       EAP_LOG(LM_ERROR, "PeerID is empty.");
-      throw -1;
+      throw (-1);
     }
   ACE_Byte naiLength = (ACE_Byte)length;
 
@@ -313,7 +314,7 @@ EapRequestArchieConfirmParser::parseRawToApp()
   if (*(ACE_Byte*)msg->rd_ptr() != 3)
     {
       EAP_LOG(LM_ERROR, "Invalid msgID.");
-      throw -1;
+      throw (-1);
     }
 
   msg->rd_ptr(3);  
@@ -416,7 +417,7 @@ EapResponseArchieFinishParser::parseRawToApp()
   if (*(ACE_Byte*)msg->rd_ptr() != 4)
     {
       EAP_LOG(LM_ERROR, "Invalid msgID.");
-      throw -1;
+      throw (-1);
     }
 
   msg->rd_ptr(3);  

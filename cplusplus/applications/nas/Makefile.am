@@ -30,7 +30,7 @@ AM_CPPFLAGS = @L_CPPFLAGS@ \
 AM_LDFLAGS = @L_LDFLAGS@
 
 bin_PROGRAMS = nasd
-sysconfdir = $(prefix)/etc/opendiameter/nasd
+sysconfdir = /etc/opendiameter/nasd
 nobase_sysconf_DATA = config/nasd.xml \
                       config/nasd_diameter_eap.xml \
                       config/nasd_diameter_eap_dictionary.dtd \
@@ -38,12 +38,20 @@ nobase_sysconf_DATA = config/nasd.xml \
                       config/nasd_eap_shared_secret.bin \
                       config/nasd_pana_dictionary.dtd \
                       config/nasd_pana_dictionary.xml \
-                      config/nasd_pana_paa.xml
+                      config/nasd_pana_paa.xml \
+                      config/nasd_pana_paa.dtd
+                      
+sysscriptdir = /etc/opendiameter/nas
+nobase_sysscript_SCRIPTS = scripts/script_pana_paa_ep.bat \
+						   scripts/script_pana_paa_ep.sh \
+						   scripts/script_policy
 
 nasd_SOURCES = $(SRC) $(HDR)
 nasd_LDADD = @L_LIBS@ \
              $(top_builddir)/libpana/libpana.la \
              $(top_builddir)/libeap/libeap.la \
+             $(top_builddir)/libeap/libeaparchie.la \
+             $(top_builddir)/libeap/libeapfastbase.la \
              $(top_builddir)/libeap/libeapgpsk.la \
              $(top_builddir)/libdiameter/libdiameter.la \
              $(top_builddir)/libdiameternasreq/libdiameternasreq.la \

@@ -649,6 +649,12 @@ PANA_PaaStateTable::PANA_PaaStateTable()
     /////////////////////////////////////////////////////////////////
     // ANY                      None();                    CLOSED
     //
+    ev.Reset();
+    ev.Event_App(PANA_EV_APP_TERMINATE);
+    AddStateTableEntry(PANA_ST_CLOSED, ev.Get(),
+                       PANA_ST_CLOSED,
+                       m_PaaClosed);
+    
     AddWildcardStateTableEntry(PANA_ST_CLOSED,
                                PANA_ST_CLOSED);
 
@@ -675,6 +681,7 @@ class PANA_PsmRxPCI : public PANA_ServerRxStateFilter
 
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
+          m_arg.PaaAddress() = msg.destAddress();
 
           // save last received header
           m_arg.LastRxHeader() = msg;
@@ -804,6 +811,7 @@ class PANA_PsmRxPA : public PANA_ServerRxStateFilter
           else {
               // save address of PaC
               m_arg.PacAddress() = msg.srcAddress();
+              m_arg.PaaAddress() = msg.destAddress();
               ev.MsgType(PANA_EV_MTYPE_PAR);
           }
       }
@@ -860,6 +868,7 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
 
           // save address of PaC
           m_arg.PacAddress() = msg.srcAddress();
+          m_arg.PaaAddress() = msg.destAddress();
 
           // save last received header
           m_arg.LastRxHeader() = msg;
@@ -876,6 +885,7 @@ class PANA_PsmRxPN : public PANA_ServerRxStateFilter
           // save address of PaC
           if (msg.flags().request) {
               m_arg.PacAddress() = msg.srcAddress();
+              m_arg.PaaAddress() = msg.destAddress();
               ev.MsgType(PANA_EV_MTYPE_PNR);
           }
           else {
@@ -906,6 +916,7 @@ class PANA_PsmRxPT : public PANA_ServerRxStateFilter
           // save address of PaC
           if (msg.flags().request) {
              m_arg.PacAddress() = msg.srcAddress();
+             m_arg.PaaAddress() = msg.destAddress();
           }
 
           // save last received header

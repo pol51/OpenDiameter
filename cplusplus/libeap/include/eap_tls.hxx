@@ -54,7 +54,7 @@
 #include <ace/Basic_Types.h>
 #include "eap.hxx"
 #include "eap_log.hxx"
-
+#include "base/eap_fast_pac.h"
 
 #ifdef WIN32
    #if defined(EAP_TLS_EXPORT)
@@ -237,7 +237,8 @@ class EAPTLS_config
                               std::string &certificate_file,
                               std::string &random_file,
                               std::string &ca_path,
-                              std::string &ca_file,                            
+                              std::string &ca_file, 
+                              std::string &pac_file,                           
                               std::string &dh_file,
                               ACE_INT32 rsa_key,
                               ACE_INT32 dh_key,
@@ -254,6 +255,7 @@ class EAPTLS_config
           this->random_file = random_file;
           this->ca_path = ca_path;
           this->ca_file = ca_file;
+          this->pac_file = pac_file;
           this->dh_file = dh_file;
           this->rsa_key = rsa_key;
           this->dh_key = dh_key;
@@ -272,6 +274,7 @@ class EAPTLS_config
     std::string &get_random_file(){return random_file;};
     std::string &get_ca_path(){return ca_path;};
     std::string &get_ca_file() {return ca_file;};
+    std::string &get_pac_file() {return pac_file;};
     std::string &get_dh_file() {return dh_file;};
     ACE_INT32 get_rsa_key() {return rsa_key;};
     ACE_INT32 get_dh_key() {return dh_key;};
@@ -289,6 +292,7 @@ class EAPTLS_config
           std::string random_file;
           std::string ca_path;
           std::string ca_file;
+          std::string pac_file;
           std::string dh_file;
           ACE_INT32 rsa_key;
           ACE_INT32 dh_key;

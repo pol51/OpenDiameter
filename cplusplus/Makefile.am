@@ -59,36 +59,6 @@ include_HEADERS = $(top_srcdir)/include/framework.h \
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 	
-# Added this method to handle installation of directories - its more reliable
-# than expected Autotools to work correctly
-install-data-local:
-	@echo; echo "Installing documentation files"
-	if [ -d "$(docdir)" ]; then \
-		echo "Documentation directory exists..."; \
-	else \
-		mkdir -p $(docdir)/; \
-	fi
-	cp -R $(INSTALL_DOCS) $(docdir)/
-	chmod 751 -R $(docdir) $(docdir)
-	
-	@echo; echo "Installing configuration files"
-	if [ -d "$(configdir)" ]; then \
-		echo "Configuration directory exists..."; \
-	else \
-		mkdir -p $(configdir)/; \
-		mkdir -p $(configdir)/aaa/config; \
-		mkdir -p $(configdir)/nas/config; \
-		mkdir -p $(configdir)/pac/config; \
-	fi
-
-	cp -R $(INSTALL_CONFIGS) $(configdir)/
-	chmod 751 -R $(configdir) $(configdir)	
-	
-	@echo; echo "Binaries for applications are stored in their respective directories \
-	within this source directory [applications/*]"
-	
-	@echo; echo "No SysV or startup scripts have been created or installed*]"
-
 # Added this method to handle uninstallation of directories - its more reliable
 # than expected Autotools to work correctly
 uninstall-local:

@@ -212,8 +212,11 @@ AAAD_EapBackendAuthSwitchStateMachine::ProcessIdentity
       return EapAuthIdentityStateMachine::Failure;
    }
 
-   AAAD_LOG(LM_INFO, "(%P|%t) *** Match User [%s]: %s\n", 
-            identity.data(), m_UserEntry->Name().data());
+   AAAD_LOG(LM_INFO, "(%P|%t) *** Match User [%s]: %s. EAP Authentication Method: %s\n", 
+            identity.data(), m_UserEntry->Name().data(), m_UserEntry->Method().data());
+ 
+  // AAAD_LOG(LM_INFO, " *** EAP-METHOD : \n");
+   //std::cout<<"m_UserEntry->Method(): "<<m_UserEntry->Method();
 
    if (m_UserEntry->Method() == "md5") {
       m_IdentityMethod.AddContinuedPolicyElement
@@ -225,6 +228,18 @@ AAAD_EapBackendAuthSwitchStateMachine::ProcessIdentity
          (&m_ArchieMethod, 
            EapContinuedPolicyElement::PolicyOnSuccess);
    }
+   else if(m_UserEntry->Method() == "fast") {
+      m_IdentityMethod.AddContinuedPolicyElement
+         (&m_FastMethod, 
+           EapContinuedPolicyElement::PolicyOnSuccess);
+           
+      if(m_UserEntry->Fast().InnerEapMethod() == "archie") {
+        Policy().InnerEapMethodType(EapType(ARCHIE_METHOD_TYPE));
+	  }
+      else {
+		  Policy().InnerEapMethodType(EapType(4));
+	  }
+  }
    else {
       AAAD_LOG(LM_INFO, 
             "(%P|%t) ERROR !!! No configure eap method for user \n");
@@ -241,7 +256,7 @@ AAAD_EapBackendAuthSwitchStateMachine::Send(AAAMessageBlock *b)
 {
    std::string eapMsg(b->base(), b->length());
    JobData(Type2Type<AAAD_DiameterEapServerSession>()).
-             SignalContinue(eapMsg);
+             SignalSuccess(eapMsg, KeyData());
 }
 
 void 
@@ -250,6 +265,7 @@ AAAD_EapBackendAuthSwitchStateMachine::Success(AAAMessageBlock *b)
    std::string eapMsg(b->base(), b->length());
    JobData(Type2Type<AAAD_DiameterEapServerSession>()).
              SignalSuccess(eapMsg);
+             //SignalSuccess(eapMsg);
    Stop();
 }
 
@@ -338,6 +354,10 @@ int AAAD_AppDiameterEap::Start(AAAApplicationCore &core)
    m_MethodRegistrar.registerMethod
       (std::string("Archie"), EapType(ARCHIE_METHOD_TYPE), 
        Authenticator, m_AuthArchieCreator);
+       
+   m_MethodRegistrar.registerMethod
+      (std::string("Fast"), EapType(FAST_METHOD_TYPE), 
+       Authenticator, m_AuthFastCreator);
 
    return (0);
 }

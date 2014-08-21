@@ -42,6 +42,10 @@
 #include "eap_archie_fsm.hxx"
 #include "diameter_eap_server_session.hxx"
 #include "aaad_user_db.h"
+#ifdef EAPFAST
+#include "eap_fast_fsm.hxx"
+#include "eap_fast_session.hxx"
+#endif
 
 class AAAD_EapAuthIdentityStateMachine : 
     public EapAuthIdentityStateMachine
@@ -100,6 +104,46 @@ class AAAD_EapAuthArchieStateMachine :
       std::string m_IdentityBuf;
 };
 
+// Class definition for authenticator identity method for my application.
+class AAAD_EapAuthFastStateMachine : public EapAuthFastStateMachine
+{
+  friend class EapMethodStateMachineCreator<AAAD_EapAuthFastStateMachine>;
+public:
+  AAAD_EapAuthFastStateMachine(EapSwitchStateMachine &s) :
+    EapAuthFastStateMachine(s) {}
+
+  /// This pure virtual function is a callback used when a shared-secret 
+  /// needs to be obtained.
+  /*std::string& InputSharedSecret()
+  {
+    return ::sharedSecret;
+  }*/
+
+  /// This pure virtual function is a callback used when an AuthID
+  /// needs to be obtained.
+  std::string& InputIdentity()
+  {
+    static std::string serverID("myserver@opendiameter.org");
+    return serverID;
+  }
+  
+  protected:
+  std::string& InputConfigFile()
+  {
+/*    static std::string configFile;
+    std::cout << "Input config filename (within 10sec.): " << std::endl;
+    std::cin >> configFile;
+    std::cout << "Config file name = " << configFile << std::endl;
+    return configFile;*/
+static std::string configFile ("/etc/opendiameter/aaa/config/server.eap-fast.xml");
+    return configFile;
+  }
+
+private:
+  ~AAAD_EapAuthFastStateMachine() {} 
+};
+
+
 typedef AAA_JobHandle<AAA_GroupedJob> 
         AAAD_EapJobHandle;
 
@@ -114,7 +158,8 @@ class AAAD_EapBackendAuthSwitchStateMachine :
 	  m_UserEntry(NULL),
           m_IdentityMethod(EapContinuedPolicyElement(EapType(1))),
           m_Md5Method(EapContinuedPolicyElement(EapType(4))),
-	  m_ArchieMethod(EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE))) {
+	  m_ArchieMethod(EapContinuedPolicyElement(EapType(ARCHIE_METHOD_TYPE))),
+		    m_FastMethod(EapContinuedPolicyElement(EapType(FAST_METHOD_TYPE))) {
 
           Policy().InitialPolicyElement
                 (&m_IdentityMethod);
@@ -151,6 +196,7 @@ class AAAD_EapBackendAuthSwitchStateMachine :
        EapContinuedPolicyElement m_IdentityMethod;
        EapContinuedPolicyElement m_Md5Method;
        EapContinuedPolicyElement m_ArchieMethod;
+       EapContinuedPolicyElement m_FastMethod;
 };
 
 class AAAD_DiameterEapServerSession : 
@@ -217,6 +263,10 @@ class AAAD_AppDiameterEap :
       EapMethodStateMachineCreator
          <AAAD_EapAuthArchieStateMachine> 
            m_AuthArchieCreator;
+      
+      EapMethodStateMachineCreator
+         <AAAD_EapAuthFastStateMachine> 
+            m_AuthFastCreator;
 
       std::auto_ptr<AAAD_EapServerFactory> m_AuthFactory;
 };

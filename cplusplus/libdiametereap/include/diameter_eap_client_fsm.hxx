@@ -585,6 +585,8 @@ class DIAMETER_EAP_CLIENT_EXPORTS DiameterEapClientStateMachine
   virtual void EnforceEapMasterSessionKey
   (const diameter_octetstring_t &eapMasterSessionKey)
   {
+    //Session().SetIsKeyAvailable(true);
+	//Session().SetKeyData(eapMasterSessionKey);
   }
 
   /// This function is used for enforcing Accounting-EAP-Auth-Method

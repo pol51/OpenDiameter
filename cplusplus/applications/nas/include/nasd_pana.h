@@ -31,36 +31,32 @@
 /*                                                                        */
 /* END_COPYRIGHT                                                          */
 
-
 #ifndef __NASD_PANA_H__
 #define __NASD_PANA_H__
 
 #include "nasd_call_framework.h"
 #include "pana_node.h"
 #include "pana_paa_factory.h"
+#include "nasd_eap_passthrough.h"
+#include "pana_pac_ep_key.h"
+#include "eap_fast.hxx"
 
-class NASD_PanaSessionFactory : 
-   public PANA_PaaSessionFactory
-{
-   public:
-      NASD_PanaSessionFactory(PANA_Node &n) :
-          PANA_PaaSessionFactory(n) { 
-      }
-      PANA_PaaSession *Create();
+#define GTC_METHOD_TYPE 6
+
+class NASD_PanaSessionFactory:public PANA_PaaSessionFactory {
+ public:
+	NASD_PanaSessionFactory(PANA_Node & n):PANA_PaaSessionFactory(n) {
+	} PANA_PaaSession *Create();
 };
 
-class NASD_PanaInitializer : 
-    public NASD_CnInitCallback
-{
-    public:
-        virtual bool Initialize(AAA_Task &t);
-        virtual bool UnInitialize();
+class NASD_PanaInitializer:public NASD_CnInitCallback {
+ public:
+	virtual bool Initialize(AAA_Task & t);
+	virtual bool UnInitialize();
 
-    private:
-        std::auto_ptr<PANA_Node> m_Node;
-	std::auto_ptr<NASD_PanaSessionFactory> m_Factory;
+ private:
+	 std::auto_ptr < PANA_Node > m_Node;
+	 std::auto_ptr < NASD_PanaSessionFactory > m_Factory;
 };
 
-#endif // __NASD_PANA_H__
-
-
+#endif				// __NASD_PANA_H__

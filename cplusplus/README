@@ -1,10 +1,10 @@
 Open Diameter: Open-source software for the Diameter 
                and Diameter related protocols
 
-Copyright (C) 2002-2007 Open Diameter Project
+Copyright (C) 2002-2014 Open Diameter Project
 
-Plese read the accompanying COPYING file for the terms and conditions
-of the licences applied to this software.
+Please read the accompanying COPYING file for the terms and conditions
+of the licenses applied to this software.
 
 Table of Contents
 -----------------
@@ -34,7 +34,7 @@ Table of Contents
 ----------------------------------------
 
 The following are external libraries and tools for use with
-Open Diameter 1.0.7-i. For earlier versions of Open Diameter,
+Open Diameter 1.0.8. For earlier versions of Open Diameter,
 pls look in the the release notes of each version.
 
 1.1 GNU g++ versions
@@ -44,14 +44,14 @@ pls look in the the release notes of each version.
 
        4.x.x and above
 
-    The latest version supported is 4.1.2.
+    The latest version supported is 4.8.2.
 
 1.2 ACE library
 
     Open diameter makes extensive use of the ACE framework
     including threading, communications, logging etc. The
     latest ACE version that has been tested with Open Diameter
-    is ACE Release 5.5.x.
+    is ACE Release 5.7.6.
 
     You can get the source code of the ACE library from:
        http://www.cs.wustl.edu/%7Eschmidt/ACE.html
@@ -67,15 +67,17 @@ pls look in the the release notes of each version.
     Open Diameter libraries currently uses boost library
     version:
 
-       1.33.x and above
+       1.55.0 and above
 
-    The latest version supported is 1.33.1. Boost URL is:
+    The latest version supported is 1.55.0. Boost URL is:
 
        http://www.boost.org
 
     Compiler Notes:
        For the latest information in compiler version compatibility 
-       pls see the boost compiler/build status available in thier website.
+       plese see the boost compiler/build status available in their 
+       website.  Classic APIs were used, but not updated in this
+       release.
 
     Acknowledgment:
        The members of the Open Diameter project thank the Boost 
@@ -86,12 +88,17 @@ pls look in the the release notes of each version.
 1.5 OpenSSL library
 
     It is recommended that you use the latest version of OpenSSL
-    Specifically, a version which includes aes in it's crypto
+    Specifically, a version which includes aes in the crypto
     package. In addition, it is required that the OpenSSL libraries
     has the cipher specifications built into it (i.e. DO NOT use
     no-cipher parameter in building OpenSSL). This is required by 
     EAP libraries. If building OpenSSL, make sure that the shared 
     libraries version is also build.
+    
+    NOTE!!!:
+    1.0.0m was tested and known to work in this release - apply
+    the patch located in the SSLpatch directory as this functionality
+    is note included yet.
 
     Acknowledgment:
         This product includes software developed by the OpenSSL
@@ -114,16 +121,16 @@ pls look in the the release notes of each version.
     any Makefiles or build options not configurable by the
     config scripts.
 
-       1. Autoconf - version 2.61
-       2. Automake - version 1.9.6
-       3. Libtool  - 1.5.6
+       1. Autoconf - version 2.69
+       2. Automake - version 1.14.1
+       3. Libtool  - version 2.4.2
 
 2. How to compile
 -----------------
 
 2.1 Open diameter libraries
 
-    As of version 1.0.7-i, the Open Diameter build will result in 
+    As of version 1.0.8, the Open Diameter build will result in 
     nine(10) libraries:
 
       1. libdiamparser     - Diameter message parser 
@@ -143,10 +150,10 @@ pls look in the the release notes of each version.
 
 2.2 Open diameter applications
 
-    As of version 1.0.7-h, the Open Diameter distribution includes
-    two(2) binary applications:
+    As of version 1.0.8, the Open Diameter distribution includes
+    Four (4) binary applications:
 
-      1. nasd - NAS deamon (Network access deamon) designed to
+      1. nasd - NAS daemon (Network access daemon) designed to
                 be used as access application at the edge of 
                 a network. It is used to bridge access protocols
                 (PANA, 802.1x ..etc) and backed AAA protocols 
@@ -154,21 +161,24 @@ pls look in the the release notes of each version.
                 access environment. For details, see the README
                 file under the applications directory and 
                 http://www.opendiameter.org
-      2. aaad - AAA deamon. This is a diameter server deamon.
+      2. aaad - AAA daemon. This is a diameter server daemon.
                 At the moment, the only application is supports
                 is Diameter EAP. This supplements the nasd to 
                 allow user access test. For details, see the 
                 README file under the applications directory
                 and http://www.opendiameter.org.
+      3. pacd - PAC daemon.  
+      4. generate_pac- Application that generates either an invalid or valid PAC.
 
 2.3 Supported platforms
 
     Open diameter libraries has support for the following OS:
 
-      1. Linux       - tested distrubutions include redhat 
+      1. Linux       - tested distributions include redhat 
                        and debian. Kernel version restrictions 
                        are dictated by the ACE library.
       2. FreeBSD     - tested versions include 4.8 and 5.0
+					   Currently untested for this release
 
 2.4 Build environment
 
@@ -202,22 +212,22 @@ pls look in the the release notes of each version.
 
    Previous versions of Open Diameter has support for Win32 build
    environments. Although, those project and solutions files for
-   Visual Studio still applies, they have not been upgraded for
+   Visual Studio still applies; they have not been upgraded for
    this release. There are plans to upgrade them for subsequent
-   release. There are no special Win32 requirements that applies
-   to this release so you may upgdate your current Win32 project files
+  release. There are no special Win32 requirements that applies
+   to this release so you may update your current Win32 project files
    as well.
 
 3. Installation
 
-   The Open Diameter libraries can installed using the exsting
+   The Open Diameter libraries can installed using the existing
    root configure script. Installation can be done using the steps:
 
       $ configure --prefix=[prefered directory]
       $ make
       $ make install
 
-   The include files will be placed in $(prefix)/include/opendiameter/*.
+   The included files will be placed in $(prefix)/include/opendiameter/*.
    Additional subdirectories under this directory is made for each
    library. For example, libdiameter headers will be placed in
    $(prefix)/include/opendiameter/diameter. Libraries files will
@@ -248,7 +258,7 @@ pls look in the the release notes of each version.
    to represent diameter data types. However, there has been 
    usage issues with regards to c_str() and data() methods of 
    the STL string class. This section is an overview of the 
-   recommeded usage for these methods. The use of the following 
+   recommended usage for these methods. The use of the following 
    examples provide a clear scenario on the issue as it pertains
    to libdiamparser. 
 

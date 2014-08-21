@@ -124,6 +124,8 @@ class EapStateMachine :
       mux(mux)
   {}
   
+  ~EapStateMachine(){}
+  
   void Stop()
   {
     AAA_StateMachineWithTimer<ARG>::Stop();
@@ -140,6 +142,7 @@ class EapStateMachine :
     bool existBacklog = AAA_EventQueueJob::ExistBacklog();
 
     // Execute it.
+    AAA_LOG((LM_DEBUG,"(%P|%t) aaa_statemachinewithtimer<arg>   dequeue = %d\n",ev));
     AAA_StateMachineWithTimer<ARG>::Event(ev);
     return existBacklog ? 1 : 0;
   }
@@ -151,6 +154,7 @@ class EapStateMachine :
   // when job scheduling fails.
   inline void Notify(AAA_Event ev) throw (int) {
     // Enqueue the event.
+    AAA_LOG((LM_DEBUG,"(%P|%t) aaa_statemachinewithtimer<arg>   enqueue = %d\n",ev));
     if (AAA_EventQueueJob::Enqueue(ev) <= 0)
       throw -1;
 
@@ -287,7 +291,7 @@ public:
 
   /// Call this function to create a method state mechine in the
   /// session.
-  void CreateMethodStateMachine(EapType t, EapRole role);
+  void CreateMethodStateMachine(EapType t, EapRole role, EapType innerType);
 
   /// Call this function to delete the method state mechine in the
   /// session.
@@ -296,6 +300,9 @@ public:
   /// Call this function to get the pointer to method state machine.
   inline EapMethodStateMachine& MethodStateMachine() 
   { return *methodStateMachine; }
+  
+  inline EapMethodStateMachine& InnerMethodStateMachine()
+  { return *innerMethodStateMachine;}
 
   /// Call this function to get the reference to receiving message queue.
   EapMessageQueue& RxQueue() { return rxQueue; }
@@ -310,7 +317,7 @@ protected:
     EapJobMultiplexor(h),
     currentMethod(EapType(0)),
     txMessage(0), rxMessage(0), eapTunneled(false), 
-    methodStateMachine(0), discardCount(0), keyAvailable(false),
+    methodStateMachine(0), innerMethodStateMachine(0), discardCount(0), keyAvailable(false),
     reactor(r)
   {
     keyData.resize(0);
@@ -362,8 +369,9 @@ protected:
   /// This is the policy used for the session.
   EapPolicy policy;
 
-  /// This stores the pointer to a method state machine.
+  /// This stores the pointer to a method state machine and inner state machine
   EapMethodStateMachine* methodStateMachine;
+  EapMethodStateMachine* innerMethodStateMachine;
 
   /// This variable is incremented when a received message is discarded.
   int discardCount;
@@ -448,7 +456,8 @@ public:
 
   /// External event passed from switch.
   enum event {
-    EvSgIntegrityCheck=-1, // Integrity check
+    EvSgIntegrityCheck= (-1), // Integrity check
+    EvSgTunnelProcess = (-2), // Tunnel check
   };
 
   /// Call this function to get the reference to peer switch state
@@ -469,11 +478,19 @@ public:
   inline T& SwitchStateMachine(Type2Type<T>) 
   { return (T&)switchStateMachine; }
 
+  void SetIsInnerEapMethod(){
+	 isInnerEapMethod = true;
+  }
+  bool GetIsInnerEapMethod(){
+	  return isInnerEapMethod;
+  }
+
 protected:
   EapMethodStateMachine(EapSwitchStateMachine &s)
     : switchStateMachine(s), isDone(false)
   {
     keyData.resize(0);
+    isInnerEapMethod = false;
   }
 
 
@@ -484,6 +501,7 @@ protected:
   /// responsibility of each EAP method implementation to set this
   /// variable to an appropriate value when the method is done.
   bool isDone;
+  bool isInnerEapMethod;
 
   /// This variable stores the key.  It is the
   /// responsibility of each EAP method implementation to initialize

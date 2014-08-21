@@ -776,6 +776,7 @@ class PassThroughAuthAppFactory : public PANA_PaaSessionFactory
       PassThroughAuthAppFactory(EapTask &t) :
           PANA_PaaSessionFactory(t.node), task(t) { }
       PANA_PaaSession *Create() {
+		  std::cout<<"PassThroughAuthAppFactory create()\n";
          BackendAuthApplication *b = new BackendAuthApplication(task);
          PassThroughAuthApplication *p = new PassThroughAuthApplication
              (*this);
@@ -875,6 +876,7 @@ int main(int argc, char **argv)
 
   try {
     // Task starts with two threads in the thread pool.
+    std::cout<<"will begin task\n";
     task.Start(5);
   }
   catch (...) {

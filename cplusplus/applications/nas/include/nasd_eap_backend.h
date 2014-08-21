@@ -43,311 +43,312 @@
 #include "eap_md5.hxx"
 #include "eap_method_registrar.hxx"
 
-class NASD_EapBackendAuthGpskStateMachine : 
-      public EapAuthGpskStateMachine
-{
-     friend class EapMethodStateMachineCreator
-                  <NASD_EapBackendAuthGpskStateMachine>;
+class NASD_EapBackendAuthGpskStateMachine:public EapAuthGpskStateMachine {
+	friend class EapMethodStateMachineCreator
+	    < NASD_EapBackendAuthGpskStateMachine >;
 
-     typedef enum authParam_s{
-        DEFAULT_AUTH_PERIOD = 3600
-     } authParam_t;
+	typedef enum authParam_s {
+		DEFAULT_AUTH_PERIOD = 3600
+	} authParam_t;
 
-   public:
-     NASD_EapBackendAuthGpskStateMachine(EapSwitchStateMachine &s)
-        : EapAuthGpskStateMachine(s) {
-        
-        std::string name("local_eap_auth");
-        m_CfgData = (NASD_AaaLocalEapAuthData*)
-             NASD_AAAPROTO_TBL().Lookup(name);
-        if (m_CfgData == NULL) {
-            NASD_LOG(LM_ERROR, 
-              "(%P|%t) Diameter-EAP configuration entry not found\n");
-        }
-     }
-     std::string& InputSharedSecret() {
+ public:
+	 NASD_EapBackendAuthGpskStateMachine(EapSwitchStateMachine & s)
+	:EapAuthGpskStateMachine(s) {
 
-	static std::string sharedSecret = "";
-        if (sharedSecret.length() > 0) {
-	    	return sharedSecret;
-		  }
-        
-        if (m_CfgData) {
-            char sBuf[64];
-            ifstream secretFile(m_CfgData->Protocol().
-                                SharedSecretFile().data(), 
-                                ios::binary | ios::in);
-            if (secretFile.is_open()) {
-	        secretFile.read(sBuf, sizeof(sBuf));
-                secretFile.close();
-                sharedSecret.assign(sBuf, sizeof(sBuf));
-	    
-            } else {
-                NASD_LOG(LM_ERROR, 
-                   "(%P|%t) Failed to open shared-secret file [%s]\n",
-                         m_CfgData->Protocol().SharedSecretFile().data());
-            }
+		std::string name("local_eap_auth");
+		m_CfgData = (NASD_AaaLocalEapAuthData *)
+		    NASD_AAAPROTO_TBL().Lookup(name);
+		if (m_CfgData == NULL) {
+			NASD_LOG(LM_ERROR,
+				 "(%P|%t) Diameter-EAP configuration entry not found\n");
+		}
+	} std::string & InputSharedSecret() {
+
+		static std::string sharedSecret = "";
+		if (sharedSecret.length() > 0) {
+			return sharedSecret;
+		}
+
+		if (m_CfgData) {
+			char sBuf[64];
+			ifstream secretFile(m_CfgData->Protocol().
+					    SharedSecretFile().data(),
+					    ios::binary | ios::in);
+			if (secretFile.is_open()) {
+				secretFile.read(sBuf, sizeof(sBuf));
+				secretFile.close();
+				sharedSecret.assign(sBuf, sizeof(sBuf));
+
+			} else {
+				NASD_LOG(LM_ERROR,
+					 "(%P|%t) Failed to open shared-secret file [%s]\n",
+					 m_CfgData->Protocol().
+					 SharedSecretFile().data());
+			}
+		}
+		return sharedSecret;
 	}
-        return sharedSecret;
-     }
-     std::string& InputIdentity() {
+	std::string & InputIdentity() {
 
-	static std::string serverId = "";
-        if (serverId.length() > 0) {
-	    return serverId;
+		static std::string serverId = "";
+		if (serverId.length() > 0) {
+			return serverId;
+		}
+
+		if (m_CfgData) {
+			serverId = m_CfgData->Protocol().Identity();
+		}
+		return serverId;
 	}
-        
-        if (m_CfgData) {
-	    serverId = m_CfgData->Protocol().Identity();
-	}              
-        return serverId;
-     }
-     bool ValidatePeerIdentity(std::string& peer) {
-        if (m_CfgData) {
-	    	 return (m_CfgData->Protocol().Identity() == peer);
-		  }
-		  return false;
-     }
+	bool ValidatePeerIdentity(std::string & peer) {
+		if (m_CfgData) {
+			return (m_CfgData->Protocol().Identity() == peer);
+		}
+		return false;
+	}
 
-     bool IsPeerAuthorized(std::string& peer) {
-        return true;
-     }
-     
-   private:
-     virtual ~NASD_EapBackendAuthGpskStateMachine() {
-     } 
+	bool IsPeerAuthorized(std::string & peer) {
+		return true;
+	}
 
-     NASD_AaaLocalEapAuthData *m_CfgData;
+ private:
+	virtual ~ NASD_EapBackendAuthGpskStateMachine() {
+	}
+
+	NASD_AaaLocalEapAuthData *m_CfgData;
 };
 
-class NASD_EapBackendAuthMd5StateMachine : 
-      public EapAuthMD5ChallengeStateMachine
-{
-     friend class EapMethodStateMachineCreator
-                  <NASD_EapBackendAuthMd5StateMachine>;
+class NASD_EapBackendAuthMd5StateMachine:public EapAuthMD5ChallengeStateMachine {
+	friend class EapMethodStateMachineCreator
+	    < NASD_EapBackendAuthMd5StateMachine >;
 
-     typedef enum authParam_s{
-        DEFAULT_AUTH_PERIOD = 3600
-     } authParam_t;
+	typedef enum authParam_s {
+		DEFAULT_AUTH_PERIOD = 3600
+	} authParam_t;
 
-   public:
-     NASD_EapBackendAuthMd5StateMachine(EapSwitchStateMachine &s)
-        : EapAuthMD5ChallengeStateMachine(s) {
-        
-        std::string name("local_eap_auth");
-        m_CfgData = (NASD_AaaLocalEapAuthData*)
-             NASD_AAAPROTO_TBL().Lookup(name);
-        if (m_CfgData == NULL) {
-            NASD_LOG(LM_ERROR, 
-              "(%P|%t) Diameter-EAP configuration entry not found\n");
-        }
-     }
-     std::string& InputSharedSecret() {
+ public:
+	 NASD_EapBackendAuthMd5StateMachine(EapSwitchStateMachine & s)
+	:EapAuthMD5ChallengeStateMachine(s) {
 
-	static std::string sharedSecret = "";
-        if (sharedSecret.length() > 0) {
-	    return sharedSecret;
+		std::string name("local_eap_auth");
+		m_CfgData = (NASD_AaaLocalEapAuthData *)
+		    NASD_AAAPROTO_TBL().Lookup(name);
+		if (m_CfgData == NULL) {
+			NASD_LOG(LM_ERROR,
+				 "(%P|%t) Diameter-EAP configuration entry not found\n");
+		}
+	} std::string & InputSharedSecret() {
+
+		static std::string sharedSecret = "";
+		if (sharedSecret.length() > 0) {
+			return sharedSecret;
+		}
+
+		if (m_CfgData) {
+			char sBuf[64];
+			ifstream secretFile(m_CfgData->Protocol().
+					    SharedSecretFile().data(),
+					    ios::binary | ios::in);
+			if (secretFile.is_open()) {
+				secretFile.read(sBuf, sizeof(sBuf));
+				secretFile.close();
+				sharedSecret.assign(sBuf, sizeof(sBuf));
+
+			} else {
+				NASD_LOG(LM_ERROR,
+					 "(%P|%t) Failed to open shared-secret file [%s]\n",
+					 m_CfgData->Protocol().
+					 SharedSecretFile().data());
+			}
+		}
+		return sharedSecret;
 	}
-        
-        if (m_CfgData) {
-            char sBuf[64];
-            ifstream secretFile(m_CfgData->Protocol().
-                                SharedSecretFile().data(), 
-                                ios::binary | ios::in);
-            if (secretFile.is_open()) {
-	        secretFile.read(sBuf, sizeof(sBuf));
-                secretFile.close();
-                sharedSecret.assign(sBuf, sizeof(sBuf));
-	    
-            } else {
-                NASD_LOG(LM_ERROR, 
-                   "(%P|%t) Failed to open shared-secret file [%s]\n",
-                         m_CfgData->Protocol().SharedSecretFile().data());
-            }
+	void InputPassphrase() {
+		std::string & passphrase = Passphrase();
+		passphrase.assign("12345");
 	}
-        return sharedSecret;
-     }
-     void InputPassphrase()  {
-        std::string &passphrase = Passphrase();
-        passphrase.assign("12345");
-     }
-     std::string& InputIdentity() {
+	std::string & InputIdentity() {
 
-	static std::string serverId = "";
-        if (serverId.length() > 0) {
-	    return serverId;
+		static std::string serverId = "";
+		if (serverId.length() > 0) {
+			return serverId;
+		}
+
+		if (m_CfgData) {
+			serverId = m_CfgData->Protocol().Identity();
+		}
+		return serverId;
 	}
-        
-        if (m_CfgData) {
-	    serverId = m_CfgData->Protocol().Identity();
-	}              
-        return serverId;
-     }
-     
-   private:
-     virtual ~NASD_EapBackendAuthMd5StateMachine() {
-     } 
 
-     NASD_AaaLocalEapAuthData *m_CfgData;
+ private:
+	virtual ~ NASD_EapBackendAuthMd5StateMachine() {
+	}
+
+	NASD_AaaLocalEapAuthData *m_CfgData;
 };
 
-class NASD_EapBackendAuthSwitchStateMachine : 
-   public EapBackendAuthSwitchStateMachine
-{
-   public:
+class NASD_EapBackendAuthSwitchStateMachine:public
+    EapBackendAuthSwitchStateMachine {
+ public:
 
-      NASD_EapBackendAuthSwitchStateMachine
-             (ACE_Reactor &r, 
-              EapJobHandle& h,
-              NASD_CallNode &n) :
-          EapBackendAuthSwitchStateMachine(r, h),
-          m_Node(n),
-          m_GpskPolicy
-              (EapContinuedPolicyElement(EapType(GPSK_METHOD_TYPE))),
-          m_Md5Policy(EapContinuedPolicyElement(EapType(4))) {
-          Policy().InitialPolicyElement(&m_Md5Policy);
-          m_Md5Policy.AddContinuedPolicyElement
-              (&m_GpskPolicy, EapContinuedPolicyElement::PolicyOnFailure);
-               
-      }
-      void Send(AAAMessageBlock *b) {
-          m_Node.SendEgress(*b);
-      }
-      void ForwardResponse(AAAMessageBlock *b) {
-          m_Node.SendIngress(*b);
-      }
-      void Success(AAAMessageBlock *b) {
-          m_Node.PrevNode()->Success(b);
-      }
-      void Success() {
-          m_Node.PrevNode()->Success(0);
-      }
-      void Failure(AAAMessageBlock *b) {
-          m_Node.PrevNode()->Failure(b);
-      }
-      void Failure() {
-          m_Node.PrevNode()->Failure(0);
-      }
-      void Abort() {
-          m_Node.PrevNode()->Failure(0);
-      }
-      
-   private:
-      /// node reference
-      NASD_CallNode &m_Node;
-      
-      /// policy elements
-      EapContinuedPolicyElement m_GpskPolicy;
-      EapContinuedPolicyElement m_Md5Policy;
+	NASD_EapBackendAuthSwitchStateMachine
+	    (ACE_Reactor & r,
+	     EapJobHandle & h,
+	     NASD_CallNode & n):EapBackendAuthSwitchStateMachine(r, h),
+	    m_Node(n),
+	    m_GpskPolicy
+	    (EapContinuedPolicyElement(EapType(GPSK_METHOD_TYPE))),
+	    m_Md5Policy(EapContinuedPolicyElement(EapType(4))) {
+		Policy().InitialPolicyElement(&m_Md5Policy);
+		m_Md5Policy.AddContinuedPolicyElement
+		    (&m_GpskPolicy, EapContinuedPolicyElement::PolicyOnFailure);
+
+	} void Send(AAAMessageBlock * b) {
+		m_Node.SendEgress(*b);
+	}
+	void ForwardResponse(AAAMessageBlock * b) {
+		m_Node.SendIngress(*b);
+	}
+	void Success(AAAMessageBlock * b) {
+		m_Node.PrevNode()->Success(b);
+	}
+	void Success() {
+		m_Node.PrevNode()->Success(0);
+	}
+	void Failure(AAAMessageBlock * b) {
+		m_Node.PrevNode()->Failure(b);
+	}
+	void Failure() {
+		m_Node.PrevNode()->Failure(0);
+	}
+	void Abort() {
+		m_Node.PrevNode()->Failure(0);
+	}
+
+ private:
+	/// node reference
+	NASD_CallNode & m_Node;
+
+	/// policy elements
+	EapContinuedPolicyElement m_GpskPolicy;
+	EapContinuedPolicyElement m_Md5Policy;
 };
 
-class NASD_EapBackend : 
-   public NASD_CallNode
-{
-   public:
-      NASD_EapBackend(AAA_Task &t) : 
-         m_Task(t),
-         m_JobHandle(AAA_GroupedJob::Create
-            (t.Job(), this, (char *)"eap-backend")),
-         m_IsFirstMsg(true) {
-      }
-      virtual ~NASD_EapBackend() {
-	 Stop();
-         m_JobHandle->Stop();
-         m_JobHandle.reset();
-      }
-      int Start() {
-         if (m_Eap.get()) {
-             return (-1);
-         }
-         
-         m_MethodRegistrar.registerMethod
-             (std::string("Gpsk"), EapType(GPSK_METHOD_TYPE),
-               Authenticator, m_NasEapAuthGpskCreator);
+class NASD_EapBackend: public NASD_CallNode {
+ public:
+	NASD_EapBackend(AAA_Task & t):
+	    m_Task(t),
+	    m_JobHandle(AAA_GroupedJob::Create
+			(t.Job(), this, (char *)"eap-backend")),
+	    m_IsFirstMsg(true) {
+	} virtual ~ NASD_EapBackend() {
+		Stop();
+		m_JobHandle->Stop();
+		m_JobHandle.reset();
+	}
+	int Start() {
+		if (m_Eap.get()) {
+			return (-1);
+		}
 
-         m_MethodRegistrar.registerMethod
-             (std::string("MD5-Challenge"), EapType(4),
-               Authenticator, m_NasEapAuthMd5Creator);
+		m_MethodRegistrar.registerMethod
+		    (std::string("Gpsk"), EapType(GPSK_METHOD_TYPE),
+		     Authenticator, m_NasEapAuthGpskCreator);
 
-         m_Eap = boost::shared_ptr<NASD_EapBackendAuthSwitchStateMachine>
-                  (new NASD_EapBackendAuthSwitchStateMachine
-                      (*m_Task.reactor(), m_JobHandle, *this));
+		m_MethodRegistrar.registerMethod
+		    (std::string("MD5-Challenge"), EapType(4),
+		     Authenticator, m_NasEapAuthMd5Creator);
 
-         m_Eap->NeedInitialRequestToSend(false);
-         return (0);
-      }
-      bool IsRunning() {
-         return (m_Eap.get()) ? true : false;
-      }
-      void Stop() {
-         if (m_Eap.get()) {         
-             m_Eap->Stop();
-             m_Eap.reset();
-         }
-      }
-   protected:
-      bool CurrentKey(std::string &key) {
-         if (m_Eap->KeyAvailable()) {
-             NASD_LOG(LM_INFO, "(%P|%t) Assigning key\n");
-             key.assign(m_Eap->KeyData().data(), 
-                        m_Eap->KeyData().size());
-             return true;
-         }
-         return false;
-      }
-      bool Identity(std::string &ident) {
-         return false; // don't support
-      }
-      int ReceiveIngress(AAAMessageBlock &msg) {
-	 if (m_IsFirstMsg) {
-	     m_Eap->Start(&msg);
-             m_IsFirstMsg = false;
-	 }
-         else {
-	     m_Eap->Receive(&msg);
-	 }
-         return (0);
-      }
-      int ReceiveEgress(AAAMessageBlock &msg) {
-         return (-1);
-      }
-      void Success(AAAMessageBlock *msg = 0) {
-         if (msg) {
-             SendEgress(*msg);
-         }
-      }
-      void Failure(AAAMessageBlock *msg = 0) {
-         if (msg) {
-             SendEgress(*msg);
-         }
-      }
-      void Timeout() {
-         Stop();
-      }
-      void Error() {
-         Stop();
-      }
-   
-   private:
-      /// framework
-      AAA_Task &m_Task;
-      AAA_JobHandle<AAA_GroupedJob> m_JobHandle;
-      
-      /// eap instance
-      boost::shared_ptr<NASD_EapBackendAuthSwitchStateMachine> m_Eap;
-      
-      /// method creators
-      EapMethodRegistrar m_MethodRegistrar;
-      EapMethodStateMachineCreator<NASD_EapBackendAuthGpskStateMachine> 
-          m_NasEapAuthGpskCreator;
-      EapMethodStateMachineCreator<NASD_EapBackendAuthMd5StateMachine> 
-          m_NasEapAuthMd5Creator;
+		m_MethodRegistrar.registerMethod
+		    (std::string("Fast"), EapType(FAST_METHOD_TYPE),
+		     Authenticator, m_NasEapAuthFastCreator);
 
-      /// first message flag
-      bool m_IsFirstMsg;
+		m_MethodRegistrar.registerMethod
+		    (std::string("Tls"), EapType(TLS_METHOD_TYPE),
+		     Authenticator, m_NasEapAuthTlsCreator);
+
+		m_Eap =
+		    boost::shared_ptr < NASD_EapBackendAuthSwitchStateMachine >
+		    (new
+		     NASD_EapBackendAuthSwitchStateMachine(*m_Task.reactor(),
+							   m_JobHandle, *this));
+
+		m_Eap->NeedInitialRequestToSend(false);
+		return (0);
+	}
+	bool IsRunning() {
+		return (m_Eap.get())? true : false;
+	}
+	void Stop() {
+		if (m_Eap.get()) {
+			m_Eap->Stop();
+			m_Eap.reset();
+		}
+	}
+ protected:
+	bool CurrentKey(std::string & key) {
+		if (m_Eap->KeyAvailable()) {
+			NASD_LOG(LM_INFO, "(%P|%t) Assigning key\n");
+			key.assign(m_Eap->KeyData().data(),
+				   m_Eap->KeyData().size());
+			return true;
+		}
+		return false;
+	}
+	bool Identity(std::string & ident) {
+		return false;	// don't support
+	}
+	int ReceiveIngress(AAAMessageBlock & msg) {
+		if (m_IsFirstMsg) {
+			m_Eap->Start(&msg);
+			m_IsFirstMsg = false;
+		} else {
+			m_Eap->Receive(&msg);
+		}
+		return (0);
+	}
+	int ReceiveEgress(AAAMessageBlock & msg) {
+		printf("ReceiveEgress 3\n");
+		return (-1);
+	}
+	void Success(AAAMessageBlock * msg = 0) {
+		std::cout << "success in nasd_eap_backend.h\n";
+		if (msg) {
+			SendEgress(*msg);
+		}
+	}
+	void Failure(AAAMessageBlock * msg = 0) {
+		if (msg) {
+			SendEgress(*msg);
+		}
+	}
+	void Timeout() {
+		Stop();
+	}
+	void Error() {
+		Stop();
+	}
+
+ private:
+	/// framework
+	AAA_Task & m_Task;
+	AAA_JobHandle < AAA_GroupedJob > m_JobHandle;
+
+	/// eap instance
+	boost::shared_ptr < NASD_EapBackendAuthSwitchStateMachine > m_Eap;
+
+	/// method creators
+	EapMethodRegistrar m_MethodRegistrar;
+	EapMethodStateMachineCreator < NASD_EapBackendAuthGpskStateMachine >
+	    m_NasEapAuthGpskCreator;
+	EapMethodStateMachineCreator < NASD_EapBackendAuthMd5StateMachine >
+	    m_NasEapAuthMd5Creator;
+
+	/// first message flag
+	bool m_IsFirstMsg;
 };
 
-class NASD_EapBackendInitializer : 
+/* class NASD_EapBackendInitializer : 
     public NASD_CnInitCallback
 {
     public:
@@ -360,8 +361,6 @@ class NASD_EapBackendInitializer :
            return (new NASD_EapBackend(t));
 	}
 };
+* */
 
-#endif // __NASD_EAP_BACKEND_H__
-
-
-
+#endif				// __NASD_EAP_BACKEND_H__
