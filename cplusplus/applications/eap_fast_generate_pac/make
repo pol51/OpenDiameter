@@ -1,0 +1,14 @@
+rm -rf *.o 
+gcc -g -c aes.c
+gcc -g -c aes_wrap.c
+gcc -g -c os.c
+gcc -g -c eap_fast_generate_pac.c
+gcc -g -c main.c
+
+gcc -g aes.o aes_wrap.o os.o eap_fast_generate_pac.o main.o -o generate_pac
+
+rm -rf *.o
+
+
+
+
