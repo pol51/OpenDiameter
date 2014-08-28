@@ -62,7 +62,7 @@ static int eap_fast_write_pac(const char *pac_file, char *buf, size_t len)
 	// Copy over the buffer to a new temp buffer
 	uint8_t *tmpBuffer = malloc(len);
 	int i = 0;
-	for (i = 0; i < len; i++) {
+	for (i = 0; i <= len; i++) {
 		tmpBuffer[i] = buf[i];
 	}
 
@@ -76,7 +76,7 @@ static int eap_fast_write_pac(const char *pac_file, char *buf, size_t len)
 	printf("\tAttempting to close file\n");
 
 	fclose(f);
-	free(tmpBuffer);
+	//free(tmpBuffer);
 
 	printf("\tClosed file\n");
 
@@ -283,7 +283,7 @@ static int eap_fast_build_opaque(struct eap_fast_pac *pac,
 		return (-1);
 	}
 
-	os_free(pac_buf);
+	//os_free(pac_buf);
 
 	pac->pac_opaque_len = pac_buf_len + 8;
 
